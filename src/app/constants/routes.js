@@ -30,4 +30,34 @@ export const ROUTES = {
   utilitiesA11y: '/utilities/a11y',
   utilitiesRelease: '/utilities/release',
   utilitiesTests: '/utilities/tests'
+,
+  // Phase 4 — Accounting
+  accountingCoa: '/accounting/coa',
+  accountingCoaNew: '/accounting/coa/new',
+  accountingCoaDetail: (id = ':id') => `/accounting/coa/${id}`,
+  accountingCoaEdit: (id = ':id') => `/accounting/coa/${id}/edit`,
+
+  accountingPeriods: '/accounting/periods',
+  accountingPeriodClose: (id = ':id') => `/accounting/periods/${id}/close`,
+
+  accountingJournals: '/accounting/journals',
+  accountingJournalNew: '/accounting/journals/new',
+  accountingJournalDetail: (id = ':id') => `/accounting/journals/${id}`,
+
+  accountingTrialBalance: '/accounting/balances/trial-balance',
+  accountingAccountActivity: '/accounting/balances/account-activity',
+
+  accountingPnL: '/accounting/statements/pnl',
+  accountingBalanceSheet: '/accounting/statements/balance-sheet',
+  accountingCashflow: '/accounting/statements/cash-flow',
+  accountingChangesEquity: '/accounting/statements/changes-in-equity',
+
+  accountingExports: '/accounting/exports',
+  accountingImports: '/accounting/imports',
+  accountingFx: '/accounting/fx',
+  accountingTax: '/accounting/tax',
+  accountingAccruals: '/accounting/accruals',
+  accountingAccrualNew: '/accounting/accruals/new',
+  accountingReconciliation: '/accounting/reconciliation'
+
 };

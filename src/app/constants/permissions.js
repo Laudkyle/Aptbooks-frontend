@@ -25,5 +25,10 @@ export const PERMISSIONS = {
   i18nRead: 'utilities.i18n.read',
   a11yRead: 'utilities.a11y.read',
   releaseRead: 'utilities.release.read',
-  testsRun: 'utilities.tests.run'
+  testsRun: 'utilities.tests.run',
+
+  // Accounting Phase 4
+  taxRead: 'tax.read',
+  taxManage: 'tax.manage',
+  periodForceClose: 'accounting.period.force_close'
 };

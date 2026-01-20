@@ -9,7 +9,18 @@ import {
   Settings,
   KeyRound,
   Sliders,
-  Activity
+  Activity,
+  BookOpen,
+  CalendarClock,
+  FileText,
+  Scale,
+  BarChart3,
+  ArrowLeftRight,
+  Percent,
+  Repeat,
+  Download,
+  Upload,
+  Merge
 } from 'lucide-react';
 import clsx from 'clsx';
 import { ROUTES } from '../../../app/constants/routes.js';
@@ -49,6 +60,23 @@ export function SideNav() {
           <Item to={ROUTES.search} icon={Search} label={sidebarOpen ? 'Search' : ''} />
           <Item to={ROUTES.notifications} icon={Bell} label={sidebarOpen ? 'Inbox' : ''} />
           <Item to={ROUTES.approvalsInbox} icon={Shield} label={sidebarOpen ? 'Approvals' : ''} />
+        </nav>
+
+        <div className="px-2 pt-4 text-xs font-semibold text-slate-500">ACCOUNTING</div>
+        <nav className="space-y-1">
+          <Item to={ROUTES.accountingCoa} icon={BookOpen} label={sidebarOpen ? 'Chart of Accounts' : ''} />
+          <Item to={ROUTES.accountingPeriods} icon={CalendarClock} label={sidebarOpen ? 'Periods' : ''} />
+          <Item to={ROUTES.accountingJournals} icon={FileText} label={sidebarOpen ? 'Journals' : ''} />
+          <Item to={ROUTES.accountingTrialBalance} icon={Scale} label={sidebarOpen ? 'Trial Balance' : ''} />
+          <Item to={ROUTES.accountingPnL} icon={BarChart3} label={sidebarOpen ? 'Statements' : ''} />
+          <Item to={ROUTES.accountingFx} icon={ArrowLeftRight} label={sidebarOpen ? 'FX' : ''} />
+          <PermissionGate any={[PERMISSIONS.taxRead]} fallback={null}>
+            <Item to={ROUTES.accountingTax} icon={Percent} label={sidebarOpen ? 'Tax' : ''} />
+          </PermissionGate>
+          <Item to={ROUTES.accountingAccruals} icon={Repeat} label={sidebarOpen ? 'Accruals' : ''} />
+          <Item to={ROUTES.accountingImports} icon={Upload} label={sidebarOpen ? 'Imports' : ''} />
+          <Item to={ROUTES.accountingExports} icon={Download} label={sidebarOpen ? 'Exports' : ''} />
+          <Item to={ROUTES.accountingReconciliation} icon={Merge} label={sidebarOpen ? 'Reconciliation' : ''} />
         </nav>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.usersRead, PERMISSIONS.rbacRolesRead]} fallback={null}>

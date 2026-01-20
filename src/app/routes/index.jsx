@@ -38,6 +38,37 @@ const A11yChecks = lazy(() => import('../../features/utilities/pages/A11yChecks.
 const ReleaseInfo = lazy(() => import('../../features/utilities/pages/ReleaseInfo.jsx'));
 const TestConsole = lazy(() => import('../../features/utilities/pages/TestConsole.jsx'));
 
+// Phase 4 — Accounting
+const AccountList = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountList.jsx'));
+const AccountCreate = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx'));
+const AccountDetail = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountDetail.jsx'));
+
+const PeriodList = lazy(() => import('../../features/accounting/periods/pages/PeriodList.jsx'));
+const PeriodClose = lazy(() => import('../../features/accounting/periods/pages/PeriodClose.jsx'));
+
+const JournalList = lazy(() => import('../../features/accounting/journals/pages/JournalList.jsx'));
+const JournalCreate = lazy(() => import('../../features/accounting/journals/pages/JournalCreate.jsx'));
+const JournalDetail = lazy(() => import('../../features/accounting/journals/pages/JournalDetail.jsx'));
+
+const TrialBalance = lazy(() => import('../../features/accounting/balances/pages/TrialBalance.jsx'));
+const BalanceByAccount = lazy(() => import('../../features/accounting/balances/pages/BalanceByAccount.jsx'));
+
+const PnL = lazy(() => import('../../features/accounting/statements/pages/PnL.jsx'));
+const BalanceSheet = lazy(() => import('../../features/accounting/statements/pages/BalanceSheet.jsx'));
+const Cashflow = lazy(() => import('../../features/accounting/statements/pages/Cashflow.jsx'));
+const ChangesInEquity = lazy(() => import('../../features/accounting/statements/pages/ChangesInEquity.jsx'));
+
+const ExportsHub = lazy(() => import('../../features/accounting/exports/pages/ExportsHub.jsx'));
+const ImportsHub = lazy(() => import('../../features/accounting/imports/pages/ImportsHub.jsx'));
+
+const FxRates = lazy(() => import('../../features/accounting/fx/pages/FxRates.jsx'));
+const TaxAdmin = lazy(() => import('../../features/accounting/tax/pages/TaxAdmin.jsx'));
+
+const AccrualsHub = lazy(() => import('../../features/accounting/accruals/pages/AccrualsHub.jsx'));
+const AccrualCreate = lazy(() => import('../../features/accounting/accruals/pages/AccrualCreate.jsx'));
+
+const Reconciliation = lazy(() => import('../../features/accounting/reconciliation/pages/Reconciliation.jsx'));
+
 function Loader() {
   return (
     <div className="p-4 text-sm text-slate-600">
@@ -130,7 +161,197 @@ export const router = createBrowserRouter([
             )
           },
 
-          // Admin
+          
+          // Phase 4 — Accounting
+          {
+            path: ROUTES.accountingCoa,
+            element: (
+              <Lazy>
+                <AccountList />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingCoaNew,
+            element: (
+              <Lazy>
+                <AccountCreate />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingCoaDetail(),
+            element: (
+              <Lazy>
+                <AccountDetail />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingCoaEdit(),
+            element: (
+              <Lazy>
+                <AccountDetail mode="edit" />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingPeriods,
+            element: (
+              <Lazy>
+                <PeriodList />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingPeriodClose(),
+            element: (
+              <Lazy>
+                <PeriodClose />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingJournals,
+            element: (
+              <Lazy>
+                <JournalList />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingJournalNew,
+            element: (
+              <Lazy>
+                <JournalCreate />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingJournalDetail(),
+            element: (
+              <Lazy>
+                <JournalDetail />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingTrialBalance,
+            element: (
+              <Lazy>
+                <TrialBalance />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingAccountActivity,
+            element: (
+              <Lazy>
+                <BalanceByAccount />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingPnL,
+            element: (
+              <Lazy>
+                <PnL />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingBalanceSheet,
+            element: (
+              <Lazy>
+                <BalanceSheet />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingCashflow,
+            element: (
+              <Lazy>
+                <Cashflow />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingChangesEquity,
+            element: (
+              <Lazy>
+                <ChangesInEquity />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingExports,
+            element: (
+              <Lazy>
+                <ExportsHub />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingImports,
+            element: (
+              <Lazy>
+                <ImportsHub />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingFx,
+            element: (
+              <Lazy>
+                <FxRates />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingTax,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <TaxAdmin />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          {
+            path: ROUTES.accountingAccruals,
+            element: (
+              <Lazy>
+                <AccrualsHub />
+              </Lazy>
+            )
+          },
+          {
+            path: ROUTES.accountingAccrualNew,
+            element: (
+              <Lazy>
+                <AccrualCreate />
+              </Lazy>
+            )
+          },
+
+          {
+            path: ROUTES.accountingReconciliation,
+            element: (
+              <Lazy>
+                <Reconciliation />
+              </Lazy>
+            )
+          },
+
+// Admin
           {
             path: ROUTES.adminOrg,
             element: (

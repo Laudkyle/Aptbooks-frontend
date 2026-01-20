@@ -80,6 +80,96 @@ export const endpoints = {
     }
   },
 
+
+accounting: {
+  accounts: {
+    list: (qs) => `/core/accounting/accounts?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: '/core/accounting/accounts',
+    detail: (id) => `/core/accounting/accounts/${id}`,
+    update: (id) => `/core/accounting/accounts/${id}`,
+    archive: (id) => `/core/accounting/accounts/${id}/archive`
+  },
+  periods: {
+    list: '/core/accounting/periods',
+    current: '/core/accounting/periods/current',
+    create: '/core/accounting/periods',
+    closePreview: (id) => `/core/accounting/periods/${id}/close-preview`,
+    close: (id) => `/core/accounting/periods/${id}/close`,
+    reopen: (id) => `/core/accounting/periods/${id}/reopen`,
+    lock: (id) => `/core/accounting/periods/${id}/lock`,
+    unlock: (id) => `/core/accounting/periods/${id}/unlock`,
+    rollForward: (id) => `/core/accounting/periods/${id}/roll-forward`
+  },
+  journals: {
+    list: (qs) => `/core/accounting/journals?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: '/core/accounting/journals',
+    detail: (id) => `/core/accounting/journals/${id}`,
+    update: (id) => `/core/accounting/journals/${id}`,
+    replaceLines: (id) => `/core/accounting/journals/${id}/lines`,
+    addLine: (id) => `/core/accounting/journals/${id}/lines`,
+    updateLine: (id, lineNo) => `/core/accounting/journals/${id}/lines/${lineNo}`,
+    deleteLine: (id, lineNo) => `/core/accounting/journals/${id}/lines/${lineNo}`,
+    submit: (id) => `/core/accounting/journals/${id}/submit`,
+    approve: (id) => `/core/accounting/journals/${id}/approve`,
+    reject: (id) => `/core/accounting/journals/${id}/reject`,
+    cancel: (id) => `/core/accounting/journals/${id}/cancel`,
+    post: (id) => `/core/accounting/journals/${id}/post`,
+    batchPost: '/core/accounting/journals/batch/post',
+    void: (id) => `/core/accounting/journals/${id}/void`
+  },
+  balances: {
+    trialBalance: (qs) => `/core/accounting/balances/trial-balance?${new URLSearchParams(qs ?? {}).toString()}`,
+    gl: (qs) => `/core/accounting/balances/gl?${new URLSearchParams(qs ?? {}).toString()}`,
+    accountActivity: (qs) => `/core/accounting/balances/account-activity?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  statements: {
+    trialBalance: (qs) => `/core/accounting/statements/trial-balance?${new URLSearchParams(qs ?? {}).toString()}`,
+    incomeStatement: (qs) => `/core/accounting/statements/income-statement?${new URLSearchParams(qs ?? {}).toString()}`,
+    balanceSheet: (qs) => `/core/accounting/statements/balance-sheet?${new URLSearchParams(qs ?? {}).toString()}`,
+    cashFlow: (qs) => `/core/accounting/statements/cash-flow?${new URLSearchParams(qs ?? {}).toString()}`,
+    changesInEquity: (qs) => `/core/accounting/statements/changes-in-equity?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  exports: {
+    trialBalance: (qs) => `/core/accounting/exports/trial-balance?${new URLSearchParams(qs ?? {}).toString()}`,
+    generalLedger: (qs) => `/core/accounting/exports/general-ledger?${new URLSearchParams(qs ?? {}).toString()}`,
+    accountActivity: (qs) => `/core/accounting/exports/account-activity?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  imports: {
+    coa: (qs) => `/core/accounting/imports/coa?${new URLSearchParams(qs ?? {}).toString()}`,
+    journals: (qs) => `/core/accounting/imports/journals?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  fx: {
+    rateTypes: '/core/accounting/fx/rate-types',
+    createRateType: '/core/accounting/fx/rate-types',
+    rates: (qs) => `/core/accounting/fx/rates?${new URLSearchParams(qs ?? {}).toString()}`,
+    upsertRate: '/core/accounting/fx/rates',
+    effectiveRate: (qs) => `/core/accounting/fx/rates/effective?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  reconciliation: {
+    period: (qs) => `/core/accounting/reconciliation/period?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  tax: {
+    jurisdictions: '/core/accounting/tax/jurisdictions',
+    jurisdictionUpdate: (id) => `/core/accounting/tax/jurisdictions/${id}`,
+    jurisdictionDelete: (id) => `/core/accounting/tax/jurisdictions/${id}`,
+    codes: (qs) => `/core/accounting/tax/codes?${new URLSearchParams(qs ?? {}).toString()}`,
+    codeUpdate: (id) => `/core/accounting/tax/codes/${id}`,
+    codeDelete: (id) => `/core/accounting/tax/codes/${id}`,
+    settingsGet: '/core/accounting/tax/settings',
+    settingsPut: '/core/accounting/tax/settings'
+  },
+  accruals: {
+    rules: '/core/accounting/accruals',
+    ruleDetail: (id) => `/core/accounting/accruals/${id}`,
+    createRule: '/core/accounting/accruals',
+    runDue: '/core/accounting/accruals/run/due',
+    runReversals: '/core/accounting/accruals/run/reversals',
+    runPeriodEnd: '/core/accounting/accruals/run/period-end',
+    runs: (qs) => `/core/accounting/accruals/runs?${new URLSearchParams(qs ?? {}).toString()}`,
+    runDetail: (runId) => `/core/accounting/accruals/runs/${runId}`
+  }
+},
+
   search: (qs) => `/search?${new URLSearchParams(qs ?? {}).toString()}`,
 
   workflow: {
