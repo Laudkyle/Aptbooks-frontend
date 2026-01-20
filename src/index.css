@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-deep: #002D44;
+  --color-brand-primary: #0088C3;
+  --color-brand-light: #00A3E0;
+  --color-bg-main: #F8FAFC;
+  --color-text-body: #1A202C;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--color-bg-main);
+  color: var(--color-text-body);
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Utility focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-brand-light);
+  outline-offset: 2px;
+}
