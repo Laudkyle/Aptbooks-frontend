@@ -28,18 +28,19 @@ import { PERMISSIONS } from '../../../app/constants/permissions.js';
 import { uiStore } from '../../../app/store/ui.store.js';
 import { PermissionGate } from '../../../app/routes/route-guards.jsx';
 
-const linkBase = 'flex items-center gap-2 rounded-md px-3 py-2 text-sm';
-const linkActive = 'bg-slate-100 text-brand-deep font-medium';
-const linkIdle = 'text-slate-700 hover:bg-slate-50';
+const linkBase = 'group flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition';
+const linkActive = 'bg-brand-primary/10 text-brand-deep font-semibold ring-1 ring-brand-primary/20';
+const linkIdle = 'text-slate-700 hover:bg-slate-900/5';
 
-function Item({ to, icon: Icon, label }) {
+function Item({ to, icon: Icon, label, collapsed }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) => clsx(linkBase, isActive ? linkActive : linkIdle)}
+      title={collapsed ? label : undefined}
     >
-      <Icon className="h-4 w-4" />
-      <span className="truncate">{label}</span>
+      <Icon className="h-4 w-4 text-slate-500 group-hover:text-slate-700" />
+      {collapsed ? <span className="sr-only">{label}</span> : <span className="truncate">{label}</span>}
     </NavLink>
   );
 }
@@ -49,56 +50,62 @@ export function SideNav() {
   return (
     <aside
       className={clsx(
-        'h-full border-r border-slate-200 bg-white transition-all',
+        'relative h-full border-r border-border-subtle bg-white/70 backdrop-blur transition-all',
         sidebarOpen ? 'w-64' : 'w-16'
       )}
     >
-      <div className="flex h-full flex-col gap-4 p-3">
-        <div className="px-2 pt-2 text-xs font-semibold text-slate-500">CORE</div>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-brand-primary/10 to-transparent" />
+      <div className="relative flex h-full flex-col gap-4 p-3">
+        <div className={clsx('flex items-center gap-2 px-2 pt-2', !sidebarOpen && 'justify-center')}>
+          <div className="h-9 w-9 rounded-xl bg-brand-primary/15 ring-1 ring-brand-primary/20" />
+          {sidebarOpen ? <div className="text-sm font-semibold text-brand-deep">AptBooks</div> : null}
+        </div>
+
+        <div className={clsx('px-2 pt-2 text-xs font-semibold tracking-wide text-slate-500', !sidebarOpen && 'text-center')}>CORE</div>
         <nav className="space-y-1">
-          <Item to={ROUTES.dashboard} icon={LayoutDashboard} label={sidebarOpen ? 'Dashboard' : ''} />
-          <Item to={ROUTES.search} icon={Search} label={sidebarOpen ? 'Search' : ''} />
-          <Item to={ROUTES.notifications} icon={Bell} label={sidebarOpen ? 'Inbox' : ''} />
-          <Item to={ROUTES.approvalsInbox} icon={Shield} label={sidebarOpen ? 'Approvals' : ''} />
+          <Item to={ROUTES.dashboard} icon={LayoutDashboard} label="Dashboard" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.search} icon={Search} label="Search" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.notifications} icon={Bell} label="Inbox" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.approvalsInbox} icon={Shield} label="Approvals" collapsed={!sidebarOpen} />
         </nav>
 
         <div className="px-2 pt-4 text-xs font-semibold text-slate-500">ACCOUNTING</div>
         <nav className="space-y-1">
-          <Item to={ROUTES.accountingCoa} icon={BookOpen} label={sidebarOpen ? 'Chart of Accounts' : ''} />
-          <Item to={ROUTES.accountingPeriods} icon={CalendarClock} label={sidebarOpen ? 'Periods' : ''} />
-          <Item to={ROUTES.accountingJournals} icon={FileText} label={sidebarOpen ? 'Journals' : ''} />
-          <Item to={ROUTES.accountingTrialBalance} icon={Scale} label={sidebarOpen ? 'Trial Balance' : ''} />
-          <Item to={ROUTES.accountingPnL} icon={BarChart3} label={sidebarOpen ? 'Statements' : ''} />
-          <Item to={ROUTES.accountingFx} icon={ArrowLeftRight} label={sidebarOpen ? 'FX' : ''} />
+          <Item to={ROUTES.accountingCoa} icon={BookOpen} label="Chart of Accounts" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingPeriods} icon={CalendarClock} label="Periods" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingJournals} icon={FileText} label="Journals" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingTrialBalance} icon={Scale} label="Trial Balance" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingPnL} icon={BarChart3} label="Statements" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingFx} icon={ArrowLeftRight} label="FX" collapsed={!sidebarOpen} />
           <PermissionGate any={[PERMISSIONS.taxRead]} fallback={null}>
-            <Item to={ROUTES.accountingTax} icon={Percent} label={sidebarOpen ? 'Tax' : ''} />
+            <Item to={ROUTES.accountingTax} icon={Percent} label="Tax" collapsed={!sidebarOpen} />
           </PermissionGate>
-          <Item to={ROUTES.accountingAccruals} icon={Repeat} label={sidebarOpen ? 'Accruals' : ''} />
-          <Item to={ROUTES.accountingImports} icon={Upload} label={sidebarOpen ? 'Imports' : ''} />
-          <Item to={ROUTES.accountingExports} icon={Download} label={sidebarOpen ? 'Exports' : ''} />
-          <Item to={ROUTES.accountingReconciliation} icon={Merge} label={sidebarOpen ? 'Reconciliation' : ''} />
+          <Item to={ROUTES.accountingAccruals} icon={Repeat} label="Accruals" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingImports} icon={Upload} label="Imports" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingExports} icon={Download} label="Exports" collapsed={!sidebarOpen} />
+          <Item to={ROUTES.accountingReconciliation} icon={Merge} label="Reconciliation" collapsed={!sidebarOpen} />
         </nav>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.usersRead, PERMISSIONS.rbacRolesRead]} fallback={null}>
           <div className="px-2 pt-4 text-xs font-semibold text-slate-500">ADMIN</div>
           <nav className="space-y-1">
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
-              <Item to={ROUTES.adminOrg} icon={Sliders} label={sidebarOpen ? 'Organization' : ''} />
+              <Item to={ROUTES.adminOrg} icon={Sliders} label="Organization" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.usersRead]}>
-              <Item to={ROUTES.adminUsers} icon={Users} label={sidebarOpen ? 'Users' : ''} />
+              <Item to={ROUTES.adminUsers} icon={Users} label="Users" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacPermissionsRead]}>
-              <Item to={ROUTES.adminRoles} icon={Shield} label={sidebarOpen ? 'Roles' : ''} />
+              <Item to={ROUTES.adminRoles} icon={Shield} label="Roles" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
-              <Item to={ROUTES.adminSettings} icon={Settings} label={sidebarOpen ? 'Settings' : ''} />
+              <Item to={ROUTES.adminSettings} icon={Settings} label="Settings" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.dimensionSecurityRead]}>
-              <Item to={ROUTES.adminDimensionSecurity} icon={Shield} label={sidebarOpen ? 'Dimension Security' : ''} />
+              <Item to={ROUTES.adminDimensionSecurity} icon={Shield} label="Dimension Security" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
-              <Item to={ROUTES.adminApiKeys} icon={KeyRound} label={sidebarOpen ? 'API Keys' : ''} />
+              <Item to={ROUTES.adminApiKeys} icon={KeyRound} label="API Keys" collapsed={!sidebarOpen} />
             </PermissionGate>
           </nav>
         </PermissionGate>
@@ -107,24 +114,24 @@ export function SideNav() {
           <div className="px-2 pt-4 text-xs font-semibold text-slate-500">UTILITIES</div>
           <nav className="space-y-1">
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
-              <Item to={ROUTES.utilitiesHealth} icon={Activity} label={sidebarOpen ? 'Health' : ''} />
-              <Item to={ROUTES.utilitiesScheduler} icon={Activity} label={sidebarOpen ? 'Scheduler' : ''} />
-              <Item to={ROUTES.utilitiesErrors} icon={Activity} label={sidebarOpen ? 'Errors' : ''} />
+              <Item to={ROUTES.utilitiesHealth} icon={Activity} label="Health" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.utilitiesScheduler} icon={Activity} label="Scheduler" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.utilitiesErrors} icon={Activity} label="Errors" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.clientLogsRead]}>
-              <Item to={ROUTES.utilitiesClientLogs} icon={Activity} label={sidebarOpen ? 'Client Logs' : ''} />
+              <Item to={ROUTES.utilitiesClientLogs} icon={Activity} label="Client Logs" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.i18nRead]}>
-              <Item to={ROUTES.utilitiesI18n} icon={Activity} label={sidebarOpen ? 'i18n' : ''} />
+              <Item to={ROUTES.utilitiesI18n} icon={Activity} label="i18n" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.a11yRead]}>
-              <Item to={ROUTES.utilitiesA11y} icon={Activity} label={sidebarOpen ? 'A11y' : ''} />
+              <Item to={ROUTES.utilitiesA11y} icon={Activity} label="A11y" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.releaseRead]}>
-              <Item to={ROUTES.utilitiesRelease} icon={Activity} label={sidebarOpen ? 'Release' : ''} />
+              <Item to={ROUTES.utilitiesRelease} icon={Activity} label="Release" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.testsRun]}>
-              <Item to={ROUTES.utilitiesTests} icon={Activity} label={sidebarOpen ? 'Tests' : ''} />
+              <Item to={ROUTES.utilitiesTests} icon={Activity} label="Tests" collapsed={!sidebarOpen} />
             </PermissionGate>
           </nav>
         </PermissionGate>

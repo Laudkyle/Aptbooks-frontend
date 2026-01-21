@@ -13,7 +13,7 @@ export function DataTable({
 }) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-3">
+      <div className="app-card p-4">
         <Skeleton className="h-6 w-40" />
         <div className="mt-3 space-y-2">
           <Skeleton className="h-10 w-full" />
@@ -26,7 +26,7 @@ export function DataTable({
 
   if (!rows || rows.length === 0) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-10 text-center">
+      <div className="app-card p-10 text-center">
         <div className="mx-auto max-w-md">
           <div className="text-base font-semibold text-brand-deep">{emptyTitle}</div>
           <div className="mt-1 text-sm text-slate-600">{emptyDescription}</div>
@@ -36,7 +36,7 @@ export function DataTable({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
+    <div className="app-card">
       <Table columns={columns} rows={rows} keyField={keyField} onRowClick={onRowClick} />
     </div>
   );
