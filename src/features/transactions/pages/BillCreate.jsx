@@ -12,7 +12,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function BillCreate() {
   const navigate = useNavigate();

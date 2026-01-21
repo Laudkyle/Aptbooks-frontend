@@ -11,7 +11,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function DebitNoteCreate() {
   const navigate = useNavigate();

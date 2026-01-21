@@ -14,13 +14,13 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function PaymentConfig() {
   const { http } = useApi();
   const api = useMemo(() => makePaymentConfigApi(http), [http]);
   const qc = useQueryClient();
-
+const toast = useToast();
   const { data: terms, isLoading: termsLoading } = useQuery({
     queryKey: qk.paymentTerms,
     queryFn: () => api.listPaymentTerms()

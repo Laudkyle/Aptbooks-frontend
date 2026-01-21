@@ -15,7 +15,7 @@ import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function InvoiceDetail() {
   const { id } = useParams();

@@ -16,13 +16,13 @@ import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CollectionsHub() {
   const { http } = useApi();
   const api = useMemo(() => makeCollectionsApi(http), [http]);
   const qc = useQueryClient();
-
+const toast = useToast();
   // Queue
   const [asOfDate, setAsOfDate] = useState('');
   const [minDaysPastDue, setMinDaysPastDue] = useState('1');

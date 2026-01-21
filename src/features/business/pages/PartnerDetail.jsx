@@ -17,7 +17,7 @@ import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 function SectionTitle({ icon: Icon, title, subtitle }) {
   return (

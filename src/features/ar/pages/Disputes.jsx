@@ -16,12 +16,13 @@ import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { toast } from '../../../shared/components/ui/Toast.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function Disputes() {
   const { http } = useApi();
   const api = useMemo(() => makeDisputesApi(http), [http]);
   const qc = useQueryClient();
+const toast = useToast();
 
   const [status, setStatus] = useState('');
   const qs = useMemo(() => (status ? { status } : {}), [status]);
