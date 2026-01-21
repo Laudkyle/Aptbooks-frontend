@@ -82,4 +82,29 @@ export const qk = {
   reportTaxVatReturn: (qs) => ['reports', 'tax', 'vatReturn', qs ?? {}],
   reportTaxReturns: (qs) => ['reports', 'tax', 'returns', qs ?? {}]
 
+,
+  // Phase 6 — Assets
+  assetCategories: ['assets', 'categories'],
+  assetCategory: (id) => ['assets', 'categories', id],
+  fixedAssets: (qs) => ['assets', 'fixedAssets', qs ?? {}],
+  fixedAsset: (id) => ['assets', 'fixedAssets', id],
+  depreciationSchedules: (qs) => ['assets', 'depreciation', 'schedules', qs ?? {}],
+  depreciationSchedule: (id) => ['assets', 'depreciation', 'schedules', id],
+  depreciationPreview: (periodId) => ['assets', 'depreciation', 'preview', periodId],
+
+  // Phase 6 — Inventory
+  inventoryCategories: ['inventory', 'categories'],
+  inventoryCategory: (id) => ['inventory', 'categories', id],
+  inventoryUnits: ['inventory', 'units'],
+  inventoryItems: ['inventory', 'items'],
+  inventoryItem: (id) => ['inventory', 'items', id],
+  inventoryWarehouses: ['inventory', 'warehouses'],
+  inventoryTransactions: (qs) => ['inventory', 'transactions', qs ?? {}],
+  inventoryTransaction: (id) => ['inventory', 'transactions', id],
+  inventoryCostMethod: ['inventory', 'transactions', 'costMethod'],
+  stockCounts: (qs) => ['inventory', 'stockCounts', qs ?? {}],
+  stockCount: (id) => ['inventory', 'stockCounts', id],
+  inventoryValuationReport: (qs) => ['inventory', 'reports', 'valuation', qs ?? {}],
+  inventoryMovementsReport: (qs) => ['inventory', 'reports', 'movements', qs ?? {}]
+
 };
