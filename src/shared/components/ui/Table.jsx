@@ -7,7 +7,7 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
   // 2) Convenience: provide columns + rows
   const hasConvenience = Array.isArray(columns) && Array.isArray(rows);
   return (
-    <div className={clsx('w-full overflow-x-auto rounded-2xl border border-border-subtle bg-white shadow-sm', className)}>
+    <div className={clsx('w-full overflow-x-auto', className)}>
       <table className="w-full border-collapse text-sm">
         {hasConvenience ? (
           <>
@@ -50,7 +50,11 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
 }
 
 export function THead({ children }) {
-  return <thead className="bg-slate-900/5 text-slate-700">{children}</thead>;
+  return (
+    <thead className="sticky top-0 z-10 bg-white/80 text-slate-700 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      {children}
+    </thead>
+  );
 }
 
 export function TBody({ children }) {
@@ -60,7 +64,10 @@ export function TBody({ children }) {
 export function TH({ className, children, ...props }) {
   return (
     <th
-      className={clsx('px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-600', className)}
+      className={clsx(
+        'px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500',
+        className
+      )}
       {...props}
     >
       {children}

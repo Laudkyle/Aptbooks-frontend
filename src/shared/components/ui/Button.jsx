@@ -9,14 +9,28 @@ export function Button({
   children,
   ...props
 }) {
-  const base = 'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-all focus:outline-none focus:ring-2 focus:ring-brand-light/60 focus:ring-offset-2 focus:ring-offset-bg-main disabled:pointer-events-none disabled:opacity-50';
+  // Visual-only component: keep behaviour stable, improve density and polish.
+  const base =
+    'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all ' +
+    'focus:outline-none focus:ring-2 focus:ring-brand-light/60 focus:ring-offset-2 focus:ring-offset-bg-main ' +
+    'disabled:pointer-events-none disabled:opacity-50 select-none';
   const variants = {
-    primary: 'bg-brand-primary text-white shadow-sm hover:shadow-soft hover:bg-brand-light active:scale-[0.99]',
-    secondary: 'bg-white text-brand-deep border border-border-subtle shadow-sm hover:bg-slate-50 active:scale-[0.99]',
-    outline: 'bg-transparent text-brand-deep border border-border-subtle hover:bg-white/70',
-    ghost: 'bg-transparent text-brand-deep hover:bg-slate-100',
-    subtle: 'bg-slate-900/5 text-brand-deep hover:bg-slate-900/10',
-    danger: 'bg-status-danger text-white shadow-sm hover:brightness-110 active:scale-[0.99]'
+    primary:
+      'bg-brand-primary text-white shadow-sm ring-1 ring-brand-primary/25 ' +
+      'hover:bg-brand-light hover:shadow-soft active:translate-y-[0.5px] active:shadow-sm',
+    secondary:
+      'bg-white/80 text-brand-deep border border-border-subtle shadow-sm ' +
+      'hover:bg-white hover:shadow-soft active:translate-y-[0.5px] active:shadow-sm',
+    outline:
+      'bg-transparent text-brand-deep border border-border-subtle ' +
+      'hover:bg-white/70 hover:border-slate-300/70 active:bg-white/80',
+    ghost: 'bg-transparent text-brand-deep hover:bg-slate-900/5 active:bg-slate-900/10',
+    subtle:
+      'bg-slate-900/5 text-brand-deep ring-1 ring-transparent ' +
+      'hover:bg-slate-900/10 hover:ring-slate-900/5',
+    danger:
+      'bg-status-danger text-white shadow-sm ring-1 ring-red-500/30 ' +
+      'hover:brightness-110 active:translate-y-[0.5px] active:shadow-sm'
   };
   const sizes = {
     sm: 'h-8 px-3 text-xs',

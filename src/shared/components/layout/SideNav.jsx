@@ -28,8 +28,12 @@ import { PERMISSIONS } from '../../../app/constants/permissions.js';
 import { uiStore } from '../../../app/store/ui.store.js';
 import { PermissionGate } from '../../../app/routes/route-guards.jsx';
 
-const linkBase = 'group flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition';
-const linkActive = 'bg-brand-primary/10 text-brand-deep font-semibold ring-1 ring-brand-primary/20';
+const linkBase =
+  'group relative flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/50';
+const linkActive =
+  'bg-brand-primary/10 text-brand-deep font-semibold ring-1 ring-brand-primary/20 ' +
+  'before:absolute before:left-1 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-brand-primary';
 const linkIdle = 'text-slate-700 hover:bg-slate-900/5';
 
 function Item({ to, icon: Icon, label, collapsed }) {
@@ -57,11 +61,16 @@ export function SideNav() {
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-brand-primary/10 to-transparent" />
       <div className="relative flex h-full flex-col gap-4 p-3">
         <div className={clsx('flex items-center gap-2 px-2 pt-2', !sidebarOpen && 'justify-center')}>
-          <div className="h-9 w-9 rounded-xl bg-brand-primary/15 ring-1 ring-brand-primary/20" />
-          {sidebarOpen ? <div className="text-sm font-semibold text-brand-deep">AptBooks</div> : null}
+          <div className="h-9 w-9 rounded-xl bg-brand-primary/15 ring-1 ring-brand-primary/20 shadow-sm" />
+          {sidebarOpen ? (
+            <div>
+              <div className="text-sm font-semibold text-brand-deep leading-none">AptBooks</div>
+              <div className="mt-0.5 text-[11px] text-slate-500 leading-none">Accounting</div>
+            </div>
+          ) : null}
         </div>
 
-        <div className={clsx('px-2 pt-2 text-xs font-semibold tracking-wide text-slate-500', !sidebarOpen && 'text-center')}>CORE</div>
+        <div className={clsx('px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500', !sidebarOpen && 'text-center')}>CORE</div>
         <nav className="space-y-1">
           <Item to={ROUTES.dashboard} icon={LayoutDashboard} label="Dashboard" collapsed={!sidebarOpen} />
           <Item to={ROUTES.search} icon={Search} label="Search" collapsed={!sidebarOpen} />
@@ -69,7 +78,10 @@ export function SideNav() {
           <Item to={ROUTES.approvalsInbox} icon={Shield} label="Approvals" collapsed={!sidebarOpen} />
         </nav>
 
-        <div className="px-2 pt-4 text-xs font-semibold text-slate-500">ACCOUNTING</div>
+        <div className="px-2 pt-2">
+          <div className="h-px w-full bg-border-subtle" />
+        </div>
+        <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">ACCOUNTING</div>
         <nav className="space-y-1">
           <Item to={ROUTES.accountingCoa} icon={BookOpen} label="Chart of Accounts" collapsed={!sidebarOpen} />
           <Item to={ROUTES.accountingPeriods} icon={CalendarClock} label="Periods" collapsed={!sidebarOpen} />
@@ -87,7 +99,10 @@ export function SideNav() {
         </nav>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.usersRead, PERMISSIONS.rbacRolesRead]} fallback={null}>
-          <div className="px-2 pt-4 text-xs font-semibold text-slate-500">ADMIN</div>
+          <div className="px-2 pt-2">
+            <div className="h-px w-full bg-border-subtle" />
+          </div>
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">ADMIN</div>
           <nav className="space-y-1">
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
               <Item to={ROUTES.adminOrg} icon={Sliders} label="Organization" collapsed={!sidebarOpen} />
@@ -111,7 +126,10 @@ export function SideNav() {
         </PermissionGate>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.clientLogsRead, PERMISSIONS.releaseRead]} fallback={null}>
-          <div className="px-2 pt-4 text-xs font-semibold text-slate-500">UTILITIES</div>
+          <div className="px-2 pt-2">
+            <div className="h-px w-full bg-border-subtle" />
+          </div>
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">UTILITIES</div>
           <nav className="space-y-1">
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
               <Item to={ROUTES.utilitiesHealth} icon={Activity} label="Health" collapsed={!sidebarOpen} />

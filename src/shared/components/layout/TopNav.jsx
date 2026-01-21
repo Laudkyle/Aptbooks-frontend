@@ -13,7 +13,7 @@ export function TopNav() {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1/70 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           <Button variant="subtle" size="sm" onClick={toggleSidebar} aria-label="Toggle sidebar">

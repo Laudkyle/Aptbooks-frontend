@@ -4,16 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Brand palette (mapped to CSS variables so you can theme without rebuild)
         brand: {
-          deep: 'var(--color-brand-deep)',
-          primary: 'var(--color-brand-primary)',
-          light: 'var(--color-brand-light)'
+          deep: 'rgb(var(--brand-deep-rgb) / <alpha-value>)',
+          primary: 'rgb(var(--brand-primary-rgb) / <alpha-value>)',
+          light: 'rgb(var(--brand-light-rgb) / <alpha-value>)'
+        },
+        // App surfaces / borders (used heavily across layouts)
+        surface: {
+          1: 'var(--app-surface)',
+          2: 'var(--app-surface-weak)'
+        },
+        border: {
+          subtle: 'var(--app-border)'
         },
         bg: {
-          main: 'var(--color-bg-main)'
+          main: 'rgb(var(--bg-main-rgb) / <alpha-value>)'
         },
         text: {
-          body: 'var(--color-text-body)'
+          body: 'rgb(var(--text-body-rgb) / <alpha-value>)'
         }
       }
     }
