@@ -182,6 +182,149 @@ accounting: {
     system: '/health/system'
   },
 
+modules: {
+  business: {
+    partners: {
+      list: (qs) => `/modules/business/partners?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/business/partners',
+      detail: (id) => `/modules/business/partners/${id}`,
+      update: (id) => `/modules/business/partners/${id}`,
+      creditPolicy: (id) => `/modules/business/partners/${id}/credit-policy`,
+      contacts: (id) => `/modules/business/partners/${id}/contacts`,
+      contact: (id, contactId) => `/modules/business/partners/${id}/contacts/${contactId}`,
+      addresses: (id) => `/modules/business/partners/${id}/addresses`,
+      address: (id, addressId) => `/modules/business/partners/${id}/addresses/${addressId}`
+    },
+    paymentConfig: {
+      paymentTerms: '/modules/business/payment-config/payment-terms',
+      paymentTerm: (id) => `/modules/business/payment-config/payment-terms/${id}`,
+      paymentMethods: '/modules/business/payment-config/payment-methods',
+      paymentSettings: '/modules/business/payment-config/payment-settings'
+    }
+  },
+  transactions: {
+    invoices: {
+      list: (qs) => `/modules/transactions/invoices?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/invoices',
+      detail: (id) => `/modules/transactions/invoices/${id}`,
+      submitForApproval: (id) => `/modules/transactions/invoices/${id}/submit-for-approval`,
+      approve: (id) => `/modules/transactions/invoices/${id}/approve`,
+      reject: (id) => `/modules/transactions/invoices/${id}/reject`,
+      issue: (id) => `/modules/transactions/invoices/${id}/issue`,
+      void: (id) => `/modules/transactions/invoices/${id}/void`
+    },
+    bills: {
+      list: (qs) => `/modules/transactions/bills?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/bills',
+      detail: (id) => `/modules/transactions/bills/${id}`,
+      submitForApproval: (id) => `/modules/transactions/bills/${id}/submit-for-approval`,
+      approve: (id) => `/modules/transactions/bills/${id}/approve`,
+      reject: (id) => `/modules/transactions/bills/${id}/reject`,
+      issue: (id) => `/modules/transactions/bills/${id}/issue`,
+      void: (id) => `/modules/transactions/bills/${id}/void`
+    },
+    customerReceipts: {
+      list: (qs) => `/modules/transactions/customer-receipts?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/customer-receipts',
+      detail: (id) => `/modules/transactions/customer-receipts/${id}`,
+      autoAllocate: (id) => `/modules/transactions/customer-receipts/${id}/auto-allocate`,
+      reallocate: (id) => `/modules/transactions/customer-receipts/${id}/reallocate`,
+      post: (id) => `/modules/transactions/customer-receipts/${id}/post`,
+      void: (id) => `/modules/transactions/customer-receipts/${id}/void`
+    },
+    vendorPayments: {
+      list: (qs) => `/modules/transactions/vendor-payments?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/vendor-payments',
+      detail: (id) => `/modules/transactions/vendor-payments/${id}`,
+      autoAllocate: (id) => `/modules/transactions/vendor-payments/${id}/auto-allocate`,
+      reallocate: (id) => `/modules/transactions/vendor-payments/${id}/reallocate`,
+      post: (id) => `/modules/transactions/vendor-payments/${id}/post`,
+      void: (id) => `/modules/transactions/vendor-payments/${id}/void`
+    },
+    creditNotes: {
+      list: (qs) => `/modules/transactions/credit-notes?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/credit-notes',
+      detail: (id) => `/modules/transactions/credit-notes/${id}`,
+      issue: (id) => `/modules/transactions/credit-notes/${id}/issue`,
+      apply: (id) => `/modules/transactions/credit-notes/${id}/apply`,
+      void: (id) => `/modules/transactions/credit-notes/${id}/void`
+    },
+    debitNotes: {
+      list: (qs) => `/modules/transactions/debit-notes?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/modules/transactions/debit-notes',
+      detail: (id) => `/modules/transactions/debit-notes/${id}`,
+      issue: (id) => `/modules/transactions/debit-notes/${id}/issue`,
+      apply: (id) => `/modules/transactions/debit-notes/${id}/apply`,
+      void: (id) => `/modules/transactions/debit-notes/${id}/void`
+    }
+  },
+  ar: {
+    collections: {
+      queue: (qs) => `/modules/ar/collections/queue?${new URLSearchParams(qs ?? {}).toString()}`,
+      queuePartner: (partnerId, qs) => `/modules/ar/collections/queue/${partnerId}?${new URLSearchParams(qs ?? {}).toString()}`,
+      dunningTemplates: '/modules/ar/collections/dunning/templates',
+      dunningTemplate: (id) => `/modules/ar/collections/dunning/templates/${id}`,
+      dunningRules: '/modules/ar/collections/dunning/rules',
+      dunningRule: (id) => `/modules/ar/collections/dunning/rules/${id}`,
+      cases: (qs) => `/modules/ar/collections/cases?${new URLSearchParams(qs ?? {}).toString()}`,
+      case: (id) => `/modules/ar/collections/cases/${id}`,
+      caseActions: (id) => `/modules/ar/collections/cases/${id}/actions`,
+      dunningRuns: '/modules/ar/collections/dunning/runs',
+      dunningRun: (id) => `/modules/ar/collections/dunning/runs/${id}`
+    },
+    disputes: {
+      reasonCodes: '/modules/ar/disputes/reason-codes',
+      reasonCode: (code) => `/modules/ar/disputes/reason-codes/${code}`,
+      list: (qs) => `/modules/ar/disputes?${new URLSearchParams(qs ?? {}).toString()}`,
+      detail: (id) => `/modules/ar/disputes/${id}`,
+      create: '/modules/ar/disputes',
+      actions: (id) => `/modules/ar/disputes/${id}/actions`,
+      resolve: (id) => `/modules/ar/disputes/${id}/resolve`,
+      void: (id) => `/modules/ar/disputes/${id}/void`
+    },
+    writeoffs: {
+      reasonCodes: '/modules/ar/writeoffs/reason-codes',
+      reasonCode: (code) => `/modules/ar/writeoffs/reason-codes/${code}`,
+      settings: '/modules/ar/writeoffs/settings',
+      list: (qs) => `/modules/ar/writeoffs?${new URLSearchParams(qs ?? {}).toString()}`,
+      detail: (id) => `/modules/ar/writeoffs/${id}`,
+      create: '/modules/ar/writeoffs',
+      submit: (id) => `/modules/ar/writeoffs/${id}/submit`,
+      approve: (id) => `/modules/ar/writeoffs/${id}/approve`,
+      reject: (id) => `/modules/ar/writeoffs/${id}/reject`,
+      post: (id) => `/modules/ar/writeoffs/${id}/post`,
+      void: (id) => `/modules/ar/writeoffs/${id}/void`
+    },
+    paymentPlans: {
+      list: (qs) => `/modules/ar/payment-plans?${new URLSearchParams(qs ?? {}).toString()}`,
+      detail: (id) => `/modules/ar/payment-plans/${id}`,
+      create: '/modules/ar/payment-plans',
+      cancel: (id) => `/modules/ar/payment-plans/${id}/cancel`,
+      markInstallmentPaid: (id, installmentId) =>
+        `/modules/ar/payment-plans/${id}/installments/${installmentId}/mark-paid`
+    }
+  }
+},
+
+reporting: {
+  ar: {
+    agedReceivables: (qs) => `/reporting/ar/aged-receivables?${new URLSearchParams(qs ?? {}).toString()}`,
+    openItems: (qs) => `/reporting/ar/open-items?${new URLSearchParams(qs ?? {}).toString()}`,
+    customerStatement: (qs) => `/reporting/ar/customer-statement?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  ap: {
+    agedPayables: (qs) => `/reporting/ap/aged-payables?${new URLSearchParams(qs ?? {}).toString()}`,
+    openItems: (qs) => `/reporting/ap/open-items?${new URLSearchParams(qs ?? {}).toString()}`,
+    vendorStatement: (qs) => `/reporting/ap/vendor-statement?${new URLSearchParams(qs ?? {}).toString()}`
+  },
+  tax: {
+    vatSummary: (qs) => `/reporting/tax/vat-summary?${new URLSearchParams(qs ?? {}).toString()}`,
+    vatReturn: (qs) => `/reporting/tax/vat-return?${new URLSearchParams(qs ?? {}).toString()}`,
+    returns: (qs) => `/reporting/tax/returns?${new URLSearchParams(qs ?? {}).toString()}`
+  }
+},
+
+
   utilities: {
     scheduledTasks: '/utilities/scheduled-tasks',
     scheduledTaskToggle: (code, status) => `/utilities/scheduled-tasks/${code}/${status}/toggle`,

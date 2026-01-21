@@ -1,53 +1,49 @@
 import React from 'react';
 import clsx from 'clsx';
+import { Loader2 } from 'lucide-react';
+
+const variants = {
+  primary:
+    'bg-brand-primary text-white hover:bg-brand-light shadow-sm shadow-brand-primary/20 ring-1 ring-brand-primary/20',
+  outline:
+    'border border-border-subtle bg-white/70 text-slate-900 hover:bg-slate-900/5 shadow-sm',
+  ghost: 'bg-transparent text-slate-900 hover:bg-slate-900/5',
+  subtle: 'bg-slate-900/5 text-slate-900 hover:bg-slate-900/10',
+  danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm shadow-red-500/20 ring-1 ring-red-500/20'
+};
+
+const sizes = {
+  sm: 'h-9 px-3 text-sm rounded-xl',
+  md: 'h-10 px-4 text-sm rounded-xl',
+  lg: 'h-11 px-5 text-sm rounded-2xl'
+};
 
 export function Button({
   variant = 'primary',
   size = 'md',
   loading = false,
+  disabled,
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
   className,
   children,
   ...props
 }) {
-  // Visual-only component: keep behaviour stable, improve density and polish.
-  const base =
-    'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all ' +
-    'focus:outline-none focus:ring-2 focus:ring-brand-light/60 focus:ring-offset-2 focus:ring-offset-bg-main ' +
-    'disabled:pointer-events-none disabled:opacity-50 select-none';
-  const variants = {
-    primary:
-      'bg-brand-primary text-white shadow-sm ring-1 ring-brand-primary/25 ' +
-      'hover:bg-brand-light hover:shadow-soft active:translate-y-[0.5px] active:shadow-sm',
-    secondary:
-      'bg-white/80 text-brand-deep border border-border-subtle shadow-sm ' +
-      'hover:bg-white hover:shadow-soft active:translate-y-[0.5px] active:shadow-sm',
-    outline:
-      'bg-transparent text-brand-deep border border-border-subtle ' +
-      'hover:bg-white/70 hover:border-slate-300/70 active:bg-white/80',
-    ghost: 'bg-transparent text-brand-deep hover:bg-slate-900/5 active:bg-slate-900/10',
-    subtle:
-      'bg-slate-900/5 text-brand-deep ring-1 ring-transparent ' +
-      'hover:bg-slate-900/10 hover:ring-slate-900/5',
-    danger:
-      'bg-status-danger text-white shadow-sm ring-1 ring-red-500/30 ' +
-      'hover:brightness-110 active:translate-y-[0.5px] active:shadow-sm'
-  };
-  const sizes = {
-    sm: 'h-8 px-3 text-xs',
-    md: 'h-10 px-4 text-sm',
-    lg: 'h-12 px-5 text-base'
-  };
+  const isDisabled = disabled || loading;
   return (
     <button
-      className={clsx(base, variants[variant], sizes[size], className)}
+      disabled={isDisabled}
+      className={clsx(
+        'inline-flex items-center justify-center gap-2 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/30 disabled:cursor-not-allowed disabled:opacity-60',
+        variants[variant],
+        sizes[size],
+        className
+      )}
       {...props}
-      aria-busy={loading || undefined}
-      disabled={loading || props.disabled}
     >
-      {loading ? (
-        <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-      ) : null}
-      {children}
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : LeftIcon ? <LeftIcon className="h-4 w-4" /> : null}
+      <span className="truncate">{children}</span>
+      {!loading && RightIcon ? <RightIcon className="h-4 w-4" /> : null}
     </button>
   );
 }

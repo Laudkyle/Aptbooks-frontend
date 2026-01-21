@@ -1,23 +1,52 @@
 /* Tailwind v4 entrypoint */
 @import "tailwindcss";
 
+@theme {
+  /* Brand colors - using rgb format for opacity modifiers */
+  --color-brand-deep: rgb(0 45 68);
+  --color-brand-primary: rgb(0 136 195);
+  --color-brand-light: rgb(0 163 224);
+  
+  /* Background colors */
+  --color-bg-main: rgb(248 250 252);
+  
+  /* Text colors */
+  --color-text-body: rgb(26 32 44);
+  
+  /* Border colors */
+  --color-border-subtle: rgba(15, 23, 42, 0.10);
+  
+  /* Surface colors */
+  --color-surface-1: rgba(255, 255, 255, 0.92);
+  --color-surface-2: rgba(255, 255, 255, 0.70);
+  
+  /* Custom shadows */
+  --shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
+  --shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16);
+  
+  /* Custom animations */
+  --animate-fadeIn: appFadeIn 180ms ease-out both;
+  --animate-slideUp: appSlideUp 220ms ease-out both;
+}
+
 /* Project semantic helpers (uses @layer + @apply) */
 @import "./shared/styles/tailwind-helpers.css";
 
 :root {
+  /* Legacy CSS variable references (kept for any direct var() usage) */
   --color-brand-deep: #002D44;
   --color-brand-primary: #0088C3;
   --color-brand-light: #00A3E0;
   --color-bg-main: #F8FAFC;
   --color-text-body: #1A202C;
-
-  /* RGB triplets (Tailwind opacity modifiers require rgb() channels) */
+  
+  /* RGB triplets (for any legacy usage) */
   --brand-deep-rgb: 0 45 68;
   --brand-primary-rgb: 0 136 195;
   --brand-light-rgb: 0 163 224;
   --bg-main-rgb: 248 250 252;
   --text-body-rgb: 26 32 44;
-
+  
   /* Neutral UI tokens */
   --app-surface: rgba(255, 255, 255, 0.92);
   --app-surface-weak: rgba(255, 255, 255, 0.70);
@@ -37,7 +66,7 @@ body {
   color: var(--color-text-body);
 }
 
-/* Motion + shadows (fallbacks) */
+/* Motion animations */
 @keyframes appFadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
@@ -47,12 +76,6 @@ body {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.animate-fadeIn { animation: appFadeIn 180ms ease-out both; }
-.animate-slideUp { animation: appSlideUp 220ms ease-out both; }
-
-.shadow-soft { box-shadow: var(--app-shadow-soft); }
-.shadow-lift { box-shadow: var(--app-shadow-lift); }
 
 ::selection {
   background: rgba(0, 163, 224, 0.22);
@@ -70,93 +93,4 @@ a { color: inherit; text-decoration: none; }
 :focus-visible {
   outline: 2px solid var(--color-brand-light);
   outline-offset: 2px;
-}
-
-/* Semantic helpers live in ./shared/styles/tailwind-helpers.css */
-/* App semantic helpers (avoid @apply to keep Tailwind v4 build happy) */
-.app-surface {
-  border-radius: 1.25rem;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
-}
-
-.app-card {
-  border-radius: 1.25rem;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
-  overflow: hidden;
-}
-
-.app-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.70);
-  padding: 1rem 1.25rem;
-  backdrop-filter: blur(10px);
-}
-
-.app-card-body {
-  padding: 1rem 1.25rem;
-}
-
-.app-card-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-brand-deep);
-}
-
-.app-page {
-  display: block;
-}
-
-.app-page > * + * {
-  margin-top: 1rem;
-}
-
-.app-kpi {
-  border-radius: 1.25rem;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
-  padding: 1rem;
-}
-
-.app-kpi-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgb(71 85 105);
-}
-
-.app-kpi-value {
-  margin-top: 0.5rem;
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-brand-deep);
-}
-
-.app-divider {
-  margin: 1rem 0;
-  height: 1px;
-  width: 100%;
-  background: rgba(15, 23, 42, 0.10);
-}
-
-.app-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(15, 23, 42, 0.10);
-  background: rgba(255,255,255,0.70);
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgb(51 65 85);
 }

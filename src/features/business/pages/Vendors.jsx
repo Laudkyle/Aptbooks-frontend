@@ -1,0 +1,109 @@
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Plus, Users } from 'lucide-react';
+
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makePartnersApi } from '../api/partners.api.js';
+import { ROUTES } from '../../../app/constants/routes.js';
+
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+
+export default function Vendors() {
+  const { http } = useApi();
+  const api = useMemo(() => makePartnersApi(http), [http]);
+
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState('');
+
+  const query = useMemo(() => ({ type: 'vendor', status: status || undefined, q: q || undefined }), [q, status]);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: qk.partners(query),
+    queryFn: () => api.list(query)
+  });
+
+  const rows = Array.isArray(data) ? data : data?.data ?? [];
+
+  const columns = useMemo(
+    () => [
+      {
+        header: 'Name',
+        render: (r) => (
+          <div className="flex flex-col">
+            <Link to={ROUTES.businessPartnerDetail(r.id)} className="font-medium text-brand-deep hover:underline">
+              {r.name ?? '—'}
+            </Link>
+            <div className="text-xs text-slate-500">{r.email ?? r.phone ?? ''}</div>
+          </div>
+        )
+      },
+      { header: 'Code', render: (r) => <span className="text-sm text-slate-700">{r.code ?? '—'}</span> },
+      {
+        header: 'Status',
+        render: (r) => <Badge tone={(r.status ?? 'active') === 'active' ? 'success' : 'muted'}>{r.status ?? 'active'}</Badge>
+      }
+    ],
+    []
+  );
+
+  return (
+    <div className="space-y-4">
+      <PageHeader
+        title="Vendors"
+        subtitle="Manage vendor master data, credit policy, contacts and addresses."
+        icon={Users}
+        actions={
+          <Button leftIcon={Plus} variant="primary">
+            New vendor
+          </Button>
+        }
+      />
+
+      <ContentCard>
+        <FilterBar
+          left={
+            <div className="grid gap-3 md:grid-cols-3">
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, code, email…" label="Search" />
+              <Select
+                label="Status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                options={[
+                  { value: '', label: 'All' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'inactive', label: 'Inactive' }
+                ]}
+              />
+              <div className="hidden md:block" />
+            </div>
+          }
+          right={
+            <div className="text-xs text-slate-500">
+              {error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}
+            </div>
+          }
+        />
+        <div className="mt-3">
+          <DataTable
+            columns={columns}
+            rows={rows}
+            isLoading={isLoading}
+            empty={{
+              title: 'No vendors yet',
+              description: 'Create your first vendor to start invoicing and collections.'
+            }}
+          />
+        </div>
+      </ContentCard>
+    </div>
+  );
+}

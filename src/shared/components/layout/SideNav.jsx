@@ -20,7 +20,18 @@ import {
   Repeat,
   Download,
   Upload,
-  Merge
+  Merge,
+  Briefcase,
+  HandCoins,
+  ReceiptText,
+  FileMinus,
+  FilePlus2,
+  Wallet,
+  Landmark,
+  ClipboardList,
+  LineChart,
+  MailWarning,
+  BadgeDollarSign
 } from 'lucide-react';
 import clsx from 'clsx';
 import { ROUTES } from '../../../app/constants/routes.js';
@@ -97,6 +108,82 @@ export function SideNav() {
           <Item to={ROUTES.accountingExports} icon={Download} label="Exports" collapsed={!sidebarOpen} />
           <Item to={ROUTES.accountingReconciliation} icon={Merge} label="Reconciliation" collapsed={!sidebarOpen} />
         </nav>
+
+        <PermissionGate any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage, PERMISSIONS.transactionsInvoiceRead, PERMISSIONS.transactionsBillRead, PERMISSIONS.collectionsRead, PERMISSIONS.reportingArRead]} fallback={null}>
+          <div className="px-2 pt-2">
+            <div className="h-px w-full bg-border-subtle" />
+          </div>
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">OPERATIONS</div>
+
+          <PermissionGate any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage, PERMISSIONS.paymentConfigManage]}>
+            <div className="mt-2 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">BUSINESS</div>
+            <nav className="mt-1 space-y-1">
+              <Item to={ROUTES.businessCustomers} icon={Briefcase} label="Customers" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.businessVendors} icon={Briefcase} label="Vendors" collapsed={!sidebarOpen} />
+              <PermissionGate any={[PERMISSIONS.paymentConfigManage, PERMISSIONS.partnersRead]}>
+                <Item to={ROUTES.businessPaymentConfig} icon={Sliders} label="Payment Config" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+
+          <PermissionGate any={[PERMISSIONS.transactionsInvoiceRead, PERMISSIONS.transactionsInvoiceManage, PERMISSIONS.transactionsBillRead, PERMISSIONS.transactionsBillManage, PERMISSIONS.customerReceiptRead, PERMISSIONS.vendorPaymentRead, PERMISSIONS.creditNoteRead, PERMISSIONS.debitNoteRead]}>
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">TRANSACTIONS</div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.transactionsInvoiceRead, PERMISSIONS.transactionsInvoiceManage]}>
+                <Item to={ROUTES.invoices} icon={ReceiptText} label="Invoices" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.transactionsBillRead, PERMISSIONS.transactionsBillManage]}>
+                <Item to={ROUTES.bills} icon={FileText} label="Bills" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.customerReceiptRead, PERMISSIONS.customerReceiptManage]}>
+                <Item to={ROUTES.customerReceipts} icon={HandCoins} label="Customer Receipts" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.vendorPaymentRead, PERMISSIONS.vendorPaymentManage]}>
+                <Item to={ROUTES.vendorPayments} icon={Wallet} label="Vendor Payments" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.creditNoteRead, PERMISSIONS.creditNoteManage]}>
+                <Item to={ROUTES.creditNotes} icon={FileMinus} label="Credit Notes" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.debitNoteRead, PERMISSIONS.debitNoteManage]}>
+                <Item to={ROUTES.debitNotes} icon={FilePlus2} label="Debit Notes" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+
+          <PermissionGate any={[PERMISSIONS.collectionsRead, PERMISSIONS.disputesRead, PERMISSIONS.writeoffsRead, PERMISSIONS.paymentPlansRead]}>
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">AR OPS</div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.collectionsRead, PERMISSIONS.collectionsManage]}>
+                <Item to={ROUTES.arCollections} icon={ClipboardList} label="Collections" collapsed={!sidebarOpen} />
+                <Item to={ROUTES.arDunning} icon={MailWarning} label="Dunning" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.disputesRead, PERMISSIONS.disputesManage]}>
+                <Item to={ROUTES.arDisputes} icon={Shield} label="Disputes" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.writeoffsRead, PERMISSIONS.writeoffsManage]}>
+                <Item to={ROUTES.arWriteoffs} icon={BadgeDollarSign} label="Write-offs" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.paymentPlansRead, PERMISSIONS.paymentPlansManage]}>
+                <Item to={ROUTES.arPaymentPlans} icon={Landmark} label="Payment Plans" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+
+          <PermissionGate any={[PERMISSIONS.reportingArRead, PERMISSIONS.reportingApRead, PERMISSIONS.reportingTaxRead]}>
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">REPORTING</div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.reportingArRead]}>
+                <Item to={ROUTES.reportArAging} icon={LineChart} label="AR Aging" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingApRead]}>
+                <Item to={ROUTES.reportApAging} icon={LineChart} label="AP Aging" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingTaxRead]}>
+                <Item to={ROUTES.reportTax} icon={Percent} label="Tax Reports" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+        </PermissionGate>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.usersRead, PERMISSIONS.rbacRolesRead]} fallback={null}>
           <div className="px-2 pt-2">

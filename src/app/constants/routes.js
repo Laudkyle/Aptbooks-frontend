@@ -60,4 +60,52 @@ export const ROUTES = {
   accountingAccrualNew: '/accounting/accruals/new',
   accountingReconciliation: '/accounting/reconciliation'
 
+,
+  // Phase 5 — Business (Partners) & Payment Config
+  businessCustomers: '/business/customers',
+  businessVendors: '/business/vendors',
+  businessPartnerDetail: (id=':id') => `/business/partners/${id}`,
+  businessPaymentConfig: '/business/payment-config',
+
+  // Phase 5 — Transactions (AR/AP)
+  invoices: '/transactions/invoices',
+  invoiceNew: '/transactions/invoices/new',
+  invoiceDetail: (id=':id') => `/transactions/invoices/${id}`,
+
+  bills: '/transactions/bills',
+  billNew: '/transactions/bills/new',
+  billDetail: (id=':id') => `/transactions/bills/${id}`,
+
+  customerReceipts: '/transactions/customer-receipts',
+  customerReceiptNew: '/transactions/customer-receipts/new',
+  customerReceiptDetail: (id=':id') => `/transactions/customer-receipts/${id}`,
+
+  vendorPayments: '/transactions/vendor-payments',
+  vendorPaymentNew: '/transactions/vendor-payments/new',
+  vendorPaymentDetail: (id=':id') => `/transactions/vendor-payments/${id}`,
+
+  creditNotes: '/transactions/credit-notes',
+  creditNoteNew: '/transactions/credit-notes/new',
+  creditNoteDetail: (id=':id') => `/transactions/credit-notes/${id}`,
+
+  debitNotes: '/transactions/debit-notes',
+  debitNoteNew: '/transactions/debit-notes/new',
+  debitNoteDetail: (id=':id') => `/transactions/debit-notes/${id}`,
+
+  // Phase 5 — AR Ops
+  arCollections: '/ar/collections',
+  arDisputes: '/ar/disputes',
+  arWriteoffs: '/ar/writeoffs',
+  arPaymentPlans: '/ar/payment-plans',
+  arDunning: '/ar/dunning',
+
+  // Phase 5 — Reporting (AR/AP/Tax)
+  reportArAging: '/reports/ar/aging',
+  reportArOpenItems: '/reports/ar/open-items',
+  reportArCustomerStatement: '/reports/ar/customer-statement',
+  reportApAging: '/reports/ap/aging',
+  reportApOpenItems: '/reports/ap/open-items',
+  reportApVendorStatement: '/reports/ap/vendor-statement',
+  reportTax: '/reports/tax'
+
 };

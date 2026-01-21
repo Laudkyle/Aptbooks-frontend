@@ -1,0 +1,65 @@
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { LineChart, Download } from 'lucide-react';
+
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeReportingApi } from '../api/reporting.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { ReportShell } from './_ReportShell.jsx';
+
+function rowsFrom(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.rows)) return data.rows;
+  return [];
+}
+
+export default function ReportApAging() {
+  const { http } = useApi();
+  const api = useMemo(() => makeReportingApi(http), [http]);
+
+  const [asOfDate, setAsOfDate] = useState('');
+  const [bucketSetId, setBucketSetId] = useState('');
+
+  const qs = useMemo(
+    () => ({ asOfDate: asOfDate || undefined, bucketSetId: bucketSetId || undefined }),
+    [asOfDate, bucketSetId]
+  );
+
+  const { data, isLoading, refetch } = useQuery({ queryKey: qk.reportApAging(qs), queryFn: () => api.ap.agedPayables(qs) });
+  const rows = rowsFrom(data);
+
+  const columns = useMemo(() => {
+    const keys = rows[0] ? Object.keys(rows[0]) : ['vendor', 'total'];
+    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
+  }, [rows]);
+
+  return (
+    <div className="space-y-4">
+      <PageHeader title="AP Aging" subtitle="Aged payables snapshot by vendor." icon={LineChart} />
+
+      <ReportShell
+        filters={
+          <>
+            <Input label="As of date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)} placeholder="YYYY-MM-DD" />
+            <Input label="Bucket set" value={bucketSetId} onChange={(e) => setBucketSetId(e.target.value)} placeholder="bucketSetId" />
+          </>
+        }
+        right={
+          <Button variant="outline" leftIcon={Download} onClick={() => refetch()}>
+            Refresh
+          </Button>
+        }
+        footer={<JsonPanel title="Raw response" value={data ?? {}} />}
+      >
+        <DataTable columns={columns} rows={rows} loading={isLoading} empty={{ title: 'No data', description: 'Adjust filters and refresh.' }} />
+      </ReportShell>
+    </div>
+  );
+}

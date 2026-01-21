@@ -1,0 +1,84 @@
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { ArrowLeft, FileMinus2 } from 'lucide-react';
+
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeCreditNotesApi } from '../api/creditNotes.api.js';
+import { ROUTES } from '../../../app/constants/routes.js';
+
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { toast } from '../../../shared/components/ui/Toast.jsx';
+
+export default function CreditNoteCreate() {
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeCreditNotesApi(http), [http]);
+
+  const [payload, setPayload] = useState({
+    customerId: '',
+    creditNoteDate: '',
+    memo: null,
+    lines: [
+      {
+        description: '',
+        quantity: 1,
+        unitPrice: 0,
+        revenueAccountId: '',
+        taxCodeId: null,
+        taxAmount: 0
+      }
+    ]
+  });
+
+  const create = useMutation({
+    mutationFn: () => api.create(payload),
+    onSuccess: (res) => {
+      toast.success('Credit note created');
+      const id = res?.id ?? res?.data?.id;
+      if (id) navigate(ROUTES.creditNoteDetail(id));
+      else navigate(ROUTES.creditNotes);
+    },
+    onError: (e) => toast.error(e?.message ?? 'Failed to create')
+  });
+
+  return (
+    <div className="space-y-4">
+      <PageHeader
+        title="New credit note"
+        subtitle="Create a draft credit note."
+        icon={FileMinus2}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>
+              Back
+            </Button>
+            <Button loading={create.isPending} onClick={() => create.mutate()}>
+              Create
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ContentCard className="lg:col-span-1">
+          <div className="text-sm font-semibold text-slate-900">Next steps</div>
+          <div className="mt-2 text-xs text-slate-500">Issue the note, then apply it to an invoice.</div>
+        </ContentCard>
+
+        <div className="lg:col-span-2">
+          <JsonPanel
+            title="Credit note payload"
+            value={payload}
+            hint="creditNoteDate is YYYY-MM-DD. revenueAccountId is required per line."
+            submitLabel="Apply JSON"
+            onSubmit={(json) => setPayload(json)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
