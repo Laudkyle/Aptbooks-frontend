@@ -58,11 +58,11 @@ export default function DebitNoteList() {
     <div className="space-y-4">
       <PageHeader
         title="Debit notes"
-        subtitle="AR adjustments and credit application to invoices."
+        subtitle="AP adjustments and debit application to bills."
         icon={FilePlus2}
         actions={
           <Button leftIcon={Plus} onClick={() => navigate(ROUTES.debitNoteNew)}>
-            New credit note
+            New debit note
           </Button>
         }
       />
@@ -77,7 +77,7 @@ export default function DebitNoteList() {
             columns={columns}
             rows={rows}
             isLoading={isLoading}
-            empty={{ title: 'No debit notes', description: 'Create a credit note and apply it to an invoice.' }}
+            empty={{ title: 'No debit notes', description: 'Create a debit note and apply it to a bill.' }}
           />
         </div>
       </ContentCard>

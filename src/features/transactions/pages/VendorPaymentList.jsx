@@ -60,11 +60,11 @@ export default function VendorPaymentList() {
     <div className="space-y-4">
       <PageHeader
         title="Vendor payments"
-        subtitle="Capture collections, allocate to invoices, and post to the ledger."
+        subtitle="Capture payments, allocate to bills, and post to the ledger."
         icon={Banknote}
         actions={
           <Button leftIcon={Plus} onClick={() => navigate(ROUTES.vendorPaymentNew)}>
-            New receipt
+            New vendor payment
           </Button>
         }
       />
@@ -79,7 +79,7 @@ export default function VendorPaymentList() {
             columns={columns}
             rows={rows}
             isLoading={isLoading}
-            empty={{ title: 'No receipts', description: 'Create a receipt to record cash collections and allocations.' }}
+            empty={{ title: 'No vendor payments', description: 'Create a vendor payment to allocate to bills and post the transaction.' }}
           />
         </div>
       </ContentCard>

@@ -67,7 +67,11 @@ const rows = Array.isArray(data) ? data : data?.data ?? [];
         subtitle="Manage customer master data, credit policy, contacts and addresses."
         icon={Users}
         actions={
-          <Button leftIcon={Plus} variant="primary">
+          <Button
+            leftIcon={Plus}
+            variant="primary"
+            onClick={() => navigate(`${ROUTES.businessPartnerNew}?type=customer`)}
+          >
             New customer
           </Button>
         }

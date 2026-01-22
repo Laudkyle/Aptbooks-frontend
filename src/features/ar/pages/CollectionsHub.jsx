@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlarmClock, MailWarning, Receipt, Search, Shield, Users } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
@@ -19,6 +20,7 @@ import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CollectionsHub() {
+  const location = useLocation();
   const { http } = useApi();
   const api = useMemo(() => makeCollectionsApi(http), [http]);
   const qc = useQueryClient();
@@ -128,6 +130,7 @@ const toast = useToast();
       />
 
       <Tabs
+        defaultValue={location?.pathname?.includes('/ar/dunning') ? 'dunning' : 'queue'}
         tabs={[
           {
             key: 'queue',
