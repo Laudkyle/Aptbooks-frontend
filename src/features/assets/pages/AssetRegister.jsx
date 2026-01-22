@@ -54,7 +54,7 @@ export default function AssetRegister() {
               )
             }
           ]}
-          data={rows}
+          rows={rows}
         />
       </ContentCard>
     </>

@@ -39,7 +39,7 @@ export default function StockCounts() {
       <ContentCard>
         <Table columns={[{ header:'Date', accessorKey:'countDate' },        { header:'Warehouse', accessorKey:'warehouseName' },
           { header:'Status', accessorKey:'status' },
-          { header:'', accessorKey:'id', cell: ({row}) => (<Button variant='ghost' onClick={() => nav(ROUTES.inventoryStockCountDetail(row.original.id))}>Open <ArrowRight className='ml-2 h-4 w-4' /></Button>) }]} data={rows} />
+          { header:'', accessorKey:'id', cell: ({row}) => (<Button variant='ghost' onClick={() => nav(ROUTES.inventoryStockCountDetail(row.original.id))}>Open <ArrowRight className='ml-2 h-4 w-4' /></Button>) }]} rows={rows} />
       </ContentCard>
     </>
   );

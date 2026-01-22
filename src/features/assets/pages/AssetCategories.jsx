@@ -54,7 +54,7 @@ export default function AssetCategories() {
               )
             }
           ]}
-          data={rows}
+          rows={rows}
         />
       </ContentCard>
     </>

@@ -34,7 +34,7 @@ export function Button({
     <button
       disabled={isDisabled}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/30 disabled:cursor-not-allowed disabled:opacity-60',
+        'flex flex-row items-center justify-center gap-2 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/30 disabled:cursor-not-allowed disabled:opacity-60',
         variants[variant],
         sizes[size],
         className

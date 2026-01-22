@@ -39,7 +39,7 @@ export default function Transactions() {
       <ContentCard>
         <Table columns={[{ header:'Date', accessorKey:'txnDate' },          { header:'Type', accessorKey:'txnType' },
           { header:'Status', accessorKey:'status' },
-          { header:'', accessorKey:'id', cell: ({row}) => (<Button variant='ghost' onClick={() => nav(ROUTES.inventoryTransactionDetail(row.original.id))}>Open <ArrowRight className='ml-2 h-4 w-4' /></Button>) }]} data={rows} />
+          { header:'', accessorKey:'id', cell: ({row}) => (<Button variant='ghost' onClick={() => nav(ROUTES.inventoryTransactionDetail(row.original.id))}>Open <ArrowRight className='ml-2 h-4 w-4' /></Button>) }]} rows={rows} />
       </ContentCard>
     </>
   );

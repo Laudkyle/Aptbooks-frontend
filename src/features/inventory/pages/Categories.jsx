@@ -37,7 +37,7 @@ export default function Categories() {
         }
       />
       <ContentCard>
-        <Table columns={[{ header:'Code', accessorKey:'code' },          { header:'Name', accessorKey:'name' }]} data={rows} />
+        <Table columns={[{ header:'Code', accessorKey:'code' },          { header:'Name', accessorKey:'name' }]} rows={rows} />
       </ContentCard>
     </>
   );

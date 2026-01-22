@@ -37,7 +37,8 @@ export default function Warehouses() {
         }
       />
       <ContentCard>
-        <Table columns=[{"{ header:'Code', accessorKey:'code' },\n          { header:'Name', accessorKey:'name' },\n          { header:'Address', accessorKey:'address' }"}] data={rows} />
+        <Table columns={[{ header:'Code', accessorKey:'code' },      { header:'Name', accessorKey:'name' },
+          { header:'Address', accessorKey:'address' }]} rows={rows} />
       </ContentCard>
     </>
   );

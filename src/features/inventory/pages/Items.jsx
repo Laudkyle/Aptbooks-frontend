@@ -37,7 +37,8 @@ export default function Items() {
         }
       />
       <ContentCard>
-        <Table columns=[{"{ header:'SKU', accessorKey:'sku' },\n          { header:'Name', accessorKey:'name' },\n          { header:'Status', accessorKey:'status' }"}] data={rows} />
+        <Table columns={[{ header:'SKU', accessorKey:'sku' },          { header:'Name', accessorKey:'name' },
+          { header:'Status', accessorKey:'status' }]} rows={rows} />
       </ContentCard>
     </>
   );

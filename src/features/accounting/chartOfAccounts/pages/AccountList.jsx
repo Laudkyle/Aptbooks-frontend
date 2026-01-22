@@ -44,19 +44,21 @@ export default function AccountList() {
   });
 
   const columns = [
-    { header: 'Code', accessor: (r) => r.code ?? '—' },
+    { header: 'Code', att:'code',accessor: (r) => r.code ?? '—' },
     {
       header: 'Name',
+      att: 'name',
       accessor: (r) => (
         <Link className="text-brand-primary hover:underline" to={ROUTES.accountingCoaDetail(r.id)}>
           {r.name ?? '—'}
         </Link>
       )
     },
-    { header: 'Type', accessor: (r) => r.accountTypeCode ?? '—' },
-    { header: 'Category', accessor: (r) => r.categoryName ?? '—' },
+    { header: 'Type', att: 'account_type_code', accessor: (r) => r.accountTypeCode ?? '—' },
+    { header: 'Category', att: 'category_name', accessor: (r) => r.categoryName ?? '—' },
     {
       header: 'Status',
+      att: 'status',
       accessor: (r) => (
         <Badge variant={r.status === 'active' ? 'success' : r.status === 'inactive' ? 'warning' : 'default'}>
           {r.status ?? '—'}
