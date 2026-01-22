@@ -141,6 +141,22 @@ const AssetCategories = lazy(() => import('../../features/assets/pages/AssetCate
 const AssetDetail = lazy(() => import('../../features/assets/pages/AssetDetail.jsx'));
 const AssetDepreciation = lazy(() => import('../../features/assets/pages/AssetDepreciation.jsx'));
 const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
+const AssetRegisterNew = lazy(() => import('../../features/assets/pages/FixedAssetCreate.jsx'));
+const AssetCategoryNew = lazy(() => import('../../features/assets/pages/AssetCategoryCreate.jsx'));
+const AssetCategoryEdit = lazy(() => import('../../features/assets/pages/AssetCategoryEdit.jsx'));
+const AssetAcquire = lazy(() => import('../../features/assets/pages/AssetAcquire.jsx'));
+const AssetDispose = lazy(() => import('../../features/assets/pages/AssetDispose.jsx'));
+const AssetTransfer = lazy(() => import('../../features/assets/pages/AssetTransfer.jsx'));
+const AssetRevalue = lazy(() => import('../../features/assets/pages/AssetRevalue.jsx'));
+const AssetImpair = lazy(() => import('../../features/assets/pages/AssetImpair.jsx'));
+const DepreciationScheduleNew = lazy(() => import('../../features/assets/pages/DepreciationScheduleCreate.jsx'));
+
+const InventoryCategoryNew = lazy(() => import('../../features/inventory/pages/CategoryCreate.jsx'));
+const InventoryUnitNew = lazy(() => import('../../features/inventory/pages/UnitCreate.jsx'));
+const InventoryItemNew = lazy(() => import('../../features/inventory/pages/ItemCreate.jsx'));
+const InventoryWarehouseNew = lazy(() => import('../../features/inventory/pages/WarehouseCreate.jsx'));
+const InventoryTransactionNew = lazy(() => import('../../features/inventory/pages/TransactionCreate.jsx'));
+const InventoryStockCountNew = lazy(() => import('../../features/inventory/pages/StockCountCreate.jsx'));
 const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
 const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
 const InventoryCategories = lazy(() => import('../../features/inventory/pages/Categories.jsx'));
@@ -831,6 +847,97 @@ export const router = createBrowserRouter([
               </RequirePermission>
             )
           },
+
+{
+  path: ROUTES.assetsRegisterNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetRegisterNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsCategoriesNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
+      <Lazy>
+        <AssetCategoryNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsCategoryEdit(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
+      <Lazy>
+        <AssetCategoryEdit />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetAcquire(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetAcquire />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetDispose(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetDispose />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetTransfer(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetTransfer />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetRevalue(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetRevalue />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetImpair(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <AssetImpair />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.assetsAssetDeprScheduleNew(),
+  element: (
+    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+      <Lazy>
+        <DepreciationScheduleNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
           {
             path: ROUTES.assetsAssetDetail(':id'),
             element: (
@@ -979,6 +1086,67 @@ export const router = createBrowserRouter([
               </RequirePermission>
             )
           },
+
+{
+  path: ROUTES.inventoryCategoriesNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryCategoriesManage]}>
+      <Lazy>
+        <InventoryCategoryNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryUnitsNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryUnitsManage]}>
+      <Lazy>
+        <InventoryUnitNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryItemsNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryItemsManage]}>
+      <Lazy>
+        <InventoryItemNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryWarehousesNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryWarehousesManage]}>
+      <Lazy>
+        <InventoryWarehouseNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryTransactionsNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryTransactionsManage]}>
+      <Lazy>
+        <InventoryTransactionNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryStockCountsNew,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryTransactionsManage]}>
+      <Lazy>
+        <InventoryStockCountNew />
+      </Lazy>
+    </RequirePermission>
+  )
+},
           {
             path: ROUTES.planningCenters('profit'),
             element: (

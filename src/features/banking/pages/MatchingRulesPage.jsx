@@ -31,7 +31,7 @@ export default function MatchingRulesPage() {
               <Input placeholder="true / false" />
             </div>
             <div className="grid gap-2">
-              <Label>Priority <=</Label>
+              <Label>Priority </Label>
               <Input placeholder="e.g., 100" />
             </div>
             <div className="flex items-end">

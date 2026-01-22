@@ -4,6 +4,7 @@ import { BarChart3 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeInventoryApi } from '../api/inventory.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -15,6 +16,21 @@ import { Select } from '../../../shared/components/ui/Select.jsx';
 export default function InventoryReports() {
   const { http } = useApi();
   const api = useMemo(() => makeInventoryApi(http), [http]);
+
+  const { data: warehousesRaw } = useQuery({
+    queryKey: ['inventory.warehouses'],
+    queryFn: async () => api.listWarehouses(),
+    staleTime: 60_000
+  });
+
+  const { data: itemsRaw } = useQuery({
+    queryKey: ['inventory.items'],
+    queryFn: async () => api.listItems(),
+    staleTime: 60_000
+  });
+
+  const warehouseOptions = useMemo(() => [NONE_OPTION, ...toOptions(warehousesRaw, { valueKey: 'id', label: (w) => `${w.code ?? ''} ${w.name ?? ''}`.trim() || w.id })], [warehousesRaw]);
+  const itemOptions = useMemo(() => [NONE_OPTION, ...toOptions(itemsRaw, { valueKey: 'id', label: (i) => `${i.sku ?? ''} ${i.name ?? ''}`.trim() || i.id })], [itemsRaw]);
 
   const [report, setReport] = useState('valuation');
   const [warehouseId, setWarehouseId] = useState('');
@@ -68,11 +84,11 @@ export default function InventoryReports() {
                   { value: 'movements', label: 'Movements' }
                 ]}
               />
-              <Input label="Warehouse ID" value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} placeholder="uuid (optional)" />
+              <Select label="Warehouse" value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} options={warehouseOptions} />
               <Input label="From" value={from} onChange={(e) => setFrom(e.target.value)} placeholder="YYYY-MM-DD (optional)" />
               <Input label="To" value={to} onChange={(e) => setTo(e.target.value)} placeholder="YYYY-MM-DD (optional)" />
               {report === 'movements' ? (
-                <Input label="Item ID" value={itemId} onChange={(e) => setItemId(e.target.value)} placeholder="uuid (optional)" />
+                <Select label="Item" value={itemId} onChange={(e) => setItemId(e.target.value)} options={itemOptions} />
               ) : null}
             </div>
           }
