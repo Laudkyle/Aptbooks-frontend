@@ -1,667 +1,420 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card } from "../../../shared/components/ui/Card";
-import { Button } from "../../../shared/components/ui/Button";
-import { Badge } from "../../../shared/components/ui/Badge";
-import { Tabs } from "../../../shared/components/ui/Tabs";
-import { Table } from "../../../shared/components/ui/Table";
-import { Textarea } from "../../../shared/components/ui/Textarea";
-import { Separator } from "../../../shared/components/ui/Separator";
+import React, { useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  AssetTag,
-  Calendar,
   Building2,
-  Briefcase,
-  Layers,
   ArrowLeftRight,
-  TrendingDown,
   TrendingUp,
-  Trash2,
-  Edit,
-  FileText,
-  Hash,
-  DollarSign,
-  Package,
-  MapPin,
-  Users,
-  Target,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Download,
-  Share2,
-  MoreVertical,
-  ChevronLeft,
+  TrendingDown,
+  Archive,
+  Repeat,
   Plus,
-  BarChart3,
-  Receipt,
-  Activity,
-  Database,
-  Shield,
-  Tag,
-  Settings,
-  Search,
-  Filter,
-  Eye,
-  Printer,
-} from "lucide-react";
-import { assetsApi } from "../api/assets.api";
-import { formatCurrency, formatDate } from "../../../shared/utils/formatters";
+  Save
+} from 'lucide-react';
 
-export default function AssetDetailPage() {
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeAssetsApi } from '../api/assets.api.js';
+
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { IdempotencyKeyField } from '../../../shared/components/forms/IdempotencyKeyField.jsx';
+
+export default function AssetDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { http } = useApi();
+  const api = useMemo(() => makeAssetsApi(http), [http]);
+  const qc = useQueryClient();
 
-  const [asset, setAsset] = useState(null);
-  const [schedules, setSchedules] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: asset, isLoading, error } = useQuery({
+    queryKey: ['assets', 'fixedAssets', id],
+    queryFn: () => api.getFixedAsset(id),
+    enabled: !!id
+  });
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const [assetRes, schedRes] = await Promise.all([
-          assetsApi.getFixedAsset(id),
-          assetsApi.listSchedules({ assetId: id }),
-        ]);
-        setAsset(assetRes);
-        setSchedules(schedRes || []);
-      } catch (error) {
-        console.error("Failed to load asset:", error);
-      } finally {
-        setLoading(false);
-      }
+  const status = asset?.status ?? 'draft';
+  const statusTone = status === 'active' ? 'success' : status === 'disposed' ? 'danger' : status === 'retired' ? 'warning' : 'muted';
+
+  const [action, setAction] = useState(null); // 'acquire'|'dispose'|'transfer'|'revalue'|'impair'|'schedule'
+  const [idempotencyKey, setIdempotencyKey] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [errMsg, setErrMsg] = useState(null);
+
+  const [payload, setPayload] = useState({});
+
+  function openAction(kind) {
+    setErrMsg(null);
+    setIdempotencyKey('');
+    setAction(kind);
+    // defaults per schema
+    if (kind === 'acquire') {
+      setPayload({ periodId: '', entryDate: '', fundingAccountId: '', memo: '' });
+    } else if (kind === 'dispose') {
+      setPayload({ periodId: '', entryDate: '', proceeds: '', proceedsAccountId: '', memo: '' });
+    } else if (kind === 'transfer') {
+      setPayload({ eventDate: '', toLocationId: '', toDepartmentId: '', toCostCenterId: '', reference: '', memo: '' });
+    } else if (kind === 'revalue') {
+      setPayload({ periodId: '', entryDate: '', newValue: '', revaluationReserveAccountId: '', memo: '' });
+    } else if (kind === 'impair') {
+      setPayload({ periodId: '', entryDate: '', impairmentAmount: '', impairmentLossAccountId: '', memo: '' });
+    } else if (kind === 'schedule') {
+      setPayload({
+        assetId: id,
+        method: 'straight_line',
+        usefulLifeMonths: '',
+        depreciationStartDate: '',
+        effectiveStartDate: '',
+        effectiveEndDate: '',
+        componentCode: ''
+      });
     }
-    load();
-  }, [id]);
-
-  const statusColor = useMemo(() => {
-    switch (asset?.status) {
-      case "active":
-        return "success";
-      case "draft":
-        return "warning";
-      case "retired":
-      case "disposed":
-        return "muted";
-      default:
-        return "default";
-    }
-  }, [asset?.status]);
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "active":
-        return <CheckCircle className="h-4 w-4" />;
-      case "draft":
-        return <Clock className="h-4 w-4" />;
-      case "retired":
-      case "disposed":
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <AlertCircle className="h-4 w-4" />;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading asset details...</p>
-        </div>
-      </div>
-    );
   }
 
-  if (!asset) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-md">
-          <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Asset Not Found</h3>
-          <p className="text-gray-600 mb-6">The asset you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate(-1)}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back to Assets
-          </Button>
-        </div>
-      </div>
-    );
+  async function runAction() {
+    if (!action) return;
+    setSaving(true);
+    setErrMsg(null);
+    try {
+      const headers = { 'Idempotency-Key': idempotencyKey };
+
+      if (action === 'acquire') {
+        await http.post(`/modules/assets/fixed-assets/${id}/acquire`, payload, { headers });
+      } else if (action === 'dispose') {
+        await http.post(
+          `/modules/assets/fixed-assets/${id}/dispose`,
+          {
+            periodId: payload.periodId,
+            entryDate: payload.entryDate,
+            proceeds: payload.proceeds === '' ? undefined : Number(payload.proceeds),
+            proceedsAccountId: payload.proceedsAccountId,
+            memo: payload.memo || undefined
+          },
+          { headers }
+        );
+      } else if (action === 'transfer') {
+        await http.post(
+          `/modules/assets/fixed-assets/${id}/transfer`,
+          {
+            eventDate: payload.eventDate,
+            toLocationId: payload.toLocationId === '' ? null : payload.toLocationId,
+            toDepartmentId: payload.toDepartmentId === '' ? null : payload.toDepartmentId,
+            toCostCenterId: payload.toCostCenterId === '' ? null : payload.toCostCenterId,
+            reference: payload.reference === '' ? null : payload.reference,
+            memo: payload.memo === '' ? null : payload.memo
+          },
+          { headers }
+        );
+      } else if (action === 'revalue') {
+        await http.post(
+          `/modules/assets/fixed-assets/${id}/revalue`,
+          {
+            periodId: payload.periodId,
+            entryDate: payload.entryDate,
+            newValue: Number(payload.newValue),
+            revaluationReserveAccountId: payload.revaluationReserveAccountId,
+            memo: payload.memo || undefined
+          },
+          { headers }
+        );
+      } else if (action === 'impair') {
+        await http.post(
+          `/modules/assets/fixed-assets/${id}/impair`,
+          {
+            periodId: payload.periodId,
+            entryDate: payload.entryDate,
+            impairmentAmount: Number(payload.impairmentAmount),
+            impairmentLossAccountId: payload.impairmentLossAccountId,
+            memo: payload.memo || undefined
+          },
+          { headers }
+        );
+      } else if (action === 'schedule') {
+        await http.post(
+          `/modules/assets/depreciation/schedules`,
+          {
+            assetId: id,
+            method: payload.method || 'straight_line',
+            usefulLifeMonths: Number(payload.usefulLifeMonths),
+            depreciationStartDate: payload.depreciationStartDate || undefined,
+            effectiveStartDate: payload.effectiveStartDate || undefined,
+            effectiveEndDate: payload.effectiveEndDate === '' ? null : payload.effectiveEndDate,
+            componentCode: payload.componentCode === '' ? null : payload.componentCode
+          },
+          { headers }
+        );
+      }
+
+      setAction(null);
+      await qc.invalidateQueries({ queryKey: ['assets', 'fixedAssets', id] });
+    } catch (e) {
+      setErrMsg(e?.response?.data?.message ?? e?.message ?? 'Action failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function retire() {
+    setSaving(true);
+    setErrMsg(null);
+    try {
+      await http.post(`/modules/assets/fixed-assets/${id}/retire`, {}, { headers: { 'Idempotency-Key': idempotencyKey } });
+      await qc.invalidateQueries({ queryKey: ['assets', 'fixedAssets', id] });
+    } catch (e) {
+      setErrMsg(e?.response?.data?.message ?? e?.message ?? 'Retire failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteDraft() {
+    setSaving(true);
+    setErrMsg(null);
+    try {
+      await api.deleteFixedAsset(id);
+      // Let user navigate back using browser; this is a detail view. No automatic redirect to avoid assumptions.
+    } catch (e) {
+      setErrMsg(e?.response?.data?.message ?? e?.message ?? 'Delete failed');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Back
+    <div className="space-y-4">
+      <PageHeader
+        title={asset?.name ? `Asset: ${asset.name}` : 'Asset'}
+        subtitle="Lifecycle actions are idempotent per backend. Provide an Idempotency-Key for each action."
+        icon={Building2}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone={statusTone}>{status}</Badge>
+            <Button variant="outline" leftIcon={Plus} onClick={() => openAction('schedule')}>
+              Add depreciation schedule
+            </Button>
+            <Button variant="outline" leftIcon={TrendingUp} onClick={() => openAction('acquire')}>
+              Acquire
+            </Button>
+            <Button variant="outline" leftIcon={Repeat} onClick={retire} disabled={saving}>
+              Retire
+            </Button>
+            <Button variant="outline" leftIcon={TrendingDown} onClick={() => openAction('impair')}>
+              Impair
+            </Button>
+            <Button variant="outline" leftIcon={ArrowLeftRight} onClick={() => openAction('transfer')}>
+              Transfer
+            </Button>
+            <Button variant="outline" leftIcon={TrendingUp} onClick={() => openAction('revalue')}>
+              Revalue
+            </Button>
+            <Button variant="outline" leftIcon={Archive} onClick={() => openAction('dispose')}>
+              Dispose
+            </Button>
+            {status === 'draft' ? (
+              <Button variant="danger" onClick={deleteDraft} disabled={saving}>
+                Delete draft
               </Button>
-              <Separator orientation="vertical" className="h-6" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-gray-900">{asset.name}</h1>
-                  <Badge variant={statusColor} className="gap-1">
-                    {getStatusIcon(asset.status)}
-                    {asset.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="flex items-center gap-1 text-sm text-gray-600">
-                    <Hash className="h-3 w-3" />
-                    <code className="font-mono bg-gray-100 px-2 py-0.5 rounded text-xs">
-                      {asset.code}
-                    </code>
-                  </span>
-                  <span className="text-gray-300">•</span>
-                  <span className="flex items-center gap-1 text-sm text-gray-600">
-                    <Package className="h-3 w-3" />
-                    {asset.category?.name || "Uncategorized"}
-                  </span>
+            ) : null}
+          </div>
+        }
+      />
+
+      <ContentCard>
+        {error ? <div className="text-sm text-red-600">{String(error?.message ?? 'Failed to load')}</div> : null}
+        {isLoading ? <div className="text-sm text-slate-600">Loading…</div> : null}
+
+        {!isLoading && asset ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Core</div>
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="grid gap-2 md:grid-cols-2">
+                  <Field label="Code" value={asset.code} />
+                  <Field label="Category" value={asset.category_name ?? asset.categoryName ?? asset.categoryId} />
+                  <Field label="Acquisition date" value={asset.acquisition_date ?? asset.acquisitionDate} />
+                  <Field label="Cost" value={asset.cost} />
+                  <Field label="Salvage value" value={asset.salvage_value ?? asset.salvageValue} />
                 </div>
               </div>
             </div>
+            <div className="space-y-2">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Allocation</div>
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="grid gap-2 md:grid-cols-2">
+                  <Field label="Location" value={asset.location_id ?? asset.locationId ?? '—'} />
+                  <Field label="Department" value={asset.department_id ?? asset.departmentId ?? '—'} />
+                  <Field label="Cost center" value={asset.cost_center_id ?? asset.costCenterId ?? '—'} />
+                  <Field label="Status" value={status} />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </ContentCard>
+
+      <Modal
+        open={!!action}
+        title={
+          action === 'acquire'
+            ? 'Acquire (capitalise)'
+            : action === 'dispose'
+              ? 'Dispose'
+              : action === 'transfer'
+                ? 'Transfer'
+                : action === 'revalue'
+                  ? 'Revalue'
+                  : action === 'impair'
+                    ? 'Impair'
+                    : action === 'schedule'
+                      ? 'Create depreciation schedule'
+                      : 'Action'
+        }
+        onClose={() => setAction(null)}
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs text-slate-500">{errMsg ? <span className="text-red-600">{errMsg}</span> : null}</div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
+              <Button variant="ghost" onClick={() => setAction(null)}>
+                Cancel
               </Button>
-              <Button variant="outline" size="sm">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4" />
+              <Button variant="primary" leftIcon={Save} onClick={runAction} disabled={saving}>
+                {saving ? 'Submitting…' : 'Submit'}
               </Button>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left Column - Asset Summary */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Asset Summary Card */}
-            <Card className="border border-gray-200 shadow-sm">
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Asset Summary</h3>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 rounded-lg">
-                      <DollarSign className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Cost Basis</p>
-                      <p className="text-lg font-bold text-gray-900">
-                        {formatCurrency(asset.cost)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-50 rounded-lg">
-                      <Calendar className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Acquisition Date</p>
-                      <p className="font-medium text-gray-900">
-                        {formatDate(asset.acquisitionDate)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-50 rounded-lg">
-                      <TrendingDown className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Salvage Value</p>
-                      <p className="font-medium text-gray-900">
-                        {formatCurrency(asset.salvageValue || 0)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-50 rounded-lg">
-                      <BarChart3 className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Net Book Value</p>
-                      <p className="font-medium text-gray-900">
-                        {formatCurrency(asset.netBookValue || asset.cost)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator className="my-4" />
-
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-600">Location:</span>
-                    <span className="font-medium">{asset.location?.name || "—"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-600">Department:</span>
-                    <span className="font-medium">{asset.department?.name || "—"}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Target className="h-4 w-4 text-gray-400" />
-                    <span className="text-gray-600">Cost Center:</span>
-                    <span className="font-medium">{asset.costCenter?.name || "—"}</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="border border-gray-200 shadow-sm">
-              <div className="p-5">
-                <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Revalue Asset
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <ArrowLeftRight className="h-4 w-4 mr-2" />
-                    Transfer Asset
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Activity className="h-4 w-4 mr-2" />
-                    Impair Asset
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Dispose Asset
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Right Column - Main Content */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Tabs Navigation */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-              <Tabs
-                value={activeTab}
-                onChange={setActiveTab}
-                tabs={[
-                  { 
-                    value: "overview", 
-                    label: "Overview",
-                    icon: <FileText className="h-4 w-4" />
-                  },
-                  { 
-                    value: "depreciation", 
-                    label: "Depreciation",
-                    icon: <TrendingDown className="h-4 w-4" />
-                  },
-                  { 
-                    value: "movements", 
-                    label: "Movements",
-                    icon: <ArrowLeftRight className="h-4 w-4" />
-                  },
-                  { 
-                    value: "journal", 
-                    label: "Journal Entries",
-                    icon: <Receipt className="h-4 w-4" />
-                  },
-                  { 
-                    value: "documents", 
-                    label: "Documents",
-                    icon: <Database className="h-4 w-4" />
-                  },
-                ]}
-                variant="segmented"
-                className="border-b"
+        }
+      >
+        <div className="space-y-3">
+          <IdempotencyKeyField value={idempotencyKey} onChange={setIdempotencyKey} />
+          {action === 'acquire' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Period ID" value={payload.periodId ?? ''} onChange={(e) => setPayload({ ...payload, periodId: e.target.value })} placeholder="uuid" />
+              <Input label="Entry date" value={payload.entryDate ?? ''} onChange={(e) => setPayload({ ...payload, entryDate: e.target.value })} placeholder="YYYY-MM-DD" />
+              <Input
+                label="Funding account ID"
+                value={payload.fundingAccountId ?? ''}
+                onChange={(e) => setPayload({ ...payload, fundingAccountId: e.target.value })}
+                placeholder="uuid"
               />
+              <Input label="Memo" value={payload.memo ?? ''} onChange={(e) => setPayload({ ...payload, memo: e.target.value })} placeholder="optional" />
+            </div>
+          ) : null}
 
-              {/* Tab Content */}
-              <div className="p-6">
-                {/* Overview Tab */}
-                {activeTab === "overview" && (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Asset Details</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">Description</h4>
-                            <Textarea 
-                              value={asset.description || "No description provided"} 
-                              readOnly 
-                              className="min-h-[120px] resize-none"
-                            />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">Notes</h4>
-                            <Textarea 
-                              value={asset.notes || "No notes available"} 
-                              readOnly 
-                              className="min-h-[100px] resize-none"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-6">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">Asset Metadata</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between py-2 border-b border-gray-100">
-                                <span className="text-gray-600">Asset ID</span>
-                                <span className="font-mono text-sm">{id}</span>
-                              </div>
-                              <div className="flex justify-between py-2 border-b border-gray-100">
-                                <span className="text-gray-600">Created</span>
-                                <span>{formatDate(asset.createdAt || asset.acquisitionDate)}</span>
-                              </div>
-                              <div className="flex justify-between py-2 border-b border-gray-100">
-                                <span className="text-gray-600">Last Updated</span>
-                                <span>{formatDate(asset.updatedAt || asset.acquisitionDate)}</span>
-                              </div>
-                              <div className="flex justify-between py-2">
-                                <span className="text-gray-600">Serial Number</span>
-                                <span className="font-medium">{asset.serialNumber || "—"}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">Tags</h4>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline" className="bg-gray-50">
-                                <Tag className="h-3 w-3 mr-1" />
-                                {asset.category?.name || "Uncategorized"}
-                              </Badge>
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                Fixed Asset
-                              </Badge>
-                              {asset.tags?.map((tag, index) => (
-                                <Badge key={index} variant="outline" className="bg-gray-50">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {action === 'dispose' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Period ID" value={payload.periodId ?? ''} onChange={(e) => setPayload({ ...payload, periodId: e.target.value })} placeholder="uuid" />
+              <Input label="Entry date" value={payload.entryDate ?? ''} onChange={(e) => setPayload({ ...payload, entryDate: e.target.value })} placeholder="YYYY-MM-DD" />
+              <Input label="Proceeds" value={payload.proceeds ?? ''} onChange={(e) => setPayload({ ...payload, proceeds: e.target.value })} placeholder="0.00 (optional)" />
+              <Input
+                label="Proceeds account ID"
+                value={payload.proceedsAccountId ?? ''}
+                onChange={(e) => setPayload({ ...payload, proceedsAccountId: e.target.value })}
+                placeholder="uuid"
+              />
+              <Textarea label="Memo" value={payload.memo ?? ''} onChange={(e) => setPayload({ ...payload, memo: e.target.value })} placeholder="optional" />
+            </div>
+          ) : null}
 
-                {/* Depreciation Tab */}
-                {activeTab === "depreciation" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Depreciation Schedules</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Manage depreciation methods and schedules for this asset
-                        </p>
-                      </div>
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Schedule
-                      </Button>
-                    </div>
+          {action === 'transfer' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Event date" value={payload.eventDate ?? ''} onChange={(e) => setPayload({ ...payload, eventDate: e.target.value })} placeholder="YYYY-MM-DD" />
+              <Input label="To location ID" value={payload.toLocationId ?? ''} onChange={(e) => setPayload({ ...payload, toLocationId: e.target.value })} placeholder="uuid or blank" />
+              <Input
+                label="To department ID"
+                value={payload.toDepartmentId ?? ''}
+                onChange={(e) => setPayload({ ...payload, toDepartmentId: e.target.value })}
+                placeholder="uuid or blank"
+              />
+              <Input label="To cost center ID" value={payload.toCostCenterId ?? ''} onChange={(e) => setPayload({ ...payload, toCostCenterId: e.target.value })} placeholder="uuid or blank" />
+              <Input label="Reference" value={payload.reference ?? ''} onChange={(e) => setPayload({ ...payload, reference: e.target.value })} placeholder="optional" />
+              <Textarea label="Memo" value={payload.memo ?? ''} onChange={(e) => setPayload({ ...payload, memo: e.target.value })} placeholder="optional" />
+            </div>
+          ) : null}
 
-                    <Card className="border border-gray-200 shadow-none">
-                      <Table
-                        columns={[
-                          { 
-                            key: "method", 
-                            header: "Method",
-                            render: (value) => (
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                {value}
-                              </Badge>
-                            )
-                          },
-                          { 
-                            key: "usefulLifeMonths", 
-                            header: "Useful Life",
-                            render: (value) => `${value} months`
-                          },
-                          { 
-                            key: "annualDepreciation", 
-                            header: "Annual Depreciation",
-                            render: (value) => formatCurrency(value || 0)
-                          },
-                          { 
-                            key: "effectiveStartDate", 
-                            header: "Start Date",
-                            render: (value) => formatDate(value)
-                          },
-                          { 
-                            key: "effectiveEndDate", 
-                            header: "End Date",
-                            render: (value) => value === "—" ? value : formatDate(value)
-                          },
-                          { 
-                            key: "status", 
-                            header: "Status",
-                            render: (value) => (
-                              <Badge variant={value === "active" ? "success" : "muted"}>
-                                {value}
-                              </Badge>
-                            )
-                          },
-                          { 
-                            key: "actions", 
-                            header: "",
-                            align: "right",
-                            render: () => (
-                              <div className="flex justify-end gap-2">
-                                <Button size="xs" variant="ghost">
-                                  <Eye className="h-3 w-3" />
-                                </Button>
-                                <Button size="xs" variant="ghost">
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )
-                          },
-                        ]}
-                        data={(schedules ?? []).map((s) => ({
-                          ...s,
-                          effectiveStartDate: s.effectiveStartDate || "—",
-                          effectiveEndDate: s.effectiveEndDate || "—",
-                        }))}
-                        emptyText={
-                          <div className="text-center py-8">
-                            <TrendingDown className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                            <h4 className="font-medium text-gray-900 mb-2">No Schedules Found</h4>
-                            <p className="text-gray-600 mb-4">This asset doesn't have any depreciation schedules yet.</p>
-                            <Button variant="outline">
-                              <Plus className="h-4 w-4 mr-2" />
-                              Create First Schedule
-                            </Button>
-                          </div>
-                        }
-                      />
-                    </Card>
+          {action === 'revalue' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Period ID" value={payload.periodId ?? ''} onChange={(e) => setPayload({ ...payload, periodId: e.target.value })} placeholder="uuid" />
+              <Input label="Entry date" value={payload.entryDate ?? ''} onChange={(e) => setPayload({ ...payload, entryDate: e.target.value })} placeholder="YYYY-MM-DD" />
+              <Input label="New value" value={payload.newValue ?? ''} onChange={(e) => setPayload({ ...payload, newValue: e.target.value })} placeholder="0.00" />
+              <Input
+                label="Revaluation reserve account ID"
+                value={payload.revaluationReserveAccountId ?? ''}
+                onChange={(e) => setPayload({ ...payload, revaluationReserveAccountId: e.target.value })}
+                placeholder="uuid"
+              />
+              <Textarea label="Memo" value={payload.memo ?? ''} onChange={(e) => setPayload({ ...payload, memo: e.target.value })} placeholder="optional" />
+            </div>
+          ) : null}
 
-                    {/* Depreciation Projection */}
-                    <Card className="border border-gray-200 shadow-none">
-                      <div className="p-4 border-b border-gray-100">
-                        <h4 className="font-medium text-gray-900">Depreciation Projection</h4>
-                      </div>
-                      <div className="p-6">
-                        <div className="text-center py-8">
-                          <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                          <p className="text-gray-600">Depreciation projection chart will appear here.</p>
-                          <Button variant="outline" className="mt-4">
-                            Generate Projection
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                )}
+          {action === 'impair' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Period ID" value={payload.periodId ?? ''} onChange={(e) => setPayload({ ...payload, periodId: e.target.value })} placeholder="uuid" />
+              <Input label="Entry date" value={payload.entryDate ?? ''} onChange={(e) => setPayload({ ...payload, entryDate: e.target.value })} placeholder="YYYY-MM-DD" />
+              <Input label="Impairment amount" value={payload.impairmentAmount ?? ''} onChange={(e) => setPayload({ ...payload, impairmentAmount: e.target.value })} placeholder="> 0" />
+              <Input
+                label="Impairment loss account ID"
+                value={payload.impairmentLossAccountId ?? ''}
+                onChange={(e) => setPayload({ ...payload, impairmentLossAccountId: e.target.value })}
+                placeholder="uuid"
+              />
+              <Textarea label="Memo" value={payload.memo ?? ''} onChange={(e) => setPayload({ ...payload, memo: e.target.value })} placeholder="optional" />
+            </div>
+          ) : null}
 
-                {/* Movements Tab */}
-                {activeTab === "movements" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Asset Movements</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Track all transfers, revaluations, and adjustments
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <input
-                            type="text"
-                            placeholder="Search movements..."
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64"
-                          />
-                        </div>
-                        <Button variant="outline">
-                          <Filter className="h-4 w-4 mr-2" />
-                          Filter
-                        </Button>
-                      </div>
-                    </div>
-
-                    <Card className="border border-gray-200 shadow-none">
-                      <div className="p-6 text-center">
-                        <ArrowLeftRight className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h4 className="font-medium text-gray-900 mb-2">No Movement History</h4>
-                        <p className="text-gray-600 max-w-md mx-auto mb-6">
-                          This asset hasn't been transferred, revalued, or impaired yet. 
-                          All movement history will appear here once available.
-                        </p>
-                        <Button>
-                          <ArrowLeftRight className="h-4 w-4 mr-2" />
-                          Record First Movement
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Journal Tab */}
-                {activeTab === "journal" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Journal Entries</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Financial journal entries related to this asset
-                        </p>
-                      </div>
-                      <Button variant="outline">
-                        <Receipt className="h-4 w-4 mr-2" />
-                        View in GL
-                      </Button>
-                    </div>
-
-                    <Card className="border border-gray-200 shadow-none">
-                      <div className="overflow-x-auto">
-                        <Table
-                          columns={[
-                            { key: "date", header: "Date" },
-                            { key: "type", header: "Entry Type" },
-                            { key: "description", header: "Description" },
-                            { key: "debit", header: "Debit" },
-                            { key: "credit", header: "Credit" },
-                            { key: "reference", header: "Reference" },
-                            { key: "actions", header: "", align: "right" },
-                          ]}
-                          data={[]}
-                          emptyText={
-                            <div className="text-center py-8">
-                              <Receipt className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                              <h4 className="font-medium text-gray-900 mb-2">No Journal Entries</h4>
-                              <p className="text-gray-600">
-                                Journal entries will appear here after asset acquisition, depreciation, or disposal.
-                              </p>
-                            </div>
-                          }
-                        />
-                      </div>
-                    </Card>
-                  </div>
-                )}
-
-                {/* Documents Tab */}
-                {activeTab === "documents" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Documents & Attachments</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Purchase documents, warranties, maintenance records
-                        </p>
-                      </div>
-                      <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Upload Document
-                      </Button>
-                    </div>
-
-                    <Card className="border border-gray-200 shadow-none">
-                      <div className="p-6 text-center">
-                        <Database className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h4 className="font-medium text-gray-900 mb-2">No Documents</h4>
-                        <p className="text-gray-600 max-w-md mx-auto">
-                          Upload purchase orders, invoices, warranty documents, or maintenance records.
-                        </p>
-                      </div>
-                    </Card>
-                  </div>
-                )}
+          {action === 'schedule' ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Method" value={payload.method ?? 'straight_line'} onChange={(e) => setPayload({ ...payload, method: e.target.value })} placeholder="straight_line" />
+              <Input
+                label="Useful life (months)"
+                value={payload.usefulLifeMonths ?? ''}
+                onChange={(e) => setPayload({ ...payload, usefulLifeMonths: e.target.value })}
+                placeholder="e.g. 36"
+              />
+              <Input
+                label="Depreciation start date"
+                value={payload.depreciationStartDate ?? ''}
+                onChange={(e) => setPayload({ ...payload, depreciationStartDate: e.target.value })}
+                placeholder="YYYY-MM-DD (optional)"
+              />
+              <Input
+                label="Effective start date"
+                value={payload.effectiveStartDate ?? ''}
+                onChange={(e) => setPayload({ ...payload, effectiveStartDate: e.target.value })}
+                placeholder="YYYY-MM-DD (optional)"
+              />
+              <Input
+                label="Effective end date"
+                value={payload.effectiveEndDate ?? ''}
+                onChange={(e) => setPayload({ ...payload, effectiveEndDate: e.target.value })}
+                placeholder="YYYY-MM-DD or blank (null)"
+              />
+              <Input
+                label="Component code"
+                value={payload.componentCode ?? ''}
+                onChange={(e) => setPayload({ ...payload, componentCode: e.target.value })}
+                placeholder="optional"
+              />
+              <div className="md:col-span-2 text-xs text-slate-500">
+                Backend rule: either effectiveStartDate or depreciationStartDate must be provided.
               </div>
             </div>
-          </div>
+          ) : null}
         </div>
-      </div>
+      </Modal>
 
-      {/* Footer */}
-      <div className="bg-white border-t mt-8">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-4">
-              <span>Asset ID: <code className="font-mono">{id}</code></span>
-              <span>•</span>
-              <span>Last synchronized: {formatDate(new Date().toISOString())}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span>Asset Management System v2.1.0</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      {errMsg && !action ? <div className="text-sm text-red-600">{errMsg}</div> : null}
+    </div>
+  );
+}
+
+function Field({ label, value }) {
+  return (
+    <div className="rounded-lg bg-slate-50 p-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+      <div className="mt-1 text-sm text-slate-900">{value ?? '—'}</div>
     </div>
   );
 }

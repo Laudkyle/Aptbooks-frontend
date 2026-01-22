@@ -143,6 +143,13 @@ const AssetDepreciation = lazy(() => import('../../features/assets/pages/AssetDe
 const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
 const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
 const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
+const InventoryCategories = lazy(() => import('../../features/inventory/pages/Categories.jsx'));
+const InventoryUnits = lazy(() => import('../../features/inventory/pages/Units.jsx'));
+const InventoryTransactions = lazy(() => import('../../features/inventory/pages/Transactions.jsx'));
+const InventoryTransactionDetail = lazy(() => import('../../features/inventory/pages/TransactionDetail.jsx'));
+const InventoryStockCounts = lazy(() => import('../../features/inventory/pages/StockCounts.jsx'));
+const InventoryStockCountDetail = lazy(() => import('../../features/inventory/pages/StockCountDetail.jsx'));
+const InventoryReports = lazy(() => import('../../features/inventory/pages/Reports.jsx'));
 
 // Phase 7 — Reporting & Planning
 const Centers = lazy(() => import('../../features/reporting/pages/Centers.jsx'));
@@ -866,6 +873,100 @@ export const router = createBrowserRouter([
               </RequirePermission>
             )
           },
+
+{
+  path: ROUTES.inventoryCategories,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryCategoriesRead, PERMISSIONS.inventoryCategoriesManage]}>
+      <Lazy>
+        <InventoryCategories />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryUnits,
+  element: (
+    <RequirePermission any={[PERMISSIONS.inventoryUnitsRead, PERMISSIONS.inventoryUnitsManage]}>
+      <Lazy>
+        <InventoryUnits />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryTransactions,
+  element: (
+    <RequirePermission any={[
+      PERMISSIONS.inventoryTransactionsRead,
+      PERMISSIONS.inventoryTransactionsManage,
+      PERMISSIONS.inventoryTransactionsApprove,
+      PERMISSIONS.inventoryTransactionsPost
+    ]}>
+      <Lazy>
+        <InventoryTransactions />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryTransactionDetail(':id'),
+  element: (
+    <RequirePermission any={[
+      PERMISSIONS.inventoryTransactionsRead,
+      PERMISSIONS.inventoryTransactionsManage,
+      PERMISSIONS.inventoryTransactionsApprove,
+      PERMISSIONS.inventoryTransactionsPost
+    ]}>
+      <Lazy>
+        <InventoryTransactionDetail />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryStockCounts,
+  element: (
+    <RequirePermission any={[
+      PERMISSIONS.inventoryTransactionsRead,
+      PERMISSIONS.inventoryTransactionsManage,
+      PERMISSIONS.inventoryTransactionsApprove,
+      PERMISSIONS.inventoryTransactionsPost
+    ]}>
+      <Lazy>
+        <InventoryStockCounts />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryStockCountDetail(':id'),
+  element: (
+    <RequirePermission any={[
+      PERMISSIONS.inventoryTransactionsRead,
+      PERMISSIONS.inventoryTransactionsManage,
+      PERMISSIONS.inventoryTransactionsApprove,
+      PERMISSIONS.inventoryTransactionsPost
+    ]}>
+      <Lazy>
+        <InventoryStockCountDetail />
+      </Lazy>
+    </RequirePermission>
+  )
+},
+{
+  path: ROUTES.inventoryReports,
+  element: (
+    <RequirePermission any={[
+      PERMISSIONS.inventoryTransactionsRead,
+      PERMISSIONS.inventoryTransactionsManage
+    ]}>
+      <Lazy>
+        <InventoryReports />
+      </Lazy>
+    </RequirePermission>
+  )
+},
 
           // Phase 7 — Reporting & Planning
           {

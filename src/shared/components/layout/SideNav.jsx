@@ -9,6 +9,7 @@ import {
   Settings,
   KeyRound,
   Sliders,
+  Layers,
   Activity,
   BookOpen,
   CalendarClock,
@@ -18,6 +19,7 @@ import {
   ArrowLeftRight,
   Percent,
   Repeat,
+  Ruler,
   Download,
   Upload,
   Merge,
@@ -180,6 +182,12 @@ export function SideNav() {
               <PermissionGate any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
                 <Item to={ROUTES.assetsRegister} icon={Briefcase} label="Fixed Assets" collapsed={!sidebarOpen} />
                 <Item to={ROUTES.assetsDepreciation} icon={Repeat} label="Depreciation" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryCategoriesRead, PERMISSIONS.inventoryCategoriesManage]}>
+                <Item to={ROUTES.inventoryCategories} icon={Layers} label="Item Categories" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryUnitsRead, PERMISSIONS.inventoryUnitsManage]}>
+                <Item to={ROUTES.inventoryUnits} icon={Ruler} label="Units" collapsed={!sidebarOpen} />
               </PermissionGate>
               <PermissionGate any={[PERMISSIONS.inventoryItemsRead, PERMISSIONS.inventoryItemsManage]}>
                 <Item to={ROUTES.inventoryItems} icon={BookOpen} label="Items" collapsed={!sidebarOpen} />
