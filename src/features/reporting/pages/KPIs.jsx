@@ -32,12 +32,12 @@ export default function KPIs() {
 
   const defsQ = useQuery({
     queryKey: ['reporting', 'kpis', 'definitions'],
-    queryFn: () => api.kpis.listDefinitions({ limit: 100, offset: 0 })
+    queryFn: () => api.kpis.definitions.list({ limit: 100, offset: 0 })
   });
 
   const valuesQ = useQuery({
     queryKey: ['reporting', 'kpis', 'values', compute.periodId || null],
-    queryFn: () => api.kpis.listValues({ periodId: compute.periodId || null, limit: 200, offset: 0 })
+    queryFn: () => api.kpis.values.list({ periodId: compute.periodId || null, limit: 200, offset: 0 })
   });
 
   const defRows = rowsFrom(defsQ.data);
@@ -60,7 +60,7 @@ export default function KPIs() {
       expressionJson: form.kpiType === 'EXPRESSION' ? {} : undefined,
       category: form.category || null
     };
-    await api.kpis.createDefinition(body);
+    await api.kpis.definitions.create(body);
     setOpen(false);
     setForm({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' });
     defsQ.refetch();
@@ -68,7 +68,7 @@ export default function KPIs() {
 
   async function computeValues() {
     if (!compute.periodId) return;
-    await api.kpis.computeValues({ periodId: compute.periodId, asOfDate: compute.asOfDate || null });
+    await api.kpis.values.compute({ periodId: compute.periodId, asOfDate: compute.asOfDate || null });
     valuesQ.refetch();
   }
 

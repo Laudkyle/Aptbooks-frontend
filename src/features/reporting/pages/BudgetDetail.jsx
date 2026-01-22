@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { PiggyBank, Upload, Shuffle, CheckCircle2 } from 'lucide-react';
+import { PiggyBank, Upload, Shuffle, CheckCircle2, Plus, Send, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makePlanningApi } from '../api/planning.api.js';
@@ -53,13 +53,13 @@ export default function BudgetDetail() {
   }, [lines]);
 
   async function createVersion() {
-    await api.budgets.createVersion(id, { ...ver, name: ver.name || null });
+    await api.budgets.versions.create(id, { ...ver, name: ver.name || null });
     setOpenVersion(false);
     refetch();
   }
 
   async function importCsv(versionId) {
-    await api.budgets.importCsv(id, versionId, csvText);
+    await api.budgets.versions.importCsv(id, versionId, csvText);
     setCsvOpen(false);
     setCsvText('');
     refetch();
@@ -73,7 +73,7 @@ export default function BudgetDetail() {
       periodIds: dist.periodIds ? dist.periodIds.split(',').map((s) => s.trim()).filter(Boolean) : [],
       dimensionJson: safeJson(dist.dimensionJson)
     };
-    await api.budgets.distribute(id, versionId, { items: [item] });
+    await api.budgets.versions.distribute(id, versionId, { items: [item] });
     setDistributeOpen(false);
     refetch();
   }
@@ -119,8 +119,21 @@ export default function BudgetDetail() {
                 <Button variant="outline" leftIcon={Shuffle} onClick={() => setDistributeOpen(true)}>
                   Distribute (latest)
                 </Button>
-                <Button leftIcon={CheckCircle2} onClick={() => api.budgets.finalize(id, versions[0].id).then(refetch)}>
+                <Button leftIcon={CheckCircle2} onClick={() => api.budgets.versions.finalize(id, versions[0].id).then(refetch)}>
                   Finalize (latest)
+                </Button>
+                <Button variant="outline" leftIcon={Send} onClick={() => api.budgets.versions.submit(id, versions[0].id).then(refetch)}>
+                  Submit (latest)
+                </Button>
+                <Button variant="outline" leftIcon={ThumbsUp} onClick={() => api.budgets.versions.approve(id, versions[0].id).then(refetch)}>
+                  Approve (latest)
+                </Button>
+                <Button
+                  variant="outline"
+                  leftIcon={ThumbsDown}
+                  onClick={() => api.budgets.versions.reject(id, versions[0].id, { reason: null }).then(refetch)}
+                >
+                  Reject (latest)
                 </Button>
               </div>
             ) : null}

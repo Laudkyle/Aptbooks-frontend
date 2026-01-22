@@ -23,7 +23,7 @@ function rowsFrom(data) {
 }
 
 export default function ProjectDetail() {
-  const { projectId } = useParams();
+  const { id: projectId } = useParams();
   const { http } = useApi();
   const api = useMemo(() => makePlanningApi(http), [http]);
 
@@ -43,7 +43,7 @@ export default function ProjectDetail() {
   const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = useQuery({
     enabled: !!selectedPhaseId,
     queryKey: ['reporting', 'projects', projectId, 'phases', selectedPhaseId, 'tasks'],
-    queryFn: () => api.projects.tasks.list(projectId, selectedPhaseId)
+    queryFn: () => api.projects.phases.tasks.list(projectId, selectedPhaseId)
   });
 
   const tasks = rowsFrom(tasksData);
@@ -62,7 +62,7 @@ export default function ProjectDetail() {
   }
 
   async function createTask() {
-    await api.projects.tasks.create(projectId, selectedPhaseId, { code: taskForm.code || null, name: taskForm.name, status: taskForm.status });
+    await api.projects.phases.tasks.create(projectId, selectedPhaseId, { code: taskForm.code || null, name: taskForm.name, status: taskForm.status });
     setOpenTask(false);
     setTaskForm({ code: '', name: '', status: 'active' });
     refetchTasks();

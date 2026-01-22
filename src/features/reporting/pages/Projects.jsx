@@ -42,7 +42,7 @@ export default function Projects() {
       {
         header: 'Project',
         render: (r) => (
-          <Link to={`/reporting/projects/${r.id}`} className="group inline-flex items-center gap-2">
+          <Link to={`/planning/projects/${r.id}`} className="group inline-flex items-center gap-2">
             <span className="text-sm font-medium text-slate-900 group-hover:text-[color:var(--color-brand-primary)]">{r.name ?? '—'}</span>
             <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[color:var(--color-brand-primary)]" />
           </Link>
