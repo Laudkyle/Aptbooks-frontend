@@ -95,6 +95,7 @@ const Reconciliation = lazy(() => import('../../features/accounting/reconciliati
 const Customers = lazy(() => import('../../features/business/pages/Customers.jsx'));
 const Vendors = lazy(() => import('../../features/business/pages/Vendors.jsx'));
 const PartnerDetail = lazy(() => import('../../features/business/pages/PartnerDetail.jsx'));
+const PartnerCreate = lazy(() => import('../../features/business/pages/PartnerCreate.jsx'));
 const PaymentConfig = lazy(() => import('../../features/business/pages/PaymentConfig.jsx'));
 
 const InvoiceList = lazy(() => import('../../features/transactions/pages/InvoiceList.jsx'));
@@ -460,7 +461,17 @@ export const router = createBrowserRouter([
               </RequirePermission>
             )
           },
-          {
+                    {
+            path: ROUTES.businessPartnerNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.partnersManage]}>
+                <Lazy>
+                  <PartnerCreate />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+{
             path: ROUTES.businessPartnerDetail(),
             element: (
               <RequirePermission any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}>

@@ -65,6 +65,7 @@ export const ROUTES = {
   businessCustomers: '/business/customers',
   businessVendors: '/business/vendors',
   businessPartnerDetail: (id=':id') => `/business/partners/${id}`,
+  businessPartnerNew: '/business/partners/new',
   businessPaymentConfig: '/business/payment-config',
 
   // Phase 5 — Transactions (AR/AP)

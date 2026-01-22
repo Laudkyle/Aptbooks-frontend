@@ -37,7 +37,10 @@ const toast = useToast();
   });
 
   const [termOpen, setTermOpen] = useState(false);
+  const [termEditOpen, setTermEditOpen] = useState(false);
+  const [editingTermId, setEditingTermId] = useState(null);
   const [term, setTerm] = useState({ name: '', netDays: 0, discountDays: null, discountRate: null, isDefault: false, status: 'active' });
+  const [termEdit, setTermEdit] = useState({ name: '', netDays: 0, discountDays: null, discountRate: null, isDefault: false, status: 'active' });
 
   const createTerm = useMutation({
     mutationFn: (body) => api.createPaymentTerm(body),
@@ -47,6 +50,27 @@ const toast = useToast();
       setTermOpen(false);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to create')
+  });
+
+
+  const updateTerm = useMutation({
+    mutationFn: ({ id, body }) => api.updatePaymentTerm(id, body),
+    onSuccess: () => {
+      toast.success('Updated payment term');
+      qc.invalidateQueries({ queryKey: qk.paymentTerms });
+      setTermEditOpen(false);
+      setEditingTermId(null);
+    },
+    onError: (e) => toast.error(e?.message ?? 'Failed to update')
+  });
+
+  const deleteTerm = useMutation({
+    mutationFn: (id) => api.deletePaymentTerm(id),
+    onSuccess: () => {
+      toast.success('Deleted payment term');
+      qc.invalidateQueries({ queryKey: qk.paymentTerms });
+    },
+    onError: (e) => toast.error(e?.message ?? 'Failed to delete')
   });
 
   const saveSettings = useMutation({
@@ -63,7 +87,26 @@ const toast = useToast();
     if (settings) setSettingsDraft(settings);
   }, [settings]);
 
-  const termsRows = Array.isArray(terms) ? terms : terms?.data ?? [];
+  
+  const toIntOrNull = (v) => {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') return Number.isFinite(v) ? Math.trunc(v) : null;
+    const s = String(v).trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  };
+
+  const settingsPayload = (draft) => ({
+    arUnappliedAccountId: toIntOrNull(draft?.arUnappliedAccountId),
+    arDiscountAccountId: toIntOrNull(draft?.arDiscountAccountId),
+    apPrepaymentsAccountId: toIntOrNull(draft?.apPrepaymentsAccountId),
+    apDiscountIncomeAccountId: toIntOrNull(draft?.apDiscountIncomeAccountId),
+    onlineCashAccountId: toIntOrNull(draft?.onlineCashAccountId),
+    onlinePaymentMethodId: toIntOrNull(draft?.onlinePaymentMethodId)
+  });
+
+const termsRows = Array.isArray(terms) ? terms : terms?.data ?? [];
   const methodsRows = Array.isArray(methods) ? methods : methods?.data ?? [];
 
   return (
@@ -116,6 +159,39 @@ const toast = useToast();
                             </div>
                           </div>
                         </div>
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingTermId(t.id);
+                              setTermEdit({
+                                name: t.name ?? '',
+                                netDays: t.netDays ?? 0,
+                                discountDays: t.discountDays ?? null,
+                                discountRate: t.discountRate ?? null,
+                                isDefault: !!t.isDefault,
+                                status: t.status ?? 'active'
+                              });
+                              setTermEditOpen(true);
+                            }}
+                            disabled={!t.id}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => {
+                              if (!t.id) return;
+                              const ok = window.confirm(`Delete payment term "${t.name}"? This cannot be undone.`);
+                              if (ok) deleteTerm.mutate(t.id);
+                            }}
+                            disabled={!t.id || deleteTerm.isPending}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -144,6 +220,39 @@ const toast = useToast();
                             <div className="text-sm font-semibold text-slate-900">{m.name ?? m.code ?? 'Method'}</div>
                             <div className="mt-1 text-xs text-slate-500">{m.description ?? '—'}</div>
                           </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingTermId(t.id);
+                              setTermEdit({
+                                name: t.name ?? '',
+                                netDays: t.netDays ?? 0,
+                                discountDays: t.discountDays ?? null,
+                                discountRate: t.discountRate ?? null,
+                                isDefault: !!t.isDefault,
+                                status: t.status ?? 'active'
+                              });
+                              setTermEditOpen(true);
+                            }}
+                            disabled={!t.id}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => {
+                              if (!t.id) return;
+                              const ok = window.confirm(`Delete payment term "${t.name}"? This cannot be undone.`);
+                              if (ok) deleteTerm.mutate(t.id);
+                            }}
+                            disabled={!t.id || deleteTerm.isPending}
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </div>
                     ))
@@ -175,7 +284,7 @@ const toast = useToast();
                           </div>
                         </div>
                       </div>
-                      <Button leftIcon={Save} loading={saveSettings.isPending} onClick={() => saveSettings.mutate(settingsDraft)}>
+                      <Button leftIcon={Save} loading={saveSettings.isPending} onClick={() => saveSettings.mutate(settingsPayload(settingsDraft))}>
                         Save
                       </Button>
                     </div>
@@ -263,6 +372,90 @@ const toast = useToast();
           </Button>
         </div>
       </Modal>
-    </div>
+ 
+      <Modal
+        open={termEditOpen}
+        onClose={() => {
+          setTermEditOpen(false);
+          setEditingTermId(null);
+        }}
+        title="Edit payment term"
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          <Input label="Name" value={termEdit.name} onChange={(e) => setTermEdit((s) => ({ ...s, name: e.target.value }))} />
+          <Input
+            label="Net days"
+            type="number"
+            value={termEdit.netDays}
+            onChange={(e) => setTermEdit((s) => ({ ...s, netDays: Number(e.target.value || 0) }))}
+          />
+          <Input
+            label="Discount days"
+            type="number"
+            value={termEdit.discountDays ?? ''}
+            onChange={(e) => setTermEdit((s) => ({ ...s, discountDays: e.target.value === '' ? null : Number(e.target.value) }))}
+          />
+          <Input
+            label="Discount rate (0..1)"
+            type="number"
+            step="0.01"
+            value={termEdit.discountRate ?? ''}
+            onChange={(e) => setTermEdit((s) => ({ ...s, discountRate: e.target.value === '' ? null : Number(e.target.value) }))}
+          />
+          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-white/70 p-3 text-sm text-slate-700 md:col-span-2">
+            <input
+              type="checkbox"
+              checked={termEdit.isDefault}
+              onChange={(e) => setTermEdit((s) => ({ ...s, isDefault: e.target.checked }))}
+            />
+            Default term
+          </label>
+          <div className="md:col-span-2">
+            <div className="text-xs font-medium text-slate-600">Status</div>
+            <div className="mt-2">
+              <Select
+                value={termEdit.status}
+                onChange={(e) => setTermEdit((s) => ({ ...s, status: e.target.value }))}
+                options={[
+                  { label: 'Active', value: 'active' },
+                  { label: 'Inactive', value: 'inactive' }
+                ]}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setTermEditOpen(false);
+              setEditingTermId(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            loading={updateTerm.isPending}
+            onClick={() =>
+              updateTerm.mutate({
+                id: editingTermId,
+                body: {
+                  name: termEdit.name || undefined,
+                  netDays: typeof termEdit.netDays === 'number' ? termEdit.netDays : undefined,
+                  discountDays: termEdit.discountDays,
+                  discountRate: termEdit.discountRate,
+                  isDefault: termEdit.isDefault,
+                  status: termEdit.status || undefined
+                }
+              })
+            }
+            disabled={!editingTermId || !termEdit.name.trim()}
+          >
+            Save
+          </Button>
+        </div>
+      </Modal>
+
+   </div>
   );
 }
