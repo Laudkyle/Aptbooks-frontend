@@ -1,5 +1,5 @@
 
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, data } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Building2, CreditCard, MapPin, Phone, Plus, Save } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -69,12 +69,12 @@ const toast = useToast();
   React.useEffect(() => {
     if (partner) {
       setEdit({
-        name: partner.name ?? '',
-        code: partner.code ?? '',
-        email: partner.email ?? '',
-        phone: partner.phone ?? '',
-        status: partner.status ?? 'active',
-        notes: partner.notes ?? ''
+        name: partner.partner.name ?? '',
+        code: partner.partner.code ?? '',
+        email: partner.partner.email ?? '',
+        phone: partner.partner.phone ?? '',
+        status: partner.partner.status ?? 'active',
+        notes: partner.partner.notes ?? ''
       });
     }
   }, [partner]);
@@ -82,9 +82,9 @@ const toast = useToast();
   React.useEffect(() => {
     if (creditPolicy) {
       setCp({
-        creditLimit: creditPolicy.creditLimit ?? '',
-        creditDays: creditPolicy.creditDays ?? '',
-        holdIfOver: !!creditPolicy.holdIfOver,
+        creditLimit: creditPolicy.credit_limit ?? '',
+        creditDays: creditPolicy.credit_days ?? '',
+        holdIfOver: !!creditPolicy.hold_if_over,
         notes: creditPolicy.notes ?? ''
       });
     }
@@ -160,7 +160,7 @@ const toast = useToast();
   return (
     <div className="space-y-4">
       <PageHeader
-        title={partner?.name ?? (isLoading ? 'Loading partner…' : 'Partner')}
+        title={partner.partner?.name ?? (isLoading ? 'Loading partner…' : 'Partner')}
         subtitle={`Partner ID: ${id}`}
         icon={Building2}
         actions={
@@ -175,7 +175,7 @@ const toast = useToast();
         }
         crumbs={[
           { label: 'Customers', href: ROUTES.businessCustomers },
-          { label: partner?.name ?? 'Partner' }
+          { label: partner.partner?.name ?? 'Partner' }
         ]}
       />
 
@@ -189,19 +189,19 @@ const toast = useToast();
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Code</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.code ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.code ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Type</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.type ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.type ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Email</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.email ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.email ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Phone</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.phone ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.phone ?? '—'}</div>
             </div>
           </div>
 
@@ -224,15 +224,15 @@ const toast = useToast();
           <div className="mt-4 space-y-3">
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Credit limit</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.creditLimit ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.credit_limit ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Credit days</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.creditDays ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.credit_days ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Hold if over</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.holdIfOver ? 'Yes' : 'No'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.hold_if_over ? 'Yes' : 'No'}</div>
             </div>
             <div className="text-xs text-slate-500">{creditPolicy?.notes ?? ''}</div>
           </div>

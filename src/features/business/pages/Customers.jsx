@@ -23,7 +23,7 @@ export default function Customers() {
   const api = useMemo(() => makePartnersApi(http), [http]);
 
   const [q, setQ] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('active');
 
   const query = useMemo(() => ({ type: 'customer', status: status || undefined }), [status]);
 
