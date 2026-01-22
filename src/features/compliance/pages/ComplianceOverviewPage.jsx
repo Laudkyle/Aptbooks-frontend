@@ -1,7 +1,7 @@
 import React from "react";
-import PageHeader from "@/shared/components/layout/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/components/ui/card.jsx";
+import { Button } from '../../../shared/components/ui/Button.jsx';
 
 export default function ComplianceOverviewPage() {
   return (

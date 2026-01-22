@@ -43,19 +43,20 @@ const BankingOverview = lazy(() => import('../../features/banking/pages/BankingO
 const BankAccountsPage = lazy(() => import('../../features/banking/pages/BankAccountsPage.jsx'));
 const BankStatementsPage = lazy(() => import('../../features/banking/pages/BankStatementsPage.jsx'));
 const BankStatementDetailPage = lazy(() => import('../../features/banking/pages/BankStatementDetailPage.jsx'));
-const MatchingRulesPage = lazy(() => import('../../features/banking/pages/MatchingRulesPage.jsx'));
-const CashbookPage = lazy(() => import('../../features/banking/pages/CashbookPage.jsx'));
-const ReconciliationsPage = lazy(() => import('../../features/banking/pages/ReconciliationsPage.jsx'));
+const BankMatchingRulesPage = lazy(() => import('../../features/banking/pages/MatchingRulesPage.jsx'));
+const BankCashbookPage = lazy(() => import('../../features/banking/pages/CashbookPage.jsx'));
+const BankReconciliationsPage = lazy(() => import('../../features/banking/pages/ReconciliationsPage.jsx'));
 
 // Phase 8 — Compliance
 const ComplianceOverview = lazy(() => import('../../features/compliance/pages/ComplianceOverview.jsx'));
 const IFRS16LeasesPage = lazy(() => import('../../features/compliance/pages/IFRS16LeasesPage.jsx'));
 const IFRS15ContractsPage = lazy(() => import('../../features/compliance/pages/IFRS15ContractsPage.jsx'));
-const IFRS9ECLPage = lazy(() => import('../../features/compliance/pages/IFRS9ECLPage.jsx'));
+const IFRS9EclPage = lazy(() => import('../../features/compliance/pages/IFRS9ECLPage.jsx'));
 const IAS12TaxPage = lazy(() => import('../../features/compliance/pages/IAS12TaxPage.jsx'));
 
 // Phase 8 — Workflow Documents
 const DocumentsLibraryPage = lazy(() => import('../../features/workflow/pages/DocumentsLibraryPage.jsx'));
+const DocumentDetailPage = lazy(() => import('../../features/workflow/pages/DocumentDetailPage.jsx'));
 const DocumentTypesPage = lazy(() => import('../../features/workflow/pages/DocumentTypesPage.jsx'));
 const ApprovalLevelsPage = lazy(() => import('../../features/workflow/pages/ApprovalLevelsPage.jsx'));
 
@@ -136,7 +137,8 @@ const ReportTax = lazy(() => import('../../features/reporting/pages/ReportTax.js
 // Phase 6 — Assets + Inventory
 const AssetRegister = lazy(() => import('../../features/assets/pages/AssetRegister.jsx'));
 const AssetCategories = lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
-const AssetDetail= lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
+const AssetDetail = lazy(() => import('../../features/assets/pages/AssetDetail.jsx'));
+const AssetDepreciation = lazy(() => import('../../features/assets/pages/AssetDepreciation.jsx'));
 const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
 const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
 const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
@@ -856,7 +858,7 @@ export const router = createBrowserRouter([
 
           // Phase 7 — Reporting & Planning
           {
-            path: ROUTES.reportingCenters('cost'),
+            path: ROUTES.planningCenters('cost'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
                 <Lazy>
@@ -866,7 +868,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: ROUTES.reportingCenters('profit'),
+            path: ROUTES.planningCenters('profit'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
                 <Lazy>
@@ -876,7 +878,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: ROUTES.reportingCenters('investment'),
+            path: ROUTES.planningCenters('investment'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
                 <Lazy>
@@ -896,7 +898,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: ROUTES.reportingProjectDetail(':id'),
+            path: ROUTES.planningProjectDetail(':id'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingProjectsRead, PERMISSIONS.reportingProjectsManage]}>
                 <Lazy>
@@ -916,7 +918,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: ROUTES.reportingBudgetDetail(':id'),
+            path: ROUTES.planningBudgetDetail(':id'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingBudgetsManage]}>
                 <Lazy>
@@ -936,7 +938,7 @@ export const router = createBrowserRouter([
             )
           },
           {
-            path: ROUTES.reportingForecastDetail(':id'),
+            path: ROUTES.planningForecastDetail(':id'),
             element: (
               <RequirePermission any={[PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingForecastsManage]}>
                 <Lazy>

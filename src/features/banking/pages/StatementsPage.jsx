@@ -1,10 +1,10 @@
 import React from "react";
-import PageHeader from "@/shared/components/layout/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Badge } from "@/shared/components/ui/badge";
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../../shared/components/ui/card";
+import { Button } from"../../../shared/components/ui/button";
+import { Input } from"../../../shared/components/ui/input";
+import { Label } from"../../../shared/components/ui/label";
+import { Badge } from"../../../shared/components/ui/badge";
 
 export default function StatementsPage() {
   return (

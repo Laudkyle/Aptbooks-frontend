@@ -31,8 +31,10 @@ import {
   ClipboardList,
   LineChart,
   MailWarning,
-  BadgeDollarSign
-} from 'lucide-react';
+  BadgeDollarSign,
+  GitCompare,
+  List,
+  CheckCircle2,Inbox} from 'lucide-react';
 import clsx from 'clsx';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { PERMISSIONS } from '../../../app/constants/permissions.js';
@@ -65,7 +67,7 @@ export function SideNav() {
   return (
     <aside
       className={clsx(
-        'relative h-full border-r border-border-subtle bg-white/70 backdrop-blur transition-all',
+        'relative h-screen overflow-y-scroll border-r border-border-subtle bg-white/70 backdrop-blur transition-all',
         sidebarOpen ? 'w-64' : 'w-16'
       )}
     >
