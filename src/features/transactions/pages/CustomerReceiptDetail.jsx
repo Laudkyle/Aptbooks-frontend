@@ -21,6 +21,7 @@ export default function CustomerReceiptDetail() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCustomerReceiptsApi(http), [http]);
+  const toast = useToast();
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({

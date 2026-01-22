@@ -18,7 +18,7 @@ export default function BillCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeBillsApi(http), [http]);
-
+const toast = useToast();
   const [idempotencyKey, setIdempotencyKey] = useState('');
   const [payload, setPayload] = useState({
     vendorId: '',

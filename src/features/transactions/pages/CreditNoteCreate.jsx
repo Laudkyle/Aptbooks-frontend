@@ -17,7 +17,7 @@ export default function CreditNoteCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCreditNotesApi(http), [http]);
-
+const toast = useToast();
   const [payload, setPayload] = useState({
     customerId: '',
     creditNoteDate: '',

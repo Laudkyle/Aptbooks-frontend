@@ -14,7 +14,7 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { toast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CreditNoteDetail() {
   const { id } = useParams();
@@ -22,7 +22,7 @@ export default function CreditNoteDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeCreditNotesApi(http), [http]);
   const qc = useQueryClient();
-
+    const toast = useToast();
   const { data, isLoading } = useQuery({
     queryKey: qk.creditNote(id),
     queryFn: () => api.get(id)

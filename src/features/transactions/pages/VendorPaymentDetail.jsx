@@ -22,7 +22,7 @@ export default function VendorPaymentDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeVendorPaymentsApi(http), [http]);
   const qc = useQueryClient();
-
+  const toast = useToast();
   const { data, isLoading } = useQuery({
     queryKey: qk.vendorPayment(id),
     queryFn: () => api.get(id)

@@ -23,7 +23,7 @@ export default function BillDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeBillsApi(http), [http]);
   const qc = useQueryClient();
-
+  const toast = useToast();
   const { data, isLoading } = useQuery({
     queryKey: qk.bill(id),
     queryFn: () => api.get(id)

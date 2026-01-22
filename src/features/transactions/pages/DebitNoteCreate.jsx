@@ -17,6 +17,7 @@ export default function DebitNoteCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeDebitNotesApi(http), [http]);
+  const toast = useToast();
 
   const [payload, setPayload] = useState({
     vendorId: '',

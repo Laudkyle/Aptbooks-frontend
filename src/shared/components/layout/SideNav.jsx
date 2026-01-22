@@ -169,6 +169,30 @@ export function SideNav() {
             </nav>
           </PermissionGate>
 
+          <PermissionGate any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.inventoryItemsRead, PERMISSIONS.inventoryTransactionsRead]}>
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">ASSETS & INVENTORY</div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.assetsCategoriesRead, PERMISSIONS.assetsCategoriesManage]}>
+                <Item to={ROUTES.assetsCategories} icon={Sliders} label="Asset Categories" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
+                <Item to={ROUTES.assetsRegister} icon={Briefcase} label="Fixed Assets" collapsed={!sidebarOpen} />
+                <Item to={ROUTES.assetsDepreciation} icon={Repeat} label="Depreciation" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryItemsRead, PERMISSIONS.inventoryItemsManage]}>
+                <Item to={ROUTES.inventoryItems} icon={BookOpen} label="Items" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryWarehousesRead, PERMISSIONS.inventoryWarehousesManage]}>
+                <Item to={ROUTES.inventoryWarehouses} icon={Landmark} label="Warehouses" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryTransactionsRead, PERMISSIONS.inventoryTransactionsManage]}>
+                <Item to={ROUTES.inventoryTransactions} icon={ArrowLeftRight} label="Inventory Txns" collapsed={!sidebarOpen} />
+                <Item to={ROUTES.inventoryStockCounts} icon={ClipboardList} label="Stock Counts" collapsed={!sidebarOpen} />
+                <Item to={ROUTES.inventoryReports} icon={LineChart} label="Inventory Reports" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+
           <PermissionGate any={[PERMISSIONS.reportingArRead, PERMISSIONS.reportingApRead, PERMISSIONS.reportingTaxRead]}>
             <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">REPORTING</div>
             <nav className="mt-1 space-y-1">
@@ -183,7 +207,101 @@ export function SideNav() {
               </PermissionGate>
             </nav>
           </PermissionGate>
+
+          <PermissionGate any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingKpisRead, PERMISSIONS.reportingReportsRead]}>
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">PLANNING</div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.reportingCentersRead]}>
+                <Item to={ROUTES.planningCenters('cost')} icon={Sliders} label="Centers" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingProjectsRead]}>
+                <Item to={ROUTES.planningProjects} icon={Briefcase} label="Projects" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingBudgetsRead]}>
+                <Item to={ROUTES.planningBudgets} icon={FileText} label="Budgets" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingForecastsRead]}>
+                <Item to={ROUTES.planningForecasts} icon={LineChart} label="Forecasts" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingAllocationsRead]}>
+                <Item to={ROUTES.planningAllocations} icon={Merge} label="Allocations" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingKpisRead]}>
+                <Item to={ROUTES.planningKpis} icon={BarChart3} label="KPIs" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingDashboardsRead]}>
+                <Item to={ROUTES.planningDashboards} icon={LayoutDashboard} label="Dashboards" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingReportsRead]}>
+                <Item to={ROUTES.planningSavedReports} icon={FileText} label="Saved Reports" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.reportingManagementRead]}>
+                <Item to={ROUTES.planningManagement} icon={Scale} label="Management" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
         </PermissionGate>
+
+        <div className="mt-6">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">BANKING</div>
+          <nav className="mt-2 space-y-1">
+            <PermissionGate any={[PERMISSIONS.bankingAccountsRead, PERMISSIONS.bankingStatementsRead, PERMISSIONS.bankingReconciliationsRead]} fallback={null}>
+              <Item to={ROUTES.banking} icon={Landmark} label="Overview" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingAccountsRead]} fallback={null}>
+              <Item to={ROUTES.bankingAccounts} icon={Landmark} label="Bank Accounts" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingStatementsRead]} fallback={null}>
+              <Item to={ROUTES.bankingStatements} icon={FileText} label="Statements" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingMatchingRulesManage]} fallback={null}>
+              <Item to={ROUTES.bankingMatchingRules} icon={GitCompare} label="Matching Rules" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingCashbookRead]} fallback={null}>
+              <Item to={ROUTES.bankingCashbook} icon={List} label="Cashbook" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingReconciliationsRead]} fallback={null}>
+              <Item to={ROUTES.bankingReconciliations} icon={CheckCircle2} label="Reconciliations" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </div>
+
+        <div className="mt-6">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">COMPLIANCE</div>
+          <nav className="mt-2 space-y-1">
+            <PermissionGate any={[PERMISSIONS.complianceIfrs16Read, PERMISSIONS.complianceIfrs15Read, PERMISSIONS.complianceIfrs9Read, PERMISSIONS.complianceIas12Read]} fallback={null}>
+              <Item to={ROUTES.compliance} icon={Shield} label="Overview" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.complianceIfrs16Read]} fallback={null}>
+              <Item to={ROUTES.complianceIfrs16} icon={Shield} label="IFRS 16 (Leases)" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.complianceIfrs15Read]} fallback={null}>
+              <Item to={ROUTES.complianceIfrs15} icon={Shield} label="IFRS 15 (Revenue)" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.complianceIfrs9Read]} fallback={null}>
+              <Item to={ROUTES.complianceIfrs9} icon={Shield} label="IFRS 9 (ECL)" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.complianceIas12Read]} fallback={null}>
+              <Item to={ROUTES.complianceIas12} icon={Shield} label="IAS 12 (Taxes)" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </div>
+
+        <div className="mt-6">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">WORKFLOW</div>
+          <nav className="mt-2 space-y-1">
+            <PermissionGate any={[PERMISSIONS.documentsRead]} fallback={null}>
+              <Item to={ROUTES.workflowDocuments} icon={FileText} label="Documents" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.documentsManage]} fallback={null}>
+              <Item to={ROUTES.workflowDocumentTypes} icon={Settings} label="Document Types" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.workflowApprovalLevels} icon={Settings} label="Approval Levels" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.approvalsInboxRead]} fallback={null}>
+              <Item to={ROUTES.workflowApprovalsInbox} icon={Inbox} label="Approvals Inbox" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </div>
 
         <PermissionGate any={[PERMISSIONS.settingsRead, PERMISSIONS.usersRead, PERMISSIONS.rbacRolesRead]} fallback={null}>
           <div className="px-2 pt-2">

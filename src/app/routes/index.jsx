@@ -38,6 +38,27 @@ const A11yChecks = lazy(() => import('../../features/utilities/pages/A11yChecks.
 const ReleaseInfo = lazy(() => import('../../features/utilities/pages/ReleaseInfo.jsx'));
 const TestConsole = lazy(() => import('../../features/utilities/pages/TestConsole.jsx'));
 
+// Phase 8 — Banking
+const BankingOverview = lazy(() => import('../../features/banking/pages/BankingOverview.jsx'));
+const BankAccountsPage = lazy(() => import('../../features/banking/pages/BankAccountsPage.jsx'));
+const BankStatementsPage = lazy(() => import('../../features/banking/pages/BankStatementsPage.jsx'));
+const BankStatementDetailPage = lazy(() => import('../../features/banking/pages/BankStatementDetailPage.jsx'));
+const MatchingRulesPage = lazy(() => import('../../features/banking/pages/MatchingRulesPage.jsx'));
+const CashbookPage = lazy(() => import('../../features/banking/pages/CashbookPage.jsx'));
+const ReconciliationsPage = lazy(() => import('../../features/banking/pages/ReconciliationsPage.jsx'));
+
+// Phase 8 — Compliance
+const ComplianceOverview = lazy(() => import('../../features/compliance/pages/ComplianceOverview.jsx'));
+const IFRS16LeasesPage = lazy(() => import('../../features/compliance/pages/IFRS16LeasesPage.jsx'));
+const IFRS15ContractsPage = lazy(() => import('../../features/compliance/pages/IFRS15ContractsPage.jsx'));
+const IFRS9ECLPage = lazy(() => import('../../features/compliance/pages/IFRS9ECLPage.jsx'));
+const IAS12TaxPage = lazy(() => import('../../features/compliance/pages/IAS12TaxPage.jsx'));
+
+// Phase 8 — Workflow Documents
+const DocumentsLibraryPage = lazy(() => import('../../features/workflow/pages/DocumentsLibraryPage.jsx'));
+const DocumentTypesPage = lazy(() => import('../../features/workflow/pages/DocumentTypesPage.jsx'));
+const ApprovalLevelsPage = lazy(() => import('../../features/workflow/pages/ApprovalLevelsPage.jsx'));
+
 // Phase 4 — Accounting
 const AccountList = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountList.jsx'));
 const AccountCreate = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx'));
@@ -111,6 +132,27 @@ const ReportApAging = lazy(() => import('../../features/reporting/pages/ReportAp
 const ReportApOpenItems = lazy(() => import('../../features/reporting/pages/ReportApOpenItems.jsx'));
 const ReportApVendorStatement = lazy(() => import('../../features/reporting/pages/ReportApVendorStatement.jsx'));
 const ReportTax = lazy(() => import('../../features/reporting/pages/ReportTax.jsx'));
+
+// Phase 6 — Assets + Inventory
+const AssetRegister = lazy(() => import('../../features/assets/pages/AssetRegister.jsx'));
+const AssetCategories = lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
+const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
+const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
+const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
+
+// Phase 7 — Reporting & Planning
+const Centers = lazy(() => import('../../features/reporting/pages/Centers.jsx'));
+const Projects = lazy(() => import('../../features/reporting/pages/Projects.jsx'));
+const ProjectDetail = lazy(() => import('../../features/reporting/pages/ProjectDetail.jsx'));
+const Budgets = lazy(() => import('../../features/reporting/pages/Budgets.jsx'));
+const BudgetDetail = lazy(() => import('../../features/reporting/pages/BudgetDetail.jsx'));
+const Forecasts = lazy(() => import('../../features/reporting/pages/Forecasts.jsx'));
+const ForecastDetail = lazy(() => import('../../features/reporting/pages/ForecastDetail.jsx'));
+const Allocations = lazy(() => import('../../features/reporting/pages/Allocations.jsx'));
+const KPIs = lazy(() => import('../../features/reporting/pages/KPIs.jsx'));
+const Dashboards = lazy(() => import('../../features/reporting/pages/Dashboards.jsx'));
+const SavedReports = lazy(() => import('../../features/reporting/pages/SavedReports.jsx'));
+const ManagementReports = lazy(() => import('../../features/reporting/pages/ManagementReports.jsx'));
 
 function Loader() {
   return (
@@ -747,6 +789,212 @@ export const router = createBrowserRouter([
             )
           },
 
+          // Phase 6 — Assets
+          {
+            path: ROUTES.assetsCategories,
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsCategoriesRead, PERMISSIONS.assetsCategoriesManage]}>
+                <Lazy>
+                  <AssetCategories />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.assetsRegister,
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetRegister />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.assetsAssetDetail(':id'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetDetail />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.assetsDepreciation,
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsDepreciationRun, PERMISSIONS.assetsFixedAssetsRead]}>
+                <Lazy>
+                  <AssetDepreciation />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          // Phase 6 — Inventory
+          {
+            path: ROUTES.inventoryItems,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryItemsRead, PERMISSIONS.inventoryItemsManage]}>
+                <Lazy>
+                  <InventoryItems />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.inventoryWarehouses,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryWarehousesRead, PERMISSIONS.inventoryWarehousesManage]}>
+                <Lazy>
+                  <InventoryWarehouses />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          // Phase 7 — Reporting & Planning
+          {
+            path: ROUTES.reportingCenters('cost'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+                <Lazy>
+                  <Centers />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingCenters('profit'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+                <Lazy>
+                  <Centers />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingCenters('investment'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+                <Lazy>
+                  <Centers />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingProjects,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingProjectsRead, PERMISSIONS.reportingProjectsManage]}>
+                <Lazy>
+                  <Projects />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingProjectDetail(':id'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingProjectsRead, PERMISSIONS.reportingProjectsManage]}>
+                <Lazy>
+                  <ProjectDetail />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingBudgets,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingBudgetsManage]}>
+                <Lazy>
+                  <Budgets />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingBudgetDetail(':id'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingBudgetsManage]}>
+                <Lazy>
+                  <BudgetDetail />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingForecasts,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingForecastsManage]}>
+                <Lazy>
+                  <Forecasts />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingForecastDetail(':id'),
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingForecastsManage]}>
+                <Lazy>
+                  <ForecastDetail />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingAllocations,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingAllocationsRead, PERMISSIONS.reportingAllocationsManage]}>
+                <Lazy>
+                  <Allocations />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingKpis,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingKpisRead, PERMISSIONS.reportingKpisManage]}>
+                <Lazy>
+                  <KPIs />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingDashboards,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingDashboardsRead, PERMISSIONS.reportingDashboardsManage]}>
+                <Lazy>
+                  <Dashboards />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingSavedReports,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingReportsRead, PERMISSIONS.reportingReportsManage]}>
+                <Lazy>
+                  <SavedReports />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.reportingManagement,
+            element: (
+              <RequirePermission any={[PERMISSIONS.reportingManagementRead]}>
+                <Lazy>
+                  <ManagementReports />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
 // Admin
           {
             path: ROUTES.adminOrg,
@@ -916,6 +1164,172 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.testsRun]}>
                 <Lazy>
                   <TestConsole />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          // Phase 8 — Banking
+          {
+            path: ROUTES.banking,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingAccountsRead, PERMISSIONS.bankingStatementsRead]}>
+                <Lazy>
+                  <BankingOverview />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingAccounts,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingAccountsRead]}>
+                <Lazy>
+                  <BankAccountsPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingStatements,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingStatementsRead]}>
+                <Lazy>
+                  <BankStatementsPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingStatementDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingStatementsRead]}>
+                <Lazy>
+                  <BankStatementDetailPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingMatchingRules,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingMatchingRulesManage]}>
+                <Lazy>
+                  <BankMatchingRulesPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingCashbook,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingCashbookRead]}>
+                <Lazy>
+                  <BankCashbookPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.bankingReconciliations,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingReconciliationsRead]}>
+                <Lazy>
+                  <BankReconciliationsPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          // Phase 8 — Compliance
+          {
+            path: ROUTES.compliance,
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs16Read, PERMISSIONS.complianceIfrs15Read, PERMISSIONS.complianceIfrs9Read, PERMISSIONS.complianceIas12Read]}>
+                <Lazy>
+                  <ComplianceOverview />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.complianceIFRS16,
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs16Read]}>
+                <Lazy>
+                  <IFRS16LeasesPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.complianceIFRS15,
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs15Read]}>
+                <Lazy>
+                  <IFRS15ContractsPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.complianceIFRS9,
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs9Read]}>
+                <Lazy>
+                  <IFRS9EclPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.complianceIAS12,
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIas12Read]}>
+                <Lazy>
+                  <IAS12TaxPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+
+          // Phase 8 — Workflow Documents
+          {
+            path: ROUTES.documents,
+            element: (
+              <RequirePermission any={[PERMISSIONS.documentsRead]}>
+                <Lazy>
+                  <DocumentsLibraryPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.documentDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.documentsRead]}>
+                <Lazy>
+                  <DocumentDetailPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.documentTypes,
+            element: (
+              <RequirePermission any={[PERMISSIONS.documentsManage]}>
+                <Lazy>
+                  <DocumentTypesPage />
+                </Lazy>
+              </RequirePermission>
+            )
+          },
+          {
+            path: ROUTES.documentApprovalLevels,
+            element: (
+              <RequirePermission any={[PERMISSIONS.documentsManage]}>
+                <Lazy>
+                  <ApprovalLevelsPage />
                 </Lazy>
               </RequirePermission>
             )

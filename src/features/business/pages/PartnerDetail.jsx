@@ -38,7 +38,7 @@ export default function PartnerDetail() {
   const { http } = useApi();
   const api = useMemo(() => makePartnersApi(http), [http]);
   const qc = useQueryClient();
-
+const toast = useToast();
   const { data: partner, isLoading } = useQuery({
     queryKey: qk.partner(id),
     queryFn: () => api.get(id)

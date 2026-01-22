@@ -22,7 +22,7 @@ export default function Writeoffs() {
   const { http } = useApi();
   const api = useMemo(() => makeWriteoffsApi(http), [http]);
   const qc = useQueryClient();
-
+const toast = useToast();
   const [status, setStatus] = useState('');
   const qs = useMemo(() => (status ? { status } : {}), [status]);
 

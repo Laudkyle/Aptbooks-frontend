@@ -89,6 +89,90 @@ paymentPlansManage: 'payment_plans.manage',
 
 reportingArRead: 'reporting.ar.read',
 reportingApRead: 'reporting.ap.read',
-reportingTaxRead: 'reporting.tax.read'
+reportingTaxRead: 'reporting.tax.read',
+
+// Phase 6 — Assets
+assetsCategoriesRead: 'assets.categories.read',
+assetsCategoriesManage: 'assets.categories.manage',
+assetsFixedAssetsRead: 'assets.fixed_assets.read',
+assetsFixedAssetsManage: 'assets.fixed_assets.manage',
+assetsDepreciationRun: 'assets.depreciation.run',
+
+// Phase 6 — Inventory
+inventoryCategoriesRead: 'inventory.categories.read',
+inventoryCategoriesManage: 'inventory.categories.manage',
+inventoryUnitsRead: 'inventory.units.read',
+inventoryUnitsManage: 'inventory.units.manage',
+inventoryItemsRead: 'inventory.items.read',
+inventoryItemsManage: 'inventory.items.manage',
+inventoryWarehousesRead: 'inventory.warehouses.read',
+inventoryWarehousesManage: 'inventory.warehouses.manage',
+inventoryTransactionsRead: 'inventory.transactions.read',
+inventoryTransactionsManage: 'inventory.transactions.manage',
+inventoryTransactionsApprove: 'inventory.transactions.approve',
+inventoryTransactionsPost: 'inventory.transactions.post',
+
+// Phase 7 — Reporting & Planning
+reportingCentersRead: 'reporting.centers.read',
+reportingCentersManage: 'reporting.centers.manage',
+reportingProjectsRead: 'reporting.projects.read',
+reportingProjectsManage: 'reporting.projects.manage',
+reportingBudgetsRead: 'reporting.budgets.read',
+reportingBudgetsManage: 'reporting.budgets.manage',
+reportingForecastsRead: 'reporting.forecasts.read',
+reportingForecastsManage: 'reporting.forecasts.manage',
+reportingAllocationsRead: 'reporting.allocations.read',
+reportingAllocationsManage: 'reporting.allocations.manage',
+reportingKpisRead: 'reporting.kpis.read',
+reportingKpisManage: 'reporting.kpis.manage',
+reportingDashboardsRead: 'reporting.dashboards.read',
+reportingDashboardsManage: 'reporting.dashboards.manage',
+reportingReportsRead: 'reporting.reports.read',
+reportingReportsManage: 'reporting.reports.manage',
+reportingManagementRead: 'reporting.management.read',
+
+// Phase 8 — Banking
+bankingAccountsRead: 'banking.accounts.read',
+bankingAccountsManage: 'banking.accounts.manage',
+bankingStatementsRead: 'banking.statements.read',
+bankingStatementsManage: 'banking.statements.manage',
+bankingMatchingAct: 'banking.matching.act',
+bankingMatchingRulesManage: 'banking.matching.rules.manage',
+bankingMatchingSuggest: 'banking.matching.suggest',
+bankingCashbookRead: 'banking.cashbook.read',
+bankingReconciliationsRead: 'banking.reconciliations.read',
+bankingReconciliationRun: 'banking.reconciliation.run',
+reportingBankingRead: 'reporting.banking.read',
+
+// Phase 8 — Compliance
+complianceIfrs16Read: 'compliance.ifrs16.read',
+complianceIfrs16Manage: 'compliance.ifrs16.manage',
+complianceIfrs16Post: 'compliance.ifrs16.post',
+complianceIfrs15Read: 'compliance.ifrs15.read',
+complianceIfrs15Manage: 'compliance.ifrs15.manage',
+complianceIfrs15Post: 'compliance.ifrs15.post',
+complianceIfrs9Read: 'compliance.ifrs9.read',
+complianceIfrs9Manage: 'compliance.ifrs9.manage',
+complianceIfrs9Post: 'compliance.ifrs9.post',
+complianceIas12Read: 'compliance.ias12.read',
+complianceIas12Manage: 'compliance.ias12.manage',
+complianceIas12Post: 'compliance.ias12.post',
+
+// Phase 8 — Workflow / Documents
+documentsRead: 'documents.read',
+documentsManage: 'documents.manage',
+documentsCreate: 'documents.create',
+approvalsInboxRead: 'approvals.inbox.read',
+approvalsAct: 'approvals.act',
+
+// Phase 8 — Utilities
+settingsRead: 'settings.read',
+settingsManage: 'settings.manage',
+utilitiesClientLogsWrite: 'utilities.client_logs.write',
+utilitiesClientLogsRead: 'utilities.client_logs.read',
+utilitiesI18nRead: 'utilities.i18n.read',
+utilitiesA11yRead: 'utilities.a11y.read',
+utilitiesReleaseRead: 'utilities.release.read',
+utilitiesTestsRun: 'utilities.tests.run'
 
 };

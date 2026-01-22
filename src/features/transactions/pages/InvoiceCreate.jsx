@@ -18,7 +18,7 @@ export default function InvoiceCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeInvoicesApi(http), [http]);
-
+const toast = useToast();
   const [idempotencyKey, setIdempotencyKey] = useState('');
   const [payload, setPayload] = useState({
     customerId: '',

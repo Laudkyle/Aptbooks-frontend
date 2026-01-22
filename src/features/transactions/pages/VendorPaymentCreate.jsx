@@ -18,7 +18,7 @@ export default function VendorPaymentCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeVendorPaymentsApi(http), [http]);
-
+const toast = useToast();
   const [idempotencyKey, setIdempotencyKey] = useState('');
   const [payload, setPayload] = useState({
     vendorId: '',

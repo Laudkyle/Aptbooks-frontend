@@ -23,7 +23,7 @@ export default function InvoiceDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeInvoicesApi(http), [http]);
   const qc = useQueryClient();
-
+const toast = useToast();
   const { data, isLoading } = useQuery({
     queryKey: qk.invoice(id),
     queryFn: () => api.get(id)

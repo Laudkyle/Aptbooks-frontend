@@ -17,7 +17,7 @@ export default function CustomerReceiptCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCustomerReceiptsApi(http), [http]);
-
+const toast = useToast();
   const [payload, setPayload] = useState({
     customerId: '',
     receiptDate: '',
