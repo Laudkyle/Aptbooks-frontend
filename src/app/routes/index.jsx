@@ -136,6 +136,7 @@ const ReportTax = lazy(() => import('../../features/reporting/pages/ReportTax.js
 // Phase 6 — Assets + Inventory
 const AssetRegister = lazy(() => import('../../features/assets/pages/AssetRegister.jsx'));
 const AssetCategories = lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
+const AssetDetail= lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
 const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
 const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
 const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
