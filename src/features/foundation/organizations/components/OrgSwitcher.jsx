@@ -1,15 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { useOrg } from '../../../../shared/hooks/useOrg.js';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { ChevronDown } from 'lucide-react'; 
+import { useOrg } from '../../../../shared/hooks/useOrg.js'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
 
 export function OrgSwitcher() {
-  const { organizations, currentOrg, switchOrganization } = useOrg();
-  const [open, setOpen] = useState(false);
+  const { organizations, currentOrg, switchOrganization } = useOrg(); 
+  const [open, setOpen] = useState(false); 
 
-  const items = useMemo(() => organizations ?? [], [organizations]);
+  const items = useMemo(() => organizations ?? [], [organizations]); 
 
-  if (!items.length) return null;
+  if (!items.length) return null; 
 
   return (
     <div className="relative">
@@ -27,8 +27,8 @@ export function OrgSwitcher() {
                 (o.id === currentOrg?.id ? 'font-semibold text-brand-deep' : 'text-slate-700')
               }
               onClick={async () => {
-                setOpen(false);
-                if (o.id !== currentOrg?.id) await switchOrganization(o.id);
+                setOpen(false); 
+                if (o.id !== currentOrg?.id) await switchOrganization(o.id); 
               }}
             >
               <span className="truncate">{o.name}</span>
@@ -38,5 +38,5 @@ export function OrgSwitcher() {
         </div>
       ) : null}
     </div>
-  );
+  ); 
 }

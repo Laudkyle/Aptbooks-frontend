@@ -1,58 +1,58 @@
-import React, { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeTaxApi } from '../api/tax.api.js';
-import { makeCoaApi } from '../../../../features/accounting/chartOfAccounts/api/coa.api.js';
+import React, { useMemo, useState } from 'react'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeTaxApi } from '../api/tax.api.js'; 
+import { makeCoaApi } from '../../../../features/accounting/chartOfAccounts/api/coa.api.js'; 
 
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../../shared/components/ui/Select.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { useToast } from '../../../../shared/components/ui/Toast.jsx';
-import { PERMISSIONS } from '../../../../app/constants/permissions.js';
-import { PermissionGate } from '../../../../app/routes/route-guards.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../../shared/components/ui/Select.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
+import { PERMISSIONS } from '../../../../app/constants/permissions.js'; 
+import { PermissionGate } from '../../../../app/routes/route-guards.jsx'; 
 
 export default function TaxAdmin() {
-  const { http } = useApi();
-  const api = useMemo(() => makeTaxApi(http), [http]);
-  const coaApi = useMemo(() => makeCoaApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { http } = useApi(); 
+  const api = useMemo(() => makeTaxApi(http), [http]); 
+  const coaApi = useMemo(() => makeCoaApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
 
-  const [tab, setTab] = useState('codes');
+  const [tab, setTab] = useState('codes'); 
 
-  const jurisQ = useQuery({ queryKey: ['tax-juris'], queryFn: api.listJurisdictions, staleTime: 10_000 });
-  const codesQ = useQuery({ queryKey: ['tax-codes'], queryFn: () => api.listCodes({}), staleTime: 10_000 });
-  const settingsQ = useQuery({ queryKey: ['tax-settings'], queryFn: api.getSettings, staleTime: 10_000 });
+  const jurisQ = useQuery({ queryKey: ['tax-juris'], queryFn: api.listJurisdictions, staleTime: 10_000 }); 
+  const codesQ = useQuery({ queryKey: ['tax-codes'], queryFn: () => api.listCodes({}), staleTime: 10_000 }); 
+  const settingsQ = useQuery({ queryKey: ['tax-settings'], queryFn: api.getSettings, staleTime: 10_000 }); 
   
   // Fetch accounts for settings dropdown
   const accountsQ = useQuery({
     queryKey: ['coa', 'false'],
     queryFn: () => coaApi.list({ includeArchived: 'false' }),
     staleTime: 10_000
-  });
+  }); 
 
   // Jurisdictions create
-  const [jCode, setJCode] = useState('');
-  const [jName, setJName] = useState('');
-  const [countryCode, setCountryCode] = useState('');
+  const [jCode, setJCode] = useState(''); 
+  const [jName, setJName] = useState(''); 
+  const [countryCode, setCountryCode] = useState(''); 
 
   const createJ = useMutation({
     mutationFn: () => api.createJurisdiction({ code: jCode, name: jName, countryCode: countryCode || undefined }),
     onSuccess: () => {
-      toast.success('Jurisdiction created.');
-      setJCode(''); setJName(''); setCountryCode('');
-      qc.invalidateQueries({ queryKey: ['tax-juris'] });
+      toast.success('Jurisdiction created.'); 
+      setJCode('');  setJName('');  setCountryCode(''); 
+      qc.invalidateQueries({ queryKey: ['tax-juris'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Create failed')
-  });
+  }); 
 
   // Tax code create
-  const [jurisdictionId, setJurisdictionId] = useState('');
-  const [taxType, setTaxType] = useState('VAT');
-  const [tCode, setTCode] = useState('');
-  const [tName, setTName] = useState('');
-  const [rate, setRate] = useState('');
-  const [direction, setDirection] = useState('');
+  const [jurisdictionId, setJurisdictionId] = useState(''); 
+  const [taxType, setTaxType] = useState('VAT'); 
+  const [tCode, setTCode] = useState(''); 
+  const [tName, setTName] = useState(''); 
+  const [rate, setRate] = useState(''); 
+  const [direction, setDirection] = useState(''); 
 
   const createCode = useMutation({
     mutationFn: () => api.createCode({
@@ -64,24 +64,24 @@ export default function TaxAdmin() {
       direction: direction || null
     }),
     onSuccess: () => {
-      toast.success('Tax code created.');
-      setTCode(''); setTName(''); setRate('');
-      qc.invalidateQueries({ queryKey: ['tax-codes'] });
+      toast.success('Tax code created.'); 
+      setTCode('');  setTName('');  setRate(''); 
+      qc.invalidateQueries({ queryKey: ['tax-codes'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Create failed')
-  });
+  }); 
 
   // Settings
-  const [outputTaxAccountId, setOutputTaxAccountId] = useState('');
-  const [inputTaxAccountId, setInputTaxAccountId] = useState('');
-  const [defaultTaxCodeId, setDefaultTaxCodeId] = useState('');
+  const [outputTaxAccountId, setOutputTaxAccountId] = useState(''); 
+  const [inputTaxAccountId, setInputTaxAccountId] = useState(''); 
+  const [defaultTaxCodeId, setDefaultTaxCodeId] = useState(''); 
 
   React.useEffect(() => {
-    if (!settingsQ.data) return;
-    setOutputTaxAccountId(settingsQ.data.outputTaxAccountId ?? '');
-    setInputTaxAccountId(settingsQ.data.inputTaxAccountId ?? '');
-    setDefaultTaxCodeId(settingsQ.data.defaultTaxCodeId ?? '');
-  }, [settingsQ.data]);
+    if (!settingsQ.data) return; 
+    setOutputTaxAccountId(settingsQ.data.outputTaxAccountId ?? ''); 
+    setInputTaxAccountId(settingsQ.data.inputTaxAccountId ?? ''); 
+    setDefaultTaxCodeId(settingsQ.data.defaultTaxCodeId ?? ''); 
+  }, [settingsQ.data]); 
 
   const saveSettings = useMutation({
     mutationFn: () => api.setSettings({
@@ -90,25 +90,25 @@ export default function TaxAdmin() {
       defaultTaxCodeId: defaultTaxCodeId || null
     }),
     onSuccess: () => {
-      toast.success('Settings saved.');
-      qc.invalidateQueries({ queryKey: ['tax-settings'] });
+      toast.success('Settings saved.'); 
+      qc.invalidateQueries({ queryKey: ['tax-settings'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Save failed')
-  });
+  }); 
 
   // Fix the error by ensuring data is always an array
-  const jurisdictions = Array.isArray(jurisQ.data?.data) ? jurisQ.data?.data : [];
-  const taxCodes = Array.isArray(codesQ.data?.data) ? codesQ.data?.data : [];
-  const accounts = Array.isArray(accountsQ.data) ? accountsQ.data : [];
+  const jurisdictions = Array.isArray(jurisQ.data?.data) ? jurisQ.data?.data : []; 
+  const taxCodes = Array.isArray(codesQ.data?.data) ? codesQ.data?.data : []; 
+  const accounts = Array.isArray(accountsQ.data) ? accountsQ.data : []; 
   console.log(jurisQ.data)
 
   const jurisOptions = [{ value: '', label: 'No jurisdiction' }].concat(
     jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` }))
-  );
+  ); 
 
   const taxCodeOptions = [{ value: '', label: 'None' }].concat(
     taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))
-  );
+  ); 
 
   // Create account options from COA data
   const accountOptions = [{ value: '', label: 'Select account' }].concat(
@@ -116,7 +116,7 @@ export default function TaxAdmin() {
       value: a.id, 
       label: `${a.code ? a.code + ' — ' : ''}${a.name}` 
     }))
-  );
+  ); 
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -388,5 +388,5 @@ export default function TaxAdmin() {
         </PermissionGate>
       </div>
     </div>
-  );
+  ); 
 }

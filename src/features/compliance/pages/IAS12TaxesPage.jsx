@@ -1,7 +1,7 @@
-import React from "react";
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/components/ui/Card";
-import { Button } from "../../../shared/components/ui/Button.jsx";
+import React from "react"; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/components/ui/Card"; 
+import { Button } from "../../../shared/components/ui/Button.jsx"; 
 
 export default function IAS12TaxesPage() {
   return (
@@ -47,5 +47,5 @@ export default function IAS12TaxesPage() {
         </Card>
       </div>
     </div>
-  );
+  ); 
 }

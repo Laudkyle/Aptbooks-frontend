@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../shared/api/endpoints.js'; 
 
 export function makeDisputesApi(http) {
   return {
@@ -12,5 +12,5 @@ export function makeDisputesApi(http) {
     actions: async (id, body) => (await http.post(endpoints.modules.ar.disputes.actions(id), body)).data,
     resolve: async (id, body) => (await http.post(endpoints.modules.ar.disputes.resolve(id), body)).data,
     void: async (id) => (await http.post(endpoints.modules.ar.disputes.void(id))).data
-  };
+  }; 
 }

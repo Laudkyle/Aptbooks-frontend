@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button } from './Button.jsx';
+import React from 'react'; 
+import { Button } from './Button.jsx'; 
 
 export function Pagination({ limit, offset, total, onChange }) {
-  const currentPage = Math.floor((offset ?? 0) / (limit ?? 1)) + 1;
-  const totalPages = total ? Math.max(1, Math.ceil(total / limit)) : null;
+  const currentPage = Math.floor((offset ?? 0) / (limit ?? 1)) + 1; 
+  const totalPages = total ? Math.max(1, Math.ceil(total / limit)) : null; 
 
   return (
     <div className="flex items-center justify-between gap-3">
@@ -29,5 +29,5 @@ export function Pagination({ limit, offset, total, onChange }) {
         </Button>
       </div>
     </div>
-  );
+  ); 
 }

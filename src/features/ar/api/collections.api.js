@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../shared/api/endpoints.js'; 
 
 export function makeCollectionsApi(http) {
   return {
@@ -24,5 +24,5 @@ export function makeCollectionsApi(http) {
     listDunningRuns: async () => (await http.get(endpoints.modules.ar.collections.dunningRuns)).data,
     getDunningRun: async (id) => (await http.get(endpoints.modules.ar.collections.dunningRun(id))).data,
     runDunning: async (body) => (await http.post(endpoints.modules.ar.collections.dunningRuns, body)).data
-  };
+  }; 
 }

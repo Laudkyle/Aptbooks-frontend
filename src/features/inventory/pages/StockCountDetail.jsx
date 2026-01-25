@@ -1,86 +1,86 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, CheckCircle2, Send } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useNavigate, useParams } from 'react-router-dom'; 
+import { useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, Save, CheckCircle2, Send } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeInventoryApi } from '../api/inventory.api.js';
-import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeInventoryApi } from '../api/inventory.api.js'; 
+import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js'; 
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Table } from '../../../shared/components/ui/Table.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { Table } from '../../../shared/components/ui/Table.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
 
 export default function StockCountDetail() {
-  const { id } = useParams();
-  const nav = useNavigate();
-  const qc = useQueryClient();
-  const { http } = useApi();
-  const api = useMemo(() => makeInventoryApi(http), [http]);
-  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  const { id } = useParams(); 
+  const nav = useNavigate(); 
+  const qc = useQueryClient(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makeInventoryApi(http), [http]); 
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]); 
 
   const { data: sc } = useQuery({
     queryKey: ['inventory.stockCount', id],
     queryFn: async () => api.getStockCount(id),
     enabled: !!id
-  });
+  }); 
 
   const { data: itemsRaw } = useQuery({
     queryKey: ['inventory.items'],
     queryFn: async () => api.listItems(),
     staleTime: 60_000
-  });
+  }); 
 
   const { data: periodsRaw } = useQuery({
     queryKey: ['accounting.periods.list'],
     queryFn: async () => periodsApi.list(),
     staleTime: 60_000
-  });
+  }); 
 
-  const itemOptions = useMemo(() => [NONE_OPTION, ...toOptions(itemsRaw, { valueKey: 'id', label: (i) => `${i.sku ?? ''} ${i.name ?? ''}`.trim() || i.id })], [itemsRaw]);
-  const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, { valueKey: 'id', label: (p) => p.name ?? p.id })], [periodsRaw]);
+  const itemOptions = useMemo(() => [NONE_OPTION, ...toOptions(itemsRaw, { valueKey: 'id', label: (i) => `${i.sku ?? ''} ${i.name ?? ''}`.trim() || i.id })], [itemsRaw]); 
+  const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, { valueKey: 'id', label: (p) => p.name ?? p.id })], [periodsRaw]); 
 
-  const [mode, setMode] = useState('view'); // view | lines | post
-  const [saving, setSaving] = useState(false);
+  const [mode, setMode] = useState('view');  // view | lines | post
+  const [saving, setSaving] = useState(false); 
 
-  const [linesForm, setLinesForm] = useState([{ itemId: '', countedQty: '', unitCost: '' }]);
+  const [linesForm, setLinesForm] = useState([{ itemId: '', countedQty: '', unitCost: '' }]); 
 
-  const [postForm, setPostForm] = useState({ periodId: '', txnDate: '', reference: '', memo: '' });
+  const [postForm, setPostForm] = useState({ periodId: '', txnDate: '', reference: '', memo: '' }); 
 
   async function refresh() {
-    await qc.invalidateQueries({ queryKey: ['inventory.stockCount', id] });
-    await qc.invalidateQueries({ queryKey: ['inventory.stockCounts'] });
+    await qc.invalidateQueries({ queryKey: ['inventory.stockCount', id] }); 
+    await qc.invalidateQueries({ queryKey: ['inventory.stockCounts'] }); 
   }
 
   async function submit() {
-    setSaving(true);
+    setSaving(true); 
     try {
-      await api.submitStockCount(id);
-      await refresh();
+      await api.submitStockCount(id); 
+      await refresh(); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
   async function approve() {
-    setSaving(true);
+    setSaving(true); 
     try {
-      await api.approveStockCount(id);
-      await refresh();
+      await api.approveStockCount(id); 
+      await refresh(); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
   async function saveLines(e) {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); 
+    setSaving(true); 
     try {
       const payload = {
         lines: linesForm.map((l) => ({
@@ -88,34 +88,34 @@ export default function StockCountDetail() {
           countedQty: Number(l.countedQty),
           unitCost: l.unitCost === '' ? null : Number(l.unitCost)
         }))
-      };
-      await api.upsertStockCountLines(id, payload);
-      await refresh();
-      setMode('view');
+      }; 
+      await api.upsertStockCountLines(id, payload); 
+      await refresh(); 
+      setMode('view'); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
   async function postAdjustments(e) {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); 
+    setSaving(true); 
     try {
       const payload = {
         periodId: postForm.periodId,
         txnDate: postForm.txnDate,
         reference: postForm.reference ? postForm.reference : null,
         memo: postForm.memo ? postForm.memo : null
-      };
-      await api.postStockCount(id, payload);
-      await refresh();
-      setMode('view');
+      }; 
+      await api.postStockCount(id, payload); 
+      await refresh(); 
+      setMode('view'); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
-  if (!sc) return null;
+  if (!sc) return null; 
 
   if (mode === 'lines') {
     return (
@@ -173,7 +173,7 @@ export default function StockCountDetail() {
           </form>
         </ContentCard>
       </>
-    );
+    ); 
   }
 
   if (mode === 'post') {
@@ -209,7 +209,7 @@ export default function StockCountDetail() {
           </form>
         </ContentCard>
       </>
-    );
+    ); 
   }
 
   return (
@@ -268,5 +268,5 @@ export default function StockCountDetail() {
         </ContentCard>
       </div>
     </>
-  );
+  ); 
 }

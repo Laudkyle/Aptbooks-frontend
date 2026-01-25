@@ -1,18 +1,18 @@
-import React, { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useMemo, useState } from "react"; 
+import { Link, useParams } from "react-router-dom"; 
 
-import PageHeader from "../../../shared/components/layout/PageHeader";
-import { Card, CardContent, CardHeader } from "../../../shared/components/ui/Card";
-import { Button } from "../../../shared/components/ui/Button";
-import { Input } from "../../../shared/components/ui/Input";
-import { Badge } from "../../../shared/components/ui/Badge";
-import { Tabs } from "../../../shared/components/ui/Tabs";
-import { Table, TBody, TD, TH, THead, TR } from "../../../shared/components/ui/Table";
+import PageHeader from "../../../shared/components/layout/PageHeader"; 
+import { Card, CardContent, CardHeader } from "../../../shared/components/ui/Card"; 
+import { Button } from "../../../shared/components/ui/Button"; 
+import { Input } from "../../../shared/components/ui/Input"; 
+import { Badge } from "../../../shared/components/ui/Badge"; 
+import { Tabs } from "../../../shared/components/ui/Tabs"; 
+import { Table, TBody, TD, TH, THead, TR } from "../../../shared/components/ui/Table"; 
 
 
 export default function BankStatementDetailPage() {
-  const { statementId } = useParams();
-  const [tab, setTab] = useState("lines");
+  const { statementId } = useParams(); 
+  const [tab, setTab] = useState("lines"); 
 
   const statement = useMemo(
     () => ({
@@ -26,7 +26,7 @@ export default function BankStatementDetailPage() {
       status: "open",
     }),
     [statementId]
-  );
+  ); 
 
   const sampleLines = useMemo(
     () =>
@@ -40,7 +40,7 @@ export default function BankStatementDetailPage() {
         matched: i % 3 === 0,
       })),
     []
-  );
+  ); 
 
   return (
     <div className="space-y-6">
@@ -339,7 +339,7 @@ export default function BankStatementDetailPage() {
                           <div className="text-xs text-slate-500">Posted • 2026-01-0{(i % 9) + 1}</div>
                         </TD>
                         <TD className="font-mono text-xs">{(0.92 - i * 0.08).toFixed(2)}</TD>
-                        <TD className="text-sm text-slate-700">Amount within tolerance; description similarity</TD>
+                        <TD className="text-sm text-slate-700">Amount within tolerance;  description similarity</TD>
                         <TD className="text-right">
                           <Button size="sm">Match</Button>
                         </TD>
@@ -391,5 +391,5 @@ export default function BankStatementDetailPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  ); 
 }

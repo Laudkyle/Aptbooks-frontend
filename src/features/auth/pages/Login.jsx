@@ -1,53 +1,53 @@
-import React, { useMemo, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { AuthLayout } from '../components/AuthLayout.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { useAuth } from '../../../shared/hooks/useAuth.js';
-import { ROUTES } from '../../../app/constants/routes.js';
-import { normalizeError } from '../../../shared/api/errors.js';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useLocation, useNavigate, Link } from 'react-router-dom'; 
+import { AuthLayout } from '../components/AuthLayout.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { useAuth } from '../../../shared/hooks/useAuth.js'; 
+import { ROUTES } from '../../../app/constants/routes.js'; 
+import { normalizeError } from '../../../shared/api/errors.js'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 export default function Login() {
-  const { login } = useAuth();
-  const nav = useNavigate();
-  const location = useLocation();
-  const toast = useToast();
+  const { login } = useAuth(); 
+  const nav = useNavigate(); 
+  const location = useLocation(); 
+  const toast = useToast(); 
 
-  const from = location.state?.from?.pathname ?? ROUTES.dashboard;
+  const from = location.state?.from?.pathname ?? ROUTES.dashboard; 
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [email, setEmail] = useState(''); 
+  const [password, setPassword] = useState(''); 
+  const [otp, setOtp] = useState(''); 
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(null); 
 
   const showOtp = useMemo(() => {
-    return Boolean(otp) || error?.status === 401;
-  }, [otp, error]);
+    return Boolean(otp) || error?.status === 401; 
+  }, [otp, error]); 
 
   return (
     <AuthLayout title="Sign in" subtitle="Use your organization account">
       <form
         className="space-y-4"
         onSubmit={async (e) => {
-          e.preventDefault();
-          setLoading(true);
-          setError(null);
+          e.preventDefault(); 
+          setLoading(true); 
+          setError(null); 
           try {
-            await login({ email, password, ...(otp ? { otp } : {}) });
-            toast.success('Signed in successfully.');
-            nav(from, { replace: true });
+            await login({ email, password, ...(otp ? { otp } : {}) }); 
+            toast.success('Signed in successfully.'); 
+            nav(from, { replace: true }); 
           } catch (e2) {
-            const ne = normalizeError(e2);
-            setError(ne);
+            const ne = normalizeError(e2); 
+            setError(ne); 
             if (ne.status === 401) {
-              toast.error(ne.message || 'Authentication failed. If 2FA is enabled, enter your OTP code.');
+              toast.error(ne.message || 'Authentication failed. If 2FA is enabled, enter your OTP code.'); 
             } else {
-              toast.error(ne.message || 'Sign in failed.');
+              toast.error(ne.message || 'Sign in failed.'); 
             }
           } finally {
-            setLoading(false);
+            setLoading(false); 
           }
         }}
       >
@@ -73,5 +73,5 @@ export default function Login() {
         </div>
       </form>
     </AuthLayout>
-  );
+  ); 
 }

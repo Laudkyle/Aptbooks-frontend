@@ -1,43 +1,43 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
-import { CloudSun, Copy, CheckCircle2, TrendingUp } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useParams } from 'react-router-dom'; 
+import { CloudSun, Copy, CheckCircle2, TrendingUp } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makePlanningApi } from '../api/planning.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
 
 export default function ForecastDetail() {
-  const { id } = useParams();
-  const { http } = useApi();
-  const api = useMemo(() => makePlanningApi(http), [http]);
+  const { id } = useParams(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makePlanningApi(http), [http]); 
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'forecasts', id],
     queryFn: () => api.forecasts.get(id)
-  });
+  }); 
 
-  const [openVersion, setOpenVersion] = useState(false);
-  const [versionForm, setVersionForm] = useState({ versionNo: 1, name: '' });
+  const [openVersion, setOpenVersion] = useState(false); 
+  const [versionForm, setVersionForm] = useState({ versionNo: 1, name: '' }); 
 
-  const [openCopy, setOpenCopy] = useState(false);
-  const [copyForm, setCopyForm] = useState({ baseVersionId: '', compareVersionId: '', periodId: '' });
+  const [openCopy, setOpenCopy] = useState(false); 
+  const [copyForm, setCopyForm] = useState({ baseVersionId: '', compareVersionId: '', periodId: '' }); 
 
   async function createVersion() {
-    await api.forecasts.createVersion(id, { versionNo: Number(versionForm.versionNo), name: versionForm.name || null });
-    setOpenVersion(false);
-    refetch();
+    await api.forecasts.createVersion(id, { versionNo: Number(versionForm.versionNo), name: versionForm.name || null }); 
+    setOpenVersion(false); 
+    refetch(); 
   }
 
   async function finalizeVersion(versionId) {
-    await api.forecasts.finalizeVersion(id, versionId);
-    refetch();
+    await api.forecasts.finalizeVersion(id, versionId); 
+    refetch(); 
   }
 
   async function copyVersion(versionId) {
@@ -46,12 +46,12 @@ export default function ForecastDetail() {
       name: `${versionForm.name || 'Copy'} (v${Number(versionForm.versionNo) + 1})`,
       scenarioKey: null,
       probabilityWeight: 1
-    });
-    refetch();
+    }); 
+    refetch(); 
   }
 
-  const forecast = data?.data ?? data ?? null;
-  const versions = Array.isArray(forecast?.versions) ? forecast.versions : [];
+  const forecast = data?.data ?? data ?? null; 
+  const versions = Array.isArray(forecast?.versions) ? forecast.versions : []; 
 
   return (
     <div className="space-y-4">
@@ -99,7 +99,7 @@ export default function ForecastDetail() {
                     baseVersionId: copyForm.baseVersionId,
                     compareVersionId: copyForm.compareVersionId,
                     periodId: copyForm.periodId || undefined
-                  });
+                  }); 
                 }}
                 disabled={!copyForm.baseVersionId || !copyForm.compareVersionId}
               >
@@ -201,5 +201,5 @@ export default function ForecastDetail() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

@@ -1,28 +1,28 @@
-import React, { useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeUtilitiesApi } from '../api/utilities.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useMutation, useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeUtilitiesApi } from '../api/utilities.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 export default function TestConsole() {
-  const { http } = useApi();
-  const api = useMemo(() => makeUtilitiesApi(http), [http]);
-  const toast = useToast();
+  const { http } = useApi(); 
+  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
+  const toast = useToast(); 
 
-  const listQ = useQuery({ queryKey: ['testsList'], queryFn: api.testsList, staleTime: 60_000 });
-  const files = listQ.data?.data?.files ?? listQ.data?.files ?? [];
+  const listQ = useQuery({ queryKey: ['testsList'], queryFn: api.testsList, staleTime: 60_000 }); 
+  const files = listQ.data?.data?.files ?? listQ.data?.files ?? []; 
 
-  const [testFile, setTestFile] = useState('');
-  const [pattern, setPattern] = useState('');
+  const [testFile, setTestFile] = useState(''); 
+  const [pattern, setPattern] = useState(''); 
   const run = useMutation({
     mutationFn: () => api.testsRun({ testFile: testFile || undefined, pattern: pattern || undefined }),
     onSuccess: (r) => toast.success(r?.data?.ok ? 'Tests passed.' : 'Tests completed (some failures possible).'),
     onError: (e) => toast.error(e.message ?? 'Failed to run tests')
-  });
+  }); 
 
   return (
     <div className="space-y-4">
@@ -54,7 +54,7 @@ export default function TestConsole() {
           <Input label="testFile (optional)" value={testFile} onChange={(e) => setTestFile(e.target.value)} placeholder="" />
           <Input label="pattern (optional)" value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="" />
         </div>
-        <div className="mt-2 text-xs text-slate-600">Idempotency-Key header is enforced by backend; client sends one automatically.</div>
+        <div className="mt-2 text-xs text-slate-600">Idempotency-Key header is enforced by backend;  client sends one automatically.</div>
       </ContentCard>
 
       <ContentCard title="Output">
@@ -69,5 +69,5 @@ export default function TestConsole() {
         )}
       </ContentCard>
     </div>
-  );
+  ); 
 }

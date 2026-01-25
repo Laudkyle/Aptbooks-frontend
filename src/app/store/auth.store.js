@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from 'zustand'; 
 
-const STORAGE_KEY = 'aptbooks.auth.v1';
+const STORAGE_KEY = 'aptbooks.auth.v1'; 
 
 export const authStore = create((set, get) => ({
   accessToken: null,
@@ -15,23 +15,23 @@ export const authStore = create((set, get) => ({
 
   hydrate: () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
+      const raw = localStorage.getItem(STORAGE_KEY); 
+      if (!raw) return; 
+      const parsed = JSON.parse(raw); 
       set({
         accessToken: parsed.accessToken ?? null,
         refreshToken: parsed.refreshToken ?? null,
         user: parsed.user ?? null,
         roles: parsed.roles ?? [],
         permissions: parsed.permissions ?? []
-      });
+      }); 
     } catch {
       // ignore
     }
   },
 
   persist: () => {
-    const s = get();
+    const s = get(); 
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -41,15 +41,15 @@ export const authStore = create((set, get) => ({
         roles: s.roles,
         permissions: s.permissions
       })
-    );
+    ); 
   }
-}));
+})); 
 
 // Persist on any update
 authStore.subscribe(() => {
   try {
-    authStore.getState().persist();
+    authStore.getState().persist(); 
   } catch {
     // ignore
   }
-});
+}); 

@@ -1,9 +1,9 @@
-import React from 'react';
-import { X } from 'lucide-react';
-import { Button } from './Button.jsx';
+import React from 'react'; 
+import { X } from 'lucide-react'; 
+import { Button } from './Button.jsx'; 
 
 export function Modal({ open, title, onClose, children, footer }) {
-  if (!open) return null;
+  if (!open) return null; 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
@@ -20,5 +20,5 @@ export function Modal({ open, title, onClose, children, footer }) {
         {footer ? <div className="border-t border-border-subtle bg-white/60 p-4 backdrop-blur">{footer}</div> : null}
       </div>
     </div>
-  );
+  ); 
 }

@@ -1,18 +1,18 @@
-import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeUtilitiesApi } from '../api/utilities.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import React, { useMemo } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeUtilitiesApi } from '../api/utilities.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
 
 export default function A11yChecks() {
-  const { http } = useApi();
-  const api = useMemo(() => makeUtilitiesApi(http), [http]);
-  const q = useQuery({ queryKey: ['a11yStatus'], queryFn: api.a11yStatus, staleTime: 60_000 });
-  const data = q.data?.data ?? q.data;
-  const checks = data?.checks ?? [];
+  const { http } = useApi(); 
+  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
+  const q = useQuery({ queryKey: ['a11yStatus'], queryFn: api.a11yStatus, staleTime: 60_000 }); 
+  const data = q.data?.data ?? q.data; 
+  const checks = data?.checks ?? []; 
 
   return (
     <div className="space-y-4">
@@ -45,5 +45,5 @@ export default function A11yChecks() {
         )}
       </ContentCard>
     </div>
-  );
+  ); 
 }

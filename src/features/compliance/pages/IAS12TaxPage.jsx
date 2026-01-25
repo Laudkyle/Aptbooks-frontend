@@ -1,4 +1,4 @@
-import IAS12TaxesPage from "./IAS12TaxesPage";
+import IAS12TaxesPage from "./IAS12TaxesPage"; 
 
 // Alias kept to match router imports.
-export default IAS12TaxesPage;
+export default IAS12TaxesPage; 

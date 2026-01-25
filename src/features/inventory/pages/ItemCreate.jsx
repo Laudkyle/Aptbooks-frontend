@@ -1,38 +1,38 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useNavigate } from 'react-router-dom'; 
+import { useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, Save } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeInventoryApi } from '../api/inventory.api.js';
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeInventoryApi } from '../api/inventory.api.js'; 
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
 
 export default function ItemCreate() {
-  const nav = useNavigate();
-  const qc = useQueryClient();
-  const { http } = useApi();
-  const invApi = useMemo(() => makeInventoryApi(http), [http]);
+  const nav = useNavigate(); 
+  const qc = useQueryClient(); 
+  const { http } = useApi(); 
+  const invApi = useMemo(() => makeInventoryApi(http), [http]); 
 
   const { data: categoriesRaw } = useQuery({
     queryKey: ['inventory.categories'],
     queryFn: async () => invApi.listCategories(),
     staleTime: 60_000
-  });
+  }); 
   const { data: unitsRaw } = useQuery({
     queryKey: ['inventory.units'],
     queryFn: async () => invApi.listUnits(),
     staleTime: 60_000
-  });
+  }); 
 
-  const categoryOptions = useMemo(() => [NONE_OPTION, ...toOptions(categoriesRaw, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? ''}`.trim() || c.id })], [categoriesRaw]);
-  const unitOptions = useMemo(() => [NONE_OPTION, ...toOptions(unitsRaw, { valueKey: 'id', label: (u) => `${u.code ?? ''} ${u.name ?? ''}`.trim() || u.id })], [unitsRaw]);
+  const categoryOptions = useMemo(() => [NONE_OPTION, ...toOptions(categoriesRaw, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? ''}`.trim() || c.id })], [categoriesRaw]); 
+  const unitOptions = useMemo(() => [NONE_OPTION, ...toOptions(unitsRaw, { valueKey: 'id', label: (u) => `${u.code ?? ''} ${u.name ?? ''}`.trim() || u.id })], [unitsRaw]); 
 
   const [form, setForm] = useState({
     categoryId: '',
@@ -41,12 +41,12 @@ export default function ItemCreate() {
     name: '',
     description: '',
     status: ''
-  });
-  const [saving, setSaving] = useState(false);
+  }); 
+  const [saving, setSaving] = useState(false); 
 
   async function onSubmit(e) {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); 
+    setSaving(true); 
     try {
       const payload = {
         categoryId: form.categoryId,
@@ -55,12 +55,12 @@ export default function ItemCreate() {
         name: form.name,
         description: form.description ? form.description : null,
         status: form.status ? form.status : null
-      };
-      await invApi.createItem(payload);
-      await qc.invalidateQueries({ queryKey: ['inventory.items'] });
-      nav(-1);
+      }; 
+      await invApi.createItem(payload); 
+      await qc.invalidateQueries({ queryKey: ['inventory.items'] }); 
+      nav(-1); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
@@ -101,5 +101,5 @@ export default function ItemCreate() {
         </form>
       </ContentCard>
     </>
-  );
+  ); 
 }

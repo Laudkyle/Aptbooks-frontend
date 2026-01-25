@@ -1,68 +1,68 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
-import { PiggyBank, Upload, Shuffle, CheckCircle2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useParams } from 'react-router-dom'; 
+import { PiggyBank, Upload, Shuffle, CheckCircle2 } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makePlanningApi } from '../api/planning.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
 
 function rowsFrom(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.data)) return data.data;
-  if (Array.isArray(data.items)) return data.items;
-  return [];
+  if (!data) return []; 
+  if (Array.isArray(data)) return data; 
+  if (Array.isArray(data.data)) return data.data; 
+  if (Array.isArray(data.items)) return data.items; 
+  return []; 
 }
 
 export default function BudgetDetail() {
-  const { id } = useParams();
-  const { http } = useApi();
-  const api = useMemo(() => makePlanningApi(http), [http]);
+  const { id } = useParams(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makePlanningApi(http), [http]); 
 
-  const [openVersion, setOpenVersion] = useState(false);
-  const [ver, setVer] = useState({ versionNo: 1, name: '', status: 'draft' });
-  const [csvOpen, setCsvOpen] = useState(false);
-  const [csvText, setCsvText] = useState('');
-  const [distributeOpen, setDistributeOpen] = useState(false);
-  const [dist, setDist] = useState({ accountId: '', annualAmount: 0, method: 'even', periodIds: '', dimensionJson: '{}' });
+  const [openVersion, setOpenVersion] = useState(false); 
+  const [ver, setVer] = useState({ versionNo: 1, name: '', status: 'draft' }); 
+  const [csvOpen, setCsvOpen] = useState(false); 
+  const [csvText, setCsvText] = useState(''); 
+  const [distributeOpen, setDistributeOpen] = useState(false); 
+  const [dist, setDist] = useState({ accountId: '', annualAmount: 0, method: 'even', periodIds: '', dimensionJson: '{}' }); 
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'budgets', id],
     queryFn: () => api.budgets.get(id)
-  });
+  }); 
 
-  const budget = data?.data?.budget ?? data?.budget ?? data;
-  const versions = rowsFrom(data?.data?.versions ?? data?.versions ?? []);
-  const lines = rowsFrom(data?.data?.lines ?? data?.lines ?? []);
+  const budget = data?.data?.budget ?? data?.budget ?? data; 
+  const versions = rowsFrom(data?.data?.versions ?? data?.versions ?? []); 
+  const lines = rowsFrom(data?.data?.lines ?? data?.lines ?? []); 
 
   const vcols = useMemo(() => {
-    const cols = ['id', 'versionNo', 'name', 'status', 'created_at'];
-    return cols.map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
-  }, []);
+    const cols = ['id', 'versionNo', 'name', 'status', 'created_at']; 
+    return cols.map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> })); 
+  }, []); 
 
   const lcols = useMemo(() => {
-    const keys = lines[0] ? Object.keys(lines[0]) : ['accountId', 'periodId', 'amount'];
-    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
-  }, [lines]);
+    const keys = lines[0] ? Object.keys(lines[0]) : ['accountId', 'periodId', 'amount']; 
+    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> })); 
+  }, [lines]); 
 
   async function createVersion() {
-    await api.budgets.createVersion(id, { ...ver, name: ver.name || null });
-    setOpenVersion(false);
-    refetch();
+    await api.budgets.createVersion(id, { ...ver, name: ver.name || null }); 
+    setOpenVersion(false); 
+    refetch(); 
   }
 
   async function importCsv(versionId) {
-    await api.budgets.importCsv(id, versionId, csvText);
-    setCsvOpen(false);
-    setCsvText('');
-    refetch();
+    await api.budgets.importCsv(id, versionId, csvText); 
+    setCsvOpen(false); 
+    setCsvText(''); 
+    refetch(); 
   }
 
   async function distribute(versionId) {
@@ -72,17 +72,17 @@ export default function BudgetDetail() {
       method: dist.method,
       periodIds: dist.periodIds ? dist.periodIds.split(',').map((s) => s.trim()).filter(Boolean) : [],
       dimensionJson: safeJson(dist.dimensionJson)
-    };
-    await api.budgets.distribute(id, versionId, { items: [item] });
-    setDistributeOpen(false);
-    refetch();
+    }; 
+    await api.budgets.distribute(id, versionId, { items: [item] }); 
+    setDistributeOpen(false); 
+    refetch(); 
   }
 
   function safeJson(s) {
     try {
-      return s ? JSON.parse(s) : {};
+      return s ? JSON.parse(s) : {}; 
     } catch {
-      return {};
+      return {}; 
     }
   }
 
@@ -217,5 +217,5 @@ export default function BudgetDetail() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

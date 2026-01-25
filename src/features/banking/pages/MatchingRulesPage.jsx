@@ -1,10 +1,10 @@
-import React from "react";
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../../shared/components/ui/card";
-import { Button } from"../../../shared/components/ui/Button";
-import { Input } from"../../../shared/components/ui/Input";
-import { Label } from"../../../shared/components/ui/label";
-import { Badge } from"../../../shared/components/ui/Badge";
+import React from "react"; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../../shared/components/ui/card"; 
+import { Button } from"../../../shared/components/ui/Button"; 
+import { Input } from"../../../shared/components/ui/Input"; 
+import { Label } from"../../../shared/components/ui/label"; 
+import { Badge } from"../../../shared/components/ui/Badge"; 
 
 export default function MatchingRulesPage() {
   return (
@@ -18,7 +18,7 @@ export default function MatchingRulesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Rules</CardTitle>
-          <CardDescription>Rules apply in priority order; start with strict matching and widen gradually.</CardDescription>
+          <CardDescription>Rules apply in priority order;  start with strict matching and widen gradually.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-3 md:grid-cols-4">
@@ -51,5 +51,5 @@ export default function MatchingRulesPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  ); 
 }

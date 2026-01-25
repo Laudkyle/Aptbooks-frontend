@@ -1,7 +1,7 @@
-import React from "react";
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../../shared/components/ui/card";
-import { Button } from"../../../shared/components/ui/button";
+import React from "react"; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../../shared/components/ui/card"; 
+import { Button } from"../../../shared/components/ui/button"; 
 
 export default function IFRS9ECLPage() {
   return (
@@ -47,5 +47,5 @@ export default function IFRS9ECLPage() {
         </Card>
       </div>
     </div>
-  );
+  ); 
 }

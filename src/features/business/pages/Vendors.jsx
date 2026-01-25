@@ -1,42 +1,42 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Users } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { Link, useNavigate } from 'react-router-dom'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { Plus, Users } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makePartnersApi } from '../api/partners.api.js';
-import { ROUTES } from '../../../app/constants/routes.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makePartnersApi } from '../api/partners.api.js'; 
+import { ROUTES } from '../../../app/constants/routes.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
 
 export default function Vendors() {
-  const navigate = useNavigate();
-  const { http } = useApi();
-  const api = useMemo(() => makePartnersApi(http), [http]);
+  const navigate = useNavigate(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makePartnersApi(http), [http]); 
 
-  const [q, setQ] = useState('');
-  const [status, setStatus] = useState('active');
+  const [q, setQ] = useState(''); 
+  const [status, setStatus] = useState('active'); 
 
-  const query = useMemo(() => ({ type: 'vendor', status: status || undefined }), [status]);
+  const query = useMemo(() => ({ type: 'vendor', status: status || undefined }), [status]); 
 
   const { data, isLoading, error } = useQuery({
     queryKey: qk.partners(query),
     queryFn: () => api.list(query)
-  });
+  }); 
 
-    const normalizedQ = q.trim().toLowerCase();
-const rows = Array.isArray(data) ? data : data?.data ?? [];
+    const normalizedQ = q.trim().toLowerCase(); 
+const rows = Array.isArray(data) ? data : data?.data ?? []; 
   const filteredRows = normalizedQ
     ? rows.filter((r) => (r?.name ?? '').toLowerCase().includes(normalizedQ) || (r?.code ?? '').toLowerCase().includes(normalizedQ))
-    : rows;
+    : rows; 
 
   const columns = useMemo(
     () => [
@@ -58,7 +58,7 @@ const rows = Array.isArray(data) ? data : data?.data ?? [];
       }
     ],
     []
-  );
+  ); 
 
   return (
     <div className="space-y-4">
@@ -114,5 +114,5 @@ const rows = Array.isArray(data) ? data : data?.data ?? [];
         </div>
       </ContentCard>
     </div>
-  );
+  ); 
 }

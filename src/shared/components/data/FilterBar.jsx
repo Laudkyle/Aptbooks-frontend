@@ -1,5 +1,5 @@
-import React from 'react';
-import clsx from 'clsx';
+import React from 'react'; 
+import clsx from 'clsx'; 
 
 export function FilterBar({ className, children, right }) {
   return (
@@ -12,5 +12,5 @@ export function FilterBar({ className, children, right }) {
       <div className="flex flex-wrap items-center gap-2">{children}</div>
       {right ? <div className="flex items-center gap-2">{right}</div> : null}
     </div>
-  );
+  ); 
 }

@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../shared/api/endpoints.js'; 
 
 export function makeDebitNotesApi(http) {
   return {
@@ -9,5 +9,5 @@ export function makeDebitNotesApi(http) {
     issue: async (id) => (await http.post(endpoints.modules.transactions.debitNotes.issue(id))).data,
     apply: async (id, body) => (await http.post(endpoints.modules.transactions.debitNotes.apply(id), body)).data,
     void: async (id, body) => (await http.post(endpoints.modules.transactions.debitNotes.void(id), body)).data
-  };
+  }; 
 }

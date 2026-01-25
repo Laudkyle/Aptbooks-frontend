@@ -1,24 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeOrganizationsApi } from '../api/organizations.api.js';
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { useToast } from '../../../../shared/components/ui/Toast.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeOrganizationsApi } from '../api/organizations.api.js'; 
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
 
 export default function OrganizationSettings() {
-  const { http } = useApi();
-  const api = useMemo(() => makeOrganizationsApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { http } = useApi(); 
+  const api = useMemo(() => makeOrganizationsApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
 
   const q = useQuery({
     queryKey: ['orgMe'],
     queryFn: api.me,
     staleTime: 30_000
-  });
+  }); 
 
   const [form, setForm] = useState({
     name: '',
@@ -26,18 +26,18 @@ export default function OrganizationSettings() {
     contact_phone: '',
     address_json: '{}',
     branding_json: '{}'
-  });
+  }); 
 
   React.useEffect(() => {
-    if (!q.data) return;
+    if (!q.data) return; 
     setForm({
       name: q.data.name ?? '',
       contact_email: q.data.contact_email ?? '',
       contact_phone: q.data.contact_phone ?? '',
       address_json: JSON.stringify(q.data.address_json ?? {}, null, 2),
       branding_json: JSON.stringify(q.data.branding_json ?? {}, null, 2)
-    });
-  }, [q.data]);
+    }); 
+  }, [q.data]); 
 
   const update = useMutation({
     mutationFn: async () => {
@@ -47,24 +47,24 @@ export default function OrganizationSettings() {
         contact_phone: form.contact_phone || undefined,
         address_json: form.address_json ? JSON.parse(form.address_json) : undefined,
         branding_json: form.branding_json ? JSON.parse(form.branding_json) : undefined
-      };
-      return api.updateMe(body);
+      }; 
+      return api.updateMe(body); 
     },
     onSuccess: () => {
-      toast.success('Organization updated.');
-      qc.invalidateQueries({ queryKey: ['orgMe'] });
+      toast.success('Organization updated.'); 
+      qc.invalidateQueries({ queryKey: ['orgMe'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Update failed')
-  });
+  }); 
 
   const upload = useMutation({
     mutationFn: (file) => api.uploadLogo(file),
     onSuccess: () => {
-      toast.success('Logo uploaded.');
-      qc.invalidateQueries({ queryKey: ['orgMe'] });
+      toast.success('Logo uploaded.'); 
+      qc.invalidateQueries({ queryKey: ['orgMe'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Upload failed')
-  });
+  }); 
 
   return (
     <div className="space-y-4">
@@ -111,8 +111,8 @@ export default function OrganizationSettings() {
             type="file"
             accept="image/*"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) upload.mutate(file);
+              const file = e.target.files?.[0]; 
+              if (file) upload.mutate(file); 
             }}
           />
           {upload.isLoading ? <div className="text-sm text-slate-700">Uploading...</div> : null}
@@ -124,5 +124,5 @@ export default function OrganizationSettings() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </div>
-  );
+  ); 
 }

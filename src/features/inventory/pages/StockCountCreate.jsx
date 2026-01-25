@@ -1,58 +1,58 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useNavigate } from 'react-router-dom'; 
+import { useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, Save } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeInventoryApi } from '../api/inventory.api.js';
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeInventoryApi } from '../api/inventory.api.js'; 
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
 
 export default function StockCountCreate() {
-  const nav = useNavigate();
-  const qc = useQueryClient();
-  const { http } = useApi();
-  const invApi = useMemo(() => makeInventoryApi(http), [http]);
+  const nav = useNavigate(); 
+  const qc = useQueryClient(); 
+  const { http } = useApi(); 
+  const invApi = useMemo(() => makeInventoryApi(http), [http]); 
 
   const { data: warehousesRaw } = useQuery({
     queryKey: ['inventory.warehouses'],
     queryFn: async () => invApi.listWarehouses(),
     staleTime: 60_000
-  });
+  }); 
 
   const warehouseOptions = useMemo(
     () => [NONE_OPTION, ...toOptions(warehousesRaw, { valueKey: 'id', label: (w) => `${w.code ?? ''} ${w.name ?? ''}`.trim() || w.id })],
     [warehousesRaw]
-  );
+  ); 
 
   const [form, setForm] = useState({
     warehouseId: '',
     countDate: '',
     reference: '',
     memo: ''
-  });
-  const [saving, setSaving] = useState(false);
+  }); 
+  const [saving, setSaving] = useState(false); 
 
   async function onSubmit(e) {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); 
+    setSaving(true); 
     try {
       await invApi.createStockCount({
         warehouseId: form.warehouseId,
         countDate: form.countDate,
         reference: form.reference ? form.reference : null,
         memo: form.memo ? form.memo : null
-      });
-      await qc.invalidateQueries({ queryKey: ['inventory.stockCounts'] });
-      nav(-1);
+      }); 
+      await qc.invalidateQueries({ queryKey: ['inventory.stockCounts'] }); 
+      nav(-1); 
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   }
 
@@ -90,5 +90,5 @@ export default function StockCountCreate() {
         </form>
       </ContentCard>
     </>
-  );
+  ); 
 }

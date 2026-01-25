@@ -1,4 +1,4 @@
-import { ROUTES } from '../constants/routes.js';
+import { ROUTES } from '../constants/routes.js'; 
 
 export const routeMeta = {
   [ROUTES.dashboard]: { title: 'Dashboard', breadcrumbs: ['Dashboard'] },
@@ -13,4 +13,4 @@ export const routeMeta = {
   [ROUTES.adminDimensionSecurity]: { title: 'Dimension Security', breadcrumbs: ['Admin', 'Dimension Security'] },
   [ROUTES.adminApiKeys]: { title: 'API Keys', breadcrumbs: ['Admin', 'API Keys'] },
   [ROUTES.utilitiesHealth]: { title: 'Health', breadcrumbs: ['Utilities', 'Health'] }
-};
+}; 

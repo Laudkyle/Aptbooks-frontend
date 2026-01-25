@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import clsx from 'clsx';
+import React, { useMemo, useState } from 'react'; 
+import clsx from 'clsx'; 
 
 /**
  * Lightweight tabs component used across the app.
@@ -21,20 +21,20 @@ export function Tabs({ tabs = [], value, onChange, defaultValue, className }) {
         value: t?.value ?? t?.key
       })),
     [tabs]
-  );
+  ); 
 
-  const first = normalized?.[0]?.value;
-  const [internal, setInternal] = useState(defaultValue ?? first);
+  const first = normalized?.[0]?.value; 
+  const [internal, setInternal] = useState(defaultValue ?? first); 
 
-  const active = value ?? internal;
+  const active = value ?? internal; 
 
   const setActive = (next) => {
-    onChange?.(next);
-    if (value === undefined) setInternal(next);
-  };
+    onChange?.(next); 
+    if (value === undefined) setInternal(next); 
+  }; 
 
-  const activeTab = normalized.find((t) => t.value === active) ?? normalized[0];
-  const hasContent = normalized.some((t) => typeof t?.content !== 'undefined');
+  const activeTab = normalized.find((t) => t.value === active) ?? normalized[0]; 
+  const hasContent = normalized.some((t) => typeof t?.content !== 'undefined'); 
 
   return (
     <div className={clsx('space-y-3', className)}>
@@ -56,5 +56,5 @@ export function Tabs({ tabs = [], value, onChange, defaultValue, className }) {
 
       {hasContent ? <div>{activeTab?.content ?? null}</div> : null}
     </div>
-  );
+  ); 
 }

@@ -1,52 +1,52 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Layers, Plus } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { Layers, Plus } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makePlanningApi } from '../api/planning.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
 
 function rowsFrom(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.data)) return data.data;
-  if (Array.isArray(data.items)) return data.items;
-  return [];
+  if (!data) return []; 
+  if (Array.isArray(data)) return data; 
+  if (Array.isArray(data.data)) return data.data; 
+  if (Array.isArray(data.items)) return data.items; 
+  return []; 
 }
 
 export default function Centers() {
-  const { http } = useApi();
-  const api = useMemo(() => makePlanningApi(http), [http]);
+  const { http } = useApi(); 
+  const api = useMemo(() => makePlanningApi(http), [http]); 
 
-  const [type, setType] = useState('cost');
-  const [status, setStatus] = useState('');
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ code: '', name: '', status: 'active', parentId: '', validFrom: '', validTo: '', isBlocked: false, blockedReason: '' });
+  const [type, setType] = useState('cost'); 
+  const [status, setStatus] = useState(''); 
+  const [open, setOpen] = useState(false); 
+  const [form, setForm] = useState({ code: '', name: '', status: 'active', parentId: '', validFrom: '', validTo: '', isBlocked: false, blockedReason: '' }); 
 
-  const params = useMemo(() => ({ status: status || undefined }), [status]);
+  const params = useMemo(() => ({ status: status || undefined }), [status]); 
   const { data, isLoading, refetch } = useQuery({
     queryKey: qk.reportingCenters ? qk.reportingCenters(type, params) : ['reporting', 'centers', type, params],
     queryFn: () => api.centers.list(type, params)
-  });
+  }); 
 
-  const rows = rowsFrom(data);
+  const rows = rowsFrom(data); 
 
   const columns = useMemo(() => {
-    const keys = rows[0] ? Object.keys(rows[0]) : ['code', 'name', 'status'];
-    const show = keys.filter((k) => !['layoutJson', 'payloadJson', 'positionJson'].includes(k)).slice(0, 7);
+    const keys = rows[0] ? Object.keys(rows[0]) : ['code', 'name', 'status']; 
+    const show = keys.filter((k) => !['layoutJson', 'payloadJson', 'positionJson'].includes(k)).slice(0, 7); 
     return show.map((k) => ({
       header: k,
       render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span>
-    }));
-  }, [rows]);
+    })); 
+  }, [rows]); 
 
   async function create() {
     const body = {
@@ -58,11 +58,11 @@ export default function Centers() {
       validTo: form.validTo || null,
       isBlocked: !!form.isBlocked,
       blockedReason: form.isBlocked ? form.blockedReason : null
-    };
-    await api.centers.create(type, body);
-    setOpen(false);
-    setForm({ code: '', name: '', status: 'active', parentId: '', validFrom: '', validTo: '', isBlocked: false, blockedReason: '' });
-    refetch();
+    }; 
+    await api.centers.create(type, body); 
+    setOpen(false); 
+    setForm({ code: '', name: '', status: 'active', parentId: '', validFrom: '', validTo: '', isBlocked: false, blockedReason: '' }); 
+    refetch(); 
   }
 
   return (
@@ -172,5 +172,5 @@ export default function Centers() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

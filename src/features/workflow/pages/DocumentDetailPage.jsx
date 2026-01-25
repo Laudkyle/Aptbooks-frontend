@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom ";
+import { useEffect, useState } from "react"; 
+import { useParams } from "react-router-dom "; 
 import {
   FileText,
   Upload,
@@ -7,39 +7,39 @@ import {
   CheckCircle,
   XCircle,
   Send,
-} from "lucide-react";
+} from "lucide-react"; 
 
-import { Card } from "../../../shared/components/ui/Card";
-import { Button } from "../../../shared/components/ui/Button";
-import { Badge } from "../../../shared/components/ui/Badge";
-import { Table } from "../../../shared/components/ui/Table";
-import { Textarea } from "../../../shared/components/ui/Textarea";
-import { workflowDocumentsApi } from "../api/workflowDocuments.api";
-import { formatDate } from "../../../shared/utils/formatters";
+import { Card } from "../../../shared/components/ui/Card"; 
+import { Button } from "../../../shared/components/ui/Button"; 
+import { Badge } from "../../../shared/components/ui/Badge"; 
+import { Table } from "../../../shared/components/ui/Table"; 
+import { Textarea } from "../../../shared/components/ui/Textarea"; 
+import { workflowDocumentsApi } from "../api/workflowDocuments.api"; 
+import { formatDate } from "../../../shared/utils/formatters"; 
 
 export default function DocumentDetailPage() {
-  const { id } = useParams();
-  const [doc, setDoc] = useState(null);
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { id } = useParams(); 
+  const [doc, setDoc] = useState(null); 
+  const [comment, setComment] = useState(""); 
+  const [loading, setLoading] = useState(true); 
 
   async function load() {
-    setLoading(true);
-    const res = await workflowDocumentsApi.getDocument(id);
-    setDoc(res);
-    setLoading(false);
+    setLoading(true); 
+    const res = await workflowDocumentsApi.getDocument(id); 
+    setDoc(res); 
+    setLoading(false); 
   }
 
   useEffect(() => {
-    load();
-  }, [id]);
+    load(); 
+  }, [id]); 
 
   if (loading) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading document…</div>;
+    return <div className="p-6 text-sm text-muted-foreground">Loading document…</div>; 
   }
 
   if (!doc) {
-    return <div className="p-6 text-sm text-red-600">Document not found.</div>;
+    return <div className="p-6 text-sm text-red-600">Document not found.</div>; 
   }
 
   const statusVariant = {
@@ -47,30 +47,30 @@ export default function DocumentDetailPage() {
     SUBMITTED: "info",
     APPROVED: "success",
     REJECTED: "destructive",
-  }[doc.status];
+  }[doc.status]; 
 
   async function uploadVersion(file) {
-    if (!file) return;
-    await workflowDocumentsApi.uploadVersion(doc.id, file);
-    await load();
+    if (!file) return; 
+    await workflowDocumentsApi.uploadVersion(doc.id, file); 
+    await load(); 
   }
 
   async function submit() {
-    await workflowDocumentsApi.submit(doc.id, { comment });
-    setComment("");
-    await load();
+    await workflowDocumentsApi.submit(doc.id, { comment }); 
+    setComment(""); 
+    await load(); 
   }
 
   async function approve() {
-    await workflowDocumentsApi.approve(doc.id, { comment });
-    setComment("");
-    await load();
+    await workflowDocumentsApi.approve(doc.id, { comment }); 
+    setComment(""); 
+    await load(); 
   }
 
   async function reject() {
-    await workflowDocumentsApi.reject(doc.id, { comment });
-    setComment("");
-    await load();
+    await workflowDocumentsApi.reject(doc.id, { comment }); 
+    setComment(""); 
+    await load(); 
   }
 
   return (
@@ -209,5 +209,5 @@ export default function DocumentDetailPage() {
         </Card>
       )}
     </div>
-  );
+  ); 
 }

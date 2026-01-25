@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import clsx from "clsx"; 
 
 export function Label({ children, htmlFor, className }) {
   return (
@@ -11,5 +11,5 @@ export function Label({ children, htmlFor, className }) {
     >
       {children}
     </label>
-  );
+  ); 
 }

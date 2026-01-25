@@ -1,47 +1,47 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeUtilitiesApi } from '../api/utilities.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeUtilitiesApi } from '../api/utilities.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
 
 export default function ErrorLogs() {
-  const { http } = useApi();
-  const api = useMemo(() => makeUtilitiesApi(http), [http]);
+  const { http } = useApi(); 
+  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
 
-  const [limit, setLimit] = useState(100);
-  const [status, setStatus] = useState('');
-  const [method, setMethod] = useState('');
-  const [path, setPath] = useState('');
-  const [correlationId, setCorrelationId] = useState('');
-  const [days, setDays] = useState(14);
+  const [limit, setLimit] = useState(100); 
+  const [status, setStatus] = useState(''); 
+  const [method, setMethod] = useState(''); 
+  const [path, setPath] = useState(''); 
+  const [correlationId, setCorrelationId] = useState(''); 
+  const [days, setDays] = useState(14); 
 
   const listQ = useQuery({
     queryKey: ['errorLogs', limit, status, method, path, correlationId],
     queryFn: () => api.errorsList({ limit, status: status || undefined, method: method || undefined, path: path || undefined, correlationId: correlationId || undefined }),
     staleTime: 5_000
-  });
+  }); 
 
   const statsQ = useQuery({
     queryKey: ['errorStats', days],
     queryFn: () => api.errorsStats({ days }),
     staleTime: 30_000
-  });
+  }); 
 
-  const rows = listQ.data?.data ?? [];
+  const rows = listQ.data?.data ?? []; 
 
-  const [open, setOpen] = useState(false);
-  const [cid, setCid] = useState('');
+  const [open, setOpen] = useState(false); 
+  const [cid, setCid] = useState(''); 
   const corrQ = useQuery({
     queryKey: ['errorCorrelation', cid],
     queryFn: () => api.errorsCorrelation(cid),
     enabled: !!cid && open,
     staleTime: 5_000
-  });
+  }); 
 
   return (
     <div className="space-y-4">
@@ -87,7 +87,7 @@ export default function ErrorLogs() {
                   <TD className="font-mono text-xs max-w-[12rem] truncate">{r.correlation_id}</TD>
                   <TD className="max-w-[18rem] truncate">{r.message}</TD>
                   <TD>
-                    <Button size="sm" variant="secondary" onClick={() => { setCid(r.correlation_id); setOpen(true); }}>View</Button>
+                    <Button size="sm" variant="secondary" onClick={() => { setCid(r.correlation_id);  setOpen(true);  }}>View</Button>
                   </TD>
                 </tr>
               ))}
@@ -107,5 +107,5 @@ export default function ErrorLogs() {
         )}
       </Modal>
     </div>
-  );
+  ); 
 }

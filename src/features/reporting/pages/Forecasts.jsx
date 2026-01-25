@@ -1,38 +1,38 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { CloudSun, Plus, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { CloudSun, Plus, ChevronRight } from 'lucide-react'; 
+import { Link } from 'react-router-dom'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makePlanningApi } from '../api/planning.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
 
 function rowsFrom(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.data)) return data.data;
-  return [];
+  if (!data) return []; 
+  if (Array.isArray(data)) return data; 
+  if (Array.isArray(data.data)) return data.data; 
+  return []; 
 }
 
 export default function Forecasts() {
-  const { http } = useApi();
-  const api = useMemo(() => makePlanningApi(http), [http]);
-  const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState('');
-  const [form, setForm] = useState({ name: '', currencyCode: 'GHS', status: 'draft' });
+  const { http } = useApi(); 
+  const api = useMemo(() => makePlanningApi(http), [http]); 
+  const [open, setOpen] = useState(false); 
+  const [status, setStatus] = useState(''); 
+  const [form, setForm] = useState({ name: '', currencyCode: 'GHS', status: 'draft' }); 
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'forecasts', { status }],
     queryFn: () => api.forecasts.list({ status: status || undefined })
-  });
+  }); 
 
-  const rows = rowsFrom(data);
+  const rows = rowsFrom(data); 
   const columns = useMemo(
     () => [
       { header: 'name', render: (r) => <div className="font-medium text-slate-900">{r.name}</div> },
@@ -44,13 +44,13 @@ export default function Forecasts() {
       ) }
     ],
     []
-  );
+  ); 
 
   async function create() {
-    await api.forecasts.create(form);
-    setOpen(false);
-    setForm({ name: '', currencyCode: 'GHS', status: 'draft' });
-    refetch();
+    await api.forecasts.create(form); 
+    setOpen(false); 
+    setForm({ name: '', currencyCode: 'GHS', status: 'draft' }); 
+    refetch(); 
   }
 
   return (
@@ -117,5 +117,5 @@ export default function Forecasts() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

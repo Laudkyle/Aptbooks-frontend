@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../shared/api/endpoints.js'; 
 
 export function makePaymentConfigApi(http) {
   return {
@@ -12,5 +12,5 @@ export function makePaymentConfigApi(http) {
 
     getPaymentSettings: async () => (await http.get(endpoints.modules.business.paymentConfig.paymentSettings)).data,
     setPaymentSettings: async (body) => (await http.put(endpoints.modules.business.paymentConfig.paymentSettings, body)).data
-  };
+  }; 
 }

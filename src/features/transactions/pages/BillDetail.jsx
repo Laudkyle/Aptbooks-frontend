@@ -1,63 +1,63 @@
-import React, { useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, FileText, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useParams, useNavigate } from 'react-router-dom'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, CheckCircle2, FileText, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makeBillsApi } from '../api/bills.api.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makeBillsApi } from '../api/bills.api.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 export default function BillDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { http } = useApi();
-  const api = useMemo(() => makeBillsApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { id } = useParams(); 
+  const navigate = useNavigate(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makeBillsApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
   const { data, isLoading } = useQuery({
     queryKey: qk.bill(id),
     queryFn: () => api.get(id)
-  });
+  }); 
 
-  const bill = data?.data ?? data;
+  const bill = data?.data ?? data; 
 
-  const [idk, setIdk] = useState('');
-  const [comment, setComment] = useState('');
-  const [voidReason, setVoidReason] = useState('');
-  const [action, setAction] = useState(null);
+  const [idk, setIdk] = useState(''); 
+  const [comment, setComment] = useState(''); 
+  const [voidReason, setVoidReason] = useState(''); 
+  const [action, setAction] = useState(null); 
 
   const run = useMutation({
     mutationFn: async () => {
-      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey: idk });
-      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey: idk });
-      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey: idk });
-      if (action === 'issue') return api.issue(id, { idempotencyKey: idk });
-      if (action === 'void') return api.void(id, { reason: voidReason }, { idempotencyKey: idk });
-      throw new Error('Unknown action');
+      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey: idk }); 
+      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey: idk }); 
+      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey: idk }); 
+      if (action === 'issue') return api.issue(id, { idempotencyKey: idk }); 
+      if (action === 'void') return api.void(id, { reason: voidReason }, { idempotencyKey: idk }); 
+      throw new Error('Unknown action'); 
     },
     onSuccess: () => {
-      toast.success('Action completed');
-      qc.invalidateQueries({ queryKey: qk.bill(id) });
-      setAction(null);
-      setIdk('');
-      setComment('');
-      setVoidReason('');
+      toast.success('Action completed'); 
+      qc.invalidateQueries({ queryKey: qk.bill(id) }); 
+      setAction(null); 
+      setIdk(''); 
+      setComment(''); 
+      setVoidReason(''); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  });
+  }); 
 
-  const status = bill?.status ?? 'draft';
-  const tone = status === 'paid' ? 'success' : status === 'issued' ? 'brand' : status === 'voided' ? 'danger' : 'muted';
+  const status = bill?.status ?? 'draft'; 
+  const tone = status === 'paid' ? 'success' : status === 'issued' ? 'brand' : status === 'voided' ? 'danger' : 'muted'; 
 
   return (
     <div className="space-y-4">
@@ -197,5 +197,5 @@ export default function BillDetail() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

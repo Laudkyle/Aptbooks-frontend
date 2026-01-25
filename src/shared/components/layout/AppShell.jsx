@@ -1,8 +1,8 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { SideNav } from './SideNav.jsx';
-import { TopNav } from './TopNav.jsx';
-import { uiStore } from '../../../app/store/ui.store.js';
+import React from 'react'; 
+import { Outlet } from 'react-router-dom'; 
+import { SideNav } from './SideNav.jsx'; 
+import { TopNav } from './TopNav.jsx'; 
+import { uiStore } from '../../../app/store/ui.store.js'; 
 
 export function AppShell() {
   return (
@@ -23,5 +23,5 @@ export function AppShell() {
         </main>
       </div>
     </div>
-  );
+  ); 
 }

@@ -1,40 +1,40 @@
-import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeUsersApi } from '../api/users.api.js';
-import { makeRolesApi } from '../../roles/api/roles.api.js';
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx';
-import { Badge } from '../../../../shared/components/ui/Badge.jsx';
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
-import { useToast } from '../../../../shared/components/ui/Toast.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useParams } from 'react-router-dom'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeUsersApi } from '../api/users.api.js'; 
+import { makeRolesApi } from '../../roles/api/roles.api.js'; 
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx'; 
+import { Badge } from '../../../../shared/components/ui/Badge.jsx'; 
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
+import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
 
 export default function UserDetail() {
-  const { id } = useParams();
-  const { http } = useApi();
-  const usersApi = useMemo(() => makeUsersApi(http), [http]);
-  const rolesApi = useMemo(() => makeRolesApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { id } = useParams(); 
+  const { http } = useApi(); 
+  const usersApi = useMemo(() => makeUsersApi(http), [http]); 
+  const rolesApi = useMemo(() => makeRolesApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
 
   const userQ = useQuery({
     queryKey: ['user', id],
     queryFn: () => usersApi.detail(id),
     enabled: !!id,
     staleTime: 10_000
-  });
+  }); 
 
   const rolesQ = useQuery({
     queryKey: ['roles'],
     queryFn: rolesApi.list,
     staleTime: 30_000
-  });
+  }); 
 
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false); 
   const [form, setForm] = useState({
     email: '',
     first_name: '',
@@ -42,11 +42,11 @@ export default function UserDetail() {
     phone: '',
     status: '',
     password: ''
-  });
+  }); 
 
   React.useEffect(() => {
-    const u = userQ.data;
-    if (!u) return;
+    const u = userQ.data; 
+    if (!u) return; 
     setForm({
       email: u.email ?? '',
       first_name: u.first_name ?? '',
@@ -54,8 +54,8 @@ export default function UserDetail() {
       phone: u.phone ?? '',
       status: u.status ?? '',
       password: ''
-    });
-  }, [userQ.data]);
+    }); 
+  }, [userQ.data]); 
 
   const update = useMutation({
     mutationFn: async () => {
@@ -66,71 +66,71 @@ export default function UserDetail() {
         phone: form.phone === '' ? null : form.phone,
         status: form.status || undefined,
         password: form.password || undefined
-      };
-      return usersApi.update(id, body);
+      }; 
+      return usersApi.update(id, body); 
     },
     onSuccess: () => {
-      toast.success('User updated.');
-      setForm((s) => ({ ...s, password: '' }));
-      qc.invalidateQueries({ queryKey: ['user', id] });
-      qc.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User updated.'); 
+      setForm((s) => ({ ...s, password: '' })); 
+      qc.invalidateQueries({ queryKey: ['user', id] }); 
+      qc.invalidateQueries({ queryKey: ['users'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Update failed')
-  });
+  }); 
 
   const disable = useMutation({
     mutationFn: () => usersApi.disable(id),
     onSuccess: () => {
-      toast.success('User disabled.');
-      qc.invalidateQueries({ queryKey: ['user', id] });
-      qc.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User disabled.'); 
+      qc.invalidateQueries({ queryKey: ['user', id] }); 
+      qc.invalidateQueries({ queryKey: ['users'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Disable failed')
-  });
+  }); 
 
   const enable = useMutation({
     mutationFn: () => usersApi.enable(id),
     onSuccess: () => {
-      toast.success('User enabled.');
-      qc.invalidateQueries({ queryKey: ['user', id] });
-      qc.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User enabled.'); 
+      qc.invalidateQueries({ queryKey: ['user', id] }); 
+      qc.invalidateQueries({ queryKey: ['users'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Enable failed')
-  });
+  }); 
 
   const remove = useMutation({
     mutationFn: () => usersApi.remove(id),
     onSuccess: () => {
-      toast.success('User deleted (soft).');
-      setConfirmDelete(false);
-      qc.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted (soft).'); 
+      setConfirmDelete(false); 
+      qc.invalidateQueries({ queryKey: ['users'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Delete failed')
-  });
+  }); 
 
   const assignRoles = useMutation({
     mutationFn: (roleIds) => usersApi.assignRoles(id, roleIds),
     onSuccess: () => {
-      toast.success('Roles assigned.');
-      qc.invalidateQueries({ queryKey: ['user', id] });
+      toast.success('Roles assigned.'); 
+      qc.invalidateQueries({ queryKey: ['user', id] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Assign roles failed')
-  });
+  }); 
 
   const removeRoles = useMutation({
     mutationFn: (roleIds) => usersApi.removeRoles(id, roleIds),
     onSuccess: () => {
-      toast.success('Roles removed.');
-      qc.invalidateQueries({ queryKey: ['user', id] });
+      toast.success('Roles removed.'); 
+      qc.invalidateQueries({ queryKey: ['user', id] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Remove roles failed')
-  });
+  }); 
 
-  const user = userQ.data;
-  const allRoles = rolesQ.data ?? [];
-  const assignedRoleIds = new Set((user?.roles ?? []).map((r) => r.id));
+  const user = userQ.data; 
+  const allRoles = rolesQ.data ?? []; 
+  const assignedRoleIds = new Set((user?.roles ?? []).map((r) => r.id)); 
 
-  const [rolePick, setRolePick] = useState('');
+  const [rolePick, setRolePick] = useState(''); 
 
   return (
     <div className="space-y-4">
@@ -193,9 +193,9 @@ export default function UserDetail() {
           </label>
           <Button
             onClick={() => {
-              if (!rolePick) return;
-              assignRoles.mutate([rolePick]);
-              setRolePick('');
+              if (!rolePick) return; 
+              assignRoles.mutate([rolePick]); 
+              setRolePick(''); 
             }}
             disabled={!rolePick || assignRoles.isLoading}
           >
@@ -256,22 +256,22 @@ export default function UserDetail() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(user, null, 2)}</pre>
       </details>
     </div>
-  );
+  ); 
 }
 
 function AdminLoginHistory({ userId }) {
-  const { http } = useApi();
-  const api = useMemo(() => makeUsersApi(http), [http]);
-  const [limit, setLimit] = useState(50);
-  const [email, setEmail] = useState('');
+  const { http } = useApi(); 
+  const api = useMemo(() => makeUsersApi(http), [http]); 
+  const [limit, setLimit] = useState(50); 
+  const [email, setEmail] = useState(''); 
 
   const q = useQuery({
     queryKey: ['userLoginHistory', userId, limit, email],
     queryFn: () => api.loginHistory(userId, { limit: String(limit), email: email || undefined, userId: userId }),
     enabled: !!userId
-  });
+  }); 
 
-  const rows = q.data?.data ?? [];
+  const rows = q.data?.data ?? []; 
 
   return (
     <div className="space-y-3">
@@ -312,5 +312,5 @@ function AdminLoginHistory({ userId }) {
         </Table>
       )}
     </div>
-  );
+  ); 
 }

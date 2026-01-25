@@ -1,19 +1,19 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makeUtilitiesApi } from '../api/utilities.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makeUtilitiesApi } from '../api/utilities.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
 
 export default function I18nAdmin() {
-  const { http } = useApi();
-  const api = useMemo(() => makeUtilitiesApi(http), [http]);
-  const localesQ = useQuery({ queryKey: ['i18nLocales'], queryFn: api.i18nLocales, staleTime: 60_000 });
-  const [locale, setLocale] = useState('');
-  const messagesQ = useQuery({ queryKey: ['i18nMessages', locale], queryFn: () => api.i18nMessages(locale), enabled: !!locale });
+  const { http } = useApi(); 
+  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
+  const localesQ = useQuery({ queryKey: ['i18nLocales'], queryFn: api.i18nLocales, staleTime: 60_000 }); 
+  const [locale, setLocale] = useState(''); 
+  const messagesQ = useQuery({ queryKey: ['i18nMessages', locale], queryFn: () => api.i18nMessages(locale), enabled: !!locale }); 
 
-  const locales = localesQ.data?.data ?? localesQ.data ?? [];
+  const locales = localesQ.data?.data ?? localesQ.data ?? []; 
 
   return (
     <div className="space-y-4">
@@ -54,5 +54,5 @@ export default function I18nAdmin() {
         )}
       </ContentCard>
     </div>
-  );
+  ); 
 }

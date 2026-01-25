@@ -3,4 +3,4 @@ export const ROLE_TEMPLATES = [
   { value: 'accountant', label: 'Accountant' },
   { value: 'clerk', label: 'Clerk' },
   { value: 'viewer', label: 'Viewer' }
-];
+]; 

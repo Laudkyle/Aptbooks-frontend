@@ -1,6 +1,6 @@
-import React from 'react';
-import { Table } from '../ui/Table.jsx';
-import { Skeleton } from '../ui/Skeleton.jsx';
+import React from 'react'; 
+import { Table } from '../ui/Table.jsx'; 
+import { Skeleton } from '../ui/Skeleton.jsx'; 
 
 export function DataTable({
   columns,
@@ -21,7 +21,7 @@ export function DataTable({
           <Skeleton className="h-10 w-full" />
         </div>
       </div>
-    );
+    ); 
   }
 
   if (!rows || rows.length === 0) {
@@ -32,12 +32,12 @@ export function DataTable({
           <div className="mt-1 text-sm text-slate-600">{emptyDescription}</div>
         </div>
       </div>
-    );
+    ); 
   }
 
   return (
     <div className="app-card">
       <Table columns={columns} rows={rows}  keyField={keyField} onRowClick={onRowClick} />
     </div>
-  );
+  ); 
 }

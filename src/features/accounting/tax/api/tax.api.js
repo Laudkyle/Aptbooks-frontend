@@ -1,5 +1,5 @@
-import { endpoints } from '../../../../shared/api/endpoints.js';
-import { ensureIdempotencyKey } from '../../../../shared/api/idempotency.js';
+import { endpoints } from '../../../../shared/api/endpoints.js'; 
+import { ensureIdempotencyKey } from '../../../../shared/api/idempotency.js'; 
 
 export function makeTaxApi(http) {
   return {
@@ -15,5 +15,5 @@ export function makeTaxApi(http) {
 
     getSettings: async () => (await http.get(endpoints.accounting.tax.settingsGet)).data,
     setSettings: async (body) => (await http.put(endpoints.accounting.tax.settingsPut, body)).data
-  };
+  }; 
 }

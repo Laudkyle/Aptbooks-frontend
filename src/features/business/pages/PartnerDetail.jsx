@@ -1,23 +1,23 @@
 
-import { useParams, Link, data } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Building2, CreditCard, MapPin, Phone, Plus, Save } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makePartnersApi } from '../api/partners.api.js';
-import { ROUTES } from '../../../app/constants/routes.js';
+import { useParams, Link, data } from 'react-router-dom'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, Building2, CreditCard, MapPin, Phone, Plus, Save } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react'; 
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makePartnersApi } from '../api/partners.api.js'; 
+import { ROUTES } from '../../../app/constants/routes.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 function SectionTitle({ icon: Icon, title, subtitle }) {
   return (
@@ -30,41 +30,41 @@ function SectionTitle({ icon: Icon, title, subtitle }) {
         {subtitle ? <div className="text-xs text-slate-500">{subtitle}</div> : null}
       </div>
     </div>
-  );
+  ); 
 }
 
 export default function PartnerDetail() {
-  const { id } = useParams();
-  const { http } = useApi();
-  const api = useMemo(() => makePartnersApi(http), [http]);
-  const qc = useQueryClient();
-const toast = useToast();
+  const { id } = useParams(); 
+  const { http } = useApi(); 
+  const api = useMemo(() => makePartnersApi(http), [http]); 
+  const qc = useQueryClient(); 
+const toast = useToast(); 
   const { data: partner, isLoading } = useQuery({
     queryKey: qk.partner(id),
     queryFn: () => api.get(id)
-  });
+  }); 
 
   const { data: creditPolicy } = useQuery({
     queryKey: qk.partnerCreditPolicy(id),
     queryFn: () => api.getCreditPolicy(id),
     enabled: !!id
-  });
+  }); 
 
-  const [editOpen, setEditOpen] = useState(false);
-  const [creditOpen, setCreditOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [addressOpen, setAddressOpen] = useState(false);
-  const [contactEditOpen, setContactEditOpen] = useState(false);
-  const [addressEditOpen, setAddressEditOpen] = useState(false);
-  const [editingContactId, setEditingContactId] = useState(null);
-  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [editOpen, setEditOpen] = useState(false); 
+  const [creditOpen, setCreditOpen] = useState(false); 
+  const [contactOpen, setContactOpen] = useState(false); 
+  const [addressOpen, setAddressOpen] = useState(false); 
+  const [contactEditOpen, setContactEditOpen] = useState(false); 
+  const [addressEditOpen, setAddressEditOpen] = useState(false); 
+  const [editingContactId, setEditingContactId] = useState(null); 
+  const [editingAddressId, setEditingAddressId] = useState(null); 
 
-  const [edit, setEdit] = useState({ name: '', code: '', email: '', phone: '', status: 'active', notes: '' });
-  const [cp, setCp] = useState({ creditLimit: '', creditDays: '', holdIfOver: false, notes: '' });
-  const [contact, setContact] = useState({ name: '', email: '', phone: '', role: '', isPrimary: false });
-  const [contactEdit, setContactEdit] = useState({ name: '', email: '', phone: '', role: '', isPrimary: false });
-  const [address, setAddress] = useState({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false });
-  const [addressEdit, setAddressEdit] = useState({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false });
+  const [edit, setEdit] = useState({ name: '', code: '', email: '', phone: '', status: 'active', notes: '' }); 
+  const [cp, setCp] = useState({ creditLimit: '', creditDays: '', holdIfOver: false, notes: '' }); 
+  const [contact, setContact] = useState({ name: '', email: '', phone: '', role: '', isPrimary: false }); 
+  const [contactEdit, setContactEdit] = useState({ name: '', email: '', phone: '', role: '', isPrimary: false }); 
+  const [address, setAddress] = useState({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false }); 
+  const [addressEdit, setAddressEdit] = useState({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false }); 
 
   React.useEffect(() => {
     if (partner) {
@@ -75,9 +75,9 @@ const toast = useToast();
         phone: partner.partner.phone ?? '',
         status: partner.partner.status ?? 'active',
         notes: partner.partner.notes ?? ''
-      });
+      }); 
     }
-  }, [partner]);
+  }, [partner]); 
 
   React.useEffect(() => {
     if (creditPolicy) {
@@ -86,76 +86,76 @@ const toast = useToast();
         creditDays: creditPolicy.credit_days ?? '',
         holdIfOver: !!creditPolicy.hold_if_over,
         notes: creditPolicy.notes ?? ''
-      });
+      }); 
     }
-  }, [creditPolicy]);
+  }, [creditPolicy]); 
 
   const updatePartner = useMutation({
     mutationFn: (body) => api.update(id, body),
     onSuccess: () => {
-      toast.success('Saved partner');
-      qc.invalidateQueries({ queryKey: qk.partner(id) });
-      setEditOpen(false);
+      toast.success('Saved partner'); 
+      qc.invalidateQueries({ queryKey: qk.partner(id) }); 
+      setEditOpen(false); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to save')
-  });
+  }); 
 
   const saveCredit = useMutation({
     mutationFn: (body) => api.setCreditPolicy(id, body),
     onSuccess: () => {
-      toast.success('Saved credit policy');
-      qc.invalidateQueries({ queryKey: qk.partnerCreditPolicy(id) });
-      setCreditOpen(false);
+      toast.success('Saved credit policy'); 
+      qc.invalidateQueries({ queryKey: qk.partnerCreditPolicy(id) }); 
+      setCreditOpen(false); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to save')
-  });
+  }); 
 
   const addContact = useMutation({
     mutationFn: (body) => api.addContact(id, body),
     onSuccess: () => {
-      toast.success('Added contact');
-      qc.invalidateQueries({ queryKey: qk.partner(id) });
-      setContactOpen(false);
-      setContact({ name: '', email: '', phone: '', role: '', isPrimary: false });
+      toast.success('Added contact'); 
+      qc.invalidateQueries({ queryKey: qk.partner(id) }); 
+      setContactOpen(false); 
+      setContact({ name: '', email: '', phone: '', role: '', isPrimary: false }); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to add')
     
-  });
+  }); 
   const updateContact = useMutation({
     mutationFn: ({ contactId, body }) => api.updateContact(id, contactId, body),
     onSuccess: () => {
-      toast.success('Updated contact');
-      qc.invalidateQueries({ queryKey: qk.partner(id) });
-      setContactEditOpen(false);
-      setEditingContactId(null);
+      toast.success('Updated contact'); 
+      qc.invalidateQueries({ queryKey: qk.partner(id) }); 
+      setContactEditOpen(false); 
+      setEditingContactId(null); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to update')
-  });
+  }); 
 
   const addAddress = useMutation({
     mutationFn: (body) => api.addAddress(id, body),
     onSuccess: () => {
-      toast.success('Added address');
-      qc.invalidateQueries({ queryKey: qk.partner(id) });
-      setAddressOpen(false);
-      setAddress({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false });
+      toast.success('Added address'); 
+      qc.invalidateQueries({ queryKey: qk.partner(id) }); 
+      setAddressOpen(false); 
+      setAddress({ label: '', line1: '', line2: '', city: '', region: '', postalCode: '', country: '', isPrimary: false }); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to add')
     
-  });
+  }); 
   const updateAddress = useMutation({
     mutationFn: ({ addressId, body }) => api.updateAddress(id, addressId, body),
     onSuccess: () => {
-      toast.success('Updated address');
-      qc.invalidateQueries({ queryKey: qk.partner(id) });
-      setAddressEditOpen(false);
-      setEditingAddressId(null);
+      toast.success('Updated address'); 
+      qc.invalidateQueries({ queryKey: qk.partner(id) }); 
+      setAddressEditOpen(false); 
+      setEditingAddressId(null); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to update')
-  });
+  }); 
 
-  const contacts = partner?.contacts ?? [];
-  const addresses = partner?.addresses ?? [];
+  const contacts = partner?.contacts ?? []; 
+  const addresses = partner?.addresses ?? []; 
 
   return (
     <div className="space-y-4">
@@ -268,15 +268,15 @@ const toast = useToast();
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                setEditingContactId(c.id);
+                                setEditingContactId(c.id); 
                                 setContactEdit({
                                   name: c.name ?? '',
                                   email: c.email ?? '',
                                   phone: c.phone ?? '',
                                   role: c.role ?? '',
                                   isPrimary: !!c.isPrimary
-                                });
-                                setContactEditOpen(true);
+                                }); 
+                                setContactEditOpen(true); 
                               }}
                             >
                               Edit
@@ -325,7 +325,7 @@ const toast = useToast();
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                setEditingAddressId(a.id);
+                                setEditingAddressId(a.id); 
                                 setAddressEdit({
                                   label: a.label ?? '',
                                   line1: a.line1 ?? '',
@@ -335,8 +335,8 @@ const toast = useToast();
                                   postalCode: a.postalCode ?? '',
                                   country: a.country ?? '',
                                   isPrimary: !!a.isPrimary
-                                });
-                                setAddressEditOpen(true);
+                                }); 
+                                setAddressEditOpen(true); 
                               }}
                             >
                               Edit
@@ -458,8 +458,8 @@ const toast = useToast();
       <Modal
         open={contactEditOpen}
         onClose={() => {
-          setContactEditOpen(false);
-          setEditingContactId(null);
+          setContactEditOpen(false); 
+          setEditingContactId(null); 
         }}
         title="Edit contact"
       >
@@ -481,8 +481,8 @@ const toast = useToast();
           <Button
             variant="outline"
             onClick={() => {
-              setContactEditOpen(false);
-              setEditingContactId(null);
+              setContactEditOpen(false); 
+              setEditingContactId(null); 
             }}
           >
             Cancel
@@ -535,5 +535,5 @@ const toast = useToast();
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

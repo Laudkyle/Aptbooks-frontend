@@ -1,41 +1,41 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { FolderKanban, Plus, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { FolderKanban, Plus, ChevronRight } from 'lucide-react'; 
+import { Link } from 'react-router-dom'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { makePlanningApi } from '../api/planning.api.js'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
 
 function rowsFrom(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data.data)) return data.data;
-  if (Array.isArray(data.items)) return data.items;
-  return [];
+  if (!data) return []; 
+  if (Array.isArray(data)) return data; 
+  if (Array.isArray(data.data)) return data.data; 
+  if (Array.isArray(data.items)) return data.items; 
+  return []; 
 }
 
 export default function Projects() {
-  const { http } = useApi();
-  const api = useMemo(() => makePlanningApi(http), [http]);
+  const { http } = useApi(); 
+  const api = useMemo(() => makePlanningApi(http), [http]); 
 
-  const [status, setStatus] = useState('');
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ code: '', name: '', status: 'active' });
+  const [status, setStatus] = useState(''); 
+  const [open, setOpen] = useState(false); 
+  const [form, setForm] = useState({ code: '', name: '', status: 'active' }); 
 
-  const qs = useMemo(() => ({ status: status || undefined, limit: 100, offset: 0 }), [status]);
+  const qs = useMemo(() => ({ status: status || undefined, limit: 100, offset: 0 }), [status]); 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'projects', qs],
     queryFn: () => api.projects.list(qs)
-  });
+  }); 
 
-  const rows = rowsFrom(data);
+  const rows = rowsFrom(data); 
 
   const columns = useMemo(() => {
     return [
@@ -51,14 +51,14 @@ export default function Projects() {
       { header: 'Code', render: (r) => <span className="text-sm text-slate-700">{r.code ?? '—'}</span> },
       { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status ?? '—'}</span> },
       { header: 'Updated', render: (r) => <span className="text-xs text-slate-600">{String(r.updated_at ?? r.updatedAt ?? '')}</span> }
-    ];
-  }, []);
+    ]; 
+  }, []); 
 
   async function create() {
-    await api.projects.create({ code: form.code || null, name: form.name, status: form.status });
-    setOpen(false);
-    setForm({ code: '', name: '', status: 'active' });
-    refetch();
+    await api.projects.create({ code: form.code || null, name: form.name, status: form.status }); 
+    setOpen(false); 
+    setForm({ code: '', name: '', status: 'active' }); 
+    refetch(); 
   }
 
   return (
@@ -133,5 +133,5 @@ export default function Projects() {
         </div>
       </Modal>
     </div>
-  );
+  ); 
 }

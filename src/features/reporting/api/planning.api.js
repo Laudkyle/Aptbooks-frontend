@@ -1,17 +1,17 @@
-import { ensureIdempotencyKey } from '../../../shared/api/idempotency';
+import { ensureIdempotencyKey } from '../../../shared/api/idempotency'; 
 
 /**
  * Phase 7 — Reporting & Planning API
  *
  * Notes:
  * - These routes are all mounted under /reporting on the backend.
- * - Many writes require Idempotency-Key; we enforce it where required by the route map.
+ * - Many writes require Idempotency-Key;  we enforce it where required by the route map.
  */
 export function makePlanningApi(http) {
-  const base = '/reporting';
+  const base = '/reporting'; 
 
   // Helpers
-  const idem = (cfg = {}) => ensureIdempotencyKey(cfg);
+  const idem = (cfg = {}) => ensureIdempotencyKey(cfg); 
 
   return {
     // 7.1 Centers
@@ -185,5 +185,5 @@ export function makePlanningApi(http) {
       departmentalPnl: (params) => http.get(`${base}/management/departmental-pnl`, { params }),
       costCenterSummary: (params) => http.get(`${base}/management/cost-center-summary`, { params })
     }
-  };
+  }; 
 }

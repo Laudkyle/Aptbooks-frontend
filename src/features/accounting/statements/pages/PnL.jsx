@@ -1,30 +1,30 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeStatementsApi } from '../api/statements.api.js';
-import { makePeriodsApi } from '../../periods/api/periods.api.js';
-import { Select } from '../../../../shared/components/ui/Select.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { formatMoney } from '../../../../shared/utils/formatMoney.js';
-import { formatDate } from '../../../../shared/utils/formatDate.js';
-import { TrendingUp, TrendingDown, Download, Printer, Calendar, FileText, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeStatementsApi } from '../api/statements.api.js'; 
+import { makePeriodsApi } from '../../periods/api/periods.api.js'; 
+import { Select } from '../../../../shared/components/ui/Select.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { formatMoney } from '../../../../shared/utils/formatMoney.js'; 
+import { formatDate } from '../../../../shared/utils/formatDate.js'; 
+import { TrendingUp, TrendingDown, Download, Printer, Calendar, FileText, ChevronDown, ChevronRight } from 'lucide-react'; 
 
 export default function PnL() {
-  const { http } = useApi();
-  const api = useMemo(() => makeStatementsApi(http), [http]);
-  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  const { http } = useApi(); 
+  const api = useMemo(() => makeStatementsApi(http), [http]); 
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]); 
   
   const periodsQ = useQuery({ 
     queryKey: ['periods'], 
     queryFn: periodsApi.list, 
     staleTime: 10_000 
-  });
+  }); 
   
-  const [periodId, setPeriodId] = useState('');
-  const [comparePeriodId, setComparePeriodId] = useState('');
-  const [mode, setMode] = useState('');
-  const [expandedSections, setExpandedSections] = useState(new Set());
+  const [periodId, setPeriodId] = useState(''); 
+  const [comparePeriodId, setComparePeriodId] = useState(''); 
+  const [mode, setMode] = useState(''); 
+  const [expandedSections, setExpandedSections] = useState(new Set()); 
   
   const q = useQuery({
     queryKey: ['pnl', { periodId, comparePeriodId, mode }],
@@ -34,76 +34,76 @@ export default function PnL() {
       mode: mode || undefined 
     }),
     enabled: !!periodId
-  });
+  }); 
   
   const periodOptions = [
     { value: '', label: 'Select period…' }
   ].concat((periodsQ.data ?? []).map((p) => ({ 
     value: p.id, 
     label: `${p.code}${p.name ? ` - ${p.name}` : ''}` 
-  })));
+  }))); 
 
-  const selectedPeriod = periodsQ.data?.find(p => p.id === periodId);
-  const comparePeriod = periodsQ.data?.find(p => p.id === comparePeriodId);
+  const selectedPeriod = periodsQ.data?.find(p => p.id === periodId); 
+  const comparePeriod = periodsQ.data?.find(p => p.id === comparePeriodId); 
 
   const toggleSection = (sectionId) => {
     setExpandedSections(prev => {
-      const newSet = new Set(prev);
+      const newSet = new Set(prev); 
       if (newSet.has(sectionId)) {
-        newSet.delete(sectionId);
+        newSet.delete(sectionId); 
       } else {
-        newSet.add(sectionId);
+        newSet.add(sectionId); 
       }
-      return newSet;
-    });
-  };
+      return newSet; 
+    }); 
+  }; 
 
   // Calculate totals and subtotals
   const calculateSectionTotal = (section) => {
-    return section.children?.reduce((sum, child) => sum + (parseFloat(child.amount) || 0), 0) || 0;
-  };
+    return section.children?.reduce((sum, child) => sum + (parseFloat(child.amount) || 0), 0) || 0; 
+  }; 
 
   const getCompareAmount = (lineId, compareLines) => {
     const findLine = (lines, id) => {
       for (const line of lines) {
-        if (line.id === id) return line;
+        if (line.id === id) return line; 
         if (line.children) {
-          const found = findLine(line.children, id);
-          if (found) return found;
+          const found = findLine(line.children, id); 
+          if (found) return found; 
         }
       }
-      return null;
-    };
-    const compareLine = findLine(compareLines || [], lineId);
-    return parseFloat(compareLine?.amount) || 0;
-  };
+      return null; 
+    }; 
+    const compareLine = findLine(compareLines || [], lineId); 
+    return parseFloat(compareLine?.amount) || 0; 
+  }; 
 
   // Render a single line with proper styling
   const renderLine = (line, level = 0, compareLines = null, parentId = '') => {
-    const isSection = line.line_type === 'section';
-    const isFormula = line.line_type === 'formula';
-    const isAccount = line.line_type === 'account';
-    const hasChildren = line.children && line.children.length > 0;
+    const isSection = line.line_type === 'section'; 
+    const isFormula = line.line_type === 'formula'; 
+    const isAccount = line.line_type === 'account'; 
+    const hasChildren = line.children && line.children.length > 0; 
     
-    const sectionKey = `${parentId}-${line.id}`;
-    const isExpanded = expandedSections.has(sectionKey) || level === 0;
+    const sectionKey = `${parentId}-${line.id}`; 
+    const isExpanded = expandedSections.has(sectionKey) || level === 0; 
     
-    const amount = parseFloat(line.amount) || 0;
-    const compareAmount = compareLines ? getCompareAmount(line.id, compareLines) : 0;
-    const variance = compareLines ? amount - compareAmount : 0;
+    const amount = parseFloat(line.amount) || 0; 
+    const compareAmount = compareLines ? getCompareAmount(line.id, compareLines) : 0; 
+    const variance = compareLines ? amount - compareAmount : 0; 
     const variancePercent = compareLines && compareAmount !== 0 
       ? ((variance / Math.abs(compareAmount)) * 100) 
-      : 0;
+      : 0; 
 
     // Section totals for sections with children
-    const sectionTotal = isSection ? calculateSectionTotal(line) : amount;
+    const sectionTotal = isSection ? calculateSectionTotal(line) : amount; 
     const compareSectionTotal = isSection && compareLines 
       ? line.children?.reduce((sum, child) => sum + getCompareAmount(child.id, compareLines), 0) || 0
-      : compareAmount;
-    const sectionVariance = isSection ? sectionTotal - compareSectionTotal : variance;
+      : compareAmount; 
+    const sectionVariance = isSection ? sectionTotal - compareSectionTotal : variance; 
     const sectionVariancePercent = isSection && compareSectionTotal !== 0
       ? ((sectionVariance / Math.abs(compareSectionTotal)) * 100)
-      : variancePercent;
+      : variancePercent; 
 
     return (
       <React.Fragment key={line.id}>
@@ -204,27 +204,27 @@ export default function PnL() {
           line.children.map(child => renderLine(child, level + 1, compareLines, sectionKey))
         }
       </React.Fragment>
-    );
-  };
+    ); 
+  }; 
 
-  const statementData = q.data?.data;
-  const lines = statementData?.lines || [];
-  const compareLines = statementData?.compare?.lines;
-  const hasComparison = !!compareLines;
+  const statementData = q.data?.data; 
+  const lines = statementData?.lines || []; 
+  const compareLines = statementData?.compare?.lines; 
+  const hasComparison = !!compareLines; 
 
   // Calculate key metrics
-  const revenue = lines.find(l => l.section_code === 'REV');
-  const cogs = lines.find(l => l.section_code === 'COGS');
-  const opex = lines.find(l => l.section_code === 'OPEX');
-  const netIncome = lines.find(l => l.section_code === 'NET_INCOME');
+  const revenue = lines.find(l => l.section_code === 'REV'); 
+  const cogs = lines.find(l => l.section_code === 'COGS'); 
+  const opex = lines.find(l => l.section_code === 'OPEX'); 
+  const netIncome = lines.find(l => l.section_code === 'NET_INCOME'); 
 
-  const revenueAmount = calculateSectionTotal(revenue || {});
-  const cogsAmount = calculateSectionTotal(cogs || {});
-  const opexAmount = calculateSectionTotal(opex || {});
-  const grossProfit = revenueAmount - cogsAmount;
-  const grossMargin = revenueAmount !== 0 ? (grossProfit / revenueAmount) * 100 : 0;
-  const netIncomeAmount = parseFloat(netIncome?.amount) || 0;
-  const netMargin = revenueAmount !== 0 ? (netIncomeAmount / revenueAmount) * 100 : 0;
+  const revenueAmount = calculateSectionTotal(revenue || {}); 
+  const cogsAmount = calculateSectionTotal(cogs || {}); 
+  const opexAmount = calculateSectionTotal(opex || {}); 
+  const grossProfit = revenueAmount - cogsAmount; 
+  const grossMargin = revenueAmount !== 0 ? (grossProfit / revenueAmount) * 100 : 0; 
+  const netIncomeAmount = parseFloat(netIncome?.amount) || 0; 
+  const netMargin = revenueAmount !== 0 ? (netIncomeAmount / revenueAmount) * 100 : 0; 
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -432,5 +432,5 @@ export default function PnL() {
         </div>
       </div>
     </div>
-  );
+  ); 
 }

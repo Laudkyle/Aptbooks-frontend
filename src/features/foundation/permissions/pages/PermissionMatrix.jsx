@@ -1,24 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeRolesApi } from '../../roles/api/roles.api.js';
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeRolesApi } from '../../roles/api/roles.api.js'; 
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
 
 export default function PermissionMatrix() {
-  const { http } = useApi();
-  const rolesApi = useMemo(() => makeRolesApi(http), [http]);
-  const [filter, setFilter] = useState('');
+  const { http } = useApi(); 
+  const rolesApi = useMemo(() => makeRolesApi(http), [http]); 
+  const [filter, setFilter] = useState(''); 
 
-  const q = useQuery({ queryKey: ['roleMatrix'], queryFn: rolesApi.matrix, staleTime: 30_000 });
-  const rows = q.data?.data ?? [];
+  const q = useQuery({ queryKey: ['roleMatrix'], queryFn: rolesApi.matrix, staleTime: 30_000 }); 
+  const rows = q.data?.data ?? []; 
 
   const filtered = rows.filter((r) => {
-    if (!filter.trim()) return true;
-    const f = filter.trim().toLowerCase();
-    return r.name.toLowerCase().includes(f) || (r.permissions ?? []).some((p) => p.toLowerCase().includes(f));
-  });
+    if (!filter.trim()) return true; 
+    const f = filter.trim().toLowerCase(); 
+    return r.name.toLowerCase().includes(f) || (r.permissions ?? []).some((p) => p.toLowerCase().includes(f)); 
+  }); 
 
   return (
     <div className="space-y-4">
@@ -53,5 +53,5 @@ export default function PermissionMatrix() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </div>
-  );
+  ); 
 }

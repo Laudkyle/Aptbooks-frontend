@@ -1,60 +1,60 @@
-import React, { useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; 
+import { AlertTriangle, Plus, ShieldCheck, Trash2 } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makeDisputesApi } from '../api/disputes.api.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makeDisputesApi } from '../api/disputes.api.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
+import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 export default function Disputes() {
-  const { http } = useApi();
-  const api = useMemo(() => makeDisputesApi(http), [http]);
-  const qc = useQueryClient();
-const toast = useToast();
+  const { http } = useApi(); 
+  const api = useMemo(() => makeDisputesApi(http), [http]); 
+  const qc = useQueryClient(); 
+const toast = useToast(); 
 
-  const [status, setStatus] = useState('');
-  const qs = useMemo(() => (status ? { status } : {}), [status]);
+  const [status, setStatus] = useState(''); 
+  const qs = useMemo(() => (status ? { status } : {}), [status]); 
 
-  const { data: disputesData } = useQuery({ queryKey: qk.disputes(qs), queryFn: () => api.list(qs) });
-  const disputes = Array.isArray(disputesData) ? disputesData : disputesData?.data ?? [];
+  const { data: disputesData } = useQuery({ queryKey: qk.disputes(qs), queryFn: () => api.list(qs) }); 
+  const disputes = Array.isArray(disputesData) ? disputesData : disputesData?.data ?? []; 
 
-  const { data: reasonsData } = useQuery({ queryKey: qk.disputeReasonCodes, queryFn: () => api.listReasonCodes() });
-  const reasons = Array.isArray(reasonsData) ? reasonsData : reasonsData?.data ?? [];
+  const { data: reasonsData } = useQuery({ queryKey: qk.disputeReasonCodes, queryFn: () => api.listReasonCodes() }); 
+  const reasons = Array.isArray(reasonsData) ? reasonsData : reasonsData?.data ?? []; 
 
-  const [modal, setModal] = useState(null);
-  const [draft, setDraft] = useState({});
+  const [modal, setModal] = useState(null); 
+  const [draft, setDraft] = useState({}); 
 
   const createDispute = useMutation({
     mutationFn: (body) => api.create(body),
     onSuccess: () => {
-      toast.success('Dispute created');
-      qc.invalidateQueries({ queryKey: qk.disputes(qs) });
-      setModal(null);
+      toast.success('Dispute created'); 
+      qc.invalidateQueries({ queryKey: qk.disputes(qs) }); 
+      setModal(null); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  });
+  }); 
 
   const createReason = useMutation({
     mutationFn: (body) => api.createReasonCode(body),
     onSuccess: () => {
-      toast.success('Reason code created');
-      qc.invalidateQueries({ queryKey: qk.disputeReasonCodes });
-      setModal(null);
+      toast.success('Reason code created'); 
+      qc.invalidateQueries({ queryKey: qk.disputeReasonCodes }); 
+      setModal(null); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  });
+  }); 
 
   const columns = useMemo(
     () => [
@@ -65,7 +65,7 @@ const toast = useToast();
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'open') === 'open' ? 'brand' : 'muted'}>{r.status ?? 'open'}</Badge> }
     ],
     []
-  );
+  ); 
 
   return (
     <div className="space-y-4">
@@ -84,8 +84,8 @@ const toast = useToast();
                     <Button
                       leftIcon={Plus}
                       onClick={() => {
-                        setDraft({ entity_type: '', entity_id: '', partner_id: 0, reason_code: '', notes: null });
-                        setModal('newDispute');
+                        setDraft({ entity_type: '', entity_id: '', partner_id: 0, reason_code: '', notes: null }); 
+                        setModal('newDispute'); 
                       }}
                     >
                       New dispute
@@ -115,8 +115,8 @@ const toast = useToast();
                   <Button
                     leftIcon={Plus}
                     onClick={() => {
-                      setDraft({ code: '', description: null, is_active: true });
-                      setModal('newReason');
+                      setDraft({ code: '', description: null, is_active: true }); 
+                      setModal('newReason'); 
                     }}
                   >
                     New code
@@ -139,7 +139,7 @@ const toast = useToast();
                             variant="outline"
                             size="sm"
                             leftIcon={Trash2}
-                            onClick={() => api.deleteReasonCode(r.code).then(() => { toast.success('Deleted'); qc.invalidateQueries({ queryKey: qk.disputeReasonCodes }); }).catch((e) => toast.error(e?.message ?? 'Failed'))}
+                            onClick={() => api.deleteReasonCode(r.code).then(() => { toast.success('Deleted');  qc.invalidateQueries({ queryKey: qk.disputeReasonCodes });  }).catch((e) => toast.error(e?.message ?? 'Failed'))}
                           >
                             Delete
                           </Button>
@@ -166,5 +166,5 @@ const toast = useToast();
         <JsonPanel title="Reason code payload" value={draft} submitLabel="Create" onSubmit={(json) => createReason.mutate(json)} />
       </Modal>
     </div>
-  );
+  ); 
 }

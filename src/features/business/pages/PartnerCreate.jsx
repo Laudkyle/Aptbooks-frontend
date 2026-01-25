@@ -1,30 +1,30 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Building2, Save } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'; 
+import { useMutation, useQueryClient } from '@tanstack/react-query'; 
+import { ArrowLeft, Building2, Save } from 'lucide-react'; 
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makePartnersApi } from '../api/partners.api.js';
-import { ROUTES } from '../../../app/constants/routes.js';
+import { useApi } from '../../../shared/hooks/useApi.js'; 
+import { qk } from '../../../shared/query/keys.js'; 
+import { makePartnersApi } from '../api/partners.api.js'; 
+import { ROUTES } from '../../../app/constants/routes.js'; 
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
+import { Input } from '../../../shared/components/ui/Input.jsx'; 
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
+import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
 
 export default function PartnerCreate() {
-  const { http } = useApi();
-  const api = useMemo(() => makePartnersApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { http } = useApi(); 
+  const api = useMemo(() => makePartnersApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
+  const navigate = useNavigate(); 
+  const [searchParams] = useSearchParams(); 
 
-  const initialType = searchParams.get('type') === 'vendor' ? 'vendor' : 'customer';
+  const initialType = searchParams.get('type') === 'vendor' ? 'vendor' : 'customer'; 
 
   const [form, setForm] = useState({
     type: initialType,
@@ -37,9 +37,9 @@ export default function PartnerCreate() {
     defaultPayableAccountId: '',
     paymentTermsId: '',
     notes: ''
-  });
+  }); 
 
-  const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
+  const set = (k, v) => setForm((s) => ({ ...s, [k]: v })); 
 
   const create = useMutation({
     mutationFn: async () => {
@@ -55,18 +55,18 @@ export default function PartnerCreate() {
         defaultPayableAccountId: form.defaultPayableAccountId || undefined,
         paymentTermsId: form.paymentTermsId || undefined,
         notes: form.notes || undefined
-      };
-      return api.create(body);
+      }; 
+      return api.create(body); 
     },
     onSuccess: (created) => {
-      qc.invalidateQueries({ queryKey: qk.partners() });
-      toast.success('Partner created');
-      const id = created?.id ?? created?.data?.id;
-      if (id) navigate(ROUTES.businessPartnerDetail(id));
-      else navigate(form.type === 'vendor' ? ROUTES.businessVendors : ROUTES.businessCustomers);
+      qc.invalidateQueries({ queryKey: qk.partners() }); 
+      toast.success('Partner created'); 
+      const id = created?.id ?? created?.data?.id; 
+      if (id) navigate(ROUTES.businessPartnerDetail(id)); 
+      else navigate(form.type === 'vendor' ? ROUTES.businessVendors : ROUTES.businessCustomers); 
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to create partner')
-  });
+  }); 
 
   return (
     <div className="space-y-4">
@@ -187,5 +187,5 @@ export default function PartnerCreate() {
         </div>
       </ContentCard>
     </div>
-  );
+  ); 
 }

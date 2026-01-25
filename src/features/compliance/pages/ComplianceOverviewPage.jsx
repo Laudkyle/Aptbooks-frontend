@@ -1,7 +1,7 @@
-import React from "react";
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/components/ui/card.jsx";
-import { Button } from '../../../shared/components/ui/Button.jsx';
+import React from "react"; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/components/ui/card.jsx"; 
+import { Button } from '../../../shared/components/ui/Button.jsx'; 
 
 export default function ComplianceOverviewPage() {
   return (
@@ -48,5 +48,5 @@ export default function ComplianceOverviewPage() {
         </Card>
       </div>
     </div>
-  );
+  ); 
 }

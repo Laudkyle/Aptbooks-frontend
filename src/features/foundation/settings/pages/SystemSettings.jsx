@@ -1,24 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeSettingsApi } from '../api/settings.api.js';
-import { makeNotificationsApi } from '../../../notifications/api/notifications.api.js';
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { Tabs } from '../../../../shared/components/ui/Tabs.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
-import { useToast } from '../../../../shared/components/ui/Toast.jsx';
+import React, { useMemo, useState } from 'react'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeSettingsApi } from '../api/settings.api.js'; 
+import { makeNotificationsApi } from '../../../notifications/api/notifications.api.js'; 
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
+import { Tabs } from '../../../../shared/components/ui/Tabs.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
+import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
 
 export default function SystemSettings() {
-  const { http } = useApi();
-  const settingsApi = useMemo(() => makeSettingsApi(http), [http]);
-  const notifApi = useMemo(() => makeNotificationsApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { http } = useApi(); 
+  const settingsApi = useMemo(() => makeSettingsApi(http), [http]); 
+  const notifApi = useMemo(() => makeNotificationsApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
 
-  const [tab, setTab] = useState('settings');
+  const [tab, setTab] = useState('settings'); 
 
   return (
     <div className="space-y-4">
@@ -38,34 +38,34 @@ export default function SystemSettings() {
         <SmtpTab notifApi={notifApi} qc={qc} toast={toast} />
       )}
     </div>
-  );
+  ); 
 }
 
 function SettingsTab({ settingsApi, qc, toast }) {
-  const [prefix, setPrefix] = useState('');
-  const [limit, setLimit] = useState(100);
-  const [selectedKey, setSelectedKey] = useState('');
-  const [valueText, setValueText] = useState('{}');
+  const [prefix, setPrefix] = useState(''); 
+  const [limit, setLimit] = useState(100); 
+  const [selectedKey, setSelectedKey] = useState(''); 
+  const [valueText, setValueText] = useState('{}'); 
 
   const listQ = useQuery({
     queryKey: ['settings', prefix, limit],
     queryFn: () => settingsApi.list({ prefix: prefix || undefined, limit }),
     staleTime: 10_000
-  });
+  }); 
 
-  const items = listQ.data?.data ?? [];
+  const items = listQ.data?.data ?? []; 
 
   const put = useMutation({
     mutationFn: async () => {
-      const json = valueText ? JSON.parse(valueText) : {};
-      return settingsApi.put(selectedKey, json);
+      const json = valueText ? JSON.parse(valueText) : {}; 
+      return settingsApi.put(selectedKey, json); 
     },
     onSuccess: () => {
-      toast.success('Setting saved.');
-      qc.invalidateQueries({ queryKey: ['settings'] });
+      toast.success('Setting saved.'); 
+      qc.invalidateQueries({ queryKey: ['settings'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'Save failed')
-  });
+  }); 
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -105,8 +105,8 @@ function SettingsTab({ settingsApi, qc, toast }) {
                       size="sm"
                       variant="secondary"
                       onClick={() => {
-                        setSelectedKey(s.key);
-                        setValueText(JSON.stringify(s.value_json ?? {}, null, 2));
+                        setSelectedKey(s.key); 
+                        setValueText(JSON.stringify(s.value_json ?? {}, null, 2)); 
                       }}
                     >
                       Edit
@@ -146,24 +146,24 @@ function SettingsTab({ settingsApi, qc, toast }) {
         </div>
       </ContentCard>
     </div>
-  );
+  ); 
 }
 
 function SmtpTab({ notifApi, qc, toast }) {
-  const q = useQuery({ queryKey: ['smtp'], queryFn: notifApi.getSmtp, staleTime: 10_000 });
-  const [form, setForm] = useState({ host: 'smtp.gmail.com', port: 587, from: '', username: '', appPassword: '' });
+  const q = useQuery({ queryKey: ['smtp'], queryFn: notifApi.getSmtp, staleTime: 10_000 }); 
+  const [form, setForm] = useState({ host: 'smtp.gmail.com', port: 587, from: '', username: '', appPassword: '' }); 
 
   React.useEffect(() => {
-    if (!q.data) return;
-    if (q.data === null) return;
+    if (!q.data) return; 
+    if (q.data === null) return; 
     setForm({
       host: q.data.host ?? 'smtp.gmail.com',
       port: q.data.port ?? 587,
       from: q.data.from ?? '',
       username: q.data.username ?? '',
       appPassword: q.data.appPassword ?? ''
-    });
-  }, [q.data]);
+    }); 
+  }, [q.data]); 
 
   const save = useMutation({
     mutationFn: () => notifApi.putSmtp({
@@ -174,19 +174,19 @@ function SmtpTab({ notifApi, qc, toast }) {
       appPassword: form.appPassword
     }),
     onSuccess: () => {
-      toast.success('SMTP saved.');
-      qc.invalidateQueries({ queryKey: ['smtp'] });
+      toast.success('SMTP saved.'); 
+      qc.invalidateQueries({ queryKey: ['smtp'] }); 
     },
     onError: (e) => toast.error(e.message ?? 'SMTP save failed')
-  });
+  }); 
 
   const test = useMutation({
     mutationFn: (to) => notifApi.testSmtp(to),
     onSuccess: (r) => toast.success(r?.message ?? 'SMTP test endpoint responded.'),
     onError: (e) => toast.error(e.message ?? 'SMTP test failed')
-  });
+  }); 
 
-  const [to, setTo] = useState('');
+  const [to, setTo] = useState(''); 
 
   return (
     <ContentCard
@@ -216,7 +216,7 @@ function SmtpTab({ notifApi, qc, toast }) {
               <Button variant="secondary" onClick={() => test.mutate(to)} disabled={!to || test.isLoading}>Test</Button>
             </div>
             <div className="mt-2 text-xs text-slate-600">
-              Backend note: current build validates config existence only; does not send an actual email.
+              Backend note: current build validates config existence only;  does not send an actual email.
             </div>
           </div>
         </div>
@@ -227,5 +227,5 @@ function SmtpTab({ notifApi, qc, toast }) {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </ContentCard>
-  );
+  ); 
 }

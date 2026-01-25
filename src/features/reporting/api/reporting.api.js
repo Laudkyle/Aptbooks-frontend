@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../shared/api/endpoints.js'; 
 
 export function makeReportingApi(http) {
   return {
@@ -17,5 +17,5 @@ export function makeReportingApi(http) {
       vatReturn: async (qs) => (await http.get(endpoints.reporting.tax.vatReturn(qs))).data,
       returns: async (qs) => (await http.get(endpoints.reporting.tax.returns(qs))).data
     }
-  };
+  }; 
 }

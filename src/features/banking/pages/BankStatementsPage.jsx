@@ -1,4 +1,4 @@
-import StatementsPage from "./StatementsPage";
+import StatementsPage from "./StatementsPage"; 
 
 // Alias kept to match router imports.
-export default StatementsPage;
+export default StatementsPage; 

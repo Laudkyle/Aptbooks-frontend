@@ -1,67 +1,67 @@
-import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeAccrualsApi } from '../api/accruals.api.js';
-import { makePeriodsApi } from '../../periods/api/periods.api.js';
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
-import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../../shared/components/ui/Select.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
-import { useToast } from '../../../../shared/components/ui/Toast.jsx';
-import { ROUTES } from '../../../../app/constants/routes.js';
+import React, { useMemo, useState } from 'react'; 
+import { Link } from 'react-router-dom'; 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
+import { useApi } from '../../../../shared/hooks/useApi.js'; 
+import { makeAccrualsApi } from '../api/accruals.api.js'; 
+import { makePeriodsApi } from '../../periods/api/periods.api.js'; 
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
+import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx'; 
+import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import { Select } from '../../../../shared/components/ui/Select.jsx'; 
+import { Button } from '../../../../shared/components/ui/Button.jsx'; 
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
+import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
+import { ROUTES } from '../../../../app/constants/routes.js'; 
 
 export default function AccrualsHub() {
-  const { http } = useApi();
-  const api = useMemo(() => makeAccrualsApi(http), [http]);
-  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
-  const qc = useQueryClient();
-  const toast = useToast();
+  const { http } = useApi(); 
+  const api = useMemo(() => makeAccrualsApi(http), [http]); 
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]); 
+  const qc = useQueryClient(); 
+  const toast = useToast(); 
 
-  const rulesQ = useQuery({ queryKey: ['accrual-rules'], queryFn: api.listRules, staleTime: 10_000 });
-  const runsQ = useQuery({ queryKey: ['accrual-runs'], queryFn: () => api.listRuns({}), staleTime: 5_000 });
-  const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
+  const rulesQ = useQuery({ queryKey: ['accrual-rules'], queryFn: api.listRules, staleTime: 10_000 }); 
+  const runsQ = useQuery({ queryKey: ['accrual-runs'], queryFn: () => api.listRuns({}), staleTime: 5_000 }); 
+  const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 }); 
 
-  const [asOfDate, setAsOfDate] = useState('');
-  const [periodId, setPeriodId] = useState('');
+  const [asOfDate, setAsOfDate] = useState(''); 
+  const [periodId, setPeriodId] = useState(''); 
 
   const runDue = useMutation({
     mutationFn: () => api.runDue({ asOfDate }),
     onSuccess: () => {
-      toast.success('Due accrual run started.');
-      qc.invalidateQueries({ queryKey: ['accrual-runs'] });
+      toast.success('Due accrual run started.'); 
+      qc.invalidateQueries({ queryKey: ['accrual-runs'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Run failed')
-  });
+  }); 
 
   const runReversals = useMutation({
     mutationFn: () => api.runReversals({ periodId }),
     onSuccess: () => {
-      toast.success('Reversals run started.');
-      qc.invalidateQueries({ queryKey: ['accrual-runs'] });
+      toast.success('Reversals run started.'); 
+      qc.invalidateQueries({ queryKey: ['accrual-runs'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Run failed')
-  });
+  }); 
 
   const runPeriodEnd = useMutation({
     mutationFn: () => api.runPeriodEnd({ periodId, asOfDate: asOfDate || undefined }),
     onSuccess: () => {
-      toast.success('Period-end accrual run started.');
-      qc.invalidateQueries({ queryKey: ['accrual-runs'] });
+      toast.success('Period-end accrual run started.'); 
+      qc.invalidateQueries({ queryKey: ['accrual-runs'] }); 
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Run failed')
-  });
+  }); 
 
-  const rules = Array.isArray(rulesQ.data) ? rulesQ.data : [];
-  const runs = Array.isArray(runsQ.data) ? runsQ.data : [];
-  const periods = Array.isArray(periodsQ.data) ? periodsQ.data : [];
+  const rules = Array.isArray(rulesQ.data) ? rulesQ.data : []; 
+  const runs = Array.isArray(runsQ.data) ? runsQ.data : []; 
+  const periods = Array.isArray(periodsQ.data) ? periodsQ.data : []; 
 
   const periodOptions = [{ value: '', label: 'Select period…' }].concat(
     periods.map((p) => ({ value: p.id, label: p.code }))
-  );
+  ); 
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -247,5 +247,5 @@ export default function AccrualsHub() {
         </div>
       </div>
     </div>
-  );
+  ); 
 }

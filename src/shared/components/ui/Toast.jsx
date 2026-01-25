@@ -1,29 +1,29 @@
-import React, { createContext, useCallback, useMemo, useState } from 'react';
-import { X } from 'lucide-react';
-import { Button } from './Button.jsx';
+import React, { createContext, useCallback, useMemo, useState } from 'react'; 
+import { X } from 'lucide-react'; 
+import { Button } from './Button.jsx'; 
 
 export const ToastContext = createContext({
   push: () => {},
   success: () => {},
   error: () => {}
-});
+}); 
 
 export function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState([]); 
 
   const remove = useCallback((id) => {
-    setToasts((t) => t.filter((x) => x.id !== id));
-  }, []);
+    setToasts((t) => t.filter((x) => x.id !== id)); 
+  }, []); 
 
   const push = useCallback((toast) => {
-    const id = crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`;
-    const t = { id, type: 'info', title: '', message: '', ...toast };
-    setToasts((prev) => [t, ...prev].slice(0, 5));
+    const id = crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`; 
+    const t = { id, type: 'info', title: '', message: '', ...toast }; 
+    setToasts((prev) => [t, ...prev].slice(0, 5)); 
     // auto dismiss
-    const ttl = toast.ttl ?? 5000;
-    if (ttl) setTimeout(() => remove(id), ttl);
-    return id;
-  }, [remove]);
+    const ttl = toast.ttl ?? 5000; 
+    if (ttl) setTimeout(() => remove(id), ttl); 
+    return id; 
+  }, [remove]); 
 
   const api = useMemo(
     () => ({
@@ -32,7 +32,7 @@ export function ToastProvider({ children }) {
       error: (message, title = 'Error') => push({ type: 'error', title, message })
     }),
     [push]
-  );
+  ); 
 
   return (
     <ToastContext.Provider value={api}>
@@ -63,9 +63,9 @@ export function ToastProvider({ children }) {
         ))}
       </div>
     </ToastContext.Provider>
-  );
+  ); 
 }
 
 export function useToast() {
-  return React.useContext(ToastContext);
+  return React.useContext(ToastContext); 
 }

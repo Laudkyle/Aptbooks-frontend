@@ -1,37 +1,37 @@
-import React, { useMemo, useState } from 'react';
-import { Button } from '../ui/Button.jsx';
-import { Textarea } from '../ui/Textarea.jsx';
-import { Check, Copy, Wand2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react'; 
+import { Button } from '../ui/Button.jsx'; 
+import { Textarea } from '../ui/Textarea.jsx'; 
+import { Check, Copy, Wand2 } from 'lucide-react'; 
 
 function safeStringify(value) {
   try {
-    return JSON.stringify(value ?? null, null, 2);
+    return JSON.stringify(value ?? null, null, 2); 
   } catch {
-    return String(value);
+    return String(value); 
   }
 }
 
 export function JsonPanel({ title = 'Payload', value, onSubmit, submitLabel = 'Submit', hint }) {
-  const initial = useMemo(() => safeStringify(value), [value]);
-  const [text, setText] = useState(initial);
-  const [copied, setCopied] = useState(false);
-  const [parseError, setParseError] = useState(null);
+  const initial = useMemo(() => safeStringify(value), [value]); 
+  const [text, setText] = useState(initial); 
+  const [copied, setCopied] = useState(false); 
+  const [parseError, setParseError] = useState(null); 
 
   function handleFormat() {
     try {
-      const parsed = JSON.parse(text);
-      setText(JSON.stringify(parsed, null, 2));
-      setParseError(null);
+      const parsed = JSON.parse(text); 
+      setText(JSON.stringify(parsed, null, 2)); 
+      setParseError(null); 
     } catch (e) {
-      setParseError(e?.message ?? 'Invalid JSON');
+      setParseError(e?.message ?? 'Invalid JSON'); 
     }
   }
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 900);
+      await navigator.clipboard.writeText(text); 
+      setCopied(true); 
+      setTimeout(() => setCopied(false), 900); 
     } catch {
       /* ignore */
     }
@@ -39,11 +39,11 @@ export function JsonPanel({ title = 'Payload', value, onSubmit, submitLabel = 'S
 
   function handleSubmit() {
     try {
-      const parsed = JSON.parse(text);
-      setParseError(null);
-      onSubmit?.(parsed);
+      const parsed = JSON.parse(text); 
+      setParseError(null); 
+      onSubmit?.(parsed); 
     } catch (e) {
-      setParseError(e?.message ?? 'Invalid JSON');
+      setParseError(e?.message ?? 'Invalid JSON'); 
     }
   }
 
@@ -78,5 +78,5 @@ export function JsonPanel({ title = 'Payload', value, onSubmit, submitLabel = 'S
         />
       </div>
     </div>
-  );
+  ); 
 }
