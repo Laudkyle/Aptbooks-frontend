@@ -1,5 +1,5 @@
-import React from 'react'; 
-import { Link } from 'react-router-dom'; 
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   BookOpen,
   FileText,
@@ -9,15 +9,15 @@ import {
   Bell,
   Shield,
   Search
-} from 'lucide-react'; 
-import { ROUTES } from '../app/constants/routes.js'; 
-import { useAuth } from '../shared/hooks/useAuth.js'; 
-import { ContentCard } from '../shared/components/layout/ContentCard.jsx'; 
-import { PageHeader } from '../shared/components/layout/PageHeader.jsx'; 
-import { Button } from '../shared/components/ui/Button.jsx'; 
+} from 'lucide-react';
+import { ROUTES } from '../app/constants/routes.js';
+import { useAuth } from '../shared/hooks/useAuth.js';
+import { ContentCard } from '../shared/components/layout/ContentCard.jsx';
+import { PageHeader } from '../shared/components/layout/PageHeader.jsx';
+import { Button } from '../shared/components/ui/Button.jsx';
 
 export default function Dashboard() {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   return (
     <div className="app-page">
@@ -147,5 +147,5 @@ export default function Dashboard() {
         </ContentCard>
       </div>
     </div>
-  ); 
+  );
 }

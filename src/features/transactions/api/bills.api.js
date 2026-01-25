@@ -1,5 +1,5 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
-import { ensureIdempotencyKey } from '../../../shared/api/idempotency.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
+import { ensureIdempotencyKey } from '../../../shared/api/idempotency.js';
 
 export function makeBillsApi(http) {
   return {
@@ -18,5 +18,5 @@ export function makeBillsApi(http) {
       (await http.post(endpoints.modules.transactions.bills.issue(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     void: async (id, body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.bills.void(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data
-  }; 
+  };
 }

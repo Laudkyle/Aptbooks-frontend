@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 
 export function PageHeader({ title, subtitle, actions }) {
   return (
@@ -13,5 +13,5 @@ export function PageHeader({ title, subtitle, actions }) {
         </div>
       ) : null}
     </div>
-  ); 
+  );
 }

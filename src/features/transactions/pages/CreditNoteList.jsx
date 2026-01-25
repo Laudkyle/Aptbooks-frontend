@@ -1,35 +1,35 @@
-import React, { useMemo, useState } from 'react'; 
-import { useNavigate, Link } from 'react-router-dom'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { FileMinus2, Plus } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { FileMinus2, Plus } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makeCreditNotesApi } from '../api/creditNotes.api.js'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeCreditNotesApi } from '../api/creditNotes.api.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
 
 export default function CreditNoteList() {
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const api = useMemo(() => makeCreditNotesApi(http), [http]); 
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeCreditNotesApi(http), [http]);
 
-  const [customerId, setCustomerId] = useState(''); 
-  const qs = useMemo(() => (customerId ? { customerId } : {}), [customerId]); 
+  const [customerId, setCustomerId] = useState('');
+  const qs = useMemo(() => (customerId ? { customerId } : {}), [customerId]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: qk.creditNotes(qs),
     queryFn: () => api.list(qs)
-  }); 
+  });
 
-  const rows = Array.isArray(data) ? data : data?.data ?? []; 
+  const rows = Array.isArray(data) ? data : data?.data ?? [];
 
   const columns = useMemo(
     () => [
@@ -52,7 +52,7 @@ export default function CreditNoteList() {
       }
     ],
     []
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -82,5 +82,5 @@ export default function CreditNoteList() {
         </div>
       </ContentCard>
     </div>
-  ); 
+  );
 }

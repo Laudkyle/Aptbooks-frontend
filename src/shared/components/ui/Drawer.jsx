@@ -1,10 +1,10 @@
-import React from 'react'; 
-import { X } from 'lucide-react'; 
-import { Button } from './Button.jsx'; 
+import React from 'react';
+import { X } from 'lucide-react';
+import { Button } from './Button.jsx';
 
 export function Drawer({ open, title, onClose, children, footer, side = 'right' }) {
-  if (!open) return null; 
-  const sideClasses = side === 'left' ? 'left-0' : 'right-0'; 
+  if (!open) return null;
+  const sideClasses = side === 'left' ? 'left-0' : 'right-0';
   return (
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} />
@@ -19,5 +19,5 @@ export function Drawer({ open, title, onClose, children, footer, side = 'right' 
         {footer ? <div className="border-t border-slate-200 p-4">{footer}</div> : null}
       </div>
     </div>
-  ); 
+  );
 }

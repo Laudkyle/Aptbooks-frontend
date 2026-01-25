@@ -1,5 +1,5 @@
-import React from 'react'; 
-import clsx from 'clsx'; 
+import React from 'react';
+import clsx from 'clsx';
 
 export const Textarea = React.forwardRef(function Textarea(
   { className, label, error, rows = 4, ...props },
@@ -21,5 +21,5 @@ export const Textarea = React.forwardRef(function Textarea(
       />
       {error ? <span className="mt-1 block text-xs text-red-600">{error}</span> : null}
     </label>
-  ); 
-}); 
+  );
+});

@@ -175,4 +175,4 @@ utilitiesA11yRead: 'utilities.a11y.read',
 utilitiesReleaseRead: 'utilities.release.read',
 utilitiesTestsRun: 'utilities.tests.run'
 
-}; 
+};

@@ -1,454 +1,454 @@
-import React, { Suspense, lazy } from "react"; 
-import { createBrowserRouter, Navigate } from "react-router-dom"; 
-import { ProtectedRoute, GuestRoute, PermissionGate } from "./route-guards.jsx"; 
-import { ROUTES } from "../constants/routes.js"; 
-import { PERMISSIONS } from "../constants/permissions.js"; 
-import { AppShell } from "../../shared/components/layout/AppShell.jsx"; 
+import React, { Suspense, lazy } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { ProtectedRoute, GuestRoute, PermissionGate } from "./route-guards.jsx";
+import { ROUTES } from "../constants/routes.js";
+import { PERMISSIONS } from "../constants/permissions.js";
+import { AppShell } from "../../shared/components/layout/AppShell.jsx";
 
-import Dashboard from "../../pages/Dashboard.jsx"; 
-import Me from "../../pages/Me.jsx"; 
-import NotFound from "../../pages/NotFound.jsx"; 
-import Forbidden from "../../pages/Forbidden.jsx"; 
+import Dashboard from "../../pages/Dashboard.jsx";
+import Me from "../../pages/Me.jsx";
+import NotFound from "../../pages/NotFound.jsx";
+import Forbidden from "../../pages/Forbidden.jsx";
 
-const Login = lazy(() => import("../../features/auth/pages/Login.jsx")); 
-const Register = lazy(() => import("../../features/auth/pages/Register.jsx")); 
+const Login = lazy(() => import("../../features/auth/pages/Login.jsx"));
+const Register = lazy(() => import("../../features/auth/pages/Register.jsx"));
 const ForgotPassword = lazy(() =>
   import("../../features/auth/pages/ForgotPassword.jsx")
-); 
+);
 const ResetPassword = lazy(() =>
   import("../../features/auth/pages/ResetPassword.jsx")
-); 
+);
 
 const GlobalSearch = lazy(() =>
   import("../../features/search/pages/GlobalSearch.jsx")
-); 
+);
 const NotificationCenter = lazy(() =>
   import("../../features/notifications/pages/NotificationCenter.jsx")
-); 
+);
 const ApprovalQueue = lazy(() =>
   import("../../features/workflow/approvals/pages/ApprovalQueue.jsx")
-); 
+);
 
 const OrganizationSettings = lazy(() =>
   import(
     "../../features/foundation/organizations/pages/OrganizationSettings.jsx"
   )
-); 
+);
 const UserList = lazy(() =>
   import("../../features/foundation/users/pages/UserList.jsx")
-); 
+);
 const UserDetail = lazy(() =>
   import("../../features/foundation/users/pages/UserDetail.jsx")
-); 
+);
 const RoleList = lazy(() =>
   import("../../features/foundation/roles/pages/RoleList.jsx")
-); 
+);
 const RoleDetail = lazy(() =>
   import("../../features/foundation/roles/pages/RoleDetail.jsx")
-); 
+);
 const PermissionMatrix = lazy(() =>
   import("../../features/foundation/permissions/pages/PermissionMatrix.jsx")
-); 
+);
 const SystemSettings = lazy(() =>
   import("../../features/foundation/settings/pages/SystemSettings.jsx")
-); 
+);
 const DimensionRules = lazy(() =>
   import("../../features/foundation/dimensionSecurity/pages/DimensionRules.jsx")
-); 
+);
 const ApiKeyList = lazy(() =>
   import("../../features/foundation/apiKeys/pages/ApiKeyList.jsx")
-); 
+);
 
 const SystemHealth = lazy(() =>
   import("../../features/utilities/pages/SystemHealth.jsx")
-); 
+);
 const ScheduledTasks = lazy(() =>
   import("../../features/utilities/pages/ScheduledTasks.jsx")
-); 
+);
 const ErrorLogs = lazy(() =>
   import("../../features/utilities/pages/ErrorLogs.jsx")
-); 
+);
 const ClientLogs = lazy(() =>
   import("../../features/utilities/pages/ClientLogs.jsx")
-); 
+);
 const I18nAdmin = lazy(() =>
   import("../../features/utilities/pages/I18nAdmin.jsx")
-); 
+);
 const A11yChecks = lazy(() =>
   import("../../features/utilities/pages/A11yChecks.jsx")
-); 
+);
 const ReleaseInfo = lazy(() =>
   import("../../features/utilities/pages/ReleaseInfo.jsx")
-); 
+);
 const TestConsole = lazy(() =>
   import("../../features/utilities/pages/TestConsole.jsx")
-); 
+);
 
 // Phase 8 — Banking
 const BankingOverview = lazy(() =>
   import("../../features/banking/pages/BankingOverview.jsx")
-); 
+);
 const BankAccountsPage = lazy(() =>
   import("../../features/banking/pages/BankAccountsPage.jsx")
-); 
+);
 const BankStatementsPage = lazy(() =>
   import("../../features/banking/pages/BankStatementsPage.jsx")
-); 
+);
 const BankStatementDetailPage = lazy(() =>
   import("../../features/banking/pages/BankStatementDetailPage.jsx")
-); 
+);
 const BankMatchingRulesPage = lazy(() =>
   import("../../features/banking/pages/MatchingRulesPage.jsx")
-); 
+);
 const BankCashbookPage = lazy(() =>
   import("../../features/banking/pages/CashbookPage.jsx")
-); 
+);
 const BankReconciliationsPage = lazy(() =>
   import("../../features/banking/pages/ReconciliationsPage.jsx")
-); 
+);
 
 // Phase 8 — Compliance
 const ComplianceOverview = lazy(() =>
   import("../../features/compliance/pages/ComplianceOverview.jsx")
-); 
+);
 const IFRS16LeasesPage = lazy(() =>
   import("../../features/compliance/pages/IFRS16LeasesPage.jsx")
-); 
+);
 const IFRS15ContractsPage = lazy(() =>
   import("../../features/compliance/pages/IFRS15ContractsPage.jsx")
-); 
+);
 const IFRS9EclPage = lazy(() =>
   import("../../features/compliance/pages/IFRS9ECLPage.jsx")
-); 
+);
 const IAS12TaxPage = lazy(() =>
   import("../../features/compliance/pages/IAS12TaxPage.jsx")
-); 
+);
 
 // Phase 8 — Workflow Documents
 const DocumentsLibraryPage = lazy(() =>
   import("../../features/workflow/pages/DocumentsLibraryPage.jsx")
-); 
+);
 const DocumentDetailPage = lazy(() =>
   import("../../features/workflow/pages/DocumentDetailPage.jsx")
-); 
+);
 const DocumentTypesPage = lazy(() =>
   import("../../features/workflow/pages/DocumentTypesPage.jsx")
-); 
+);
 const ApprovalLevelsPage = lazy(() =>
   import("../../features/workflow/pages/ApprovalLevelsPage.jsx")
-); 
+);
 
 // Phase 4 — Accounting
 const AccountList = lazy(() =>
   import("../../features/accounting/chartOfAccounts/pages/AccountList.jsx")
-); 
+);
 const AccountCreate = lazy(() =>
   import("../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx")
-); 
+);
 const AccountDetail = lazy(() =>
   import("../../features/accounting/chartOfAccounts/pages/AccountDetail.jsx")
-); 
+);
 
 const PeriodList = lazy(() =>
   import("../../features/accounting/periods/pages/PeriodList.jsx")
-); 
+);
 const PeriodClose = lazy(() =>
   import("../../features/accounting/periods/pages/PeriodClose.jsx")
-); 
+);
 
 const JournalList = lazy(() =>
   import("../../features/accounting/journals/pages/JournalList.jsx")
-); 
+);
 const JournalCreate = lazy(() =>
   import("../../features/accounting/journals/pages/JournalCreate.jsx")
-); 
+);
 const JournalDetail = lazy(() =>
   import("../../features/accounting/journals/pages/JournalDetail.jsx")
-); 
+);
 
 const TrialBalance = lazy(() =>
   import("../../features/accounting/balances/pages/TrialBalance.jsx")
-); 
+);
 const BalanceByAccount = lazy(() =>
   import("../../features/accounting/balances/pages/BalanceByAccount.jsx")
-); 
+);
 
 const PnL = lazy(() =>
   import("../../features/accounting/statements/pages/PnL.jsx")
-); 
+);
 const BalanceSheet = lazy(() =>
   import("../../features/accounting/statements/pages/BalanceSheet.jsx")
-); 
+);
 const Cashflow = lazy(() =>
   import("../../features/accounting/statements/pages/Cashflow.jsx")
-); 
+);
 const ChangesInEquity = lazy(() =>
   import("../../features/accounting/statements/pages/ChangesInEquity.jsx")
-); 
+);
 
 const ExportsHub = lazy(() =>
   import("../../features/accounting/exports/pages/ExportsHub.jsx")
-); 
+);
 const ImportsHub = lazy(() =>
   import("../../features/accounting/imports/pages/ImportsHub.jsx")
-); 
+);
 
 const FxRates = lazy(() =>
   import("../../features/accounting/fx/pages/FxRates.jsx")
-); 
+);
 const TaxAdmin = lazy(() =>
   import("../../features/accounting/tax/pages/TaxAdmin.jsx")
-); 
+);
 
 const AccrualsHub = lazy(() =>
   import("../../features/accounting/accruals/pages/AccrualsHub.jsx")
-); 
+);
 const AccrualCreate = lazy(() =>
   import("../../features/accounting/accruals/pages/AccrualCreate.jsx")
-); 
+);
 
 const Reconciliation = lazy(() =>
   import("../../features/accounting/reconciliation/pages/Reconciliation.jsx")
-); 
+);
 
 // Phase 5 — Business / Transactions / AR Ops / Reporting
 const Customers = lazy(() =>
   import("../../features/business/pages/Customers.jsx")
-); 
-const Vendors = lazy(() => import("../../features/business/pages/Vendors.jsx")); 
+);
+const Vendors = lazy(() => import("../../features/business/pages/Vendors.jsx"));
 const PartnerDetail = lazy(() =>
   import("../../features/business/pages/PartnerDetail.jsx")
-); 
+);
 const PartnerCreate = lazy(() =>
   import("../../features/business/pages/PartnerCreate.jsx")
-); 
+);
 const PaymentConfig = lazy(() =>
   import("../../features/business/pages/PaymentConfig.jsx")
-); 
+);
 
 const InvoiceList = lazy(() =>
   import("../../features/transactions/pages/InvoiceList.jsx")
-); 
+);
 const InvoiceCreate = lazy(() =>
   import("../../features/transactions/pages/InvoiceCreate.jsx")
-); 
+);
 const InvoiceDetail = lazy(() =>
   import("../../features/transactions/pages/InvoiceDetail.jsx")
-); 
+);
 
 const BillList = lazy(() =>
   import("../../features/transactions/pages/BillList.jsx")
-); 
+);
 const BillCreate = lazy(() =>
   import("../../features/transactions/pages/BillCreate.jsx")
-); 
+);
 const BillDetail = lazy(() =>
   import("../../features/transactions/pages/BillDetail.jsx")
-); 
+);
 
 const CustomerReceiptList = lazy(() =>
   import("../../features/transactions/pages/CustomerReceiptList.jsx")
-); 
+);
 const CustomerReceiptCreate = lazy(() =>
   import("../../features/transactions/pages/CustomerReceiptCreate.jsx")
-); 
+);
 const CustomerReceiptDetail = lazy(() =>
   import("../../features/transactions/pages/CustomerReceiptDetail.jsx")
-); 
+);
 
 const VendorPaymentList = lazy(() =>
   import("../../features/transactions/pages/VendorPaymentList.jsx")
-); 
+);
 const VendorPaymentCreate = lazy(() =>
   import("../../features/transactions/pages/VendorPaymentCreate.jsx")
-); 
+);
 const VendorPaymentDetail = lazy(() =>
   import("../../features/transactions/pages/VendorPaymentDetail.jsx")
-); 
+);
 
 const CreditNoteList = lazy(() =>
   import("../../features/transactions/pages/CreditNoteList.jsx")
-); 
+);
 const CreditNoteCreate = lazy(() =>
   import("../../features/transactions/pages/CreditNoteCreate.jsx")
-); 
+);
 const CreditNoteDetail = lazy(() =>
   import("../../features/transactions/pages/CreditNoteDetail.jsx")
-); 
+);
 
 const DebitNoteList = lazy(() =>
   import("../../features/transactions/pages/DebitNoteList.jsx")
-); 
+);
 const DebitNoteCreate = lazy(() =>
   import("../../features/transactions/pages/DebitNoteCreate.jsx")
-); 
+);
 const DebitNoteDetail = lazy(() =>
   import("../../features/transactions/pages/DebitNoteDetail.jsx")
-); 
+);
 
 const CollectionsHub = lazy(() =>
   import("../../features/ar/pages/CollectionsHub.jsx")
-); 
-const Disputes = lazy(() => import("../../features/ar/pages/Disputes.jsx")); 
-const Writeoffs = lazy(() => import("../../features/ar/pages/Writeoffs.jsx")); 
+);
+const Disputes = lazy(() => import("../../features/ar/pages/Disputes.jsx"));
+const Writeoffs = lazy(() => import("../../features/ar/pages/Writeoffs.jsx"));
 const PaymentPlans = lazy(() =>
   import("../../features/ar/pages/PaymentPlans.jsx")
-); 
+);
 
 const ReportArAging = lazy(() =>
   import("../../features/reporting/pages/ReportArAging.jsx")
-); 
+);
 const ReportArOpenItems = lazy(() =>
   import("../../features/reporting/pages/ReportArOpenItems.jsx")
-); 
+);
 const ReportArCustomerStatement = lazy(() =>
   import("../../features/reporting/pages/ReportArCustomerStatement.jsx")
-); 
+);
 const ReportApAging = lazy(() =>
   import("../../features/reporting/pages/ReportApAging.jsx")
-); 
+);
 const ReportApOpenItems = lazy(() =>
   import("../../features/reporting/pages/ReportApOpenItems.jsx")
-); 
+);
 const ReportApVendorStatement = lazy(() =>
   import("../../features/reporting/pages/ReportApVendorStatement.jsx")
-); 
+);
 const ReportTax = lazy(() =>
   import("../../features/reporting/pages/ReportTax.jsx")
-); 
+);
 
 // Phase 6 — Assets + Inventory
 const AssetRegister = lazy(() =>
   import("../../features/assets/pages/AssetRegister.jsx")
-); 
+);
 const AssetCategories = lazy(() =>
   import("../../features/assets/pages/AssetCategories.jsx")
-); 
+);
 const AssetDetail = lazy(() =>
   import("../../features/assets/pages/AssetDetail.jsx")
-); 
+);
 const AssetDepreciation = lazy(() =>
   import("../../features/assets/pages/AssetDepreciation.jsx")
-); 
+);
 const DepreciationRuns = lazy(() =>
   import("../../features/assets/pages/DepreciationRuns.jsx")
-); 
+);
 const AssetRegisterNew = lazy(() =>
   import("../../features/assets/pages/FixedAssetCreate.jsx")
-); 
+);
 const AssetCategoryNew = lazy(() =>
   import("../../features/assets/pages/AssetCategoryCreate.jsx")
-); 
+);
 const AssetCategoryEdit = lazy(() =>
   import("../../features/assets/pages/AssetCategoryEdit.jsx")
-); 
+);
 const AssetAcquire = lazy(() =>
   import("../../features/assets/pages/AssetAcquire.jsx")
-); 
+);
 const AssetDispose = lazy(() =>
   import("../../features/assets/pages/AssetDispose.jsx")
-); 
+);
 const AssetTransfer = lazy(() =>
   import("../../features/assets/pages/AssetTransfer.jsx")
-); 
+);
 const AssetRevalue = lazy(() =>
   import("../../features/assets/pages/AssetRevalue.jsx")
-); 
+);
 const AssetImpair = lazy(() =>
   import("../../features/assets/pages/AssetImpair.jsx")
-); 
+);
 const DepreciationScheduleNew = lazy(() =>
   import("../../features/assets/pages/DepreciationScheduleCreate.jsx")
-); 
+);
 
 const InventoryCategoryNew = lazy(() =>
   import("../../features/inventory/pages/CategoryCreate.jsx")
-); 
+);
 const InventoryUnitNew = lazy(() =>
   import("../../features/inventory/pages/UnitCreate.jsx")
-); 
+);
 const InventoryItemNew = lazy(() =>
   import("../../features/inventory/pages/ItemCreate.jsx")
-); 
+);
 const InventoryWarehouseNew = lazy(() =>
   import("../../features/inventory/pages/WarehouseCreate.jsx")
-); 
+);
 const InventoryTransactionNew = lazy(() =>
   import("../../features/inventory/pages/TransactionCreate.jsx")
-); 
+);
 const InventoryStockCountNew = lazy(() =>
   import("../../features/inventory/pages/StockCountCreate.jsx")
-); 
+);
 const InventoryItems = lazy(() =>
   import("../../features/inventory/pages/Items.jsx")
-); 
+);
 const InventoryWarehouses = lazy(() =>
   import("../../features/inventory/pages/Warehouses.jsx")
-); 
+);
 const InventoryCategories = lazy(() =>
   import("../../features/inventory/pages/Categories.jsx")
-); 
+);
 const InventoryUnits = lazy(() =>
   import("../../features/inventory/pages/Units.jsx")
-); 
+);
 const InventoryTransactions = lazy(() =>
   import("../../features/inventory/pages/Transactions.jsx")
-); 
+);
 const InventoryTransactionDetail = lazy(() =>
   import("../../features/inventory/pages/TransactionDetail.jsx")
-); 
+);
 const InventoryStockCounts = lazy(() =>
   import("../../features/inventory/pages/StockCounts.jsx")
-); 
+);
 const InventoryStockCountDetail = lazy(() =>
   import("../../features/inventory/pages/StockCountDetail.jsx")
-); 
+);
 const InventoryReports = lazy(() =>
   import("../../features/inventory/pages/Reports.jsx")
-); 
+);
 
 // Phase 7 — Reporting & Planning
 const Centers = lazy(() =>
   import("../../features/reporting/pages/Centers.jsx")
-); 
+);
 const Projects = lazy(() =>
   import("../../features/reporting/pages/Projects.jsx")
-); 
+);
 const ProjectDetail = lazy(() =>
   import("../../features/reporting/pages/ProjectDetail.jsx")
-); 
+);
 const Budgets = lazy(() =>
   import("../../features/reporting/pages/Budgets.jsx")
-); 
+);
 const BudgetDetail = lazy(() =>
   import("../../features/reporting/pages/BudgetDetail.jsx")
-); 
+);
 const Forecasts = lazy(() =>
   import("../../features/reporting/pages/Forecasts.jsx")
-); 
+);
 const ForecastDetail = lazy(() =>
   import("../../features/reporting/pages/ForecastDetail.jsx")
-); 
+);
 const Allocations = lazy(() =>
   import("../../features/reporting/pages/Allocations.jsx")
-); 
-const KPIs = lazy(() => import("../../features/reporting/pages/KPIs.jsx")); 
+);
+const KPIs = lazy(() => import("../../features/reporting/pages/KPIs.jsx"));
 const Dashboards = lazy(() =>
   import("../../features/reporting/pages/Dashboards.jsx")
-); 
+);
 const SavedReports = lazy(() =>
   import("../../features/reporting/pages/SavedReports.jsx")
-); 
+);
 const ManagementReports = lazy(() =>
   import("../../features/reporting/pages/ManagementReports.jsx")
-); 
+);
 
 function Loader() {
-  return <div className="p-4 text-sm text-slate-600">Loading…</div>; 
+  return <div className="p-4 text-sm text-slate-600">Loading…</div>;
 }
 
 function Lazy({ children }) {
-  return <Suspense fallback={<Loader />}>{children}</Suspense>; 
+  return <Suspense fallback={<Loader />}>{children}</Suspense>;
 }
 
 function RequirePermission({ any, all, children }) {
@@ -456,7 +456,7 @@ function RequirePermission({ any, all, children }) {
     <PermissionGate any={any} all={all} fallback={<Forbidden />}>
       {children}
     </PermissionGate>
-  ); 
+  );
 }
 
 export const router = createBrowserRouter([
@@ -2115,4 +2115,4 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "*", element: <Navigate to={ROUTES.dashboard} replace /> },
-]); 
+]);

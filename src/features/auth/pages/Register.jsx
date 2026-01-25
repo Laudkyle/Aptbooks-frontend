@@ -1,45 +1,45 @@
-import React, { useState } from 'react'; 
-import { useNavigate, Link } from 'react-router-dom'; 
-import { AuthLayout } from '../components/AuthLayout.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
-import { useAuth } from '../../../shared/hooks/useAuth.js'; 
-import { CURRENCIES } from '../../../app/constants/currencies.js'; 
-import { normalizeError } from '../../../shared/api/errors.js'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthLayout } from '../components/AuthLayout.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { useAuth } from '../../../shared/hooks/useAuth.js';
+import { CURRENCIES } from '../../../app/constants/currencies.js';
+import { normalizeError } from '../../../shared/api/errors.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
 export default function Register() {
-  const { register } = useAuth(); 
-  const nav = useNavigate(); 
-  const toast = useToast(); 
+  const { register } = useAuth();
+  const nav = useNavigate();
+  const toast = useToast();
 
-  const [organizationName, setOrganizationName] = useState(''); 
-  const [baseCurrencyCode, setBaseCurrencyCode] = useState('GHS'); 
-  const [email, setEmail] = useState(''); 
-  const [password, setPassword] = useState(''); 
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(null); 
+  const [organizationName, setOrganizationName] = useState('');
+  const [baseCurrencyCode, setBaseCurrencyCode] = useState('GHS');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   return (
     <AuthLayout title="Create organization" subtitle="Creates an org and initial admin user">
       <form
         className="space-y-4"
         onSubmit={async (e) => {
-          e.preventDefault(); 
-          setLoading(true); 
-          setError(null); 
+          e.preventDefault();
+          setLoading(true);
+          setError(null);
           try {
-            await register({ organizationName, baseCurrencyCode, email, password }); 
-            toast.success('Organization created. You are signed in.'); 
-            nav(ROUTES.dashboard, { replace: true }); 
+            await register({ organizationName, baseCurrencyCode, email, password });
+            toast.success('Organization created. You are signed in.');
+            nav(ROUTES.dashboard, { replace: true });
           } catch (e2) {
-            const ne = normalizeError(e2); 
-            setError(ne); 
-            toast.error(ne.message); 
+            const ne = normalizeError(e2);
+            setError(ne);
+            toast.error(ne.message);
           } finally {
-            setLoading(false); 
+            setLoading(false);
           }
         }}
       >
@@ -66,5 +66,5 @@ export default function Register() {
         </div>
       </form>
     </AuthLayout>
-  ); 
+  );
 }

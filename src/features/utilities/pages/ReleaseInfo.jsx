@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeUtilitiesApi } from '../api/utilities.api.js'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
+import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeUtilitiesApi } from '../api/utilities.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 
 export default function ReleaseInfo() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeUtilitiesApi(http), [http]);
 
-  const q = useQuery({ queryKey: ['releaseInfo'], queryFn: api.releaseInfo, staleTime: 60_000 }); 
+  const q = useQuery({ queryKey: ['releaseInfo'], queryFn: api.releaseInfo, staleTime: 60_000 });
 
   return (
     <div className="space-y-4">
@@ -24,5 +24,5 @@ export default function ReleaseInfo() {
         )}
       </ContentCard>
     </div>
-  ); 
+  );
 }

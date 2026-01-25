@@ -1,16 +1,16 @@
-import React from 'react'; 
-import { Link, useNavigate } from 'react-router-dom'; 
-import { LogOut, Search, Menu } from 'lucide-react'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
-import { uiStore } from '../../../app/store/ui.store.js'; 
-import { useAuth } from '../../hooks/useAuth.js'; 
-import { Button } from '../ui/Button.jsx'; 
-import { OrgSwitcher } from '../../../features/foundation/organizations/components/OrgSwitcher.jsx'; 
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogOut, Search, Menu } from 'lucide-react';
+import { ROUTES } from '../../../app/constants/routes.js';
+import { uiStore } from '../../../app/store/ui.store.js';
+import { useAuth } from '../../hooks/useAuth.js';
+import { Button } from '../ui/Button.jsx';
+import { OrgSwitcher } from '../../../features/foundation/organizations/components/OrgSwitcher.jsx';
 
 export function TopNav() {
-  const { user, logout } = useAuth(); 
-  const toggleSidebar = uiStore((s) => s.toggleSidebar); 
-  const navigate = useNavigate(); 
+  const { user, logout } = useAuth();
+  const toggleSidebar = uiStore((s) => s.toggleSidebar);
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1 backdrop-blur supports-[backdrop-filter]:bg-white/70">
@@ -55,5 +55,5 @@ export function TopNav() {
         </div>
       </div>
     </header>
-  ); 
+  );
 }

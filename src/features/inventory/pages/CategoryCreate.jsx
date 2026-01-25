@@ -1,36 +1,36 @@
-import React, { useMemo, useState } from 'react'; 
-import { useNavigate } from 'react-router-dom'; 
-import { useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { ArrowLeft, Save } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Save } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeInventoryApi } from '../api/inventory.api.js'; 
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js'; 
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeInventoryApi } from '../api/inventory.api.js';
+import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 
 export default function CategoryCreate() {
-  const nav = useNavigate(); 
-  const qc = useQueryClient(); 
-  const { http } = useApi(); 
-  const invApi = useMemo(() => makeInventoryApi(http), [http]); 
-  const coaApi = useMemo(() => makeCoaApi(http), [http]); 
+  const nav = useNavigate();
+  const qc = useQueryClient();
+  const { http } = useApi();
+  const invApi = useMemo(() => makeInventoryApi(http), [http]);
+  const coaApi = useMemo(() => makeCoaApi(http), [http]);
 
   const { data: accountsRaw } = useQuery({
     queryKey: ['coa.accounts.list'],
     queryFn: async () => coaApi.list({ limit: 500 }),
     staleTime: 60_000
-  }); 
+  });
 
   const accountOptions = useMemo(() => {
-    const opts = toOptions(accountsRaw, { valueKey: 'id', label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id }); 
-    return [NONE_OPTION, ...opts]; 
-  }, [accountsRaw]); 
+    const opts = toOptions(accountsRaw, { valueKey: 'id', label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id });
+    return [NONE_OPTION, ...opts];
+  }, [accountsRaw]);
 
   const [form, setForm] = useState({
     code: '',
@@ -39,18 +39,18 @@ export default function CategoryCreate() {
     cogsAccountId: '',
     adjustmentAccountId: '',
     clearingAccountId: ''
-  }); 
-  const [saving, setSaving] = useState(false); 
+  });
+  const [saving, setSaving] = useState(false);
 
   async function onSubmit(e) {
-    e.preventDefault(); 
-    setSaving(true); 
+    e.preventDefault();
+    setSaving(true);
     try {
-      await invApi.createCategory(form); 
-      await qc.invalidateQueries({ queryKey: ['inventory.categories'] }); 
-      nav(-1); 
+      await invApi.createCategory(form);
+      await qc.invalidateQueries({ queryKey: ['inventory.categories'] });
+      nav(-1);
     } finally {
-      setSaving(false); 
+      setSaving(false);
     }
   }
 
@@ -90,5 +90,5 @@ export default function CategoryCreate() {
         </form>
       </ContentCard>
     </>
-  ); 
+  );
 }

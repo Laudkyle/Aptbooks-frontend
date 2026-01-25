@@ -1,30 +1,30 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { ArrowLeftRight, Plus } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeftRight, Plus } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeInventoryApi } from '../api/inventory.api.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeInventoryApi } from '../api/inventory.api.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
 
 export default function StockMovements() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeInventoryApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeInventoryApi(http), [http]);
 
-  const [periodId, setPeriodId] = useState(''); 
+  const [periodId, setPeriodId] = useState('');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['inventory', 'transactions', { periodId: periodId || undefined }],
     queryFn: () => api.listTransactions({ periodId: periodId || undefined })
-  }); 
+  });
 
-  const rows = Array.isArray(data) ? data : data?.data ?? []; 
+  const rows = Array.isArray(data) ? data : data?.data ?? [];
 
   const columns = useMemo(
     () => [
@@ -44,7 +44,7 @@ export default function StockMovements() {
       }
     ],
     []
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -84,5 +84,5 @@ export default function StockMovements() {
         </div>
       </ContentCard>
     </div>
-  ); 
+  );
 }

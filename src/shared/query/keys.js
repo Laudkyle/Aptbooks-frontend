@@ -107,4 +107,4 @@ export const qk = {
   inventoryValuationReport: (qs) => ['inventory', 'reports', 'valuation', qs ?? {}],
   inventoryMovementsReport: (qs) => ['inventory', 'reports', 'movements', qs ?? {}]
 
-}; 
+};

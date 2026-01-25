@@ -21,7 +21,7 @@ export default function TrialBalance() {
   });
   
   const [periodId, setPeriodId] = useState('');
-  const [viewMode, setViewMode] = useState('net'); // 'net' or 'debit-credit'
+  const [viewMode, setViewMode] = useState('net');// 'net' or 'debit-credit'
   
   const tbQ = useQuery({
     queryKey: ['trialBalance', periodId],

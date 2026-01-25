@@ -1,45 +1,45 @@
-import React, { useMemo, useState } from 'react'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { CreditCard, Edit, Plus, Save, Settings2, Trash2, Wallet } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CreditCard, Edit, Plus, Save, Settings2, Trash2, Wallet } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makePaymentConfigApi } from '../api/paymentConfig.api.js'; 
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';  // Added this import
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';  // Added this import
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makePaymentConfigApi } from '../api/paymentConfig.api.js';
+import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';// Added this import
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';// Added this import
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 
 export default function PaymentConfig() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makePaymentConfigApi(http), [http]); 
-  const coaApi = useMemo(() => makeCoaApi(http), [http]);  // Added this line
-  const qc = useQueryClient(); 
-  const toast = useToast(); 
+  const { http } = useApi();
+  const api = useMemo(() => makePaymentConfigApi(http), [http]);
+  const coaApi = useMemo(() => makeCoaApi(http), [http]);// Added this line
+  const qc = useQueryClient();
+  const toast = useToast();
   
   const { data: terms, isLoading: termsLoading, isError: termsError } = useQuery({
     queryKey: qk.paymentTerms,
     queryFn: () => api.listPaymentTerms()
-  }); 
+  });
 
   const { data: methods, isLoading: methodsLoading, isError: methodsError } = useQuery({
     queryKey: qk.paymentMethods,
     queryFn: () => api.listPaymentMethods()
-  }); 
+  });
 
   const { data: settings, isLoading: settingsLoading } = useQuery({
     queryKey: qk.paymentSettings,
     queryFn: () => api.getPaymentSettings()
-  }); 
+  });
 
   // New query for accounts
   const { data: accountsRaw } = useQuery({
@@ -47,126 +47,126 @@ export default function PaymentConfig() {
     queryFn: async () => coaApi.list({ limit: 500 }),
     staleTime: 60_000,
     enabled: !!coaApi // Only run if coaApi is available
-  }); 
+  });
 
   const accountOptions = useMemo(() => {
     const opts = toOptions(accountsRaw, {
       valueKey: 'id',
       label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id
-    }); 
-    return [NONE_OPTION, ...opts]; 
-  }, [accountsRaw]); 
+    });
+    return [NONE_OPTION, ...opts];
+  }, [accountsRaw]);
 
   const { data: paymentMethodsRaw } = useQuery({
     queryKey: qk.paymentMethods,
     queryFn: () => api.listPaymentMethods(),
     staleTime: 60_000
-  }); 
+  });
 
   const paymentMethodOptions = useMemo(() => {
     const opts = toOptions(paymentMethodsRaw, {
       valueKey: 'id',
       label: (m) => `${m.name ?? ''} (${m.code ?? ''})`.trim() || m.id
-    }); 
-    return [NONE_OPTION, ...opts]; 
-  }, [paymentMethodsRaw]); 
+    });
+    return [NONE_OPTION, ...opts];
+  }, [paymentMethodsRaw]);
 
-  const [termOpen, setTermOpen] = useState(false); 
-  const [termEditOpen, setTermEditOpen] = useState(false); 
-  const [methodEditOpen, setMethodEditOpen] = useState(false); 
-  const [editingTermId, setEditingTermId] = useState(null); 
-  const [editingMethodId, setEditingMethodId] = useState(null); 
+  const [termOpen, setTermOpen] = useState(false);
+  const [termEditOpen, setTermEditOpen] = useState(false);
+  const [methodEditOpen, setMethodEditOpen] = useState(false);
+  const [editingTermId, setEditingTermId] = useState(null);
+  const [editingMethodId, setEditingMethodId] = useState(null);
   
-  const [term, setTerm] = useState({ name: '', net_days: 0, discount_days: null, discount_rate: null, isDefault: false, status: 'active' }); 
-  const [termEdit, setTermEdit] = useState({ name: '', net_days: 0, discount_days: null, discount_rate: null, isDefault: false, status: 'active' }); 
-  const [methodEdit, setMethodEdit] = useState({ name: '', code: '', description: '', status: 'active' }); 
+  const [term, setTerm] = useState({ name: '', net_days: 0, discount_days: null, discount_rate: null, isDefault: false, status: 'active' });
+  const [termEdit, setTermEdit] = useState({ name: '', net_days: 0, discount_days: null, discount_rate: null, isDefault: false, status: 'active' });
+  const [methodEdit, setMethodEdit] = useState({ name: '', code: '', description: '', status: 'active' });
 
   const createTerm = useMutation({
     mutationFn: (body) => api.createPaymentTerm(body),
     onSuccess: () => {
-      toast.success('Created payment term'); 
-      qc.invalidateQueries({ queryKey: qk.paymentTerms }); 
-      setTermOpen(false); 
+      toast.success('Created payment term');
+      qc.invalidateQueries({ queryKey: qk.paymentTerms });
+      setTermOpen(false);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to create')
-  }); 
+  });
 
   const updateTerm = useMutation({
     mutationFn: ({ id, body }) => api.updatePaymentTerm(id, body),
     onSuccess: () => {
-      toast.success('Updated payment term'); 
-      qc.invalidateQueries({ queryKey: qk.paymentTerms }); 
-      setTermEditOpen(false); 
-      setEditingTermId(null); 
+      toast.success('Updated payment term');
+      qc.invalidateQueries({ queryKey: qk.paymentTerms });
+      setTermEditOpen(false);
+      setEditingTermId(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to update')
-  }); 
+  });
 
   const deleteTerm = useMutation({
     mutationFn: (id) => api.deletePaymentTerm(id),
     onSuccess: () => {
-      toast.success('Deleted payment term'); 
-      qc.invalidateQueries({ queryKey: qk.paymentTerms }); 
+      toast.success('Deleted payment term');
+      qc.invalidateQueries({ queryKey: qk.paymentTerms });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to delete')
-  }); 
+  });
 
   const updateMethod = useMutation({
     mutationFn: ({ id, body }) => api.updatePaymentMethod(id, body),
     onSuccess: () => {
-      toast.success('Updated payment method'); 
-      qc.invalidateQueries({ queryKey: qk.paymentMethods }); 
-      setMethodEditOpen(false); 
-      setEditingMethodId(null); 
+      toast.success('Updated payment method');
+      qc.invalidateQueries({ queryKey: qk.paymentMethods });
+      setMethodEditOpen(false);
+      setEditingMethodId(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to update payment method')
-  }); 
+  });
 
   const deleteMethod = useMutation({
     mutationFn: (id) => api.deletePaymentMethod(id),
     onSuccess: () => {
-      toast.success('Deleted payment method'); 
-      qc.invalidateQueries({ queryKey: qk.paymentMethods }); 
+      toast.success('Deleted payment method');
+      qc.invalidateQueries({ queryKey: qk.paymentMethods });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to delete payment method')
-  }); 
+  });
 
   const saveSettings = useMutation({
     mutationFn: (body) => api.setPaymentSettings(body),
     onSuccess: () => {
-      toast.success('Saved payment settings'); 
-      qc.invalidateQueries({ queryKey: qk.paymentSettings }); 
+      toast.success('Saved payment settings');
+      qc.invalidateQueries({ queryKey: qk.paymentSettings });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to save')
-  }); 
+  });
 
-  const [settingsDraft, setSettingsDraft] = useState({}); 
+  const [settingsDraft, setSettingsDraft] = useState({});
   React.useEffect(() => {
-    if (settings) setSettingsDraft(settings); 
-  }, [settings]); 
+    if (settings) setSettingsDraft(settings);
+  }, [settings]);
 
  const toIntOrNull = (v) => {
-  if (v === null || v === undefined) return null; 
+  if (v === null || v === undefined) return null;
   
   // Convert to string for processing
-  const s = String(v).trim(); 
-  if (!s) return null; 
+  const s = String(v).trim();
+  if (!s) return null;
   
   // UUID pattern (case-insensitive)
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i; 
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (uuidPattern.test(s)) {
-    return s.toLowerCase();  // Return UUID in lowercase for consistency
+    return s.toLowerCase();// Return UUID in lowercase for consistency
   }
   
   // Check if it's a valid integer
-  const n = Number(s); 
+  const n = Number(s);
   if (Number.isFinite(n) && Number.isInteger(n)) {
-    return n;  // Return integer
+    return n;// Return integer
   }
   
   // Not a valid ID
-  return null; 
-}; 
+  return null;
+};
   const settingsPayload = (draft) => ({
     arUnappliedAccountId: toIntOrNull(draft?.arUnappliedAccountId),
     arDiscountAccountId: toIntOrNull(draft?.arDiscountAccountId),
@@ -174,25 +174,25 @@ export default function PaymentConfig() {
     apDiscountIncomeAccountId: toIntOrNull(draft?.apDiscountIncomeAccountId),
     onlineCashAccountId: toIntOrNull(draft?.onlineCashAccountId),
     onlinePaymentMethodId: toIntOrNull(draft?.onlinePaymentMethodId)
-  }); 
+  });
 
   // Safely extract data rows
   const termsRows = React.useMemo(() => {
-    if (!terms) return []; 
-    if (Array.isArray(terms)) return terms; 
-    if (terms?.data && Array.isArray(terms.data)) return terms.data; 
-    return []; 
-  }, [terms]); 
+    if (!terms) return [];
+    if (Array.isArray(terms)) return terms;
+    if (terms?.data && Array.isArray(terms.data)) return terms.data;
+    return [];
+  }, [terms]);
 
   const methodsRows = React.useMemo(() => {
-    if (!methods) return []; 
-    if (Array.isArray(methods)) return methods; 
-    if (methods?.data && Array.isArray(methods.data)) return methods.data; 
-    return []; 
-  }, [methods]); 
+    if (!methods) return [];
+    if (Array.isArray(methods)) return methods;
+    if (methods?.data && Array.isArray(methods.data)) return methods.data;
+    return [];
+  }, [methods]);
 
   // Loading state for the entire page
-  const isLoading = termsLoading || methodsLoading || settingsLoading; 
+  const isLoading = termsLoading || methodsLoading || settingsLoading;
 
   if (isLoading) {
     return (
@@ -211,7 +211,7 @@ export default function PaymentConfig() {
           <div className="text-sm text-slate-600">Loading payment configuration...</div>
         </div>
       </div>
-    ); 
+    );
   }
 
   // Error states
@@ -232,15 +232,15 @@ export default function PaymentConfig() {
             size="sm"
             className="mt-4"
             onClick={() => {
-              if (termsError) qc.invalidateQueries({ queryKey: qk.paymentTerms }); 
-              if (methodsError) qc.invalidateQueries({ queryKey: qk.paymentMethods }); 
+              if (termsError) qc.invalidateQueries({ queryKey: qk.paymentTerms });
+              if (methodsError) qc.invalidateQueries({ queryKey: qk.paymentMethods });
             }}
           >
             Retry
           </Button>
         </div>
       </div>
-    ); 
+    );
   }
 
   return (
@@ -298,7 +298,7 @@ export default function PaymentConfig() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              setEditingTermId(t.id); 
+                              setEditingTermId(t.id);
                               setTermEdit({
                                 name: t.name ?? '',
                                 net_days: t.net_days ?? 0,
@@ -306,8 +306,8 @@ export default function PaymentConfig() {
                                 discount_rate: t.discount_rate ?? null,
                                 isDefault: !!t.isDefault,
                                 status: t.status ?? 'active'
-                              }); 
-                              setTermEditOpen(true); 
+                              });
+                              setTermEditOpen(true);
                             }}
                             disabled={!t.id}
                           >
@@ -317,9 +317,9 @@ export default function PaymentConfig() {
                             size="sm"
                             variant="danger"
                             onClick={() => {
-                              if (!t.id) return; 
-                              const ok = window.confirm(`Delete payment term "${t.name}"? This cannot be undone.`); 
-                              if (ok) deleteTerm.mutate(t.id); 
+                              if (!t.id) return;
+                              const ok = window.confirm(`Delete payment term "${t.name}"? This cannot be undone.`);
+                              if (ok) deleteTerm.mutate(t.id);
                             }}
                             disabled={!t.id || deleteTerm.isPending}
                           >
@@ -369,14 +369,14 @@ export default function PaymentConfig() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              setEditingMethodId(m.id); 
+                              setEditingMethodId(m.id);
                               setMethodEdit({
                                 name: m.name ?? '',
                                 code: m.code ?? '',
                                 description: m.description ?? '',
                                 status: m.status ?? 'active'
-                              }); 
-                              setMethodEditOpen(true); 
+                              });
+                              setMethodEditOpen(true);
                             }}
                             disabled={!m.id}
                           >
@@ -386,9 +386,9 @@ export default function PaymentConfig() {
                             size="sm"
                             variant="danger"
                             onClick={() => {
-                              if (!m.id) return; 
-                              const ok = window.confirm(`Delete payment method "${m.name || m.code}"? This cannot be undone.`); 
-                              if (ok) deleteMethod.mutate(m.id); 
+                              if (!m.id) return;
+                              const ok = window.confirm(`Delete payment method "${m.name || m.code}"? This cannot be undone.`);
+                              if (ok) deleteMethod.mutate(m.id);
                             }}
                             disabled={!m.id || deleteMethod.isPending}
                           >
@@ -466,7 +466,7 @@ export default function PaymentConfig() {
                     </div>
                   </div>
 
-                  <JsonPanel title="Payment settings (GET)" value={settings ?? {}} hint="This panel is read-only;  use the form to save." />
+                  <JsonPanel title="Payment settings (GET)" value={settings ?? {}} hint="This panel is read-only;use the form to save." />
                 </div>
               </ContentCard>
             )
@@ -519,8 +519,8 @@ export default function PaymentConfig() {
       <Modal
         open={termEditOpen}
         onClose={() => {
-          setTermEditOpen(false); 
-          setEditingTermId(null); 
+          setTermEditOpen(false);
+          setEditingTermId(null);
         }}
         title="Edit payment term"
       >
@@ -571,8 +571,8 @@ export default function PaymentConfig() {
           <Button
             variant="outline"
             onClick={() => {
-              setTermEditOpen(false); 
-              setEditingTermId(null); 
+              setTermEditOpen(false);
+              setEditingTermId(null);
             }}
           >
             Cancel
@@ -602,8 +602,8 @@ export default function PaymentConfig() {
       <Modal
         open={methodEditOpen}
         onClose={() => {
-          setMethodEditOpen(false); 
-          setEditingMethodId(null); 
+          setMethodEditOpen(false);
+          setEditingMethodId(null);
         }}
         title="Edit payment method"
       >
@@ -641,8 +641,8 @@ export default function PaymentConfig() {
           <Button
             variant="outline"
             onClick={() => {
-              setMethodEditOpen(false); 
-              setEditingMethodId(null); 
+              setMethodEditOpen(false);
+              setEditingMethodId(null);
             }}
           >
             Cancel
@@ -667,5 +667,5 @@ export default function PaymentConfig() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

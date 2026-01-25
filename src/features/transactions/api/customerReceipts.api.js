@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
 
 export function makeCustomerReceiptsApi(http) {
   return {
@@ -10,5 +10,5 @@ export function makeCustomerReceiptsApi(http) {
     reallocate: async (id, body) => (await http.post(endpoints.modules.transactions.customerReceipts.reallocate(id), body)).data,
     post: async (id) => (await http.post(endpoints.modules.transactions.customerReceipts.post(id))).data,
     void: async (id, body) => (await http.post(endpoints.modules.transactions.customerReceipts.void(id), body)).data
-  }; 
+  };
 }

@@ -1,54 +1,54 @@
-import React, { useMemo, useState } from 'react'; 
-import { useNavigate, useParams } from 'react-router-dom'; 
-import { useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { ArrowLeft, Save } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Save } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeAssetsApi } from '../api/assets.api.js'; 
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js'; 
-import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js'; 
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeAssetsApi } from '../api/assets.api.js';
+import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 
 export default function AssetAcquire() {
-  const { id } = useParams(); 
-  const nav = useNavigate(); 
-  const qc = useQueryClient(); 
-  const { http } = useApi(); 
-  const assetsApi = useMemo(() => makeAssetsApi(http), [http]); 
-  const coaApi = useMemo(() => makeCoaApi(http), [http]); 
-  const periodsApi = useMemo(() => makePeriodsApi(http), [http]); 
+  const { id } = useParams();
+  const nav = useNavigate();
+  const qc = useQueryClient();
+  const { http } = useApi();
+  const assetsApi = useMemo(() => makeAssetsApi(http), [http]);
+  const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
 
   const { data: accountsRaw } = useQuery({
     queryKey: ['coa.accounts.list'],
     queryFn: async () => coaApi.list({ limit: 500 }),
     staleTime: 60_000
-  }); 
+  });
 
   const { data: periodsRaw } = useQuery({
     queryKey: ['accounting.periods.list'],
     queryFn: async () => periodsApi.list(),
     staleTime: 60_000
-  }); 
+  });
 
   const accountOptions = useMemo(() => [NONE_OPTION, ...toOptions(accountsRaw, {
     valueKey: 'id',
     label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id
-  })], [accountsRaw]); 
+  })], [accountsRaw]);
 
   const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, {
     valueKey: 'id',
     label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim() || p.id
-  })], [periodsRaw]); 
+  })], [periodsRaw]);
 
-  const [form, setForm] = useState({"periodId": "", "entryDate": "", "fundingAccountId": "", "memo": ""}); 
-  const [saving, setSaving] = useState(false); 
+  const [form, setForm] = useState({"periodId": "", "entryDate": "", "fundingAccountId": "", "memo": ""});
+  const [saving, setSaving] = useState(false);
 
   async function onSubmit(e) {
     e.preventDefault();

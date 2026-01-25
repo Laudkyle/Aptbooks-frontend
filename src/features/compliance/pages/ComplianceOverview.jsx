@@ -1,4 +1,4 @@
-import ComplianceOverviewPage from "./ComplianceOverviewPage"; 
+import ComplianceOverviewPage from "./ComplianceOverviewPage";
 
 // Alias kept to match router imports.
-export default ComplianceOverviewPage; 
+export default ComplianceOverviewPage;

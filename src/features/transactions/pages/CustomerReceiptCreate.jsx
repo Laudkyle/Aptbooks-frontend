@@ -1,23 +1,23 @@
-import React, { useMemo, useState } from 'react'; 
-import { useNavigate } from 'react-router-dom'; 
-import { useMutation } from '@tanstack/react-query'; 
-import { ArrowLeft, HandCoins } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { ArrowLeft, HandCoins } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CustomerReceiptCreate() {
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const api = useMemo(() => makeCustomerReceiptsApi(http), [http]); 
-const toast = useToast(); 
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeCustomerReceiptsApi(http), [http]);
+const toast = useToast();
   const [payload, setPayload] = useState({
     customerId: '',
     receiptDate: '',
@@ -26,18 +26,18 @@ const toast = useToast();
     amountTotal: 0,
     memo: null,
     allocations: []
-  }); 
+  });
 
   const create = useMutation({
     mutationFn: () => api.create(payload),
     onSuccess: (res) => {
-      toast.success('Receipt created'); 
-      const id = res?.id ?? res?.data?.id; 
-      if (id) navigate(ROUTES.customerReceiptDetail(id)); 
-      else navigate(ROUTES.customerReceipts); 
+      toast.success('Receipt created');
+      const id = res?.id ?? res?.data?.id;
+      if (id) navigate(ROUTES.customerReceiptDetail(id));
+      else navigate(ROUTES.customerReceipts);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to create')
-  }); 
+  });
 
   return (
     <div className="space-y-4">
@@ -64,7 +64,7 @@ const toast = useToast();
             After creation you can auto-allocate, manually reallocate, then post. Void is available after posting.
           </div>
           <div className="mt-4 rounded-2xl border border-border-subtle bg-white/70 p-4 text-xs text-slate-600">
-            Note: allocations defaults to [] if omitted. Keep amounts &gt;  0 per allocation.
+            Note: allocations defaults to [] if omitted. Keep amounts &gt;0 per allocation.
           </div>
         </ContentCard>
 
@@ -79,5 +79,5 @@ const toast = useToast();
         </div>
       </div>
     </div>
-  ); 
+  );
 }

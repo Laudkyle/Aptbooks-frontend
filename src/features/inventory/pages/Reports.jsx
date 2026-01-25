@@ -1,42 +1,42 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { BarChart3 } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { BarChart3 } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeInventoryApi } from '../api/inventory.api.js'; 
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeInventoryApi } from '../api/inventory.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 
 export default function InventoryReports() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeInventoryApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeInventoryApi(http), [http]);
 
   const { data: warehousesRaw } = useQuery({
     queryKey: ['inventory.warehouses'],
     queryFn: async () => api.listWarehouses(),
     staleTime: 60_000
-  }); 
+  });
 
   const { data: itemsRaw } = useQuery({
     queryKey: ['inventory.items'],
     queryFn: async () => api.listItems(),
     staleTime: 60_000
-  }); 
+  });
 
-  const warehouseOptions = useMemo(() => [NONE_OPTION, ...toOptions(warehousesRaw, { valueKey: 'id', label: (w) => `${w.code ?? ''} ${w.name ?? ''}`.trim() || w.id })], [warehousesRaw]); 
-  const itemOptions = useMemo(() => [NONE_OPTION, ...toOptions(itemsRaw, { valueKey: 'id', label: (i) => `${i.sku ?? ''} ${i.name ?? ''}`.trim() || i.id })], [itemsRaw]); 
+  const warehouseOptions = useMemo(() => [NONE_OPTION, ...toOptions(warehousesRaw, { valueKey: 'id', label: (w) => `${w.code ?? ''} ${w.name ?? ''}`.trim() || w.id })], [warehousesRaw]);
+  const itemOptions = useMemo(() => [NONE_OPTION, ...toOptions(itemsRaw, { valueKey: 'id', label: (i) => `${i.sku ?? ''} ${i.name ?? ''}`.trim() || i.id })], [itemsRaw]);
 
-  const [report, setReport] = useState('valuation'); 
-  const [warehouseId, setWarehouseId] = useState(''); 
-  const [from, setFrom] = useState(''); 
-  const [to, setTo] = useState(''); 
-  const [itemId, setItemId] = useState(''); 
+  const [report, setReport] = useState('valuation');
+  const [warehouseId, setWarehouseId] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [itemId, setItemId] = useState('');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['inventory', 'reports', report, { warehouseId, from, to, itemId }],
@@ -50,9 +50,9 @@ export default function InventoryReports() {
             itemId: itemId || undefined
           }),
     enabled: true
-  }); 
+  });
 
-  const rows = Array.isArray(data) ? data : data?.data ?? []; 
+  const rows = Array.isArray(data) ? data : data?.data ?? [];
 
   const columns = useMemo(
     () => [
@@ -61,7 +61,7 @@ export default function InventoryReports() {
       { header: 'Amount/Qty', render: (r) => <span className="text-sm text-slate-700">{r.amount ?? r.quantity ?? r.value ?? r.on_hand ?? '—'}</span> }
     ],
     []
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -105,5 +105,5 @@ export default function InventoryReports() {
         </div>
       </ContentCard>
     </div>
-  ); 
+  );
 }

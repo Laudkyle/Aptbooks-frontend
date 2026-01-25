@@ -1,91 +1,91 @@
-import React, { useMemo, useState } from 'react'; 
-import { useNavigate, useParams } from 'react-router-dom'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { useApi } from '../../../../shared/hooks/useApi.js'; 
-import { makeRolesApi } from '../api/roles.api.js'; 
-import { makePermissionsApi } from '../../permissions/api/permissions.api.js'; 
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../../shared/components/ui/Input.jsx'; 
-import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx'; 
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
-import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
-import { ROUTES } from '../../../../app/constants/routes.js'; 
+import React, { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeRolesApi } from '../api/roles.api.js';
+import { makePermissionsApi } from '../../permissions/api/permissions.api.js';
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx';
+import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx';
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
+import { useToast } from '../../../../shared/components/ui/Toast.jsx';
+import { ROUTES } from '../../../../app/constants/routes.js';
 
 export default function RoleDetail() {
-  const { id } = useParams(); 
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const rolesApi = useMemo(() => makeRolesApi(http), [http]); 
-  const permsApi = useMemo(() => makePermissionsApi(http), [http]); 
-  const qc = useQueryClient(); 
-  const toast = useToast(); 
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const rolesApi = useMemo(() => makeRolesApi(http), [http]);
+  const permsApi = useMemo(() => makePermissionsApi(http), [http]);
+  const qc = useQueryClient();
+  const toast = useToast();
 
-  const rolesQ = useQuery({ queryKey: ['roles'], queryFn: rolesApi.list, staleTime: 30_000 }); 
-  const permListQ = useQuery({ queryKey: ['permissions'], queryFn: permsApi.list, staleTime: 30_000 }); 
-  const rolePermsQ = useQuery({ queryKey: ['rolePerms', id], queryFn: () => rolesApi.getPermissions(id), enabled: !!id }); 
+  const rolesQ = useQuery({ queryKey: ['roles'], queryFn: rolesApi.list, staleTime: 30_000 });
+  const permListQ = useQuery({ queryKey: ['permissions'], queryFn: permsApi.list, staleTime: 30_000 });
+  const rolePermsQ = useQuery({ queryKey: ['rolePerms', id], queryFn: () => rolesApi.getPermissions(id), enabled: !!id });
 
-  const role = (rolesQ.data ?? []).find((r) => r.id === id); 
-  const [name, setName] = useState(''); 
+  const role = (rolesQ.data ?? []).find((r) => r.id === id);
+  const [name, setName] = useState('');
   React.useEffect(() => {
-    if (role?.name) setName(role.name); 
-  }, [role?.name]); 
+    if (role?.name) setName(role.name);
+  }, [role?.name]);
 
-  const [confirmDelete, setConfirmDelete] = useState(false); 
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const rename = useMutation({
     mutationFn: () => rolesApi.update(id, { name }),
     onSuccess: () => {
-      toast.success('Role renamed.'); 
-      qc.invalidateQueries({ queryKey: ['roles'] }); 
-      qc.invalidateQueries({ queryKey: ['roleMatrix'] }); 
+      toast.success('Role renamed.');
+      qc.invalidateQueries({ queryKey: ['roles'] });
+      qc.invalidateQueries({ queryKey: ['roleMatrix'] });
     },
     onError: (e) => toast.error(e.message ?? 'Rename failed')
-  }); 
+  });
 
   const remove = useMutation({
     mutationFn: () => rolesApi.remove(id),
     onSuccess: () => {
-      toast.success('Role deleted.'); 
-      setConfirmDelete(false); 
-      qc.invalidateQueries({ queryKey: ['roles'] }); 
-      qc.invalidateQueries({ queryKey: ['roleMatrix'] }); 
-      navigate(ROUTES.adminRoles); 
+      toast.success('Role deleted.');
+      setConfirmDelete(false);
+      qc.invalidateQueries({ queryKey: ['roles'] });
+      qc.invalidateQueries({ queryKey: ['roleMatrix'] });
+      navigate(ROUTES.adminRoles);
     },
     onError: (e) => toast.error(e.message ?? 'Delete failed')
-  }); 
+  });
 
-  const attached = new Set((rolePermsQ.data?.permissions ?? []).map((p) => p.code)); 
+  const attached = new Set((rolePermsQ.data?.permissions ?? []).map((p) => p.code));
 
-  const [filter, setFilter] = useState(''); 
+  const [filter, setFilter] = useState('');
   const filteredPerms = (permListQ.data ?? []).filter((p) => {
-    if (!filter.trim()) return true; 
-    const f = filter.trim().toLowerCase(); 
-    return p.code.toLowerCase().includes(f) || (p.description ?? '').toLowerCase().includes(f); 
-  }); 
+    if (!filter.trim()) return true;
+    const f = filter.trim().toLowerCase();
+    return p.code.toLowerCase().includes(f) || (p.description ?? '').toLowerCase().includes(f);
+  });
 
   const attach = useMutation({
     mutationFn: (codes) => rolesApi.attachPermissions(id, codes),
     onSuccess: () => {
-      toast.success('Permissions attached.'); 
-      qc.invalidateQueries({ queryKey: ['rolePerms', id] }); 
-      qc.invalidateQueries({ queryKey: ['roleMatrix'] }); 
+      toast.success('Permissions attached.');
+      qc.invalidateQueries({ queryKey: ['rolePerms', id] });
+      qc.invalidateQueries({ queryKey: ['roleMatrix'] });
     },
     onError: (e) => toast.error(e.message ?? 'Attach failed')
-  }); 
+  });
 
   const detach = useMutation({
     mutationFn: (codes) => rolesApi.detachPermissions(id, codes),
     onSuccess: () => {
-      toast.success('Permissions detached.'); 
-      qc.invalidateQueries({ queryKey: ['rolePerms', id] }); 
-      qc.invalidateQueries({ queryKey: ['roleMatrix'] }); 
+      toast.success('Permissions detached.');
+      qc.invalidateQueries({ queryKey: ['rolePerms', id] });
+      qc.invalidateQueries({ queryKey: ['roleMatrix'] });
     },
     onError: (e) => toast.error(e.message ?? 'Detach failed')
-  }); 
+  });
 
-  const [selected, setSelected] = useState(() => new Set()); 
+  const [selected, setSelected] = useState(() => new Set());
 
   return (
     <div className="space-y-4">
@@ -112,16 +112,16 @@ export default function RoleDetail() {
           <Button
             variant="secondary"
             onClick={() => {
-              const codes = Array.from(selected).filter((c) => !attached.has(c)); 
-              if (codes.length) attach.mutate(codes); 
+              const codes = Array.from(selected).filter((c) => !attached.has(c));
+              if (codes.length) attach.mutate(codes);
             }}
             disabled={selected.size === 0 || attach.isLoading}
           >Attach</Button>
           <Button
             variant="secondary"
             onClick={() => {
-              const codes = Array.from(selected).filter((c) => attached.has(c)); 
-              if (codes.length) detach.mutate(codes); 
+              const codes = Array.from(selected).filter((c) => attached.has(c));
+              if (codes.length) detach.mutate(codes);
             }}
             disabled={selected.size === 0 || detach.isLoading}
           >Detach</Button>
@@ -147,8 +147,8 @@ export default function RoleDetail() {
             </THead>
             <TBody>
               {filteredPerms.map((p) => {
-                const isAttached = attached.has(p.code); 
-                const isSelected = selected.has(p.code); 
+                const isAttached = attached.has(p.code);
+                const isSelected = selected.has(p.code);
                 return (
                   <tr key={p.code}>
                     <TD>
@@ -157,11 +157,11 @@ export default function RoleDetail() {
                         checked={isSelected}
                         onChange={(e) => {
                           setSelected((prev) => {
-                            const next = new Set(prev); 
-                            if (e.target.checked) next.add(p.code); 
-                            else next.delete(p.code); 
-                            return next; 
-                          }); 
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(p.code);
+                            else next.delete(p.code);
+                            return next;
+                          });
                         }}
                       />
                     </TD>
@@ -169,7 +169,7 @@ export default function RoleDetail() {
                     <TD>{p.description ?? '—'}</TD>
                     <TD>{isAttached ? 'yes' : 'no'}</TD>
                   </tr>
-                ); 
+                );
               })}
             </TBody>
           </Table>
@@ -191,5 +191,5 @@ export default function RoleDetail() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(rolePermsQ.data, null, 2)}</pre>
       </details>
     </div>
-  ); 
+  );
 }

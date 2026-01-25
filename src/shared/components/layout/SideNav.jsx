@@ -1,5 +1,5 @@
-import React from 'react'; 
-import { NavLink } from 'react-router-dom'; 
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Bell,
@@ -36,20 +36,20 @@ import {
   BadgeDollarSign,
   GitCompare,
   List,
-  CheckCircle2,Inbox} from 'lucide-react'; 
-import clsx from 'clsx'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
-import { PERMISSIONS } from '../../../app/constants/permissions.js'; 
-import { uiStore } from '../../../app/store/ui.store.js'; 
-import { PermissionGate } from '../../../app/routes/route-guards.jsx'; 
+  CheckCircle2,Inbox} from 'lucide-react';
+import clsx from 'clsx';
+import { ROUTES } from '../../../app/constants/routes.js';
+import { PERMISSIONS } from '../../../app/constants/permissions.js';
+import { uiStore } from '../../../app/store/ui.store.js';
+import { PermissionGate } from '../../../app/routes/route-guards.jsx';
 
 const linkBase =
   'group relative flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/50'; 
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/50';
 const linkActive =
   'bg-brand-primary/10 text-brand-deep font-semibold ring-1 ring-brand-primary/20 ' +
-  'before:absolute before:left-1 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-brand-primary'; 
-const linkIdle = 'text-slate-700 hover:bg-slate-900/5'; 
+  'before:absolute before:left-1 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-brand-primary';
+const linkIdle = 'text-slate-700 hover:bg-slate-900/5';
 
 function Item({ to, icon: Icon, label, collapsed }) {
   return (
@@ -61,11 +61,11 @@ function Item({ to, icon: Icon, label, collapsed }) {
       <Icon className="h-4 w-4 text-slate-500 group-hover:text-slate-700" />
       {collapsed ? <span className="sr-only">{label}</span> : <span className="truncate">{label}</span>}
     </NavLink>
-  ); 
+  );
 }
 
 export function SideNav() {
-  const sidebarOpen = uiStore((s) => s.sidebarOpen); 
+  const sidebarOpen = uiStore((s) => s.sidebarOpen);
   return (
     <aside
       className={clsx(
@@ -370,5 +370,5 @@ export function SideNav() {
         </PermissionGate>
       </div>
     </aside>
-  ); 
+  );
 }

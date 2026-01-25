@@ -1,5 +1,5 @@
-import React from 'react'; 
-import clsx from 'clsx'; 
+import React from 'react';
+import clsx from 'clsx';
 
 export function Select({ className, label, error, options, ...props }) {
   return (
@@ -21,5 +21,5 @@ export function Select({ className, label, error, options, ...props }) {
       </select>
       {error ? <span className="mt-1 block text-xs text-red-600">{error}</span> : null}
     </label>
-  ); 
+  );
 }

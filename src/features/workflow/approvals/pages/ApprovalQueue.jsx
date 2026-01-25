@@ -1,30 +1,30 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { useApi } from '../../../../shared/hooks/useApi.js'; 
-import { makeApprovalsApi } from '../api/approvals.api.js'; 
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
-import { Pagination } from '../../../../shared/components/ui/Pagination.jsx'; 
-import { Input } from '../../../../shared/components/ui/Input.jsx'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeApprovalsApi } from '../api/approvals.api.js';
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
+import { Pagination } from '../../../../shared/components/ui/Pagination.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx';
 
 export default function ApprovalQueue() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeApprovalsApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeApprovalsApi(http), [http]);
 
-  const [limit, setLimit] = useState(50); 
-  const [offset, setOffset] = useState(0); 
-  const [state, setState] = useState(''); 
-  const [documentTypeId, setDocumentTypeId] = useState(''); 
+  const [limit, setLimit] = useState(50);
+  const [offset, setOffset] = useState(0);
+  const [state, setState] = useState('');
+  const [documentTypeId, setDocumentTypeId] = useState('');
 
   const q = useQuery({
     queryKey: ['approvalsInbox', limit, offset, state, documentTypeId],
     queryFn: () => api.inbox({ limit, offset, state: state || undefined, documentTypeId: documentTypeId || undefined }),
     staleTime: 5_000
-  }); 
+  });
 
-  const rows = q.data?.data ?? []; 
-  const paging = q.data?.paging ?? { limit, offset }; 
+  const rows = q.data?.data ?? [];
+  const paging = q.data?.paging ?? { limit, offset };
 
   return (
     <div className="space-y-4">
@@ -48,8 +48,8 @@ export default function ApprovalQueue() {
               max={200}
               value={limit}
               onChange={(e) => {
-                setLimit(Number(e.target.value) || 50); 
-                setOffset(0); 
+                setLimit(Number(e.target.value) || 50);
+                setOffset(0);
               }}
               className="w-28"
             />
@@ -107,5 +107,5 @@ export default function ApprovalQueue() {
         )}
       </ContentCard>
     </div>
-  ); 
+  );
 }

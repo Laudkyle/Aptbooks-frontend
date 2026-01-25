@@ -69,7 +69,7 @@ export default function VendorPaymentDetail() {
             <Button variant="outline" leftIcon={RefreshCcw} onClick={() => setAction('auto')}>
               Auto-allocate
             </Button>
-            <Button variant="outline" leftIcon={Save} onClick={() => { setAllocations({ allocations: payment?.allocations ?? [] }); setAction('reallocate'); }}>
+            <Button variant="outline" leftIcon={Save} onClick={() => { setAllocations({ allocations: payment?.allocations ?? [] });setAction('reallocate');}}>
               Reallocate
             </Button>
             <Button leftIcon={Send} onClick={() => setAction('post')}>

@@ -1,75 +1,75 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; 
-import { BadgeDollarSign, Plus, Save, Trash2 } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { BadgeDollarSign, Plus, Save, Trash2 } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makeWriteoffsApi } from '../api/writeoffs.api.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeWriteoffsApi } from '../api/writeoffs.api.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function Writeoffs() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeWriteoffsApi(http), [http]); 
-  const qc = useQueryClient(); 
-const toast = useToast(); 
-  const [status, setStatus] = useState(''); 
-  const qs = useMemo(() => (status ? { status } : {}), [status]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeWriteoffsApi(http), [http]);
+  const qc = useQueryClient();
+const toast = useToast();
+  const [status, setStatus] = useState('');
+  const qs = useMemo(() => (status ? { status } : {}), [status]);
 
-  const { data: listData } = useQuery({ queryKey: qk.writeoffs(qs), queryFn: () => api.list(qs) }); 
-  const writeoffs = Array.isArray(listData) ? listData : listData?.data ?? []; 
+  const { data: listData } = useQuery({ queryKey: qk.writeoffs(qs), queryFn: () => api.list(qs) });
+  const writeoffs = Array.isArray(listData) ? listData : listData?.data ?? [];
 
-  const { data: reasonsData } = useQuery({ queryKey: qk.writeoffReasonCodes, queryFn: () => api.listReasonCodes() }); 
-  const reasons = Array.isArray(reasonsData) ? reasonsData : reasonsData?.data ?? []; 
+  const { data: reasonsData } = useQuery({ queryKey: qk.writeoffReasonCodes, queryFn: () => api.listReasonCodes() });
+  const reasons = Array.isArray(reasonsData) ? reasonsData : reasonsData?.data ?? [];
 
-  const { data: settings } = useQuery({ queryKey: qk.writeoffSettings, queryFn: () => api.getSettings() }); 
+  const { data: settings } = useQuery({ queryKey: qk.writeoffSettings, queryFn: () => api.getSettings() });
 
-  const [settingsDraft, setSettingsDraft] = useState({}); 
+  const [settingsDraft, setSettingsDraft] = useState({});
   React.useEffect(() => {
-    if (settings) setSettingsDraft(settings); 
-  }, [settings]); 
+    if (settings) setSettingsDraft(settings);
+  }, [settings]);
 
   const saveSettings = useMutation({
     mutationFn: (body) => api.setSettings(body),
     onSuccess: () => {
-      toast.success('Settings saved'); 
-      qc.invalidateQueries({ queryKey: qk.writeoffSettings }); 
+      toast.success('Settings saved');
+      qc.invalidateQueries({ queryKey: qk.writeoffSettings });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
-  const [modal, setModal] = useState(null); 
-  const [draft, setDraft] = useState({}); 
+  const [modal, setModal] = useState(null);
+  const [draft, setDraft] = useState({});
 
   const createWriteoff = useMutation({
     mutationFn: (body) => api.create(body),
     onSuccess: () => {
-      toast.success('Write-off created'); 
-      qc.invalidateQueries({ queryKey: qk.writeoffs(qs) }); 
-      setModal(null); 
+      toast.success('Write-off created');
+      qc.invalidateQueries({ queryKey: qk.writeoffs(qs) });
+      setModal(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
   const createReason = useMutation({
     mutationFn: (body) => api.createReasonCode(body),
     onSuccess: () => {
-      toast.success('Reason code created'); 
-      qc.invalidateQueries({ queryKey: qk.writeoffReasonCodes }); 
-      setModal(null); 
+      toast.success('Reason code created');
+      qc.invalidateQueries({ queryKey: qk.writeoffReasonCodes });
+      setModal(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
   const columns = useMemo(
     () => [
@@ -80,7 +80,7 @@ const toast = useToast();
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'draft') === 'posted' ? 'success' : 'muted'}>{r.status ?? 'draft'}</Badge> }
     ],
     []
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -99,8 +99,8 @@ const toast = useToast();
                     <Button
                       leftIcon={Plus}
                       onClick={() => {
-                        setDraft({ entity_type: '', entity_id: '', partner_id: 0, amount: 0, reason_code: '', notes: null }); 
-                        setModal('newWriteoff'); 
+                        setDraft({ entity_type: '', entity_id: '', partner_id: 0, amount: 0, reason_code: '', notes: null });
+                        setModal('newWriteoff');
                       }}
                     >
                       New write-off
@@ -126,8 +126,8 @@ const toast = useToast();
                   <Button
                     leftIcon={Plus}
                     onClick={() => {
-                      setDraft({ code: '', description: null, is_active: true }); 
-                      setModal('newReason'); 
+                      setDraft({ code: '', description: null, is_active: true });
+                      setModal('newReason');
                     }}
                   >
                     New code
@@ -150,7 +150,7 @@ const toast = useToast();
                             variant="outline"
                             size="sm"
                             leftIcon={Trash2}
-                            onClick={() => api.deleteReasonCode(r.code).then(() => { toast.success('Deleted');  qc.invalidateQueries({ queryKey: qk.writeoffReasonCodes });  }).catch((e) => toast.error(e?.message ?? 'Failed'))}
+                            onClick={() => api.deleteReasonCode(r.code).then(() => { toast.success('Deleted');qc.invalidateQueries({ queryKey: qk.writeoffReasonCodes });}).catch((e) => toast.error(e?.message ?? 'Failed'))}
                           >
                             Delete
                           </Button>
@@ -211,5 +211,5 @@ const toast = useToast();
         <JsonPanel title="Reason code payload" value={draft} submitLabel="Create" onSubmit={(json) => createReason.mutate(json)} />
       </Modal>
     </div>
-  ); 
+  );
 }

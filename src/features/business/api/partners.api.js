@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
 
 export function makePartnersApi(http) {
   return {
@@ -18,5 +18,5 @@ export function makePartnersApi(http) {
     addAddress: async (id, body) => (await http.post(endpoints.modules.business.partners.addresses(id), body)).data,
     updateAddress: async (id, addressId, body) =>
       (await http.patch(endpoints.modules.business.partners.address(id, addressId), body)).data
-  }; 
+  };
 }

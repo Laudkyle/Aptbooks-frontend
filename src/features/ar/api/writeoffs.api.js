@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
 
 export function makeWriteoffsApi(http) {
   return {
@@ -18,5 +18,5 @@ export function makeWriteoffsApi(http) {
     reject: async (id, body) => (await http.post(endpoints.modules.ar.writeoffs.reject(id), body)).data,
     post: async (id, body) => (await http.post(endpoints.modules.ar.writeoffs.post(id), body)).data,
     void: async (id) => (await http.post(endpoints.modules.ar.writeoffs.void(id))).data
-  }; 
+  };
 }

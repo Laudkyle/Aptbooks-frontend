@@ -1,29 +1,29 @@
-import React, { useMemo, useState } from 'react'; 
-import { Link, useNavigate } from 'react-router-dom'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { FileText, Plus } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { FileText, Plus } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makeBillsApi } from '../api/bills.api.js'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeBillsApi } from '../api/bills.api.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 
 export default function BillList() {
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const api = useMemo(() => makeBillsApi(http), [http]); 
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeBillsApi(http), [http]);
 
-  const [status, setStatus] = useState(''); 
-  const [vendorId, setVendorId] = useState(''); 
+  const [status, setStatus] = useState('');
+  const [vendorId, setVendorId] = useState('');
 
   const qs = useMemo(
     () => ({
@@ -31,14 +31,14 @@ export default function BillList() {
       vendorId: vendorId || undefined
     }),
     [status, vendorId]
-  ); 
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: qk.bills(qs),
     queryFn: () => api.list(qs)
-  }); 
+  });
 
-  const rows = Array.isArray(data) ? data : data?.data ?? []; 
+  const rows = Array.isArray(data) ? data : data?.data ?? [];
 
   const columns = useMemo(
     () => [
@@ -59,14 +59,14 @@ export default function BillList() {
       {
         header: 'Status',
         render: (r) => {
-          const s = r.status ?? 'draft'; 
-          const tone = s === 'paid' ? 'success' : s === 'issued' ? 'brand' : s === 'voided' ? 'danger' : 'muted'; 
-          return <Badge tone={tone}>{s}</Badge>; 
+          const s = r.status ?? 'draft';
+          const tone = s === 'paid' ? 'success' : s === 'issued' ? 'brand' : s === 'voided' ? 'danger' : 'muted';
+          return <Badge tone={tone}>{s}</Badge>;
         }
       }
     ],
     []
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -114,5 +114,5 @@ export default function BillList() {
         </div>
       </ContentCard>
     </div>
-  ); 
+  );
 }

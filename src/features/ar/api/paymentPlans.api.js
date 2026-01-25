@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
 
 export function makePaymentPlansApi(http) {
   return {
@@ -8,5 +8,5 @@ export function makePaymentPlansApi(http) {
     cancel: async (id) => (await http.post(endpoints.modules.ar.paymentPlans.cancel(id))).data,
     markInstallmentPaid: async (id, installmentId, body) =>
       (await http.post(endpoints.modules.ar.paymentPlans.markInstallmentPaid(id, installmentId), body)).data
-  }; 
+  };
 }

@@ -1,5 +1,5 @@
-import React from 'react'; 
-import clsx from 'clsx'; 
+import React from 'react';
+import clsx from 'clsx';
 
 export const Input = React.forwardRef(function Input(
   { className, label, error, ...props },
@@ -19,5 +19,5 @@ export const Input = React.forwardRef(function Input(
       />
       {error ? <span className="mt-1 block text-xs text-red-600">{error}</span> : null}
     </label>
-  ); 
-}); 
+  );
+});

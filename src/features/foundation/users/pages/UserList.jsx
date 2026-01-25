@@ -1,47 +1,47 @@
-import React, { useMemo, useState } from 'react'; 
-import { Link } from 'react-router-dom'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { useApi } from '../../../../shared/hooks/useApi.js'; 
-import { makeUsersApi } from '../api/users.api.js'; 
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
-import { Button } from '../../../../shared/components/ui/Button.jsx'; 
-import { Modal } from '../../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../../shared/components/ui/Badge.jsx'; 
-import { ROUTES } from '../../../../app/constants/routes.js'; 
-import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeUsersApi } from '../api/users.api.js';
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
+import { Modal } from '../../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../../shared/components/ui/Badge.jsx';
+import { ROUTES } from '../../../../app/constants/routes.js';
+import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 
 export default function UserList() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeUsersApi(http), [http]); 
-  const qc = useQueryClient(); 
-  const toast = useToast(); 
+  const { http } = useApi();
+  const api = useMemo(() => makeUsersApi(http), [http]);
+  const qc = useQueryClient();
+  const toast = useToast();
 
-  const [createOpen, setCreateOpen] = useState(false); 
-  const [email, setEmail] = useState(''); 
-  const [password, setPassword] = useState(''); 
+  const [createOpen, setCreateOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const q = useQuery({
     queryKey: ['users'],
     queryFn: api.list,
     staleTime: 10_000
-  }); 
+  });
 
   const create = useMutation({
     mutationFn: () => api.create({ email, password }),
     onSuccess: () => {
-      toast.success('User created.'); 
-      setCreateOpen(false); 
-      setEmail(''); 
-      setPassword(''); 
-      qc.invalidateQueries({ queryKey: ['users'] }); 
+      toast.success('User created.');
+      setCreateOpen(false);
+      setEmail('');
+      setPassword('');
+      qc.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (e) => toast.error(e.message ?? 'Create failed')
-  }); 
+  });
 
-  const users = q.data ?? []; 
+  const users = q.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -106,5 +106,5 @@ export default function UserList() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

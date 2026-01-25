@@ -1,29 +1,29 @@
-import React, { useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { ApiContext } from '../app/providers/AppProviders.jsx'; 
-import { endpoints } from '../shared/api/endpoints.js'; 
-import { qk } from '../shared/query/keys.js'; 
-import { ContentCard } from '../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../shared/components/ui/Button.jsx'; 
-import { Input } from '../shared/components/ui/Input.jsx'; 
-import { useAuth } from '../shared/hooks/useAuth.js'; 
-import { useToast } from '../shared/components/ui/Toast.jsx'; 
-import { normalizeError } from '../shared/api/errors.js'; 
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ApiContext } from '../app/providers/AppProviders.jsx';
+import { endpoints } from '../shared/api/endpoints.js';
+import { qk } from '../shared/query/keys.js';
+import { ContentCard } from '../shared/components/layout/ContentCard.jsx';
+import { Button } from '../shared/components/ui/Button.jsx';
+import { Input } from '../shared/components/ui/Input.jsx';
+import { useAuth } from '../shared/hooks/useAuth.js';
+import { useToast } from '../shared/components/ui/Toast.jsx';
+import { normalizeError } from '../shared/api/errors.js';
 
 export default function Me() {
-  const { http } = React.useContext(ApiContext); 
-  const toast = useToast(); 
-  const auth = useAuth(); 
-  const [otp, setOtp] = useState(''); 
-  const [disablePassword, setDisablePassword] = useState(''); 
+  const { http } = React.useContext(ApiContext);
+  const toast = useToast();
+  const auth = useAuth();
+  const [otp, setOtp] = useState('');
+  const [disablePassword, setDisablePassword] = useState('');
 
   const loginHistoryQuery = useQuery({
     queryKey: ['me', 'loginHistory', 50],
     queryFn: async () => {
-      const res = await http.get(endpoints.core.users.meLoginHistory(50)); 
-      return res.data; 
+      const res = await http.get(endpoints.core.users.meLoginHistory(50));
+      return res.data;
     }
-  }); 
+  });
 
   return (
     <div className="space-y-4">
@@ -44,11 +44,11 @@ export default function Me() {
               variant="secondary"
               onClick={async () => {
                 try {
-                  const res = await auth.enroll2fa(); 
-                  toast.success('2FA secret issued. Scan with authenticator app.'); 
-                  window.prompt('TOTP secret (store in authenticator):', res.secret); 
+                  const res = await auth.enroll2fa();
+                  toast.success('2FA secret issued. Scan with authenticator app.');
+                  window.prompt('TOTP secret (store in authenticator):', res.secret);
                 } catch (e) {
-                  toast.error(normalizeError(e).message); 
+                  toast.error(normalizeError(e).message);
                 }
               }}
             >
@@ -61,11 +61,11 @@ export default function Me() {
               <Button
                 onClick={async () => {
                   try {
-                    await auth.verify2fa({ otp }); 
-                    toast.success('2FA enabled.'); 
-                    setOtp(''); 
+                    await auth.verify2fa({ otp });
+                    toast.success('2FA enabled.');
+                    setOtp('');
                   } catch (e) {
-                    toast.error(normalizeError(e).message); 
+                    toast.error(normalizeError(e).message);
                   }
                 }}
               >
@@ -84,12 +84,12 @@ export default function Me() {
                 variant="danger"
                 onClick={async () => {
                   try {
-                    await auth.disable2fa({ password: disablePassword, otp }); 
-                    toast.success('2FA disabled.'); 
-                    setDisablePassword(''); 
-                    setOtp(''); 
+                    await auth.disable2fa({ password: disablePassword, otp });
+                    toast.success('2FA disabled.');
+                    setDisablePassword('');
+                    setOtp('');
                   } catch (e) {
-                    toast.error(normalizeError(e).message); 
+                    toast.error(normalizeError(e).message);
                   }
                 }}
               >
@@ -129,5 +129,5 @@ export default function Me() {
         </div>
       </ContentCard>
     </div>
-  ); 
+  );
 }

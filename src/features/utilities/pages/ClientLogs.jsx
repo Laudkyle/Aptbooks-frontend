@@ -1,35 +1,35 @@
-import React, { useMemo, useState } from 'react'; 
-import { useMutation, useQuery } from '@tanstack/react-query'; 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeUtilitiesApi } from '../api/utilities.api.js'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
+import React, { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeUtilitiesApi } from '../api/utilities.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function ClientLogs() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeUtilitiesApi(http), [http]); 
-  const toast = useToast(); 
+  const { http } = useApi();
+  const api = useMemo(() => makeUtilitiesApi(http), [http]);
+  const toast = useToast();
 
-  const [limit, setLimit] = useState(100); 
-  const [offset, setOffset] = useState(0); 
-  const [correlationId, setCorrelationId] = useState(''); 
-  const [level, setLevel] = useState(''); 
+  const [limit, setLimit] = useState(100);
+  const [offset, setOffset] = useState(0);
+  const [correlationId, setCorrelationId] = useState('');
+  const [level, setLevel] = useState('');
 
   const q = useQuery({
     queryKey: ['clientLogs', limit, offset, correlationId, level],
     queryFn: () => api.clientLogsQuery({ limit, offset, correlationId: correlationId || undefined, level: level || undefined }),
     staleTime: 5_000
-  }); 
+  });
 
-  const rows = q.data?.data ?? []; 
+  const rows = q.data?.data ?? [];
 
-  const [message, setMessage] = useState(''); 
-  const [context, setContext] = useState('{}'); 
+  const [message, setMessage] = useState('');
+  const [context, setContext] = useState('{}');
 
   const ingest = useMutation({
     mutationFn: async () => {
@@ -38,15 +38,15 @@ export default function ClientLogs() {
         message,
         correlationId: correlationId || undefined,
         context: context ? JSON.parse(context) : undefined
-      }; 
-      return api.clientLogsIngest(payload); 
+      };
+      return api.clientLogsIngest(payload);
     },
     onSuccess: () => {
-      toast.success('Log ingested.'); 
-      setMessage(''); 
+      toast.success('Log ingested.');
+      setMessage('');
     },
     onError: (e) => toast.error(e.message ?? 'Ingest failed')
-  }); 
+  });
 
   return (
     <div className="space-y-4">
@@ -98,7 +98,7 @@ export default function ClientLogs() {
               onChange={(e) => setContext(e.target.value)}
             />
           </label>
-          <div className="md:col-span-2 text-xs text-slate-600">Idempotency-Key header is enforced;  client sends one automatically.</div>
+          <div className="md:col-span-2 text-xs text-slate-600">Idempotency-Key header is enforced;client sends one automatically.</div>
         </div>
       </ContentCard>
 
@@ -107,5 +107,5 @@ export default function ClientLogs() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </div>
-  ); 
+  );
 }

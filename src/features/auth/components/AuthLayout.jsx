@@ -1,6 +1,6 @@
-import React from 'react'; 
-import { Link } from 'react-router-dom'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../../../app/constants/routes.js';
 
 export function AuthLayout({ title, subtitle, children }) {
   return (
@@ -62,5 +62,5 @@ export function AuthLayout({ title, subtitle, children }) {
         </section>
       </div>
     </div>
-  ); 
+  );
 }

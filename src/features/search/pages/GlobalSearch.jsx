@@ -1,16 +1,16 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { Search as SearchIcon } from 'lucide-react'; 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makeSearchApi } from '../api/search.api.js'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Skeleton } from '../../../shared/components/ui/Skeleton.jsx'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Search as SearchIcon } from 'lucide-react';
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makeSearchApi } from '../api/search.api.js';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Skeleton } from '../../../shared/components/ui/Skeleton.jsx';
 
 function Group({ title, items }) {
-  if (!items?.length) return null; 
+  if (!items?.length) return null;
   return (
     <ContentCard title={title}>
       <div className="space-y-2">
@@ -27,25 +27,25 @@ function Group({ title, items }) {
         ))}
       </div>
     </ContentCard>
-  ); 
+  );
 }
 
 export default function GlobalSearch() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeSearchApi(http), [http]); 
-  const [q, setQ] = useState(''); 
-  const [limit, setLimit] = useState(10); 
+  const { http } = useApi();
+  const api = useMemo(() => makeSearchApi(http), [http]);
+  const [q, setQ] = useState('');
+  const [limit, setLimit] = useState(10);
 
-  const enabled = q.trim().length >= 2; 
+  const enabled = q.trim().length >= 2;
 
   const query = useQuery({
     queryKey: ['search', q, limit],
     queryFn: () => api.search({ q: q.trim(), limit }),
     enabled,
     staleTime: 10_000
-  }); 
+  });
 
-  const results = query.data?.results ?? {}; 
+  const results = query.data?.results ?? {};
 
   return (
     <div className="space-y-4">
@@ -101,5 +101,5 @@ export default function GlobalSearch() {
         </div>
       )}
     </div>
-  ); 
+  );
 }

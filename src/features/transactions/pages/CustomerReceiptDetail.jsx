@@ -1,59 +1,59 @@
-import React, { useMemo, useState } from 'react'; 
-import { useParams, useNavigate } from 'react-router-dom'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { ArrowLeft, HandCoins, RefreshCcw, Save, Send, Trash2 } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, HandCoins, RefreshCcw, Save, Send, Trash2 } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CustomerReceiptDetail() {
-  const { id } = useParams(); 
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const api = useMemo(() => makeCustomerReceiptsApi(http), [http]); 
-  const toast = useToast(); 
-  const qc = useQueryClient(); 
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeCustomerReceiptsApi(http), [http]);
+  const toast = useToast();
+  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: qk.customerReceipt(id),
     queryFn: () => api.get(id)
-  }); 
+  });
 
-  const receipt = data?.data ?? data; 
+  const receipt = data?.data ?? data;
 
-  const [action, setAction] = useState(null); 
-  const [rule, setRule] = useState('due_date'); 
-  const [allocations, setAllocations] = useState({ allocations: [] }); 
-  const [reason, setReason] = useState(''); 
+  const [action, setAction] = useState(null);
+  const [rule, setRule] = useState('due_date');
+  const [allocations, setAllocations] = useState({ allocations: [] });
+  const [reason, setReason] = useState('');
 
   const run = useMutation({
     mutationFn: async () => {
-      if (action === 'auto') return api.autoAllocate(id, { rule }); 
-      if (action === 'reallocate') return api.reallocate(id, allocations); 
-      if (action === 'post') return api.post(id); 
-      if (action === 'void') return api.void(id, { reason }); 
-      throw new Error('Unknown action'); 
+      if (action === 'auto') return api.autoAllocate(id, { rule });
+      if (action === 'reallocate') return api.reallocate(id, allocations);
+      if (action === 'post') return api.post(id);
+      if (action === 'void') return api.void(id, { reason });
+      throw new Error('Unknown action');
     },
     onSuccess: () => {
-      toast.success('Action completed'); 
-      qc.invalidateQueries({ queryKey: qk.customerReceipt(id) }); 
-      setAction(null); 
-      setReason(''); 
+      toast.success('Action completed');
+      qc.invalidateQueries({ queryKey: qk.customerReceipt(id) });
+      setAction(null);
+      setReason('');
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
-  const status = receipt?.status ?? 'draft'; 
+  const status = receipt?.status ?? 'draft';
 
   return (
     <div className="space-y-4">
@@ -69,7 +69,7 @@ export default function CustomerReceiptDetail() {
             <Button variant="outline" leftIcon={RefreshCcw} onClick={() => setAction('auto')}>
               Auto-allocate
             </Button>
-            <Button variant="outline" leftIcon={Save} onClick={() => { setAllocations({ allocations: receipt?.allocations ?? [] });  setAction('reallocate');  }}>
+            <Button variant="outline" leftIcon={Save} onClick={() => { setAllocations({ allocations: receipt?.allocations ?? [] });setAction('reallocate');}}>
               Reallocate
             </Button>
             <Button leftIcon={Send} onClick={() => setAction('post')}>
@@ -188,5 +188,5 @@ export default function CustomerReceiptDetail() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

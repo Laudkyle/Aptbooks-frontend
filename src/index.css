@@ -1,96 +1,96 @@
 /* Tailwind v4 entrypoint */
-@import "tailwindcss"; 
+@import "tailwindcss";
 
 @theme {
   /* Brand colors - using rgb format for opacity modifiers */
-  --color-brand-deep: rgb(0 45 68); 
-  --color-brand-primary: rgb(0 136 195); 
-  --color-brand-light: rgb(0 163 224); 
+  --color-brand-deep: rgb(0 45 68);
+  --color-brand-primary: rgb(0 136 195);
+  --color-brand-light: rgb(0 163 224);
   
   /* Background colors */
-  --color-bg-main: rgb(248 250 252); 
+  --color-bg-main: rgb(248 250 252);
   
   /* Text colors */
-  --color-text-body: rgb(26 32 44); 
+  --color-text-body: rgb(26 32 44);
   
   /* Border colors */
-  --color-border-subtle: rgba(15, 23, 42, 0.10); 
+  --color-border-subtle: rgba(15, 23, 42, 0.10);
   
   /* Surface colors */
-  --color-surface-1: rgba(255, 255, 255, 0.92); 
-  --color-surface-2: rgba(255, 255, 255, 0.70); 
+  --color-surface-1: rgba(255, 255, 255, 0.92);
+  --color-surface-2: rgba(255, 255, 255, 0.70);
   
   /* Custom shadows */
-  --shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06); 
-  --shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16); 
+  --shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
+  --shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16);
   
   /* Custom animations */
-  --animate-fadeIn: appFadeIn 180ms ease-out both; 
-  --animate-slideUp: appSlideUp 220ms ease-out both; 
+  --animate-fadeIn: appFadeIn 180ms ease-out both;
+  --animate-slideUp: appSlideUp 220ms ease-out both;
 }
 
 /* Project semantic helpers (uses @layer + @apply) */
-@import "./shared/styles/tailwind-helpers.css"; 
+@import "./shared/styles/tailwind-helpers.css";
 
 :root {
   /* Legacy CSS variable references (kept for any direct var() usage) */
-  --color-brand-deep: #002D44; 
-  --color-brand-primary: #0088C3; 
-  --color-brand-light: #00A3E0; 
-  --color-bg-main: #F8FAFC; 
-  --color-text-body: #1A202C; 
+  --color-brand-deep: #002D44;
+  --color-brand-primary: #0088C3;
+  --color-brand-light: #00A3E0;
+  --color-bg-main: #F8FAFC;
+  --color-text-body: #1A202C;
   
   /* RGB triplets (for any legacy usage) */
-  --brand-deep-rgb: 0 45 68; 
-  --brand-primary-rgb: 0 136 195; 
-  --brand-light-rgb: 0 163 224; 
-  --bg-main-rgb: 248 250 252; 
-  --text-body-rgb: 26 32 44; 
+  --brand-deep-rgb: 0 45 68;
+  --brand-primary-rgb: 0 136 195;
+  --brand-light-rgb: 0 163 224;
+  --bg-main-rgb: 248 250 252;
+  --text-body-rgb: 26 32 44;
   
   /* Neutral UI tokens */
-  --app-surface: rgba(255, 255, 255, 0.92); 
-  --app-surface-weak: rgba(255, 255, 255, 0.70); 
-  --app-border: rgba(15, 23, 42, 0.10); 
-  --app-shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06); 
-  --app-shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16); 
+  --app-surface: rgba(255, 255, 255, 0.92);
+  --app-surface-weak: rgba(255, 255, 255, 0.70);
+  --app-border: rgba(15, 23, 42, 0.10);
+  --app-shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
+  --app-shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16);
 }
 
 html, body, #root {
-  height: 100%; 
+  height: 100%;
 }
 
 body {
-  margin: 0; 
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; 
-  background: var(--color-bg-main); 
-  color: var(--color-text-body); 
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--color-bg-main);
+  color: var(--color-text-body);
 }
 
 /* Motion animations */
 @keyframes appFadeIn {
-  from { opacity: 0;  transform: translateY(4px);  }
-  to { opacity: 1;  transform: translateY(0);  }
+  from { opacity: 0;transform: translateY(4px);}
+  to { opacity: 1;transform: translateY(0);}
 }
 
 @keyframes appSlideUp {
-  from { opacity: 0;  transform: translateY(10px);  }
-  to { opacity: 1;  transform: translateY(0);  }
+  from { opacity: 0;transform: translateY(10px);}
+  to { opacity: 1;transform: translateY(0);}
 }
 
 ::selection {
-  background: rgba(0, 163, 224, 0.22); 
+  background: rgba(0, 163, 224, 0.22);
 }
 
 /* Subtle scrollbar */
 * {
-  scrollbar-width: thin; 
-  scrollbar-color: rgba(0, 45, 68, 0.28) transparent; 
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 45, 68, 0.28) transparent;
 }
 
-a { color: inherit;  text-decoration: none;  }
+a { color: inherit;text-decoration: none;}
 
 /* Utility focus ring */
 :focus-visible {
-  outline: 2px solid var(--color-brand-light); 
-  outline-offset: 2px; 
+  outline: 2px solid var(--color-brand-light);
+  outline-offset: 2px;
 }

@@ -18,7 +18,7 @@ export default function JournalList() {
   const { http } = useApi();
   const api = useMemo(() => makeJournalsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
-  const navigate = useNavigate(); // Add this hook
+  const navigate = useNavigate();// Add this hook
   const [periodId, setPeriodId] = useState('');
   const [status, setStatus] = useState('draft');
   const [q, setQ] = useState('');

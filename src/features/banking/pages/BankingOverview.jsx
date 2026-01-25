@@ -1,10 +1,10 @@
-import React from "react"; 
-import { Link } from "react-router-dom"; 
+import React from "react";
+import { Link } from "react-router-dom";
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from"../../../shared/components/ui/card"; 
-import { Button } from"../../../shared/components/ui/button"; 
-import { Badge } from"../../../shared/components/ui/badge"; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from"../../../shared/components/ui/card";
+import { Button } from"../../../shared/components/ui/button";
+import { Badge } from"../../../shared/components/ui/badge";
 
 function Tile({ title, description, to, tag }) {
   return (
@@ -24,7 +24,7 @@ function Tile({ title, description, to, tag }) {
         </Button>
       </CardContent>
     </Card>
-  ); 
+  );
 }
 
 export default function BankingOverview() {
@@ -113,5 +113,5 @@ export default function BankingOverview() {
         </CardContent>
       </Card>
     </div>
-  ); 
+  );
 }

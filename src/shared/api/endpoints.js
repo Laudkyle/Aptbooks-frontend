@@ -30,8 +30,8 @@ export const endpoints = {
       assignRoles: (id) => `/core/users/${id}/roles`,
       removeRoles: (id) => `/core/users/${id}/roles`,
       loginHistoryAdmin: (userId, qs) => {
-        const u = new URLSearchParams(qs ?? {}); 
-        return `/core/users/${userId}/login-history?${u.toString()}`; 
+        const u = new URLSearchParams(qs ?? {});
+        return `/core/users/${userId}/login-history?${u.toString()}`;
       }
     },
     organizations: {
@@ -346,4 +346,4 @@ reporting: {
     testsList: '/utilities/tests/list',
     testsRun: '/utilities/tests/run'
   }
-}; 
+};

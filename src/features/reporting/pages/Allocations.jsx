@@ -1,46 +1,46 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { Percent, PlayCircle, Plus } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Percent, PlayCircle, Plus } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makePlanningApi } from '../api/planning.api.js'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { JsonEditor } from '../../../shared/components/data/JsonEditor.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makePlanningApi } from '../api/planning.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { JsonEditor } from '../../../shared/components/data/JsonEditor.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 function rowsFrom(data) {
-  if (!data) return []; 
-  if (Array.isArray(data)) return data; 
-  if (Array.isArray(data.data)) return data.data; 
-  if (Array.isArray(data.items)) return data.items; 
-  return []; 
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.items)) return data.items;
+  return [];
 }
 
 export default function Allocations() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makePlanningApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makePlanningApi(http), [http]);
 
-  const [tab, setTab] = useState('bases'); 
-  const [open, setOpen] = useState(false); 
-  const [preview, setPreview] = useState(null); 
-  const [compute, setCompute] = useState(null); 
-  const [form, setForm] = useState({ name: '', baseId: '', sourceAccountId: '', targetDimension: 'costcenter', payloadJson: { targets: [] } }); 
+  const [tab, setTab] = useState('bases');
+  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [compute, setCompute] = useState(null);
+  const [form, setForm] = useState({ name: '', baseId: '', sourceAccountId: '', targetDimension: 'costcenter', payloadJson: { targets: [] } });
 
-  const basesQ = useQuery({ queryKey: ['reporting', 'allocations', 'bases'], queryFn: () => api.allocations.listBases() }); 
-  const rulesQ = useQuery({ queryKey: ['reporting', 'allocations', 'rules'], queryFn: () => api.allocations.listRules() }); 
+  const basesQ = useQuery({ queryKey: ['reporting', 'allocations', 'bases'], queryFn: () => api.allocations.listBases() });
+  const rulesQ = useQuery({ queryKey: ['reporting', 'allocations', 'rules'], queryFn: () => api.allocations.listRules() });
 
-  const bases = rowsFrom(basesQ.data); 
-  const rules = rowsFrom(rulesQ.data); 
+  const bases = rowsFrom(basesQ.data);
+  const rules = rowsFrom(rulesQ.data);
 
   const cols = (rows) => {
-    const keys = rows[0] ? Object.keys(rows[0]) : []; 
-    return keys.slice(0, 7).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> })); 
-  }; 
+    const keys = rows[0] ? Object.keys(rows[0]) : [];
+    return keys.slice(0, 7).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
+  };
 
   async function createRule() {
     await api.allocations.createRule({
@@ -51,26 +51,26 @@ export default function Allocations() {
       targetDimension: form.targetDimension,
       payloadJson: form.payloadJson,
       status: 'active'
-    }); 
-    setOpen(false); 
-    setForm({ name: '', baseId: '', sourceAccountId: '', targetDimension: 'costcenter', payloadJson: { targets: [] } }); 
-    rulesQ.refetch(); 
+    });
+    setOpen(false);
+    setForm({ name: '', baseId: '', sourceAccountId: '', targetDimension: 'costcenter', payloadJson: { targets: [] } });
+    rulesQ.refetch();
   }
 
   async function runPreview() {
-    const ruleIds = rules.slice(0, 1).map((r) => r.id).filter(Boolean); 
-    const periodId = compute?.periodId || preview?.periodId || ''; 
-    if (!ruleIds.length || !periodId) return; 
-    const out = await api.allocations.preview({ ruleIds, periodId }); 
-    setPreview(out); 
+    const ruleIds = rules.slice(0, 1).map((r) => r.id).filter(Boolean);
+    const periodId = compute?.periodId || preview?.periodId || '';
+    if (!ruleIds.length || !periodId) return;
+    const out = await api.allocations.preview({ ruleIds, periodId });
+    setPreview(out);
   }
 
   async function runCompute() {
-    const ruleIds = rules.slice(0, 1).map((r) => r.id).filter(Boolean); 
-    const periodId = compute?.periodId || ''; 
-    if (!ruleIds.length || !periodId) return; 
-    const out = await api.allocations.compute({ ruleIds, periodId, memo: compute?.memo || null, replace: true }); 
-    setCompute(out); 
+    const ruleIds = rules.slice(0, 1).map((r) => r.id).filter(Boolean);
+    const periodId = compute?.periodId || '';
+    if (!ruleIds.length || !periodId) return;
+    const out = await api.allocations.compute({ ruleIds, periodId, memo: compute?.memo || null, replace: true });
+    setCompute(out);
   }
 
   return (
@@ -81,7 +81,7 @@ export default function Allocations() {
         icon={Percent}
         right={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => { basesQ.refetch();  rulesQ.refetch();  }}>
+            <Button variant="outline" onClick={() => { basesQ.refetch();rulesQ.refetch();}}>
               Refresh
             </Button>
             <Button leftIcon={Plus} onClick={() => setOpen(true)}>
@@ -166,5 +166,5 @@ export default function Allocations() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

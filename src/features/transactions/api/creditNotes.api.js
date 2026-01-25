@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
 
 export function makeCreditNotesApi(http) {
   return {
@@ -9,5 +9,5 @@ export function makeCreditNotesApi(http) {
     issue: async (id) => (await http.post(endpoints.modules.transactions.creditNotes.issue(id))).data,
     apply: async (id, body) => (await http.post(endpoints.modules.transactions.creditNotes.apply(id), body)).data,
     void: async (id, body) => (await http.post(endpoints.modules.transactions.creditNotes.void(id), body)).data
-  }; 
+  };
 }

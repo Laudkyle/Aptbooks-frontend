@@ -1,6 +1,6 @@
-import React from 'react'; 
-import { Link } from 'react-router-dom'; 
-import { ROUTES } from '../app/constants/routes.js'; 
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../app/constants/routes.js';
 
 export default function NotFound() {
   return (
@@ -11,5 +11,5 @@ export default function NotFound() {
         Go to dashboard
       </Link>
     </div>
-  ); 
+  );
 }

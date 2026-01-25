@@ -1,54 +1,54 @@
 /* tailwind-helpers.css */
 @layer components {
   .app-surface {
-    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft; 
+    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft;
   }
   
   .app-card {
-    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft overflow-hidden; 
+    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft overflow-hidden;
   }
   
   .app-card-header {
-    @apply flex items-start justify-between gap-4 border-b border-border-subtle bg-white/70 px-5 py-4 backdrop-blur; 
+    @apply flex items-start justify-between gap-4 border-b border-border-subtle bg-white/70 px-5 py-4 backdrop-blur;
   }
   
   .app-card-title {
-    @apply text-sm font-semibold text-brand-deep; 
+    @apply text-sm font-semibold text-brand-deep;
   }
   
   .app-card-subtitle {
-    @apply mt-1 text-xs text-slate-600; 
+    @apply mt-1 text-xs text-slate-600;
   }
   
   .app-card-body {
-    @apply px-5 py-4; 
+    @apply px-5 py-4;
   }
   
   .app-page {
-    @apply space-y-4; 
+    @apply space-y-4;
   }
   
   .app-kpi {
-    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft p-4; 
+    @apply rounded-2xl border border-border-subtle bg-surface-1 shadow-soft p-4;
   }
   
   .app-kpi-label {
-    @apply text-xs font-medium text-slate-600; 
+    @apply text-xs font-medium text-slate-600;
   }
   
   .app-kpi-value {
-    @apply mt-2 text-2xl font-semibold tracking-tight text-brand-deep; 
+    @apply mt-2 text-2xl font-semibold tracking-tight text-brand-deep;
   }
   
   .app-muted {
-    @apply text-sm text-slate-600; 
+    @apply text-sm text-slate-600;
   }
   
   .app-divider {
-    @apply my-4 h-px w-full bg-border-subtle; 
+    @apply my-4 h-px w-full bg-border-subtle;
   }
   
   .app-chip {
-    @apply inline-flex items-center gap-1 rounded-full border border-border-subtle bg-white/70 px-2.5 py-1 text-xs font-medium text-slate-700; 
+    @apply inline-flex items-center gap-1 rounded-full border border-border-subtle bg-white/70 px-2.5 py-1 text-xs font-medium text-slate-700;
   }
 }

@@ -8,17 +8,17 @@ export function normalizeError(err) {
     code: 'UNKNOWN_ERROR',
     message: 'Something went wrong.',
     details: null
-  }; 
+  };
 
-  if (!err) return fallback; 
+  if (!err) return fallback;
 
-  const res = err.response; 
-  const status = res?.status ?? 0; 
-  const data = res?.data ?? null; 
+  const res = err.response;
+  const status = res?.status ?? 0;
+  const data = res?.data ?? null;
 
-  const code = data?.code || data?.error?.code || err.code || fallback.code; 
-  const message = data?.message || data?.error?.message || err.message || fallback.message; 
-  const details = data?.details || data?.error?.details || data || null; 
+  const code = data?.code || data?.error?.code || err.code || fallback.code;
+  const message = data?.message || data?.error?.message || err.message || fallback.message;
+  const details = data?.details || data?.error?.details || data || null;
 
-  return { status, code, message, details }; 
+  return { status, code, message, details };
 }

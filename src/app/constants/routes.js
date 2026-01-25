@@ -194,4 +194,4 @@ export const ROUTES = {
   utilitiesRelease: '/utilities/release',
   utilitiesTests: '/utilities/tests'
 
-}; 
+};

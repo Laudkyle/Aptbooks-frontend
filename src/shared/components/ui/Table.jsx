@@ -1,11 +1,11 @@
-import React from 'react'; 
-import clsx from 'clsx'; 
+import React from 'react';
+import clsx from 'clsx';
 
 export function Table({ className, children, columns, rows, keyField = 'id', onRowClick }) {
   // Two modes:
   // 1) Declarative: provide <THead> / <TBody> children
   // 2) Convenience: provide columns + rows
-  const hasConvenience = Array.isArray(columns) && Array.isArray(rows); 
+  const hasConvenience = Array.isArray(columns) && Array.isArray(rows);
   return (
     <div className={clsx('w-full overflow-x-auto', className)}>
       <table className="w-full border-collapse text-sm">
@@ -20,8 +20,8 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
             </THead>
             <TBody>
               {rows.map((r) => {
-                const key = r?.[keyField] ?? JSON.stringify(r); 
-                const clickable = typeof onRowClick === 'function'; 
+                const key = r?.[keyField] ?? JSON.stringify(r);
+                const clickable = typeof onRowClick === 'function';
                 return (
                   <tr
                     key={key}
@@ -37,7 +37,7 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
                       </TD>
                     ))}
                   </tr>
-                ); 
+                );
               })}
             </TBody>
           </>
@@ -46,7 +46,7 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
         )}
       </table>
     </div>
-  ); 
+  );
 }
 
 export function THead({ children }) {
@@ -54,11 +54,11 @@ export function THead({ children }) {
     <thead className="sticky top-0 z-10 bg-white/80 text-slate-700 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       {children}
     </thead>
-  ); 
+  );
 }
 
 export function TBody({ children }) {
-  return <tbody className="divide-y divide-slate-100">{children}</tbody>; 
+  return <tbody className="divide-y divide-slate-100">{children}</tbody>;
 }
 
 export function TH({ className, children, ...props }) {
@@ -72,7 +72,7 @@ export function TH({ className, children, ...props }) {
     >
       {children}
     </th>
-  ); 
+  );
 }
 
 export function TD({ className, children, ...props }) {
@@ -80,5 +80,5 @@ export function TD({ className, children, ...props }) {
     <td className={clsx('px-4 py-3 align-top text-slate-800', className)} {...props}>
       {children}
     </td>
-  ); 
+  );
 }

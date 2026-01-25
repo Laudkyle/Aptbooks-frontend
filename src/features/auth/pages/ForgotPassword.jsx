@@ -1,37 +1,37 @@
-import React, { useState } from 'react'; 
-import { Link } from 'react-router-dom'; 
-import { AuthLayout } from '../components/AuthLayout.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { useAuth } from '../../../shared/hooks/useAuth.js'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
-import { normalizeError } from '../../../shared/api/errors.js'; 
-import { ROUTES } from '../../../app/constants/routes.js'; 
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthLayout } from '../components/AuthLayout.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { useAuth } from '../../../shared/hooks/useAuth.js';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { normalizeError } from '../../../shared/api/errors.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
 export default function ForgotPassword() {
-  const { forgotPassword } = useAuth(); 
-  const toast = useToast(); 
-  const [email, setEmail] = useState(''); 
-  const [loading, setLoading] = useState(false); 
-  const [response, setResponse] = useState(null); 
+  const { forgotPassword } = useAuth();
+  const toast = useToast();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState(null);
 
   return (
     <AuthLayout title="Forgot password" subtitle="We will send a reset link if the account exists">
       <form
         className="space-y-4"
         onSubmit={async (e) => {
-          e.preventDefault(); 
-          setLoading(true); 
-          setResponse(null); 
+          e.preventDefault();
+          setLoading(true);
+          setResponse(null);
           try {
-            const res = await forgotPassword({ email }); 
-            setResponse(res); 
-            toast.success('If your email exists, you will receive reset instructions.'); 
+            const res = await forgotPassword({ email });
+            setResponse(res);
+            toast.success('If your email exists, you will receive reset instructions.');
           } catch (e2) {
-            const ne = normalizeError(e2); 
-            toast.error(ne.message); 
+            const ne = normalizeError(e2);
+            toast.error(ne.message);
           } finally {
-            setLoading(false); 
+            setLoading(false);
           }
         }}
       >
@@ -53,5 +53,5 @@ export default function ForgotPassword() {
         </div>
       </form>
     </AuthLayout>
-  ); 
+  );
 }

@@ -1,55 +1,55 @@
-import React, { useMemo, useState } from 'react'; 
-import { useParams, useNavigate } from 'react-router-dom'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { ArrowLeft, FileMinus2, Send, Trash2 } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, FileMinus2, Send, Trash2 } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makeCreditNotesApi } from '../api/creditNotes.api.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makeCreditNotesApi } from '../api/creditNotes.api.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { toast } from '../../../shared/components/ui/Toast.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { toast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CreditNoteDetail() {
-  const { id } = useParams(); 
-  const navigate = useNavigate(); 
-  const { http } = useApi(); 
-  const api = useMemo(() => makeCreditNotesApi(http), [http]); 
-  const qc = useQueryClient(); 
-    const toast = useToast(); 
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { http } = useApi();
+  const api = useMemo(() => makeCreditNotesApi(http), [http]);
+  const qc = useQueryClient();
+    const toast = useToast();
   const { data, isLoading } = useQuery({
     queryKey: qk.creditNote(id),
     queryFn: () => api.get(id)
-  }); 
+  });
 
-  const note = data?.data ?? data; 
+  const note = data?.data ?? data;
 
-  const [action, setAction] = useState(null); 
-  const [applyBody, setApplyBody] = useState({ invoiceId: '', amountApplied: 0 }); 
-  const [voidBody, setVoidBody] = useState({ reason: '' }); 
+  const [action, setAction] = useState(null);
+  const [applyBody, setApplyBody] = useState({ invoiceId: '', amountApplied: 0 });
+  const [voidBody, setVoidBody] = useState({ reason: '' });
 
   const run = useMutation({
     mutationFn: async () => {
-      if (action === 'issue') return api.issue(id); 
-      if (action === 'apply') return api.apply(id, applyBody); 
-      if (action === 'void') return api.void(id, voidBody); 
-      throw new Error('Unknown action'); 
+      if (action === 'issue') return api.issue(id);
+      if (action === 'apply') return api.apply(id, applyBody);
+      if (action === 'void') return api.void(id, voidBody);
+      throw new Error('Unknown action');
     },
     onSuccess: () => {
-      toast.success('Action completed'); 
-      qc.invalidateQueries({ queryKey: qk.creditNote(id) }); 
-      setAction(null); 
+      toast.success('Action completed');
+      qc.invalidateQueries({ queryKey: qk.creditNote(id) });
+      setAction(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
-  const status = note?.status ?? 'draft'; 
+  const status = note?.status ?? 'draft';
 
   return (
     <div className="space-y-4">
@@ -138,5 +138,5 @@ export default function CreditNoteDetail() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

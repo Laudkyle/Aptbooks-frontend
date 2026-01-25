@@ -1,17 +1,17 @@
-import React, { useMemo, useState } from 'react'; 
-import { Link } from 'react-router-dom'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { useApi } from '../../../../shared/hooks/useApi.js'; 
-import { makeCoaApi } from '../api/coa.api.js'; 
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../../shared/components/data/DataTable.jsx'; 
-import { Input } from '../../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../../shared/components/ui/Select.jsx'; 
-import { Button } from '../../../../shared/components/ui/Button.jsx'; 
-import { Badge } from '../../../../shared/components/ui/Badge.jsx'; 
-import { ROUTES } from '../../../../app/constants/routes.js'; 
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeCoaApi } from '../api/coa.api.js';
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../../shared/components/data/DataTable.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../../shared/components/ui/Badge.jsx';
+import { ROUTES } from '../../../../app/constants/routes.js';
 
 const ACCOUNT_TYPES = [
   { value: '', label: 'All types' },
@@ -20,28 +20,28 @@ const ACCOUNT_TYPES = [
   { value: 'EQUITY', label: 'Equity' },
   { value: 'REVENUE', label: 'Revenue' },
   { value: 'EXPENSE', label: 'Expense' }
-]; 
+];
 
 export default function AccountList() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeCoaApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makeCoaApi(http), [http]);
 
-  const [q, setQ] = useState(''); 
-  const [type, setType] = useState(''); 
-  const [includeArchived, setIncludeArchived] = useState('false'); 
+  const [q, setQ] = useState('');
+  const [type, setType] = useState('');
+  const [includeArchived, setIncludeArchived] = useState('false');
 
   const query = useQuery({
     queryKey: ['coa', includeArchived],
     queryFn: () => api.list({ includeArchived }),
     staleTime: 10_000
-  }); 
+  });
 
   const rows = (query.data ?? []).filter((a) => {
-    const s = `${a.code ?? ''} ${a.name ?? ''} ${a.category_name ?? ''}`.toLowerCase(); 
-    const matchQ = !q || s.includes(q.toLowerCase()); 
-    const matchType = !type || a.account_type_code === type; 
-    return matchQ && matchType; 
-  }); 
+    const s = `${a.code ?? ''} ${a.name ?? ''} ${a.category_name ?? ''}`.toLowerCase();
+    const matchQ = !q || s.includes(q.toLowerCase());
+    const matchType = !type || a.account_type_code === type;
+    return matchQ && matchType;
+  });
 
   const columns = [
     { header: 'Code', att:'code',accessor: (r) => r.code ?? '—' },
@@ -65,7 +65,7 @@ export default function AccountList() {
         </Badge>
       )
     }
-  ]; 
+  ];
 
   return (
     <div className="space-y-4">
@@ -105,5 +105,5 @@ export default function AccountList() {
         )}
       </ContentCard>
     </div>
-  ); 
+  );
 }

@@ -26,7 +26,7 @@ export default function TransactionDetail() {
     enabled: !!id
   });
 
-  const [mode, setMode] = useState('view'); // view | void
+  const [mode, setMode] = useState('view');// view | void
   const [voidReason, setVoidReason] = useState('');
   const [saving, setSaving] = useState(false);
 

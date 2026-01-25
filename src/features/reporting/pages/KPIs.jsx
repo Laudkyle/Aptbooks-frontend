@@ -1,54 +1,54 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { Activity, Plus, Calculator } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Activity, Plus, Calculator } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makePlanningApi } from '../api/planning.api.js'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makePlanningApi } from '../api/planning.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 function rowsFrom(data) {
-  if (!data) return []; 
-  if (Array.isArray(data)) return data; 
-  if (Array.isArray(data.data)) return data.data; 
-  if (Array.isArray(data.items)) return data.items; 
-  return []; 
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.items)) return data.items;
+  return [];
 }
 
 export default function KPIs() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makePlanningApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makePlanningApi(http), [http]);
 
-  const [tab, setTab] = useState('definitions'); 
-  const [open, setOpen] = useState(false); 
-  const [form, setForm] = useState({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' }); 
-  const [compute, setCompute] = useState({ periodId: '', asOfDate: '' }); 
+  const [tab, setTab] = useState('definitions');
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' });
+  const [compute, setCompute] = useState({ periodId: '', asOfDate: '' });
 
   const defsQ = useQuery({
     queryKey: ['reporting', 'kpis', 'definitions'],
     queryFn: () => api.kpis.listDefinitions({ limit: 100, offset: 0 })
-  }); 
+  });
 
   const valuesQ = useQuery({
     queryKey: ['reporting', 'kpis', 'values', compute.periodId || null],
     queryFn: () => api.kpis.listValues({ periodId: compute.periodId || null, limit: 200, offset: 0 })
-  }); 
+  });
 
-  const defRows = rowsFrom(defsQ.data); 
-  const valRows = rowsFrom(valuesQ.data); 
+  const defRows = rowsFrom(defsQ.data);
+  const valRows = rowsFrom(valuesQ.data);
 
   const columns = useMemo(() => {
-    const rows = tab === 'definitions' ? defRows : valRows; 
-    const keys = rows[0] ? Object.keys(rows[0]) : []; 
-    const show = keys.filter((k) => !String(k).toLowerCase().includes('json')).slice(0, 7); 
-    return show.map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> })); 
-  }, [tab, defRows, valRows]); 
+    const rows = tab === 'definitions' ? defRows : valRows;
+    const keys = rows[0] ? Object.keys(rows[0]) : [];
+    const show = keys.filter((k) => !String(k).toLowerCase().includes('json')).slice(0, 7);
+    return show.map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
+  }, [tab, defRows, valRows]);
 
   async function createDefinition() {
     const body = {
@@ -59,26 +59,26 @@ export default function KPIs() {
       status: form.status,
       expressionJson: form.kpiType === 'EXPRESSION' ? {} : undefined,
       category: form.category || null
-    }; 
-    await api.kpis.createDefinition(body); 
-    setOpen(false); 
-    setForm({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' }); 
-    defsQ.refetch(); 
+    };
+    await api.kpis.createDefinition(body);
+    setOpen(false);
+    setForm({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' });
+    defsQ.refetch();
   }
 
   async function computeValues() {
-    if (!compute.periodId) return; 
-    await api.kpis.computeValues({ periodId: compute.periodId, asOfDate: compute.asOfDate || null }); 
-    valuesQ.refetch(); 
+    if (!compute.periodId) return;
+    await api.kpis.computeValues({ periodId: compute.periodId, asOfDate: compute.asOfDate || null });
+    valuesQ.refetch();
   }
 
-  const rows = tab === 'definitions' ? defRows : valRows; 
+  const rows = tab === 'definitions' ? defRows : valRows;
 
   return (
     <div className="space-y-4">
       <PageHeader
         title="KPIs"
-        subtitle="Define KPIs and compute values per period;  manage targets and thresholds in subsequent phases."
+        subtitle="Define KPIs and compute values per period;manage targets and thresholds in subsequent phases."
         icon={Activity}
         right={
           <div className="flex items-center gap-2">
@@ -161,5 +161,5 @@ export default function KPIs() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

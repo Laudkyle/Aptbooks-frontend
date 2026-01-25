@@ -1,5 +1,5 @@
-import { endpoints } from '../../../shared/api/endpoints.js'; 
-import { ensureIdempotencyKey } from '../../../shared/api/idempotency.js'; 
+import { endpoints } from '../../../shared/api/endpoints.js';
+import { ensureIdempotencyKey } from '../../../shared/api/idempotency.js';
 
 export function makeUtilitiesApi(http) {
   return {
@@ -20,8 +20,8 @@ export function makeUtilitiesApi(http) {
     clientLogsIngest: async (payload, headers = {}) => {
       const res = await http.post(endpoints.utilities.clientLogsIngest, payload, {
         headers: ensureIdempotencyKey(headers)
-      }); 
-      return res.data; 
+      });
+      return res.data;
     },
     clientLogsQuery: async (qs) => (await http.get(endpoints.utilities.clientLogs(qs))).data,
 
@@ -35,8 +35,8 @@ export function makeUtilitiesApi(http) {
     testsRun: async (body, headers = {}) => {
       const res = await http.post(endpoints.utilities.testsRun, body, {
         headers: ensureIdempotencyKey(headers)
-      }); 
-      return res.data; 
+      });
+      return res.data;
     }
-  }; 
+  };
 }

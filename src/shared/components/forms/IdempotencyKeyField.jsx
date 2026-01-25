@@ -1,7 +1,7 @@
-import React from 'react'; 
-import { Input } from '../ui/Input.jsx'; 
-import { Button } from '../ui/Button.jsx'; 
-import { generateRequestId } from '../../api/request-id.js'; 
+import React from 'react';
+import { Input } from '../ui/Input.jsx';
+import { Button } from '../ui/Button.jsx';
+import { generateRequestId } from '../../api/request-id.js';
 
 export function IdempotencyKeyField({
   value,
@@ -10,9 +10,9 @@ export function IdempotencyKeyField({
   hint = 'Required for this action'
 }) {
   React.useEffect(() => {
-    if (!value && onChange) onChange(generateRequestId()); 
+    if (!value && onChange) onChange(generateRequestId());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   return (
     <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
@@ -29,5 +29,5 @@ export function IdempotencyKeyField({
         <Input value={value} onChange={(e) => onChange?.(e.target.value)} placeholder="uuid…" />
       </div>
     </div>
-  ); 
+  );
 }

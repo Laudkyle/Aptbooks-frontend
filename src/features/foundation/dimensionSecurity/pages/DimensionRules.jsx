@@ -1,35 +1,35 @@
-import React, { useMemo, useState } from 'react'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { useApi } from '../../../../shared/hooks/useApi.js'; 
-import { makeDimensionSecurityApi } from '../api/dimensionSecurity.api.js'; 
-import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx'; 
-import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx'; 
-import { Button } from '../../../../shared/components/ui/Button.jsx'; 
-import { Modal } from '../../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../../shared/components/ui/Input.jsx'; 
-import { useToast } from '../../../../shared/components/ui/Toast.jsx'; 
+import React, { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeDimensionSecurityApi } from '../api/dimensionSecurity.api.js';
+import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
+import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
+import { Modal } from '../../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../../shared/components/ui/Input.jsx';
+import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 
 export default function DimensionRules() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makeDimensionSecurityApi(http), [http]); 
-  const qc = useQueryClient(); 
-  const toast = useToast(); 
+  const { http } = useApi();
+  const api = useMemo(() => makeDimensionSecurityApi(http), [http]);
+  const qc = useQueryClient();
+  const toast = useToast();
 
-  const [limit, setLimit] = useState(100); 
-  const [offset, setOffset] = useState(0); 
+  const [limit, setLimit] = useState(100);
+  const [offset, setOffset] = useState(0);
 
   const q = useQuery({
     queryKey: ['dimensionRules', limit, offset],
     queryFn: () => api.list({ limit, offset }),
     staleTime: 10_000
-  }); 
+  });
 
-  const rows = q.data?.data ?? []; 
+  const rows = q.data?.data ?? [];
 
-  const [open, setOpen] = useState(false); 
-  const [editing, setEditing] = useState(null); 
-  const [form, setForm] = useState({ principalType: 'user', principalId: '', effect: 'allow', ruleJson: '{}', note: '' }); 
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ principalType: 'user', principalId: '', effect: 'allow', ruleJson: '{}', note: '' });
 
   const save = useMutation({
     mutationFn: async () => {
@@ -39,27 +39,27 @@ export default function DimensionRules() {
         effect: form.effect,
         ruleJson: form.ruleJson ? JSON.parse(form.ruleJson) : {},
         note: form.note === '' ? null : form.note
-      }; 
-      if (editing?.id) return api.update(editing.id, body); 
-      return api.create(body); 
+      };
+      if (editing?.id) return api.update(editing.id, body);
+      return api.create(body);
     },
     onSuccess: () => {
-      toast.success('Rule saved.'); 
-      setOpen(false); 
-      setEditing(null); 
-      qc.invalidateQueries({ queryKey: ['dimensionRules'] }); 
+      toast.success('Rule saved.');
+      setOpen(false);
+      setEditing(null);
+      qc.invalidateQueries({ queryKey: ['dimensionRules'] });
     },
     onError: (e) => toast.error(e.message ?? 'Save failed')
-  }); 
+  });
 
   const remove = useMutation({
     mutationFn: (id) => api.remove(id),
     onSuccess: () => {
-      toast.success('Rule deleted.'); 
-      qc.invalidateQueries({ queryKey: ['dimensionRules'] }); 
+      toast.success('Rule deleted.');
+      qc.invalidateQueries({ queryKey: ['dimensionRules'] });
     },
     onError: (e) => toast.error(e.message ?? 'Delete failed')
-  }); 
+  });
 
   return (
     <div className="space-y-4">
@@ -71,9 +71,9 @@ export default function DimensionRules() {
             <Input label="Limit" type="number" min={1} max={500} value={limit} onChange={(e) => setLimit(Number(e.target.value) || 100)} className="w-28" />
             <Input label="Offset" type="number" min={0} value={offset} onChange={(e) => setOffset(Number(e.target.value) || 0)} className="w-28" />
             <Button onClick={() => {
-              setEditing(null); 
-              setForm({ principalType: 'user', principalId: '', effect: 'allow', ruleJson: '{}', note: '' }); 
-              setOpen(true); 
+              setEditing(null);
+              setForm({ principalType: 'user', principalId: '', effect: 'allow', ruleJson: '{}', note: '' });
+              setOpen(true);
             }}>New rule</Button>
           </div>
         }
@@ -108,15 +108,15 @@ export default function DimensionRules() {
                         size="sm"
                         variant="secondary"
                         onClick={() => {
-                          setEditing({ id: r.id }); 
+                          setEditing({ id: r.id });
                           setForm({
                             principalType: r.principal_type ?? r.principalType ?? 'user',
                             principalId: r.principal_id ?? r.principalId ?? '',
                             effect: r.effect ?? 'allow',
                             ruleJson: JSON.stringify(r.rule_json ?? r.ruleJson ?? {}, null, 2),
                             note: r.note ?? ''
-                          }); 
-                          setOpen(true); 
+                          });
+                          setOpen(true);
                         }}
                       >Edit</Button>
                       <Button size="sm" variant="danger" onClick={() => remove.mutate(r.id)} disabled={remove.isLoading}>Delete</Button>
@@ -184,5 +184,5 @@ export default function DimensionRules() {
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </div>
-  ); 
+  );
 }

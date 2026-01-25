@@ -1,14 +1,14 @@
-import React, { useRef } from 'react'; 
-import { Upload } from 'lucide-react'; 
-import { Button } from '../ui/Button.jsx'; 
+import React, { useRef } from 'react';
+import { Upload } from 'lucide-react';
+import { Button } from '../ui/Button.jsx';
 
 export function ImportDropzone({ accept = '.csv,text/csv,text/plain', onText }) {
-  const inputRef = useRef(null); 
+  const inputRef = useRef(null);
 
   async function handleFile(file) {
-    if (!file) return; 
-    const text = await file.text(); 
-    onText?.(text); 
+    if (!file) return;
+    const text = await file.text();
+    onText?.(text);
   }
 
   return (
@@ -31,5 +31,5 @@ export function ImportDropzone({ accept = '.csv,text/csv,text/plain', onText }) 
         </div>
       </div>
     </div>
-  ); 
+  );
 }

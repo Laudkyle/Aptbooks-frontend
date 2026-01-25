@@ -1,35 +1,35 @@
-import React, { useMemo, useState } from 'react'; 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; 
-import { Landmark, Plus, XCircle } from 'lucide-react'; 
+import React, { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Landmark, Plus, XCircle } from 'lucide-react';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { qk } from '../../../shared/query/keys.js'; 
-import { makePaymentPlansApi } from '../api/paymentPlans.api.js'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { qk } from '../../../shared/query/keys.js';
+import { makePaymentPlansApi } from '../api/paymentPlans.api.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx'; 
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Badge } from '../../../shared/components/ui/Badge.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
-import { useToast } from '../../../shared/components/ui/Toast.jsx'; 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function PaymentPlans() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makePaymentPlansApi(http), [http]); 
-  const qc = useQueryClient(); 
-const toast = useToast(); 
+  const { http } = useApi();
+  const api = useMemo(() => makePaymentPlansApi(http), [http]);
+  const qc = useQueryClient();
+const toast = useToast();
 
-  const [status, setStatus] = useState(''); 
-  const qs = useMemo(() => (status ? { status } : {}), [status]); 
+  const [status, setStatus] = useState('');
+  const qs = useMemo(() => (status ? { status } : {}), [status]);
 
-  const { data: listData, isLoading } = useQuery({ queryKey: qk.paymentPlans(qs), queryFn: () => api.list(qs) }); 
-  const rows = Array.isArray(listData) ? listData : listData?.data ?? []; 
+  const { data: listData, isLoading } = useQuery({ queryKey: qk.paymentPlans(qs), queryFn: () => api.list(qs) });
+  const rows = Array.isArray(listData) ? listData : listData?.data ?? [];
 
-  const [modal, setModal] = useState(null); 
+  const [modal, setModal] = useState(null);
   const [draft, setDraft] = useState({
     entity_type: 'invoice',
     entity_id: '0',
@@ -38,42 +38,42 @@ const toast = useToast();
     start_date: '',
     frequency: 'monthly',
     installment_count: 6
-  }); 
+  });
 
   const createPlan = useMutation({
     mutationFn: (body) => api.create(body),
     onSuccess: () => {
-      toast.success('Payment plan created'); 
-      qc.invalidateQueries({ queryKey: qk.paymentPlans(qs) }); 
-      setModal(null); 
+      toast.success('Payment plan created');
+      qc.invalidateQueries({ queryKey: qk.paymentPlans(qs) });
+      setModal(null);
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
   const cancelPlan = useMutation({
     mutationFn: (id) => api.cancel(id),
     onSuccess: () => {
-      toast.success('Plan cancelled'); 
-      qc.invalidateQueries({ queryKey: qk.paymentPlans(qs) }); 
+      toast.success('Plan cancelled');
+      qc.invalidateQueries({ queryKey: qk.paymentPlans(qs) });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
   const markPaid = useMutation({
     mutationFn: ({ id, installmentId, body }) => api.markInstallmentPaid(id, installmentId, body),
     onSuccess: (_, vars) => {
-      toast.success('Installment marked paid'); 
-      qc.invalidateQueries({ queryKey: qk.paymentPlan(vars.id) }); 
+      toast.success('Installment marked paid');
+      qc.invalidateQueries({ queryKey: qk.paymentPlan(vars.id) });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed')
-  }); 
+  });
 
-  const [selectedId, setSelectedId] = useState(null); 
+  const [selectedId, setSelectedId] = useState(null);
   const { data: detail } = useQuery({
     queryKey: qk.paymentPlan(selectedId),
     queryFn: () => api.get(selectedId),
     enabled: !!selectedId
-  }); 
+  });
 
   const columns = useMemo(
     () => [
@@ -83,8 +83,8 @@ const toast = useToast();
           <button
             className="text-left"
             onClick={() => {
-              setSelectedId(r.id); 
-              setModal('detail'); 
+              setSelectedId(r.id);
+              setModal('detail');
             }}
           >
             <div className="text-sm font-semibold text-slate-900">#{r.id}</div>
@@ -115,7 +115,7 @@ const toast = useToast();
       }
     ],
     [cancelPlan]
-  ); 
+  );
 
   return (
     <div className="space-y-4">
@@ -136,8 +136,8 @@ const toast = useToast();
                   start_date: '',
                   frequency: 'monthly',
                   installment_count: 6
-                }); 
-                setModal('new'); 
+                });
+                setModal('new');
               }}
             >
               New plan
@@ -171,9 +171,9 @@ const toast = useToast();
                 value={{ installmentId: 1, settlement_ref: null }}
                 submitLabel="Mark paid"
                 onSubmit={(json) => {
-                  const { installmentId, ...body } = json ?? {}; 
-                  if (!selectedId || !installmentId) return toast.error('installmentId required'); 
-                  markPaid.mutate({ id: selectedId, installmentId, body }); 
+                  const { installmentId, ...body } = json ?? {};
+                  if (!selectedId || !installmentId) return toast.error('installmentId required');
+                  markPaid.mutate({ id: selectedId, installmentId, body });
                 }}
               />
             </div>
@@ -181,5 +181,5 @@ const toast = useToast();
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }

@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 
 export function ContentCard({ title, children, actions }) {
   return (
@@ -11,5 +11,5 @@ export function ContentCard({ title, children, actions }) {
       ) : null}
       <div className="app-card-body">{children}</div>
     </section>
-  ); 
+  );
 }

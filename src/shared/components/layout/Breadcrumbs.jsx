@@ -1,8 +1,8 @@
-import React from 'react'; 
-import { Link } from 'react-router-dom'; 
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export function Breadcrumbs({ items }) {
-  if (!items?.length) return null; 
+  if (!items?.length) return null;
   return (
     <nav className="mb-4 text-xs text-slate-600">
       <ol className="flex flex-wrap items-center gap-1">
@@ -14,5 +14,5 @@ export function Breadcrumbs({ items }) {
         ))}
       </ol>
     </nav>
-  ); 
+  );
 }

@@ -1,39 +1,39 @@
-import React, { useMemo, useState } from 'react'; 
-import { useQuery } from '@tanstack/react-query'; 
-import { Plus, PiggyBank, ChevronRight } from 'lucide-react'; 
-import { Link } from 'react-router-dom'; 
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Plus, PiggyBank, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-import { useApi } from '../../../shared/hooks/useApi.js'; 
-import { makePlanningApi } from '../api/planning.api.js'; 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx'; 
-import { DataTable } from '../../../shared/components/data/DataTable.jsx'; 
-import { Button } from '../../../shared/components/ui/Button.jsx'; 
-import { Modal } from '../../../shared/components/ui/Modal.jsx'; 
-import { Input } from '../../../shared/components/ui/Input.jsx'; 
-import { Select } from '../../../shared/components/ui/Select.jsx'; 
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx'; 
+import { useApi } from '../../../shared/hooks/useApi.js';
+import { makePlanningApi } from '../api/planning.api.js';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { DataTable } from '../../../shared/components/data/DataTable.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 function rowsFrom(data) {
-  if (!data) return []; 
-  if (Array.isArray(data)) return data; 
-  if (Array.isArray(data.data)) return data.data; 
-  if (Array.isArray(data.items)) return data.items; 
-  return []; 
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.items)) return data.items;
+  return [];
 }
 
 export default function Budgets() {
-  const { http } = useApi(); 
-  const api = useMemo(() => makePlanningApi(http), [http]); 
+  const { http } = useApi();
+  const api = useMemo(() => makePlanningApi(http), [http]);
 
-  const [open, setOpen] = useState(false); 
-  const [form, setForm] = useState({ name: '', fiscalYear: new Date().getFullYear(), currencyCode: 'GHS', status: 'draft' }); 
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ name: '', fiscalYear: new Date().getFullYear(), currencyCode: 'GHS', status: 'draft' });
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'budgets'],
     queryFn: () => api.budgets.list()
-  }); 
+  });
 
-  const rows = rowsFrom(data); 
+  const rows = rowsFrom(data);
 
   const columns = useMemo(
     () => [
@@ -51,7 +51,7 @@ export default function Budgets() {
       { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{String(r.status ?? '')}</span> }
     ],
     []
-  ); 
+  );
 
   async function create() {
     await api.budgets.create({
@@ -59,10 +59,10 @@ export default function Budgets() {
       fiscalYear: Number(form.fiscalYear),
       currencyCode: form.currencyCode,
       status: form.status
-    }); 
-    setOpen(false); 
-    setForm({ name: '', fiscalYear: new Date().getFullYear(), currencyCode: 'GHS', status: 'draft' }); 
-    refetch(); 
+    });
+    setOpen(false);
+    setForm({ name: '', fiscalYear: new Date().getFullYear(), currencyCode: 'GHS', status: 'draft' });
+    refetch();
   }
 
   return (
@@ -123,5 +123,5 @@ export default function Budgets() {
         </div>
       </Modal>
     </div>
-  ); 
+  );
 }
