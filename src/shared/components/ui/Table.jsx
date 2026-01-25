@@ -33,7 +33,7 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
                   >
                     {columns.map((col) => (
                       <TD key={col.key ?? col.header} className={col.className}>
-                        {typeof col.render === 'function' ? col.render(r) : r?.[col.att ?? col.accessor]}
+                        {typeof col.render === 'function' ? col.render(r) : r?.[col.att ?? col.accessorKey]}
                       </TD>
                     ))}
                   </tr>
