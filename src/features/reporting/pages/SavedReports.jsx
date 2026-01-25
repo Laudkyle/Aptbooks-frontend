@@ -31,7 +31,7 @@ export default function SavedReports() {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['reporting', 'reports', 'list'],
-    queryFn: () => api.reports.list({ includeArchived: 'false', limit: 100, offset: 0 })
+    queryFn: () => api.savedReports.list({ includeArchived: 'false', limit: 100, offset: 0 })
   });
   const rows = rowsFrom(data);
 
@@ -47,13 +47,7 @@ export default function SavedReports() {
         )
       },
       { header: 'Kind', render: (r) => <span className="text-sm text-slate-700">{r.kind || 'sql'}</span> },
-      {
-        header: 'Status',
-        render: (r) => {
-          const isArchived = String(r.status).toLowerCase() === 'archived' || !!r.is_archived || !!r.isArchived;
-          return <span className="text-sm text-slate-700">{isArchived ? 'archived' : 'active'}</span>;
-        }
-      },
+      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status || r.is_archived ? 'archived' : 'active'}</span> },
       {
         header: '',
         render: (r) => (
@@ -85,7 +79,7 @@ export default function SavedReports() {
       templateKey: form.kind === 'management' ? form.templateKey : undefined,
       parameters: {}
     };
-    await api.reports.create(body);
+    await api.savedReports.create(body);
     setOpen(false);
     setForm({ name: '', description: '', folder: '', kind: 'sql', querySql: '', templateKey: '' });
     refetch();
@@ -99,7 +93,7 @@ export default function SavedReports() {
       parameters: [],
       maxRows: Number(runForm.maxRows || 500)
     };
-    const res = await api.reports.runs.run(selected.id, payload);
+    const res = await api.savedReports.run(selected.id, payload);
     setSelected((s) => ({ ...s, _lastRun: res }));
   }
 

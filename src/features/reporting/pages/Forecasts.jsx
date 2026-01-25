@@ -38,7 +38,7 @@ export default function Forecasts() {
       { header: 'name', render: (r) => <div className="font-medium text-slate-900">{r.name}</div> },
       { header: 'status', render: (r) => <span className="text-sm text-slate-700">{r.status}</span> },
       { header: '', render: (r) => (
-        <Link className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-brand-primary)]" to={`/planning/forecasts/${r.id}`}>
+        <Link className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-brand-primary)]" to={`/reporting/forecasts/${r.id}`}>
           Open <ChevronRight className="h-4 w-4" />
         </Link>
       ) }

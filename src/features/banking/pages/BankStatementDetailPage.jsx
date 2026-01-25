@@ -9,11 +9,6 @@ import { Badge } from "../../../shared/components/ui/Badge";
 import { Tabs } from "../../../shared/components/ui/Tabs";
 import { Table, TBody, TD, TH, THead, TR } from "../../../shared/components/ui/Table";
 
-// UI-only page. This is a robust layout scaffold for:
-// - /modules/banking/statements/:statementId
-// - statement lines listing + CSV import
-// - matching actions + suggestions
-// No API calls are performed here (logic lives elsewhere).
 
 export default function BankStatementDetailPage() {
   const { statementId } = useParams();

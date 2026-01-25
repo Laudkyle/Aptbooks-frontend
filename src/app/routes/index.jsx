@@ -1,192 +1,450 @@
-import React, { Suspense, lazy } from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { ProtectedRoute, GuestRoute, PermissionGate } from './route-guards.jsx';
-import { ROUTES } from '../constants/routes.js';
-import { PERMISSIONS } from '../constants/permissions.js';
-import { AppShell } from '../../shared/components/layout/AppShell.jsx';
+import React, { Suspense, lazy } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { ProtectedRoute, GuestRoute, PermissionGate } from "./route-guards.jsx";
+import { ROUTES } from "../constants/routes.js";
+import { PERMISSIONS } from "../constants/permissions.js";
+import { AppShell } from "../../shared/components/layout/AppShell.jsx";
 
-import Dashboard from '../../pages/Dashboard.jsx';
-import Me from '../../pages/Me.jsx';
-import NotFound from '../../pages/NotFound.jsx';
-import Forbidden from '../../pages/Forbidden.jsx';
+import Dashboard from "../../pages/Dashboard.jsx";
+import Me from "../../pages/Me.jsx";
+import NotFound from "../../pages/NotFound.jsx";
+import Forbidden from "../../pages/Forbidden.jsx";
 
-const Login = lazy(() => import('../../features/auth/pages/Login.jsx'));
-const Register = lazy(() => import('../../features/auth/pages/Register.jsx'));
-const ForgotPassword = lazy(() => import('../../features/auth/pages/ForgotPassword.jsx'));
-const ResetPassword = lazy(() => import('../../features/auth/pages/ResetPassword.jsx'));
+const Login = lazy(() => import("../../features/auth/pages/Login.jsx"));
+const Register = lazy(() => import("../../features/auth/pages/Register.jsx"));
+const ForgotPassword = lazy(() =>
+  import("../../features/auth/pages/ForgotPassword.jsx")
+);
+const ResetPassword = lazy(() =>
+  import("../../features/auth/pages/ResetPassword.jsx")
+);
 
-const GlobalSearch = lazy(() => import('../../features/search/pages/GlobalSearch.jsx'));
-const NotificationCenter = lazy(() => import('../../features/notifications/pages/NotificationCenter.jsx'));
-const ApprovalQueue = lazy(() => import('../../features/workflow/approvals/pages/ApprovalQueue.jsx'));
+const GlobalSearch = lazy(() =>
+  import("../../features/search/pages/GlobalSearch.jsx")
+);
+const NotificationCenter = lazy(() =>
+  import("../../features/notifications/pages/NotificationCenter.jsx")
+);
+const ApprovalQueue = lazy(() =>
+  import("../../features/workflow/approvals/pages/ApprovalQueue.jsx")
+);
 
-const OrganizationSettings = lazy(() => import('../../features/foundation/organizations/pages/OrganizationSettings.jsx'));
-const UserList = lazy(() => import('../../features/foundation/users/pages/UserList.jsx'));
-const UserDetail = lazy(() => import('../../features/foundation/users/pages/UserDetail.jsx'));
-const RoleList = lazy(() => import('../../features/foundation/roles/pages/RoleList.jsx'));
-const RoleDetail = lazy(() => import('../../features/foundation/roles/pages/RoleDetail.jsx'));
-const PermissionMatrix = lazy(() => import('../../features/foundation/permissions/pages/PermissionMatrix.jsx'));
-const SystemSettings = lazy(() => import('../../features/foundation/settings/pages/SystemSettings.jsx'));
-const DimensionRules = lazy(() => import('../../features/foundation/dimensionSecurity/pages/DimensionRules.jsx'));
-const ApiKeyList = lazy(() => import('../../features/foundation/apiKeys/pages/ApiKeyList.jsx'));
+const OrganizationSettings = lazy(() =>
+  import(
+    "../../features/foundation/organizations/pages/OrganizationSettings.jsx"
+  )
+);
+const UserList = lazy(() =>
+  import("../../features/foundation/users/pages/UserList.jsx")
+);
+const UserDetail = lazy(() =>
+  import("../../features/foundation/users/pages/UserDetail.jsx")
+);
+const RoleList = lazy(() =>
+  import("../../features/foundation/roles/pages/RoleList.jsx")
+);
+const RoleDetail = lazy(() =>
+  import("../../features/foundation/roles/pages/RoleDetail.jsx")
+);
+const PermissionMatrix = lazy(() =>
+  import("../../features/foundation/permissions/pages/PermissionMatrix.jsx")
+);
+const SystemSettings = lazy(() =>
+  import("../../features/foundation/settings/pages/SystemSettings.jsx")
+);
+const DimensionRules = lazy(() =>
+  import("../../features/foundation/dimensionSecurity/pages/DimensionRules.jsx")
+);
+const ApiKeyList = lazy(() =>
+  import("../../features/foundation/apiKeys/pages/ApiKeyList.jsx")
+);
 
-const SystemHealth = lazy(() => import('../../features/utilities/pages/SystemHealth.jsx'));
-const ScheduledTasks = lazy(() => import('../../features/utilities/pages/ScheduledTasks.jsx'));
-const ErrorLogs = lazy(() => import('../../features/utilities/pages/ErrorLogs.jsx'));
-const ClientLogs = lazy(() => import('../../features/utilities/pages/ClientLogs.jsx'));
-const I18nAdmin = lazy(() => import('../../features/utilities/pages/I18nAdmin.jsx'));
-const A11yChecks = lazy(() => import('../../features/utilities/pages/A11yChecks.jsx'));
-const ReleaseInfo = lazy(() => import('../../features/utilities/pages/ReleaseInfo.jsx'));
-const TestConsole = lazy(() => import('../../features/utilities/pages/TestConsole.jsx'));
+const SystemHealth = lazy(() =>
+  import("../../features/utilities/pages/SystemHealth.jsx")
+);
+const ScheduledTasks = lazy(() =>
+  import("../../features/utilities/pages/ScheduledTasks.jsx")
+);
+const ErrorLogs = lazy(() =>
+  import("../../features/utilities/pages/ErrorLogs.jsx")
+);
+const ClientLogs = lazy(() =>
+  import("../../features/utilities/pages/ClientLogs.jsx")
+);
+const I18nAdmin = lazy(() =>
+  import("../../features/utilities/pages/I18nAdmin.jsx")
+);
+const A11yChecks = lazy(() =>
+  import("../../features/utilities/pages/A11yChecks.jsx")
+);
+const ReleaseInfo = lazy(() =>
+  import("../../features/utilities/pages/ReleaseInfo.jsx")
+);
+const TestConsole = lazy(() =>
+  import("../../features/utilities/pages/TestConsole.jsx")
+);
 
 // Phase 8 — Banking
-const BankingOverview = lazy(() => import('../../features/banking/pages/BankingOverview.jsx'));
-const BankAccountsPage = lazy(() => import('../../features/banking/pages/BankAccountsPage.jsx'));
-const BankStatementsPage = lazy(() => import('../../features/banking/pages/BankStatementsPage.jsx'));
-const BankStatementDetailPage = lazy(() => import('../../features/banking/pages/BankStatementDetailPage.jsx'));
-const BankMatchingRulesPage = lazy(() => import('../../features/banking/pages/MatchingRulesPage.jsx'));
-const BankCashbookPage = lazy(() => import('../../features/banking/pages/CashbookPage.jsx'));
-const BankReconciliationsPage = lazy(() => import('../../features/banking/pages/ReconciliationsPage.jsx'));
+const BankingOverview = lazy(() =>
+  import("../../features/banking/pages/BankingOverview.jsx")
+);
+const BankAccountsPage = lazy(() =>
+  import("../../features/banking/pages/BankAccountsPage.jsx")
+);
+const BankStatementsPage = lazy(() =>
+  import("../../features/banking/pages/BankStatementsPage.jsx")
+);
+const BankStatementDetailPage = lazy(() =>
+  import("../../features/banking/pages/BankStatementDetailPage.jsx")
+);
+const BankMatchingRulesPage = lazy(() =>
+  import("../../features/banking/pages/MatchingRulesPage.jsx")
+);
+const BankCashbookPage = lazy(() =>
+  import("../../features/banking/pages/CashbookPage.jsx")
+);
+const BankReconciliationsPage = lazy(() =>
+  import("../../features/banking/pages/ReconciliationsPage.jsx")
+);
 
 // Phase 8 — Compliance
-const ComplianceOverview = lazy(() => import('../../features/compliance/pages/ComplianceOverview.jsx'));
-const IFRS16LeasesPage = lazy(() => import('../../features/compliance/pages/IFRS16LeasesPage.jsx'));
-const IFRS15ContractsPage = lazy(() => import('../../features/compliance/pages/IFRS15ContractsPage.jsx'));
-const IFRS9EclPage = lazy(() => import('../../features/compliance/pages/IFRS9ECLPage.jsx'));
-const IAS12TaxPage = lazy(() => import('../../features/compliance/pages/IAS12TaxPage.jsx'));
+const ComplianceOverview = lazy(() =>
+  import("../../features/compliance/pages/ComplianceOverview.jsx")
+);
+const IFRS16LeasesPage = lazy(() =>
+  import("../../features/compliance/pages/IFRS16LeasesPage.jsx")
+);
+const IFRS15ContractsPage = lazy(() =>
+  import("../../features/compliance/pages/IFRS15ContractsPage.jsx")
+);
+const IFRS9EclPage = lazy(() =>
+  import("../../features/compliance/pages/IFRS9ECLPage.jsx")
+);
+const IAS12TaxPage = lazy(() =>
+  import("../../features/compliance/pages/IAS12TaxPage.jsx")
+);
 
 // Phase 8 — Workflow Documents
-const DocumentsLibraryPage = lazy(() => import('../../features/workflow/pages/DocumentsLibraryPage.jsx'));
-const DocumentDetailPage = lazy(() => import('../../features/workflow/pages/DocumentDetailPage.jsx'));
-const DocumentTypesPage = lazy(() => import('../../features/workflow/pages/DocumentTypesPage.jsx'));
-const ApprovalLevelsPage = lazy(() => import('../../features/workflow/pages/ApprovalLevelsPage.jsx'));
+const DocumentsLibraryPage = lazy(() =>
+  import("../../features/workflow/pages/DocumentsLibraryPage.jsx")
+);
+const DocumentDetailPage = lazy(() =>
+  import("../../features/workflow/pages/DocumentDetailPage.jsx")
+);
+const DocumentTypesPage = lazy(() =>
+  import("../../features/workflow/pages/DocumentTypesPage.jsx")
+);
+const ApprovalLevelsPage = lazy(() =>
+  import("../../features/workflow/pages/ApprovalLevelsPage.jsx")
+);
 
 // Phase 4 — Accounting
-const AccountList = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountList.jsx'));
-const AccountCreate = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx'));
-const AccountDetail = lazy(() => import('../../features/accounting/chartOfAccounts/pages/AccountDetail.jsx'));
+const AccountList = lazy(() =>
+  import("../../features/accounting/chartOfAccounts/pages/AccountList.jsx")
+);
+const AccountCreate = lazy(() =>
+  import("../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx")
+);
+const AccountDetail = lazy(() =>
+  import("../../features/accounting/chartOfAccounts/pages/AccountDetail.jsx")
+);
 
-const PeriodList = lazy(() => import('../../features/accounting/periods/pages/PeriodList.jsx'));
-const PeriodClose = lazy(() => import('../../features/accounting/periods/pages/PeriodClose.jsx'));
+const PeriodList = lazy(() =>
+  import("../../features/accounting/periods/pages/PeriodList.jsx")
+);
+const PeriodClose = lazy(() =>
+  import("../../features/accounting/periods/pages/PeriodClose.jsx")
+);
 
-const JournalList = lazy(() => import('../../features/accounting/journals/pages/JournalList.jsx'));
-const JournalCreate = lazy(() => import('../../features/accounting/journals/pages/JournalCreate.jsx'));
-const JournalDetail = lazy(() => import('../../features/accounting/journals/pages/JournalDetail.jsx'));
+const JournalList = lazy(() =>
+  import("../../features/accounting/journals/pages/JournalList.jsx")
+);
+const JournalCreate = lazy(() =>
+  import("../../features/accounting/journals/pages/JournalCreate.jsx")
+);
+const JournalDetail = lazy(() =>
+  import("../../features/accounting/journals/pages/JournalDetail.jsx")
+);
 
-const TrialBalance = lazy(() => import('../../features/accounting/balances/pages/TrialBalance.jsx'));
-const BalanceByAccount = lazy(() => import('../../features/accounting/balances/pages/BalanceByAccount.jsx'));
+const TrialBalance = lazy(() =>
+  import("../../features/accounting/balances/pages/TrialBalance.jsx")
+);
+const BalanceByAccount = lazy(() =>
+  import("../../features/accounting/balances/pages/BalanceByAccount.jsx")
+);
 
-const PnL = lazy(() => import('../../features/accounting/statements/pages/PnL.jsx'));
-const BalanceSheet = lazy(() => import('../../features/accounting/statements/pages/BalanceSheet.jsx'));
-const Cashflow = lazy(() => import('../../features/accounting/statements/pages/Cashflow.jsx'));
-const ChangesInEquity = lazy(() => import('../../features/accounting/statements/pages/ChangesInEquity.jsx'));
+const PnL = lazy(() =>
+  import("../../features/accounting/statements/pages/PnL.jsx")
+);
+const BalanceSheet = lazy(() =>
+  import("../../features/accounting/statements/pages/BalanceSheet.jsx")
+);
+const Cashflow = lazy(() =>
+  import("../../features/accounting/statements/pages/Cashflow.jsx")
+);
+const ChangesInEquity = lazy(() =>
+  import("../../features/accounting/statements/pages/ChangesInEquity.jsx")
+);
 
-const ExportsHub = lazy(() => import('../../features/accounting/exports/pages/ExportsHub.jsx'));
-const ImportsHub = lazy(() => import('../../features/accounting/imports/pages/ImportsHub.jsx'));
+const ExportsHub = lazy(() =>
+  import("../../features/accounting/exports/pages/ExportsHub.jsx")
+);
+const ImportsHub = lazy(() =>
+  import("../../features/accounting/imports/pages/ImportsHub.jsx")
+);
 
-const FxRates = lazy(() => import('../../features/accounting/fx/pages/FxRates.jsx'));
-const TaxAdmin = lazy(() => import('../../features/accounting/tax/pages/TaxAdmin.jsx'));
+const FxRates = lazy(() =>
+  import("../../features/accounting/fx/pages/FxRates.jsx")
+);
+const TaxAdmin = lazy(() =>
+  import("../../features/accounting/tax/pages/TaxAdmin.jsx")
+);
 
-const AccrualsHub = lazy(() => import('../../features/accounting/accruals/pages/AccrualsHub.jsx'));
-const AccrualCreate = lazy(() => import('../../features/accounting/accruals/pages/AccrualCreate.jsx'));
+const AccrualsHub = lazy(() =>
+  import("../../features/accounting/accruals/pages/AccrualsHub.jsx")
+);
+const AccrualCreate = lazy(() =>
+  import("../../features/accounting/accruals/pages/AccrualCreate.jsx")
+);
 
-const Reconciliation = lazy(() => import('../../features/accounting/reconciliation/pages/Reconciliation.jsx'));
+const Reconciliation = lazy(() =>
+  import("../../features/accounting/reconciliation/pages/Reconciliation.jsx")
+);
 
 // Phase 5 — Business / Transactions / AR Ops / Reporting
-const Customers = lazy(() => import('../../features/business/pages/Customers.jsx'));
-const Vendors = lazy(() => import('../../features/business/pages/Vendors.jsx'));
-const PartnerDetail = lazy(() => import('../../features/business/pages/PartnerDetail.jsx'));
-const PartnerCreate = lazy(() => import('../../features/business/pages/PartnerCreate.jsx'));
-const PaymentConfig = lazy(() => import('../../features/business/pages/PaymentConfig.jsx'));
+const Customers = lazy(() =>
+  import("../../features/business/pages/Customers.jsx")
+);
+const Vendors = lazy(() => import("../../features/business/pages/Vendors.jsx"));
+const PartnerDetail = lazy(() =>
+  import("../../features/business/pages/PartnerDetail.jsx")
+);
+const PartnerCreate = lazy(() =>
+  import("../../features/business/pages/PartnerCreate.jsx")
+);
+const PaymentConfig = lazy(() =>
+  import("../../features/business/pages/PaymentConfig.jsx")
+);
 
-const InvoiceList = lazy(() => import('../../features/transactions/pages/InvoiceList.jsx'));
-const InvoiceCreate = lazy(() => import('../../features/transactions/pages/InvoiceCreate.jsx'));
-const InvoiceDetail = lazy(() => import('../../features/transactions/pages/InvoiceDetail.jsx'));
+const InvoiceList = lazy(() =>
+  import("../../features/transactions/pages/InvoiceList.jsx")
+);
+const InvoiceCreate = lazy(() =>
+  import("../../features/transactions/pages/InvoiceCreate.jsx")
+);
+const InvoiceDetail = lazy(() =>
+  import("../../features/transactions/pages/InvoiceDetail.jsx")
+);
 
-const BillList = lazy(() => import('../../features/transactions/pages/BillList.jsx'));
-const BillCreate = lazy(() => import('../../features/transactions/pages/BillCreate.jsx'));
-const BillDetail = lazy(() => import('../../features/transactions/pages/BillDetail.jsx'));
+const BillList = lazy(() =>
+  import("../../features/transactions/pages/BillList.jsx")
+);
+const BillCreate = lazy(() =>
+  import("../../features/transactions/pages/BillCreate.jsx")
+);
+const BillDetail = lazy(() =>
+  import("../../features/transactions/pages/BillDetail.jsx")
+);
 
-const CustomerReceiptList = lazy(() => import('../../features/transactions/pages/CustomerReceiptList.jsx'));
-const CustomerReceiptCreate = lazy(() => import('../../features/transactions/pages/CustomerReceiptCreate.jsx'));
-const CustomerReceiptDetail = lazy(() => import('../../features/transactions/pages/CustomerReceiptDetail.jsx'));
+const CustomerReceiptList = lazy(() =>
+  import("../../features/transactions/pages/CustomerReceiptList.jsx")
+);
+const CustomerReceiptCreate = lazy(() =>
+  import("../../features/transactions/pages/CustomerReceiptCreate.jsx")
+);
+const CustomerReceiptDetail = lazy(() =>
+  import("../../features/transactions/pages/CustomerReceiptDetail.jsx")
+);
 
-const VendorPaymentList = lazy(() => import('../../features/transactions/pages/VendorPaymentList.jsx'));
-const VendorPaymentCreate = lazy(() => import('../../features/transactions/pages/VendorPaymentCreate.jsx'));
-const VendorPaymentDetail = lazy(() => import('../../features/transactions/pages/VendorPaymentDetail.jsx'));
+const VendorPaymentList = lazy(() =>
+  import("../../features/transactions/pages/VendorPaymentList.jsx")
+);
+const VendorPaymentCreate = lazy(() =>
+  import("../../features/transactions/pages/VendorPaymentCreate.jsx")
+);
+const VendorPaymentDetail = lazy(() =>
+  import("../../features/transactions/pages/VendorPaymentDetail.jsx")
+);
 
-const CreditNoteList = lazy(() => import('../../features/transactions/pages/CreditNoteList.jsx'));
-const CreditNoteCreate = lazy(() => import('../../features/transactions/pages/CreditNoteCreate.jsx'));
-const CreditNoteDetail = lazy(() => import('../../features/transactions/pages/CreditNoteDetail.jsx'));
+const CreditNoteList = lazy(() =>
+  import("../../features/transactions/pages/CreditNoteList.jsx")
+);
+const CreditNoteCreate = lazy(() =>
+  import("../../features/transactions/pages/CreditNoteCreate.jsx")
+);
+const CreditNoteDetail = lazy(() =>
+  import("../../features/transactions/pages/CreditNoteDetail.jsx")
+);
 
-const DebitNoteList = lazy(() => import('../../features/transactions/pages/DebitNoteList.jsx'));
-const DebitNoteCreate = lazy(() => import('../../features/transactions/pages/DebitNoteCreate.jsx'));
-const DebitNoteDetail = lazy(() => import('../../features/transactions/pages/DebitNoteDetail.jsx'));
+const DebitNoteList = lazy(() =>
+  import("../../features/transactions/pages/DebitNoteList.jsx")
+);
+const DebitNoteCreate = lazy(() =>
+  import("../../features/transactions/pages/DebitNoteCreate.jsx")
+);
+const DebitNoteDetail = lazy(() =>
+  import("../../features/transactions/pages/DebitNoteDetail.jsx")
+);
 
-const CollectionsHub = lazy(() => import('../../features/ar/pages/CollectionsHub.jsx'));
-const Disputes = lazy(() => import('../../features/ar/pages/Disputes.jsx'));
-const Writeoffs = lazy(() => import('../../features/ar/pages/Writeoffs.jsx'));
-const PaymentPlans = lazy(() => import('../../features/ar/pages/PaymentPlans.jsx'));
+const CollectionsHub = lazy(() =>
+  import("../../features/ar/pages/CollectionsHub.jsx")
+);
+const Disputes = lazy(() => import("../../features/ar/pages/Disputes.jsx"));
+const Writeoffs = lazy(() => import("../../features/ar/pages/Writeoffs.jsx"));
+const PaymentPlans = lazy(() =>
+  import("../../features/ar/pages/PaymentPlans.jsx")
+);
 
-const ReportArAging = lazy(() => import('../../features/reporting/pages/ReportArAging.jsx'));
-const ReportArOpenItems = lazy(() => import('../../features/reporting/pages/ReportArOpenItems.jsx'));
-const ReportArCustomerStatement = lazy(() => import('../../features/reporting/pages/ReportArCustomerStatement.jsx'));
-const ReportApAging = lazy(() => import('../../features/reporting/pages/ReportApAging.jsx'));
-const ReportApOpenItems = lazy(() => import('../../features/reporting/pages/ReportApOpenItems.jsx'));
-const ReportApVendorStatement = lazy(() => import('../../features/reporting/pages/ReportApVendorStatement.jsx'));
-const ReportTax = lazy(() => import('../../features/reporting/pages/ReportTax.jsx'));
+const ReportArAging = lazy(() =>
+  import("../../features/reporting/pages/ReportArAging.jsx")
+);
+const ReportArOpenItems = lazy(() =>
+  import("../../features/reporting/pages/ReportArOpenItems.jsx")
+);
+const ReportArCustomerStatement = lazy(() =>
+  import("../../features/reporting/pages/ReportArCustomerStatement.jsx")
+);
+const ReportApAging = lazy(() =>
+  import("../../features/reporting/pages/ReportApAging.jsx")
+);
+const ReportApOpenItems = lazy(() =>
+  import("../../features/reporting/pages/ReportApOpenItems.jsx")
+);
+const ReportApVendorStatement = lazy(() =>
+  import("../../features/reporting/pages/ReportApVendorStatement.jsx")
+);
+const ReportTax = lazy(() =>
+  import("../../features/reporting/pages/ReportTax.jsx")
+);
 
 // Phase 6 — Assets + Inventory
-const AssetRegister = lazy(() => import('../../features/assets/pages/AssetRegister.jsx'));
-const AssetCategories = lazy(() => import('../../features/assets/pages/AssetCategories.jsx'));
-const AssetDetail = lazy(() => import('../../features/assets/pages/AssetDetail.jsx'));
-const AssetDepreciation = lazy(() => import('../../features/assets/pages/AssetDepreciation.jsx'));
-const DepreciationRuns = lazy(() => import('../../features/assets/pages/DepreciationRuns.jsx'));
-const AssetRegisterNew = lazy(() => import('../../features/assets/pages/FixedAssetCreate.jsx'));
-const AssetCategoryNew = lazy(() => import('../../features/assets/pages/AssetCategoryCreate.jsx'));
-const AssetCategoryEdit = lazy(() => import('../../features/assets/pages/AssetCategoryEdit.jsx'));
-const AssetAcquire = lazy(() => import('../../features/assets/pages/AssetAcquire.jsx'));
-const AssetDispose = lazy(() => import('../../features/assets/pages/AssetDispose.jsx'));
-const AssetTransfer = lazy(() => import('../../features/assets/pages/AssetTransfer.jsx'));
-const AssetRevalue = lazy(() => import('../../features/assets/pages/AssetRevalue.jsx'));
-const AssetImpair = lazy(() => import('../../features/assets/pages/AssetImpair.jsx'));
-const DepreciationScheduleNew = lazy(() => import('../../features/assets/pages/DepreciationScheduleCreate.jsx'));
+const AssetRegister = lazy(() =>
+  import("../../features/assets/pages/AssetRegister.jsx")
+);
+const AssetCategories = lazy(() =>
+  import("../../features/assets/pages/AssetCategories.jsx")
+);
+const AssetDetail = lazy(() =>
+  import("../../features/assets/pages/AssetDetail.jsx")
+);
+const AssetDepreciation = lazy(() =>
+  import("../../features/assets/pages/AssetDepreciation.jsx")
+);
+const DepreciationRuns = lazy(() =>
+  import("../../features/assets/pages/DepreciationRuns.jsx")
+);
+const AssetRegisterNew = lazy(() =>
+  import("../../features/assets/pages/FixedAssetCreate.jsx")
+);
+const AssetCategoryNew = lazy(() =>
+  import("../../features/assets/pages/AssetCategoryCreate.jsx")
+);
+const AssetCategoryEdit = lazy(() =>
+  import("../../features/assets/pages/AssetCategoryEdit.jsx")
+);
+const AssetAcquire = lazy(() =>
+  import("../../features/assets/pages/AssetAcquire.jsx")
+);
+const AssetDispose = lazy(() =>
+  import("../../features/assets/pages/AssetDispose.jsx")
+);
+const AssetTransfer = lazy(() =>
+  import("../../features/assets/pages/AssetTransfer.jsx")
+);
+const AssetRevalue = lazy(() =>
+  import("../../features/assets/pages/AssetRevalue.jsx")
+);
+const AssetImpair = lazy(() =>
+  import("../../features/assets/pages/AssetImpair.jsx")
+);
+const DepreciationScheduleNew = lazy(() =>
+  import("../../features/assets/pages/DepreciationScheduleCreate.jsx")
+);
 
-const InventoryCategoryNew = lazy(() => import('../../features/inventory/pages/CategoryCreate.jsx'));
-const InventoryUnitNew = lazy(() => import('../../features/inventory/pages/UnitCreate.jsx'));
-const InventoryItemNew = lazy(() => import('../../features/inventory/pages/ItemCreate.jsx'));
-const InventoryWarehouseNew = lazy(() => import('../../features/inventory/pages/WarehouseCreate.jsx'));
-const InventoryTransactionNew = lazy(() => import('../../features/inventory/pages/TransactionCreate.jsx'));
-const InventoryStockCountNew = lazy(() => import('../../features/inventory/pages/StockCountCreate.jsx'));
-const InventoryItems = lazy(() => import('../../features/inventory/pages/Items.jsx'));
-const InventoryWarehouses = lazy(() => import('../../features/inventory/pages/Warehouses.jsx'));
-const InventoryCategories = lazy(() => import('../../features/inventory/pages/Categories.jsx'));
-const InventoryUnits = lazy(() => import('../../features/inventory/pages/Units.jsx'));
-const InventoryTransactions = lazy(() => import('../../features/inventory/pages/Transactions.jsx'));
-const InventoryTransactionDetail = lazy(() => import('../../features/inventory/pages/TransactionDetail.jsx'));
-const InventoryStockCounts = lazy(() => import('../../features/inventory/pages/StockCounts.jsx'));
-const InventoryStockCountDetail = lazy(() => import('../../features/inventory/pages/StockCountDetail.jsx'));
-const InventoryReports = lazy(() => import('../../features/inventory/pages/Reports.jsx'));
+const InventoryCategoryNew = lazy(() =>
+  import("../../features/inventory/pages/CategoryCreate.jsx")
+);
+const InventoryUnitNew = lazy(() =>
+  import("../../features/inventory/pages/UnitCreate.jsx")
+);
+const InventoryItemNew = lazy(() =>
+  import("../../features/inventory/pages/ItemCreate.jsx")
+);
+const InventoryWarehouseNew = lazy(() =>
+  import("../../features/inventory/pages/WarehouseCreate.jsx")
+);
+const InventoryTransactionNew = lazy(() =>
+  import("../../features/inventory/pages/TransactionCreate.jsx")
+);
+const InventoryStockCountNew = lazy(() =>
+  import("../../features/inventory/pages/StockCountCreate.jsx")
+);
+const InventoryItems = lazy(() =>
+  import("../../features/inventory/pages/Items.jsx")
+);
+const InventoryWarehouses = lazy(() =>
+  import("../../features/inventory/pages/Warehouses.jsx")
+);
+const InventoryCategories = lazy(() =>
+  import("../../features/inventory/pages/Categories.jsx")
+);
+const InventoryUnits = lazy(() =>
+  import("../../features/inventory/pages/Units.jsx")
+);
+const InventoryTransactions = lazy(() =>
+  import("../../features/inventory/pages/Transactions.jsx")
+);
+const InventoryTransactionDetail = lazy(() =>
+  import("../../features/inventory/pages/TransactionDetail.jsx")
+);
+const InventoryStockCounts = lazy(() =>
+  import("../../features/inventory/pages/StockCounts.jsx")
+);
+const InventoryStockCountDetail = lazy(() =>
+  import("../../features/inventory/pages/StockCountDetail.jsx")
+);
+const InventoryReports = lazy(() =>
+  import("../../features/inventory/pages/Reports.jsx")
+);
 
 // Phase 7 — Reporting & Planning
-const Centers = lazy(() => import('../../features/reporting/pages/Centers.jsx'));
-const Projects = lazy(() => import('../../features/reporting/pages/Projects.jsx'));
-const ProjectDetail = lazy(() => import('../../features/reporting/pages/ProjectDetail.jsx'));
-const Budgets = lazy(() => import('../../features/reporting/pages/Budgets.jsx'));
-const BudgetDetail = lazy(() => import('../../features/reporting/pages/BudgetDetail.jsx'));
-const Forecasts = lazy(() => import('../../features/reporting/pages/Forecasts.jsx'));
-const ForecastDetail = lazy(() => import('../../features/reporting/pages/ForecastDetail.jsx'));
-const Allocations = lazy(() => import('../../features/reporting/pages/Allocations.jsx'));
-const KPIs = lazy(() => import('../../features/reporting/pages/KPIs.jsx'));
-const Dashboards = lazy(() => import('../../features/reporting/pages/Dashboards.jsx'));
-const SavedReports = lazy(() => import('../../features/reporting/pages/SavedReports.jsx'));
-const ManagementReports = lazy(() => import('../../features/reporting/pages/ManagementReports.jsx'));
+const Centers = lazy(() =>
+  import("../../features/reporting/pages/Centers.jsx")
+);
+const Projects = lazy(() =>
+  import("../../features/reporting/pages/Projects.jsx")
+);
+const ProjectDetail = lazy(() =>
+  import("../../features/reporting/pages/ProjectDetail.jsx")
+);
+const Budgets = lazy(() =>
+  import("../../features/reporting/pages/Budgets.jsx")
+);
+const BudgetDetail = lazy(() =>
+  import("../../features/reporting/pages/BudgetDetail.jsx")
+);
+const Forecasts = lazy(() =>
+  import("../../features/reporting/pages/Forecasts.jsx")
+);
+const ForecastDetail = lazy(() =>
+  import("../../features/reporting/pages/ForecastDetail.jsx")
+);
+const Allocations = lazy(() =>
+  import("../../features/reporting/pages/Allocations.jsx")
+);
+const KPIs = lazy(() => import("../../features/reporting/pages/KPIs.jsx"));
+const Dashboards = lazy(() =>
+  import("../../features/reporting/pages/Dashboards.jsx")
+);
+const SavedReports = lazy(() =>
+  import("../../features/reporting/pages/SavedReports.jsx")
+);
+const ManagementReports = lazy(() =>
+  import("../../features/reporting/pages/ManagementReports.jsx")
+);
 
 function Loader() {
-  return (
-    <div className="p-4 text-sm text-slate-600">
-      Loading…
-    </div>
-  );
+  return <div className="p-4 text-sm text-slate-600">Loading…</div>;
 }
 
 function Lazy({ children }) {
@@ -211,7 +469,7 @@ export const router = createBrowserRouter([
           <Lazy>
             <Login />
           </Lazy>
-        )
+        ),
       },
       {
         path: ROUTES.register,
@@ -219,7 +477,7 @@ export const router = createBrowserRouter([
           <Lazy>
             <Register />
           </Lazy>
-        )
+        ),
       },
       {
         path: ROUTES.forgotPassword,
@@ -227,7 +485,7 @@ export const router = createBrowserRouter([
           <Lazy>
             <ForgotPassword />
           </Lazy>
-        )
+        ),
       },
       {
         path: ROUTES.resetPassword,
@@ -235,9 +493,9 @@ export const router = createBrowserRouter([
           <Lazy>
             <ResetPassword />
           </Lazy>
-        )
-      }
-    ]
+        ),
+      },
+    ],
   },
   {
     element: <ProtectedRoute />,
@@ -254,7 +512,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <GlobalSearch />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.notifications,
@@ -262,7 +520,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <NotificationCenter />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.approvalsInbox,
@@ -270,10 +528,9 @@ export const router = createBrowserRouter([
               <Lazy>
                 <ApprovalQueue />
               </Lazy>
-            )
+            ),
           },
 
-          
           // Phase 4 — Accounting
           {
             path: ROUTES.accountingCoa,
@@ -281,7 +538,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccountList />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingCoaNew,
@@ -289,7 +546,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccountCreate />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingCoaDetail(),
@@ -297,7 +554,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccountDetail />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingCoaEdit(),
@@ -305,7 +562,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccountDetail mode="edit" />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -314,7 +571,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <PeriodList />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingPeriodClose(),
@@ -322,7 +579,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <PeriodClose />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -331,7 +588,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <JournalList />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingJournalNew,
@@ -339,7 +596,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <JournalCreate />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingJournalDetail(),
@@ -347,7 +604,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <JournalDetail />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -356,7 +613,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <TrialBalance />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingAccountActivity,
@@ -364,7 +621,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <BalanceByAccount />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -373,7 +630,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <PnL />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingBalanceSheet,
@@ -381,7 +638,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <BalanceSheet />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingCashflow,
@@ -389,7 +646,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <Cashflow />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingChangesEquity,
@@ -397,7 +654,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <ChangesInEquity />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -406,7 +663,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <ExportsHub />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingImports,
@@ -414,7 +671,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <ImportsHub />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -423,7 +680,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <FxRates />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -434,7 +691,7 @@ export const router = createBrowserRouter([
                   <TaxAdmin />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
@@ -443,7 +700,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccrualsHub />
               </Lazy>
-            )
+            ),
           },
           {
             path: ROUTES.accountingAccrualNew,
@@ -451,7 +708,7 @@ export const router = createBrowserRouter([
               <Lazy>
                 <AccrualCreate />
               </Lazy>
-            )
+            ),
           },
 
           {
@@ -460,31 +717,35 @@ export const router = createBrowserRouter([
               <Lazy>
                 <Reconciliation />
               </Lazy>
-            )
+            ),
           },
 
           // Phase 5 — Business
           {
             path: ROUTES.businessCustomers,
             element: (
-              <RequirePermission any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}
+              >
                 <Lazy>
                   <Customers />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.businessVendors,
             element: (
-              <RequirePermission any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}
+              >
                 <Lazy>
                   <Vendors />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
-                    {
+          {
             path: ROUTES.businessPartnerNew,
             element: (
               <RequirePermission any={[PERMISSIONS.partnersManage]}>
@@ -492,39 +753,51 @@ export const router = createBrowserRouter([
                   <PartnerCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
-{
+          {
             path: ROUTES.businessPartnerDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.partnersRead, PERMISSIONS.partnersManage]}
+              >
                 <Lazy>
                   <PartnerDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.businessPaymentConfig,
             element: (
-              <RequirePermission any={[PERMISSIONS.paymentConfigManage, PERMISSIONS.partnersRead]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.paymentConfigManage,
+                  PERMISSIONS.partnersRead,
+                ]}
+              >
                 <Lazy>
                   <PaymentConfig />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 5 — Transactions
           {
             path: ROUTES.invoices,
             element: (
-              <RequirePermission any={[PERMISSIONS.transactionsInvoiceRead, PERMISSIONS.transactionsInvoiceManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.transactionsInvoiceRead,
+                  PERMISSIONS.transactionsInvoiceManage,
+                ]}
+              >
                 <Lazy>
                   <InvoiceList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.invoiceNew,
@@ -534,28 +807,38 @@ export const router = createBrowserRouter([
                   <InvoiceCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.invoiceDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.transactionsInvoiceRead, PERMISSIONS.transactionsInvoiceManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.transactionsInvoiceRead,
+                  PERMISSIONS.transactionsInvoiceManage,
+                ]}
+              >
                 <Lazy>
                   <InvoiceDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
             path: ROUTES.bills,
             element: (
-              <RequirePermission any={[PERMISSIONS.transactionsBillRead, PERMISSIONS.transactionsBillManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.transactionsBillRead,
+                  PERMISSIONS.transactionsBillManage,
+                ]}
+              >
                 <Lazy>
                   <BillList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.billNew,
@@ -565,28 +848,38 @@ export const router = createBrowserRouter([
                   <BillCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.billDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.transactionsBillRead, PERMISSIONS.transactionsBillManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.transactionsBillRead,
+                  PERMISSIONS.transactionsBillManage,
+                ]}
+              >
                 <Lazy>
                   <BillDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
             path: ROUTES.customerReceipts,
             element: (
-              <RequirePermission any={[PERMISSIONS.customerReceiptRead, PERMISSIONS.customerReceiptManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.customerReceiptRead,
+                  PERMISSIONS.customerReceiptManage,
+                ]}
+              >
                 <Lazy>
                   <CustomerReceiptList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.customerReceiptNew,
@@ -596,28 +889,38 @@ export const router = createBrowserRouter([
                   <CustomerReceiptCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.customerReceiptDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.customerReceiptRead, PERMISSIONS.customerReceiptManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.customerReceiptRead,
+                  PERMISSIONS.customerReceiptManage,
+                ]}
+              >
                 <Lazy>
                   <CustomerReceiptDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
             path: ROUTES.vendorPayments,
             element: (
-              <RequirePermission any={[PERMISSIONS.vendorPaymentRead, PERMISSIONS.vendorPaymentManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.vendorPaymentRead,
+                  PERMISSIONS.vendorPaymentManage,
+                ]}
+              >
                 <Lazy>
                   <VendorPaymentList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.vendorPaymentNew,
@@ -627,28 +930,35 @@ export const router = createBrowserRouter([
                   <VendorPaymentCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.vendorPaymentDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.vendorPaymentRead, PERMISSIONS.vendorPaymentManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.vendorPaymentRead,
+                  PERMISSIONS.vendorPaymentManage,
+                ]}
+              >
                 <Lazy>
                   <VendorPaymentDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
             path: ROUTES.creditNotes,
             element: (
-              <RequirePermission any={[PERMISSIONS.creditNoteRead, PERMISSIONS.creditNoteManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.creditNoteRead, PERMISSIONS.creditNoteManage]}
+              >
                 <Lazy>
                   <CreditNoteList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.creditNoteNew,
@@ -658,28 +968,32 @@ export const router = createBrowserRouter([
                   <CreditNoteCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.creditNoteDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.creditNoteRead, PERMISSIONS.creditNoteManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.creditNoteRead, PERMISSIONS.creditNoteManage]}
+              >
                 <Lazy>
                   <CreditNoteDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           {
             path: ROUTES.debitNotes,
             element: (
-              <RequirePermission any={[PERMISSIONS.debitNoteRead, PERMISSIONS.debitNoteManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.debitNoteRead, PERMISSIONS.debitNoteManage]}
+              >
                 <Lazy>
                   <DebitNoteList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.debitNoteNew,
@@ -689,69 +1003,90 @@ export const router = createBrowserRouter([
                   <DebitNoteCreate />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.debitNoteDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.debitNoteRead, PERMISSIONS.debitNoteManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.debitNoteRead, PERMISSIONS.debitNoteManage]}
+              >
                 <Lazy>
                   <DebitNoteDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 5 — AR Ops
           {
             path: ROUTES.arCollections,
             element: (
-              <RequirePermission any={[PERMISSIONS.collectionsRead, PERMISSIONS.collectionsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.collectionsRead,
+                  PERMISSIONS.collectionsManage,
+                ]}
+              >
                 <Lazy>
                   <CollectionsHub />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.arDunning,
             element: (
-              <RequirePermission any={[PERMISSIONS.collectionsRead, PERMISSIONS.collectionsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.collectionsRead,
+                  PERMISSIONS.collectionsManage,
+                ]}
+              >
                 <Lazy>
                   <CollectionsHub />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.arDisputes,
             element: (
-              <RequirePermission any={[PERMISSIONS.disputesRead, PERMISSIONS.disputesManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.disputesRead, PERMISSIONS.disputesManage]}
+              >
                 <Lazy>
                   <Disputes />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.arWriteoffs,
             element: (
-              <RequirePermission any={[PERMISSIONS.writeoffsRead, PERMISSIONS.writeoffsManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.writeoffsRead, PERMISSIONS.writeoffsManage]}
+              >
                 <Lazy>
                   <Writeoffs />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.arPaymentPlans,
             element: (
-              <RequirePermission any={[PERMISSIONS.paymentPlansRead, PERMISSIONS.paymentPlansManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.paymentPlansRead,
+                  PERMISSIONS.paymentPlansManage,
+                ]}
+              >
                 <Lazy>
                   <PaymentPlans />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 5 — Reporting
@@ -763,7 +1098,7 @@ export const router = createBrowserRouter([
                   <ReportArAging />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportArOpenItems,
@@ -773,7 +1108,7 @@ export const router = createBrowserRouter([
                   <ReportArOpenItems />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportArCustomerStatement,
@@ -783,7 +1118,7 @@ export const router = createBrowserRouter([
                   <ReportArCustomerStatement />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportApAging,
@@ -793,7 +1128,7 @@ export const router = createBrowserRouter([
                   <ReportApAging />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportApOpenItems,
@@ -803,7 +1138,7 @@ export const router = createBrowserRouter([
                   <ReportApOpenItems />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportApVendorStatement,
@@ -813,7 +1148,7 @@ export const router = createBrowserRouter([
                   <ReportApVendorStatement />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.reportTax,
@@ -823,551 +1158,694 @@ export const router = createBrowserRouter([
                   <ReportTax />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 6 — Assets
           {
             path: ROUTES.assetsCategories,
             element: (
-              <RequirePermission any={[PERMISSIONS.assetsCategoriesRead, PERMISSIONS.assetsCategoriesManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.assetsCategoriesRead,
+                  PERMISSIONS.assetsCategoriesManage,
+                ]}
+              >
                 <Lazy>
                   <AssetCategories />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.assetsRegister,
             element: (
-              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.assetsFixedAssetsRead,
+                  PERMISSIONS.assetsFixedAssetsManage,
+                ]}
+              >
                 <Lazy>
                   <AssetRegister />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
-{
-  path: ROUTES.assetsRegisterNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetRegisterNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsCategoriesNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
-      <Lazy>
-        <AssetCategoryNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsCategoryEdit(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
-      <Lazy>
-        <AssetCategoryEdit />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetAcquire(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetAcquire />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetDispose(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetDispose />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetTransfer(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetTransfer />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetRevalue(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetRevalue />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetImpair(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <AssetImpair />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.assetsAssetDeprScheduleNew(),
-  element: (
-    <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
-      <Lazy>
-        <DepreciationScheduleNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
           {
-            path: ROUTES.assetsAssetDetail(':id'),
+            path: ROUTES.assetsRegisterNew,
             element: (
-              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsRead, PERMISSIONS.assetsFixedAssetsManage]}>
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetRegisterNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsCategoriesNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
+                <Lazy>
+                  <AssetCategoryNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsCategoryEdit(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsCategoriesManage]}>
+                <Lazy>
+                  <AssetCategoryEdit />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetAcquire(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetAcquire />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetDispose(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetDispose />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetTransfer(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetTransfer />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetRevalue(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetRevalue />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetImpair(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <AssetImpair />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetDeprScheduleNew(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.assetsFixedAssetsManage]}>
+                <Lazy>
+                  <DepreciationScheduleNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.assetsAssetDetail(":id"),
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.assetsFixedAssetsRead,
+                  PERMISSIONS.assetsFixedAssetsManage,
+                ]}
+              >
                 <Lazy>
                   <AssetDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.assetsDepreciation,
             element: (
-              <RequirePermission any={[PERMISSIONS.assetsDepreciationRun, PERMISSIONS.assetsFixedAssetsRead]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.assetsDepreciationRun,
+                  PERMISSIONS.assetsFixedAssetsRead,
+                ]}
+              >
                 <Lazy>
                   <AssetDepreciation />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 6 — Inventory
           {
             path: ROUTES.inventoryItems,
             element: (
-              <RequirePermission any={[PERMISSIONS.inventoryItemsRead, PERMISSIONS.inventoryItemsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryItemsRead,
+                  PERMISSIONS.inventoryItemsManage,
+                ]}
+              >
                 <Lazy>
                   <InventoryItems />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.inventoryWarehouses,
             element: (
-              <RequirePermission any={[PERMISSIONS.inventoryWarehousesRead, PERMISSIONS.inventoryWarehousesManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryWarehousesRead,
+                  PERMISSIONS.inventoryWarehousesManage,
+                ]}
+              >
                 <Lazy>
                   <InventoryWarehouses />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
-{
-  path: ROUTES.inventoryCategories,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryCategoriesRead, PERMISSIONS.inventoryCategoriesManage]}>
-      <Lazy>
-        <InventoryCategories />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryUnits,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryUnitsRead, PERMISSIONS.inventoryUnitsManage]}>
-      <Lazy>
-        <InventoryUnits />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryTransactions,
-  element: (
-    <RequirePermission any={[
-      PERMISSIONS.inventoryTransactionsRead,
-      PERMISSIONS.inventoryTransactionsManage,
-      PERMISSIONS.inventoryTransactionsApprove,
-      PERMISSIONS.inventoryTransactionsPost
-    ]}>
-      <Lazy>
-        <InventoryTransactions />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryTransactionDetail(':id'),
-  element: (
-    <RequirePermission any={[
-      PERMISSIONS.inventoryTransactionsRead,
-      PERMISSIONS.inventoryTransactionsManage,
-      PERMISSIONS.inventoryTransactionsApprove,
-      PERMISSIONS.inventoryTransactionsPost
-    ]}>
-      <Lazy>
-        <InventoryTransactionDetail />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryStockCounts,
-  element: (
-    <RequirePermission any={[
-      PERMISSIONS.inventoryTransactionsRead,
-      PERMISSIONS.inventoryTransactionsManage,
-      PERMISSIONS.inventoryTransactionsApprove,
-      PERMISSIONS.inventoryTransactionsPost
-    ]}>
-      <Lazy>
-        <InventoryStockCounts />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryStockCountDetail(':id'),
-  element: (
-    <RequirePermission any={[
-      PERMISSIONS.inventoryTransactionsRead,
-      PERMISSIONS.inventoryTransactionsManage,
-      PERMISSIONS.inventoryTransactionsApprove,
-      PERMISSIONS.inventoryTransactionsPost
-    ]}>
-      <Lazy>
-        <InventoryStockCountDetail />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryReports,
-  element: (
-    <RequirePermission any={[
-      PERMISSIONS.inventoryTransactionsRead,
-      PERMISSIONS.inventoryTransactionsManage
-    ]}>
-      <Lazy>
-        <InventoryReports />
-      </Lazy>
-    </RequirePermission>
-  )
-},
+          {
+            path: ROUTES.inventoryCategories,
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryCategoriesRead,
+                  PERMISSIONS.inventoryCategoriesManage,
+                ]}
+              >
+                <Lazy>
+                  <InventoryCategories />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryUnits,
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryUnitsRead,
+                  PERMISSIONS.inventoryUnitsManage,
+                ]}
+              >
+                <Lazy>
+                  <InventoryUnits />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransactions,
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryTransactionsRead,
+                  PERMISSIONS.inventoryTransactionsManage,
+                  PERMISSIONS.inventoryTransactionsApprove,
+                  PERMISSIONS.inventoryTransactionsPost,
+                ]}
+              >
+                <Lazy>
+                  <InventoryTransactions />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransactionDetail(":id"),
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryTransactionsRead,
+                  PERMISSIONS.inventoryTransactionsManage,
+                  PERMISSIONS.inventoryTransactionsApprove,
+                  PERMISSIONS.inventoryTransactionsPost,
+                ]}
+              >
+                <Lazy>
+                  <InventoryTransactionDetail />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryStockCounts,
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryTransactionsRead,
+                  PERMISSIONS.inventoryTransactionsManage,
+                  PERMISSIONS.inventoryTransactionsApprove,
+                  PERMISSIONS.inventoryTransactionsPost,
+                ]}
+              >
+                <Lazy>
+                  <InventoryStockCounts />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryStockCountDetail(":id"),
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryTransactionsRead,
+                  PERMISSIONS.inventoryTransactionsManage,
+                  PERMISSIONS.inventoryTransactionsApprove,
+                  PERMISSIONS.inventoryTransactionsPost,
+                ]}
+              >
+                <Lazy>
+                  <InventoryStockCountDetail />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryReports,
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.inventoryTransactionsRead,
+                  PERMISSIONS.inventoryTransactionsManage,
+                ]}
+              >
+                <Lazy>
+                  <InventoryReports />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
 
           // Phase 7 — Reporting & Planning
           {
-            path: ROUTES.planningCenters('cost'),
+            path: ROUTES.planningCenters("cost"),
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingCentersRead,
+                  PERMISSIONS.reportingCentersManage,
+                ]}
+              >
                 <Lazy>
                   <Centers />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
-{
-  path: ROUTES.inventoryCategoriesNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryCategoriesManage]}>
-      <Lazy>
-        <InventoryCategoryNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryUnitsNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryUnitsManage]}>
-      <Lazy>
-        <InventoryUnitNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryItemsNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryItemsManage]}>
-      <Lazy>
-        <InventoryItemNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryWarehousesNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryWarehousesManage]}>
-      <Lazy>
-        <InventoryWarehouseNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryTransactionsNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryTransactionsManage]}>
-      <Lazy>
-        <InventoryTransactionNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
-{
-  path: ROUTES.inventoryStockCountsNew,
-  element: (
-    <RequirePermission any={[PERMISSIONS.inventoryTransactionsManage]}>
-      <Lazy>
-        <InventoryStockCountNew />
-      </Lazy>
-    </RequirePermission>
-  )
-},
           {
-            path: ROUTES.planningCenters('profit'),
+            path: ROUTES.inventoryCategoriesNew,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+              <RequirePermission any={[PERMISSIONS.inventoryCategoriesManage]}>
+                <Lazy>
+                  <InventoryCategoryNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryUnitsNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryUnitsManage]}>
+                <Lazy>
+                  <InventoryUnitNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryItemsNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryItemsManage]}>
+                <Lazy>
+                  <InventoryItemNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryWarehousesNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryWarehousesManage]}>
+                <Lazy>
+                  <InventoryWarehouseNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransactionsNew,
+            element: (
+              <RequirePermission
+                any={[PERMISSIONS.inventoryTransactionsManage]}
+              >
+                <Lazy>
+                  <InventoryTransactionNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryStockCountsNew,
+            element: (
+              <RequirePermission
+                any={[PERMISSIONS.inventoryTransactionsManage]}
+              >
+                <Lazy>
+                  <InventoryStockCountNew />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.planningCenters("profit"),
+            element: (
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingCentersRead,
+                  PERMISSIONS.reportingCentersManage,
+                ]}
+              >
                 <Lazy>
                   <Centers />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.planningCenters('investment'),
+            path: ROUTES.planningCenters("investment"),
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingCentersRead, PERMISSIONS.reportingCentersManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingCentersRead,
+                  PERMISSIONS.reportingCentersManage,
+                ]}
+              >
                 <Lazy>
                   <Centers />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingProjects,
+            path: ROUTES.planningProjects,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingProjectsRead, PERMISSIONS.reportingProjectsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingProjectsRead,
+                  PERMISSIONS.reportingProjectsManage,
+                ]}
+              >
                 <Lazy>
                   <Projects />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.planningProjectDetail(':id'),
+            path: ROUTES.planningProjectDetail(":id"),
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingProjectsRead, PERMISSIONS.reportingProjectsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingProjectsRead,
+                  PERMISSIONS.reportingProjectsManage,
+                ]}
+              >
                 <Lazy>
                   <ProjectDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingBudgets,
+            path: ROUTES.planningBudgets,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingBudgetsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingBudgetsRead,
+                  PERMISSIONS.reportingBudgetsManage,
+                ]}
+              >
                 <Lazy>
                   <Budgets />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.planningBudgetDetail(':id'),
+            path: ROUTES.planningBudgetDetail(":id"),
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingBudgetsRead, PERMISSIONS.reportingBudgetsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingBudgetsRead,
+                  PERMISSIONS.reportingBudgetsManage,
+                ]}
+              >
                 <Lazy>
                   <BudgetDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingForecasts,
+            path: ROUTES.planningForecasts,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingForecastsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingForecastsRead,
+                  PERMISSIONS.reportingForecastsManage,
+                ]}
+              >
                 <Lazy>
                   <Forecasts />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.planningForecastDetail(':id'),
+            path: ROUTES.planningForecastDetail(":id"),
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingForecastsRead, PERMISSIONS.reportingForecastsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingForecastsRead,
+                  PERMISSIONS.reportingForecastsManage,
+                ]}
+              >
                 <Lazy>
                   <ForecastDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingAllocations,
+            path: ROUTES.planningAllocations,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingAllocationsRead, PERMISSIONS.reportingAllocationsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingAllocationsRead,
+                  PERMISSIONS.reportingAllocationsManage,
+                ]}
+              >
                 <Lazy>
                   <Allocations />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingKpis,
+            path: ROUTES.planningKpis,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingKpisRead, PERMISSIONS.reportingKpisManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingKpisRead,
+                  PERMISSIONS.reportingKpisManage,
+                ]}
+              >
                 <Lazy>
                   <KPIs />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingDashboards,
+            path: ROUTES.planningDashboards,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingDashboardsRead, PERMISSIONS.reportingDashboardsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingDashboardsRead,
+                  PERMISSIONS.reportingDashboardsManage,
+                ]}
+              >
                 <Lazy>
                   <Dashboards />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingSavedReports,
+            path: ROUTES.planningSavedReports,
             element: (
-              <RequirePermission any={[PERMISSIONS.reportingReportsRead, PERMISSIONS.reportingReportsManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.reportingReportsRead,
+                  PERMISSIONS.reportingReportsManage,
+                ]}
+              >
                 <Lazy>
                   <SavedReports />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
-            path: ROUTES.reportingManagement,
+            path: ROUTES.planningManagement,
             element: (
               <RequirePermission any={[PERMISSIONS.reportingManagementRead]}>
                 <Lazy>
                   <ManagementReports />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
-// Admin
+          // Admin
           {
             path: ROUTES.adminOrg,
             element: (
-              <RequirePermission any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}
+              >
                 <Lazy>
                   <OrganizationSettings />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminUsers,
             element: (
-              <RequirePermission any={[PERMISSIONS.usersRead, PERMISSIONS.usersManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.usersRead, PERMISSIONS.usersManage]}
+              >
                 <Lazy>
                   <UserList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminUserDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.usersRead, PERMISSIONS.usersManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.usersRead, PERMISSIONS.usersManage]}
+              >
                 <Lazy>
                   <UserDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminRoles,
             element: (
-              <RequirePermission any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacRolesManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacRolesManage]}
+              >
                 <Lazy>
                   <RoleList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminRoleDetail(),
             element: (
-              <RequirePermission any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacRolesManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacRolesManage]}
+              >
                 <Lazy>
                   <RoleDetail />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminPermissions,
             element: (
-              <RequirePermission any={[PERMISSIONS.rbacPermissionsRead, PERMISSIONS.rbacRolesRead]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.rbacPermissionsRead,
+                  PERMISSIONS.rbacRolesRead,
+                ]}
+              >
                 <Lazy>
                   <PermissionMatrix />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminSettings,
             element: (
-              <RequirePermission any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}
+              >
                 <Lazy>
                   <SystemSettings />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminDimensionSecurity,
             element: (
-              <RequirePermission any={[PERMISSIONS.dimensionSecurityRead, PERMISSIONS.dimensionSecurityManage]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.dimensionSecurityRead,
+                  PERMISSIONS.dimensionSecurityManage,
+                ]}
+              >
                 <Lazy>
                   <DimensionRules />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.adminApiKeys,
             element: (
-              <RequirePermission any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}>
+              <RequirePermission
+                any={[PERMISSIONS.settingsRead, PERMISSIONS.settingsManage]}
+              >
                 <Lazy>
                   <ApiKeyList />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Utilities
@@ -1379,7 +1857,7 @@ export const router = createBrowserRouter([
                   <SystemHealth />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesScheduler,
@@ -1389,7 +1867,7 @@ export const router = createBrowserRouter([
                   <ScheduledTasks />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesErrors,
@@ -1399,7 +1877,7 @@ export const router = createBrowserRouter([
                   <ErrorLogs />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesClientLogs,
@@ -1409,7 +1887,7 @@ export const router = createBrowserRouter([
                   <ClientLogs />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesI18n,
@@ -1419,7 +1897,7 @@ export const router = createBrowserRouter([
                   <I18nAdmin />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesA11y,
@@ -1429,7 +1907,7 @@ export const router = createBrowserRouter([
                   <A11yChecks />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesRelease,
@@ -1439,7 +1917,7 @@ export const router = createBrowserRouter([
                   <ReleaseInfo />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.utilitiesTests,
@@ -1449,19 +1927,24 @@ export const router = createBrowserRouter([
                   <TestConsole />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 8 — Banking
           {
             path: ROUTES.banking,
             element: (
-              <RequirePermission any={[PERMISSIONS.bankingAccountsRead, PERMISSIONS.bankingStatementsRead]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.bankingAccountsRead,
+                  PERMISSIONS.bankingStatementsRead,
+                ]}
+              >
                 <Lazy>
                   <BankingOverview />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingAccounts,
@@ -1471,7 +1954,7 @@ export const router = createBrowserRouter([
                   <BankAccountsPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingStatements,
@@ -1481,7 +1964,7 @@ export const router = createBrowserRouter([
                   <BankStatementsPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingStatementDetail(),
@@ -1491,7 +1974,7 @@ export const router = createBrowserRouter([
                   <BankStatementDetailPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingMatchingRules,
@@ -1501,7 +1984,7 @@ export const router = createBrowserRouter([
                   <BankMatchingRulesPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingCashbook,
@@ -1511,7 +1994,7 @@ export const router = createBrowserRouter([
                   <BankCashbookPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.bankingReconciliations,
@@ -1521,19 +2004,26 @@ export const router = createBrowserRouter([
                   <BankReconciliationsPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 8 — Compliance
           {
             path: ROUTES.compliance,
             element: (
-              <RequirePermission any={[PERMISSIONS.complianceIfrs16Read, PERMISSIONS.complianceIfrs15Read, PERMISSIONS.complianceIfrs9Read, PERMISSIONS.complianceIas12Read]}>
+              <RequirePermission
+                any={[
+                  PERMISSIONS.complianceIfrs16Read,
+                  PERMISSIONS.complianceIfrs15Read,
+                  PERMISSIONS.complianceIfrs9Read,
+                  PERMISSIONS.complianceIas12Read,
+                ]}
+              >
                 <Lazy>
                   <ComplianceOverview />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.complianceIFRS16,
@@ -1543,7 +2033,7 @@ export const router = createBrowserRouter([
                   <IFRS16LeasesPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.complianceIFRS15,
@@ -1553,7 +2043,7 @@ export const router = createBrowserRouter([
                   <IFRS15ContractsPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.complianceIFRS9,
@@ -1563,7 +2053,7 @@ export const router = createBrowserRouter([
                   <IFRS9EclPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.complianceIAS12,
@@ -1573,7 +2063,7 @@ export const router = createBrowserRouter([
                   <IAS12TaxPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
           // Phase 8 — Workflow Documents
@@ -1585,7 +2075,7 @@ export const router = createBrowserRouter([
                   <DocumentsLibraryPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.documentDetail(),
@@ -1595,7 +2085,7 @@ export const router = createBrowserRouter([
                   <DocumentDetailPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.documentTypes,
@@ -1605,7 +2095,7 @@ export const router = createBrowserRouter([
                   <DocumentTypesPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
           {
             path: ROUTES.documentApprovalLevels,
@@ -1615,14 +2105,14 @@ export const router = createBrowserRouter([
                   <ApprovalLevelsPage />
                 </Lazy>
               </RequirePermission>
-            )
+            ),
           },
 
-          { path: '/forbidden', element: <Forbidden /> },
-          { path: '*', element: <NotFound /> }
-        ]
-      }
-    ]
+          { path: "/forbidden", element: <Forbidden /> },
+          { path: "*", element: <NotFound /> },
+        ],
+      },
+    ],
   },
-  { path: '*', element: <Navigate to={ROUTES.dashboard} replace /> }
+  { path: "*", element: <Navigate to={ROUTES.dashboard} replace /> },
 ]);

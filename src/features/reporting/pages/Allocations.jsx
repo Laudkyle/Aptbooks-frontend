@@ -31,8 +31,8 @@ export default function Allocations() {
   const [compute, setCompute] = useState(null);
   const [form, setForm] = useState({ name: '', baseId: '', sourceAccountId: '', targetDimension: 'costcenter', payloadJson: { targets: [] } });
 
-  const basesQ = useQuery({ queryKey: ['reporting', 'allocations', 'bases'], queryFn: () => api.allocations.bases.list() });
-  const rulesQ = useQuery({ queryKey: ['reporting', 'allocations', 'rules'], queryFn: () => api.allocations.rules.list() });
+  const basesQ = useQuery({ queryKey: ['reporting', 'allocations', 'bases'], queryFn: () => api.allocations.listBases() });
+  const rulesQ = useQuery({ queryKey: ['reporting', 'allocations', 'rules'], queryFn: () => api.allocations.listRules() });
 
   const bases = rowsFrom(basesQ.data);
   const rules = rowsFrom(rulesQ.data);
@@ -43,7 +43,7 @@ export default function Allocations() {
   };
 
   async function createRule() {
-    await api.allocations.rules.create({
+    await api.allocations.createRule({
       code: null,
       name: form.name,
       baseId: form.baseId,
