@@ -37,9 +37,9 @@ export default function AccountList() {
   });
 
   const rows = (query.data ?? []).filter((a) => {
-    const s = `${a.code ?? ''} ${a.name ?? ''} ${a.categoryName ?? ''}`.toLowerCase();
+    const s = `${a.code ?? ''} ${a.name ?? ''} ${a.category_name ?? ''}`.toLowerCase();
     const matchQ = !q || s.includes(q.toLowerCase());
-    const matchType = !type || a.accountTypeCode === type;
+    const matchType = !type || a.account_type_code === type;
     return matchQ && matchType;
   });
 

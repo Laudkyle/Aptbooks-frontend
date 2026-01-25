@@ -37,7 +37,7 @@ export function DataTable({
 
   return (
     <div className="app-card">
-      <Table columns={columns} rows={rows} keyField={keyField} onRowClick={onRowClick} />
+      <Table columns={columns} rows={rows}  keyField={keyField} onRowClick={onRowClick} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeJournalsApi } from '../api/journals.api.js';
@@ -18,9 +18,9 @@ export default function JournalList() {
   const { http } = useApi();
   const api = useMemo(() => makeJournalsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
-
+  const navigate = useNavigate(); // Add this hook
   const [periodId, setPeriodId] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('draft');
   const [q, setQ] = useState('');
 
   const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
@@ -36,25 +36,32 @@ export default function JournalList() {
   });
 
   const columns = [
-    {
+   {
+      key: 'entry_no',
       header: 'Entry No',
-      accessor: (r) => (
-        <Link className="text-brand-primary hover:underline" to={ROUTES.accountingJournalDetail(r.id)}>
+      accessor: (r) => r.entryNo ?? r.entry_no ?? '—',
+      render: (r) => (
+        <Link 
+          className="text-brand-primary hover:underline" 
+          to={ROUTES.accountingJournalDetail(r.id)}
+          onClick={(e) => e.stopPropagation()} // Prevent row click when clicking the link
+        >
           {r.entryNo ?? r.entry_no ?? '—'}
         </Link>
       )
     },
-    { header: 'Date', accessor: (r) => r.entryDate ?? r.entry_date ?? '—' },
-    { header: 'Type', accessor: (r) => r.typeCode ?? r.type_code ?? '—' },
+    { header: 'Date', att: 'entry_date', accessor: (r) => r.entry_date ?? '—' },
+    { header: 'Type', att: 'journal_entry_type', accessor: (r) => r.journal_entry_type ?? '—' },
     {
       header: 'Status',
+      att: 'status',
       accessor: (r) => (
         <Badge variant={r.status === 'POSTED' ? 'success' : r.status === 'DRAFT' ? 'default' : 'warning'}>
           {r.status ?? '—'}
         </Badge>
       )
     },
-    { header: 'Memo', accessor: (r) => r.memo ?? '—' }
+    { header: 'Memo', att: 'memo', accessor: (r) => r.memo ?? '—' }
   ];
 
   const periodOptions = [{ value: '', label: 'All periods' }].concat(
@@ -63,14 +70,16 @@ export default function JournalList() {
 
   const statusOptions = [
     { value: '', label: 'All statuses' },
-    { value: 'DRAFT', label: 'Draft' },
-    { value: 'SUBMITTED', label: 'Submitted' },
-    { value: 'APPROVED', label: 'Approved' },
-    { value: 'REJECTED', label: 'Rejected' },
-    { value: 'POSTED', label: 'Posted' },
-    { value: 'VOIDED', label: 'Voided' }
+    { value: 'Draft', label: 'Draft' },
+    { value: 'Submitted', label: 'Submitted' },
+    { value: 'Approved', label: 'Approved' },
+    { value: 'Rejected', label: 'Rejected' },
+    { value: 'Posted', label: 'Posted' },
+    { value: 'Voided', label: 'Voided' }
   ];
-
+ const handleRowClick = (journal) => {
+    navigate(ROUTES.accountingJournalDetail(journal.id));
+  };
   return (
     <div className="space-y-4">
       <PageHeader
@@ -95,7 +104,7 @@ export default function JournalList() {
         {listQ.isError ? (
           <div className="text-sm text-red-700">{listQ.error?.message ?? 'Failed to load journals.'}</div>
         ) : (
-          <DataTable columns={columns} rows={journals} isLoading={listQ.isLoading} emptyTitle="No journals" />
+          <DataTable columns={columns} rows={journals}   onRowClick={handleRowClick} isLoading={listQ.isLoading} emptyTitle="No journals" />
         )}
       </ContentCard>
     </div>
