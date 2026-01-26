@@ -145,9 +145,13 @@ accounting: {
     upsertRate: '/core/accounting/fx/rates',
     effectiveRate: (qs) => `/core/accounting/fx/rates/effective?${new URLSearchParams(qs ?? {}).toString()}`
   },
-  reconciliation: {
-    period: (qs) => `/core/accounting/reconciliation/period?${new URLSearchParams(qs ?? {}).toString()}`
-  },
+ reconciliation: {
+  period: (qs) => `/core/accounting/reconciliation/period?${new URLSearchParams(qs ?? {}).toString()}`,
+  
+  discrepancyDetails: (qs) => `/core/accounting/reconciliation/discrepancy-details?${new URLSearchParams(qs ?? {}).toString()}`,
+  
+  autoCorrect: '/core/accounting/reconciliation/auto-correct'
+},
   tax: {
     jurisdictions: '/core/accounting/tax/jurisdictions',
     jurisdictionUpdate: (id) => `/core/accounting/tax/jurisdictions/${id}`,
