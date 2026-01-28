@@ -69,12 +69,12 @@ const toast = useToast();
   React.useEffect(() => {
     if (partner) {
       setEdit({
-        name: partner.partner.name ?? '',
-        code: partner.partner.code ?? '',
-        email: partner.partner.email ?? '',
-        phone: partner.partner.phone ?? '',
-        status: partner.partner.status ?? 'active',
-        notes: partner.partner.notes ?? ''
+        name: partner?.partner.name ?? '',
+        code: partner?.partner.code ?? '',
+        email: partner?.partner.email ?? '',
+        phone: partner?.partner.phone ?? '',
+        status: partner?.partner.status ?? 'active',
+        notes: partner?.partner.notes ?? ''
       });
     }
   }, [partner]);
@@ -160,7 +160,7 @@ const toast = useToast();
   return (
     <div className="space-y-4">
       <PageHeader
-        title={partner.partner?.name ?? (isLoading ? 'Loading partner…' : 'Partner')}
+        title={partner?.partner?.name ?? (isLoading ? 'Loading partner…' : 'Partner')}
         subtitle={`Partner ID: ${id}`}
         icon={Building2}
         actions={
@@ -175,7 +175,7 @@ const toast = useToast();
         }
         crumbs={[
           { label: 'Customers', href: ROUTES.businessCustomers },
-          { label: partner.partner?.name ?? 'Partner' }
+          { label: partner?.partner?.name ?? 'Partner' }
         ]}
       />
 
@@ -189,19 +189,19 @@ const toast = useToast();
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Code</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.code ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.code ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Type</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.type ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.type ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Email</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.email ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.email ?? '—'}</div>
             </div>
             <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
               <div className="text-xs text-slate-500">Phone</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner.partner?.phone ?? '—'}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.phone ?? '—'}</div>
             </div>
           </div>
 
