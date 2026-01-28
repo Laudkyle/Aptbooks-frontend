@@ -58,24 +58,53 @@ export default function PnL() {
     });
   };
 
-  // Calculate totals and subtotals
+  // Calculate section total from children
   const calculateSectionTotal = (section) => {
-    return section.children?.reduce((sum, child) => sum + (parseFloat(child.amount) || 0), 0) || 0;
+    if (!section.children || section.children.length === 0) {
+      return parseFloat(section.amount) || 0;
+    }
+    return section.children.reduce((sum, child) => sum + (parseFloat(child.amount) || 0), 0);
   };
 
-  const getCompareAmount = (lineId, compareLines) => {
-    const findLine = (lines, id) => {
+  // Find section by section_code
+  const findSectionByCode = (lines, sectionCode) => {
+    for (const line of lines) {
+      if (line.section_code === sectionCode) {
+        return line;
+      }
+      if (line.children) {
+        const found = findSectionByCode(line.children, sectionCode);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // Find line in compare data
+  const getCompareLine = (lineId, compareLines) => {
+    const findLineRecursive = (lines, id) => {
       for (const line of lines) {
         if (line.id === id) return line;
-        if (line.children) {
-          const found = findLine(line.children, id);
+        if (line.children && line.children.length > 0) {
+          const found = findLineRecursive(line.children, id);
           if (found) return found;
         }
       }
       return null;
     };
-    const compareLine = findLine(compareLines || [], lineId);
-    return parseFloat(compareLine?.amount) || 0;
+    return findLineRecursive(compareLines || [], lineId);
+  };
+
+  // Get compare amount for a line
+  const getCompareAmount = (line, compareLines) => {
+    const compareLine = getCompareLine(line.id, compareLines);
+    if (compareLine) {
+      if (compareLine.line_type === 'section') {
+        return calculateSectionTotal(compareLine);
+      }
+      return parseFloat(compareLine.amount) || 0;
+    }
+    return 0;
   };
 
   // Render a single line with proper styling
@@ -86,98 +115,108 @@ export default function PnL() {
     const hasChildren = line.children && line.children.length > 0;
     
     const sectionKey = `${parentId}-${line.id}`;
-    const isExpanded = expandedSections.has(sectionKey) || level === 0;
+    const isExpanded = expandedSections.has(sectionKey);
     
-    const amount = parseFloat(line.amount) || 0;
-    const compareAmount = compareLines ? getCompareAmount(line.id, compareLines) : 0;
+    // Calculate amounts based on line type
+    let amount = 0;
+    if (isSection) {
+      amount = calculateSectionTotal(line);
+    } else {
+      amount = parseFloat(line.amount) || 0;
+    }
+    
+    const compareAmount = compareLines ? getCompareAmount(line, compareLines) : 0;
     const variance = compareLines ? amount - compareAmount : 0;
     const variancePercent = compareLines && compareAmount !== 0 
       ? ((variance / Math.abs(compareAmount)) * 100) 
       : 0;
 
-    // Section totals for sections with children
-    const sectionTotal = isSection ? calculateSectionTotal(line) : amount;
-    const compareSectionTotal = isSection && compareLines 
-      ? line.children?.reduce((sum, child) => sum + getCompareAmount(child.id, compareLines), 0) || 0
-      : compareAmount;
-    const sectionVariance = isSection ? sectionTotal - compareSectionTotal : variance;
-    const sectionVariancePercent = isSection && compareSectionTotal !== 0
-      ? ((sectionVariance / Math.abs(compareSectionTotal)) * 100)
-      : variancePercent;
+    // Special styling for Other section
+    const isOtherSection = line.section_code === 'OTHER';
+    const isOtherIncome = line.section_code === 'OTHER_INCOME';
+    const isOtherExpense = line.section_code === 'OTHER_EXP';
 
     return (
       <React.Fragment key={line.id}>
         <tr className={`
-          ${isSection ? 'bg-slate-100 hover:bg-slate-200 font-semibold border-t-2 border-slate-300' : ''}
           ${isFormula ? 'bg-slate-800 text-white font-bold border-t-4 border-slate-900' : ''}
+          ${isSection && !isOtherSection ? 'bg-slate-100 hover:bg-slate-200 font-semibold border-t-2 border-slate-300' : ''}
+          ${isOtherSection ? 'bg-blue-50 hover:bg-blue-100 font-semibold border-t-2 border-blue-300' : ''}
           ${isAccount ? 'hover:bg-slate-50' : ''}
+          ${isOtherIncome ? 'text-green-700 hover:bg-green-50' : ''}
+          ${isOtherExpense ? 'text-red-700 hover:bg-red-50' : ''}
           transition-colors
         `}>
           <td className={`py-3 px-4 ${isFormula ? 'text-white' : ''}`} style={{ paddingLeft: `${level * 32 + 16}px` }}>
             <div className="flex items-center gap-2">
-              {isSection && hasChildren && (
+              {isSection && hasChildren && !isFormula && (
                 <button 
                   onClick={() => toggleSection(sectionKey)}
-                  className="text-slate-600 hover:text-slate-900"
+                  className={`${isOtherSection ? 'text-blue-600 hover:text-blue-900' : 'text-slate-600 hover:text-slate-900'}`}
                 >
                   {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </button>
               )}
-              <div className={`text-sm ${isSection ? 'font-semibold text-slate-900 uppercase tracking-wide' : isFormula ? 'font-bold text-white uppercase' : 'text-slate-700'}`}>
+              <div className={`text-sm 
+                ${isSection ? 'font-semibold uppercase tracking-wide' : ''}
+                ${isOtherSection ? 'text-blue-900' : isFormula ? 'font-bold text-white uppercase' : 'text-slate-700'}
+                ${isOtherIncome ? 'text-green-900' : ''}
+                ${isOtherExpense ? 'text-red-900' : ''}
+              `}>
                 {line.label}
               </div>
             </div>
             {line.section_code && !isFormula && (
-              <div className="text-xs text-slate-500 ml-6">{line.section_code}</div>
+              <div className={`text-xs ml-6 ${isOtherSection ? 'text-blue-600' : 'text-slate-500'}`}>
+                {line.section_code}
+              </div>
             )}
           </td>
           
           <td className={`py-3 px-4 text-right ${isFormula ? 'text-white' : ''}`}>
-            {(isSection || isFormula) && (
-              <div className={`text-sm font-bold ${isFormula ? 'text-xl text-white' : 'text-slate-900'}`}>
-                {formatMoney(isSection ? sectionTotal : amount, 'GHS')}
-              </div>
-            )}
-            {isAccount && (
-              <div className="text-sm text-slate-700">
-                {formatMoney(amount, 'GHS')}
-              </div>
-            )}
+            <div className={`
+              ${isFormula ? 'text-xl' : 'text-sm'}
+              ${isSection || isFormula ? 'font-bold' : ''}
+              ${isOtherIncome ? 'text-green-600 font-medium' : ''}
+              ${isOtherExpense ? 'text-red-600 font-medium' : ''}
+              ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-slate-700' : ''}
+            `}>
+              {formatMoney(amount, 'GHS')}
+            </div>
           </td>
           
           {compareLines && (
             <>
               <td className={`py-3 px-4 text-right ${isFormula ? 'text-white' : ''}`}>
-                {(isSection || isFormula) && (
-                  <div className={`text-sm font-bold ${isFormula ? 'text-xl text-white' : 'text-slate-900'}`}>
-                    {formatMoney(isSection ? compareSectionTotal : compareAmount, 'GHS')}
-                  </div>
-                )}
-                {isAccount && (
-                  <div className="text-sm text-slate-700">
-                    {formatMoney(compareAmount, 'GHS')}
-                  </div>
-                )}
+                <div className={`
+                  ${isFormula ? 'text-xl' : 'text-sm'}
+                  ${isSection || isFormula ? 'font-bold' : ''}
+                  ${isOtherIncome ? 'text-green-600 font-medium' : ''}
+                  ${isOtherExpense ? 'text-red-600 font-medium' : ''}
+                  ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-slate-700' : ''}
+                `}>
+                  {formatMoney(compareAmount, 'GHS')}
+                </div>
               </td>
               
               <td className={`py-3 px-4 text-right ${isFormula ? 'text-white' : ''}`}>
                 <div className={`text-sm font-bold ${
                   isFormula 
                     ? 'text-white' 
-                    : (isSection ? sectionVariance : variance) >= 0 
+                    : variance >= 0 
                       ? 'text-green-600' 
                       : 'text-red-600'
                 }`}>
-                  {(isSection ? sectionVariance : variance) >= 0 ? '+' : ''}
-                  {formatMoney(isSection ? sectionVariance : variance, 'GHS')}
+                  {variance >= 0 ? '+' : ''}
+                  {formatMoney(variance, 'GHS')}
                 </div>
               </td>
               
               <td className={`py-3 px-4 text-right ${isFormula ? 'text-white' : ''}`}>
-                {((isSection && compareSectionTotal !== 0) || (isFormula && compareAmount !== 0) || (isAccount && compareAmount !== 0)) && (
+                {compareAmount !== 0 && (
                   <div className="flex items-center justify-end gap-1">
                     {!isFormula && (
-                      (isSection ? sectionVariance : variance) >= 0 ? (
+                      variance >= 0 ? (
                         <TrendingUp className="w-4 h-4 text-green-600" />
                       ) : (
                         <TrendingDown className="w-4 h-4 text-red-600" />
@@ -186,11 +225,11 @@ export default function PnL() {
                     <span className={`text-sm font-bold ${
                       isFormula 
                         ? 'text-white' 
-                        : (isSection ? sectionVariance : variance) >= 0 
+                        : variance >= 0 
                           ? 'text-green-600' 
                           : 'text-red-600'
                     }`}>
-                      {Math.abs(isSection ? sectionVariancePercent : variancePercent).toFixed(1)}%
+                      {Math.abs(variancePercent).toFixed(1)}%
                     </span>
                   </div>
                 )}
@@ -207,24 +246,49 @@ export default function PnL() {
     );
   };
 
-  const statementData = q.data?.data;
+  const statementData = q.data?.data || q.data;
   const lines = statementData?.lines || [];
   const compareLines = statementData?.compare?.lines;
-  const hasComparison = !!compareLines;
+  const hasComparison = !!compareLines && comparePeriodId;
 
-  // Calculate key metrics
-  const revenue = lines.find(l => l.section_code === 'REV');
-  const cogs = lines.find(l => l.section_code === 'COGS');
-  const opex = lines.find(l => l.section_code === 'OPEX');
-  const netIncome = lines.find(l => l.section_code === 'NET_INCOME');
+  // Calculate key metrics based on the data structure
+  const revenueSection = findSectionByCode(lines, 'REV');
+  const cogsSection = findSectionByCode(lines, 'COGS');
+  const opexSection = findSectionByCode(lines, 'OPEX');
+  const otherSection = findSectionByCode(lines, 'OTHER');
+  
+  // Find specific accounts within the Other section
+  let otherIncomeAccount = null;
+  let otherExpenseAccount = null;
+  if (otherSection && otherSection.children) {
+    otherIncomeAccount = otherSection.children.find(child => child.section_code === 'OTHER_INCOME');
+    otherExpenseAccount = otherSection.children.find(child => child.section_code === 'OTHER_EXP');
+  }
+  
+  const netIncomeLine = findSectionByCode(lines, 'NET_INCOME');
 
-  const revenueAmount = calculateSectionTotal(revenue || {});
-  const cogsAmount = calculateSectionTotal(cogs || {});
-  const opexAmount = calculateSectionTotal(opex || {});
+  const revenueAmount = revenueSection ? calculateSectionTotal(revenueSection) : 0;
+  const cogsAmount = cogsSection ? calculateSectionTotal(cogsSection) : 0;
+  const opexAmount = opexSection ? calculateSectionTotal(opexSection) : 0;
+  const otherIncomeAmount = otherIncomeAccount ? (parseFloat(otherIncomeAccount.amount) || 0) : 0;
+  const otherExpenseAmount = otherExpenseAccount ? (parseFloat(otherExpenseAccount.amount) || 0) : 0;
+  const netIncomeAmount = netIncomeLine ? (parseFloat(netIncomeLine.amount) || 0) : 0;
+  
   const grossProfit = revenueAmount - cogsAmount;
   const grossMargin = revenueAmount !== 0 ? (grossProfit / revenueAmount) * 100 : 0;
-  const netIncomeAmount = parseFloat(netIncome?.amount) || 0;
+  const operatingProfit = grossProfit - opexAmount;
+  const operatingMargin = revenueAmount !== 0 ? (operatingProfit / revenueAmount) * 100 : 0;
+  const totalOtherIncome = otherIncomeAmount - otherExpenseAmount;
   const netMargin = revenueAmount !== 0 ? (netIncomeAmount / revenueAmount) * 100 : 0;
+
+  // Format period display
+  const formatPeriodDisplay = (period) => {
+    if (!period) return '';
+    if (period.start_date && period.end_date) {
+      return `${formatDate(period.start_date, 'MMM DD, YYYY')} - ${formatDate(period.end_date, 'MMM DD, YYYY')}`;
+    }
+    return period.name || period.code || '';
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -307,10 +371,11 @@ export default function PnL() {
 
           {/* Key Metrics Cards */}
           {periodId && !q.isLoading && !q.isError && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Total Revenue</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Revenue</div>
                 <div className="text-2xl font-bold text-slate-900">{formatMoney(revenueAmount, 'GHS')}</div>
+                <div className="text-xs text-slate-600 mt-1">Gross sales</div>
               </div>
               
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
@@ -320,8 +385,11 @@ export default function PnL() {
               </div>
               
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Operating Expenses</div>
-                <div className="text-2xl font-bold text-red-600">{formatMoney(opexAmount, 'GHS')}</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Operating Profit</div>
+                <div className={`text-2xl font-bold ${operatingProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatMoney(operatingProfit, 'GHS')}
+                </div>
+                <div className="text-xs text-slate-600 mt-1">Margin: {operatingMargin.toFixed(1)}%</div>
               </div>
               
               <div className={`bg-white rounded-lg shadow-sm border-2 p-6 ${netIncomeAmount >= 0 ? 'border-green-500' : 'border-red-500'}`}>
@@ -329,7 +397,14 @@ export default function PnL() {
                 <div className={`text-2xl font-bold ${netIncomeAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatMoney(netIncomeAmount, 'GHS')}
                 </div>
-                <div className="text-xs text-slate-600 mt-1">Margin: {netMargin.toFixed(1)}%</div>
+                <div className="text-xs text-slate-600 mt-1">
+                  Margin: {netMargin.toFixed(1)}%
+                  {totalOtherIncome !== 0 && (
+                    <span className="block mt-1">
+                      {totalOtherIncome > 0 ? '+' : ''}{formatMoney(totalOtherIncome, 'GHS')} from other
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -346,7 +421,7 @@ export default function PnL() {
           ) : q.isLoading ? (
             <div className="bg-white rounded-lg shadow-sm border border-slate-200">
               <div className="p-12 text-center">
-                <div className="text-slate-600">Loading statement...</div>
+                <div className="animate-pulse text-slate-600">Loading statement...</div>
               </div>
             </div>
           ) : q.isError ? (
@@ -362,16 +437,19 @@ export default function PnL() {
                 <div className="p-6 text-center border-b border-slate-200 bg-slate-50">
                   <h2 className="text-xl font-bold text-slate-900">Income Statement</h2>
                   <p className="text-sm text-slate-600 mt-1">
-                    {selectedPeriod?.name || selectedPeriod?.code}
+                    {selectedPeriod?.name || selectedPeriod?.code || 'Selected Period'}
                   </p>
-                  {selectedPeriod?.start_date && selectedPeriod?.end_date && (
-                    <p className="text-xs text-slate-500 mt-1">
-                      {formatDate(selectedPeriod.start_date, 'MMM DD, YYYY')} - {formatDate(selectedPeriod.end_date, 'MMM DD, YYYY')}
-                    </p>
-                  )}
+                  <p className="text-xs text-slate-500 mt-1">
+                    {formatPeriodDisplay(selectedPeriod)}
+                  </p>
                   {hasComparison && comparePeriod && (
                     <p className="text-xs text-slate-500 mt-2">
                       Compared with: {comparePeriod.name || comparePeriod.code}
+                      {comparePeriod.start_date && comparePeriod.end_date && (
+                        <span className="ml-2">
+                          ({formatDate(comparePeriod.start_date, 'MMM DD, YYYY')} - {formatDate(comparePeriod.end_date, 'MMM DD, YYYY')})
+                        </span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -416,17 +494,32 @@ export default function PnL() {
                 </div>
               </div>
 
-              {/* Debug Info */}
-              <details className="bg-white rounded-lg shadow-sm border border-slate-200">
-                <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-slate-700 hover:bg-slate-50">
-                  View Raw Data (Debug)
-                </summary>
-                <div className="p-6 border-t border-slate-200">
-                  <pre className="max-h-96 overflow-auto rounded bg-slate-50 p-4 text-xs text-slate-800 font-mono">
-                    {JSON.stringify(statementData, null, 2)}
-                  </pre>
+              {/* Other Income/Expenses Summary */}
+              {(otherIncomeAmount !== 0 || otherExpenseAmount !== 0) && (
+                <div className="bg-blue-50 rounded-lg shadow-sm border border-blue-200 p-4">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">Other Income & Expenses Summary</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-xs text-blue-700">Other Income</div>
+                      <div className={`text-lg font-bold ${otherIncomeAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatMoney(otherIncomeAmount, 'GHS')}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-blue-700">Other Expenses</div>
+                      <div className={`text-lg font-bold ${otherExpenseAmount >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {formatMoney(otherExpenseAmount, 'GHS')}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-blue-700">Net Other</div>
+                      <div className={`text-lg font-bold ${totalOtherIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {totalOtherIncome >= 0 ? '+' : ''}{formatMoney(totalOtherIncome, 'GHS')}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </details>
+              )}
             </>
           )}
         </div>

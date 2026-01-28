@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
@@ -18,17 +18,33 @@ export default function JournalList() {
   const { http } = useApi();
   const api = useMemo(() => makeJournalsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
-  const navigate = useNavigate();// Add this hook
+  const navigate = useNavigate();
   const [periodId, setPeriodId] = useState('');
-  const [status, setStatus] = useState('draft');
+  const [status, setStatus] = useState('');
   const [q, setQ] = useState('');
+  const [hasSelectedPeriod, setHasSelectedPeriod] = useState(false);
 
-  const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
+  const periodsQ = useQuery({ 
+    queryKey: ['periods'], 
+    queryFn: periodsApi.list, 
+    staleTime: 10_000 
+  });
+
   const listQ = useQuery({
     queryKey: ['journals', { periodId, status }],
-    queryFn: () => api.list({ periodId: periodId || undefined, status: status || undefined }),
-    staleTime: 5_000
+    queryFn: () => api.list({ periodId: periodId || undefined, status: status || "" }),
+    staleTime: 5_000,
+    enabled: hasSelectedPeriod && !!periodId, // Only enabled when period is selected
   });
+console.log(listQ);
+  // Auto-fetch when period changes (if a period is selected)
+  useEffect(() => {
+    if (periodId && !hasSelectedPeriod) {
+      setHasSelectedPeriod(true);
+    } else if (!periodId && hasSelectedPeriod) {
+      setHasSelectedPeriod(false);
+    }
+  }, [periodId, hasSelectedPeriod]);
 
   const journals = (listQ.data ?? []).filter((j) => {
     const s = `${j.entryNo ?? ''} ${j.memo ?? ''} ${j.id ?? ''}`.toLowerCase();
@@ -36,7 +52,7 @@ export default function JournalList() {
   });
 
   const columns = [
-   {
+    {
       key: 'entry_no',
       header: 'Entry No',
       accessor: (r) => r.entryNo ?? r.entry_no ?? '—',
@@ -44,7 +60,7 @@ export default function JournalList() {
         <Link 
           className="text-brand-primary hover:underline" 
           to={ROUTES.accountingJournalDetail(r.id)}
-          onClick={(e) => e.stopPropagation()} // Prevent row click when clicking the link
+          onClick={(e) => e.stopPropagation()}
         >
           {r.entryNo ?? r.entry_no ?? '—'}
         </Link>
@@ -64,8 +80,8 @@ export default function JournalList() {
     { header: 'Memo', att: 'memo', accessor: (r) => r.memo ?? '—' }
   ];
 
-  const periodOptions = [{ value: '', label: 'All periods' }].concat(
-    (periodsQ.data ?? []).map((p) => ({ value: p.id, label: p.code }))
+  const periodOptions = [{ value: '', label: 'Select a period' }].concat(
+    (periodsQ.data ?? []).map((p) => ({ value: p.id, label: `${p.code}` }))
   );
 
   const statusOptions = [
@@ -77,9 +93,28 @@ export default function JournalList() {
     { value: 'Posted', label: 'Posted' },
     { value: 'Voided', label: 'Voided' }
   ];
- const handleRowClick = (journal) => {
+
+  const handleRowClick = (journal) => {
     navigate(ROUTES.accountingJournalDetail(journal.id));
   };
+
+  const handleClear = () => {
+    setPeriodId('');
+    setStatus('');
+    setQ('');
+    setHasSelectedPeriod(false);
+  };
+
+  const handlePeriodChange = (e) => {
+    const newPeriodId = e.target.value;
+    setPeriodId(newPeriodId);
+    // Clear other filters when period changes
+    if (newPeriodId) {
+      setStatus('');
+      setQ('');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -90,21 +125,74 @@ export default function JournalList() {
 
       <FilterBar
         right={
-          <Button variant="secondary" onClick={() => listQ.refetch()} disabled={listQ.isFetching}>
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            {listQ.isFetching ? (
+              <span className="text-sm text-gray-500 flex items-center">
+                Loading...
+              </span>
+            ) : hasSelectedPeriod && (
+              <Button 
+                variant="secondary" 
+                onClick={() => listQ.refetch()} 
+                disabled={listQ.isFetching}
+              >
+                Refresh
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              onClick={handleClear}
+            >
+              Clear
+            </Button>
+          </div>
         }
       >
-        <Select value={periodId} onChange={(e) => setPeriodId(e.target.value)} options={periodOptions} />
-        <Select value={status} onChange={(e) => setStatus(e.target.value)} options={statusOptions} />
-        <Input placeholder="Search entry no / memo…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="flex items-center gap-2">
+          <Select 
+            value={periodId} 
+            onChange={handlePeriodChange} 
+            options={periodOptions}
+            className="min-w-[200px]"
+          />
+          {hasSelectedPeriod && (
+            <>
+              <Select 
+                value={status} 
+                onChange={(e) => setStatus(e.target.value)} 
+                options={statusOptions}
+                className="min-w-[180px]"
+              />
+              <Input 
+                placeholder="Search entry no / memo…" 
+                value={q} 
+                onChange={(e) => setQ(e.target.value)}
+                className="min-w-[250px]"
+              />
+            </>
+          )}
+        </div>
       </FilterBar>
 
       <ContentCard title="Journal list">
-        {listQ.isError ? (
+        {!periodId ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-4">Please select a period to view journals</div>
+          </div>
+        ) : listQ.isError ? (
           <div className="text-sm text-red-700">{listQ.error?.message ?? 'Failed to load journals.'}</div>
+        ) : listQ.isLoading ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 mb-4">Loading journals for selected period...</div>
+          </div>
         ) : (
-          <DataTable columns={columns} rows={journals}   onRowClick={handleRowClick} isLoading={listQ.isLoading} emptyTitle="No journals" />
+          <DataTable 
+            columns={columns} 
+            rows={journals} 
+            onRowClick={handleRowClick} 
+            isLoading={listQ.isFetching} 
+            emptyTitle="No journals found for this period"
+          />
         )}
       </ContentCard>
     </div>

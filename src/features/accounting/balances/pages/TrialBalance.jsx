@@ -41,8 +41,8 @@ export default function TrialBalance() {
 
   // Calculate totals
   const totals = rows.reduce((acc, row) => {
-    const debit = parseFloat(row.debit ?? row.debitTotal ?? 0);
-    const credit = parseFloat(row.credit ?? row.creditTotal ?? 0);
+    const debit = parseFloat(row.debit ?? row.debit_total ?? 0);
+    const credit = parseFloat(row.credit ?? row.credit_total ?? 0);
     return {
       debit: acc.debit + debit,
       credit: acc.credit + credit
@@ -54,8 +54,8 @@ export default function TrialBalance() {
 
   // Calculate net balance for each row
   const getNetBalance = (row) => {
-    const debit = parseFloat(row.debit ?? row.debitTotal ?? 0);
-    const credit = parseFloat(row.credit ?? row.creditTotal ?? 0);
+    const debit = parseFloat(row.debit ?? row.debit_total ?? 0);
+    const credit = parseFloat(row.credit ?? row.credit_total ?? 0);
     const net = debit - credit;
     return {
       amount: Math.abs(net),
@@ -238,18 +238,18 @@ export default function TrialBalance() {
                         </tr>
                       ) : (
                         rows.map((row, idx) => {
-                          const debit = parseFloat(row.debit ?? row.debitTotal ?? 0);
-                          const credit = parseFloat(row.credit ?? row.creditTotal ?? 0);
+                          const debit = parseFloat(row.debit ?? row.debit_total ?? 0);
+                          const credit = parseFloat(row.credit ?? row.credit_total ?? 0);
                           return (
                             <tr key={row.accountId ?? row.account_id ?? idx} className="hover:bg-slate-50 transition-colors">
                               <td className="py-3 px-6">
                                 <div className="text-sm font-medium text-slate-900">
-                                  {row.code ?? row.accountCode ?? '—'}
+                                  {row.code ?? row.account_code ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6">
                                 <div className="text-sm text-slate-700">
-                                  {row.name ?? row.accountName ?? '—'}
+                                  {row.name ?? row.account_name ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6 text-right">
