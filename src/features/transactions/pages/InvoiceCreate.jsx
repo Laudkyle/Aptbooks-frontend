@@ -15,7 +15,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-
+import { formatDate } from '../../../shared/utils/formatDate.js';
 // Generate UUID v4
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -193,7 +193,7 @@ export default function InvoiceCreate() {
                   <div className="flex-1">
                     <div className="text-xs text-gray-500">Invoice Date</div>
                     <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {payload.invoiceDate || <span className="text-gray-400">Not set</span>}
+                      {formatDate(payload.invoiceDate) || <span className="text-gray-400">Not set</span>}
                     </div>
                   </div>
                 </div>

@@ -7,15 +7,9 @@ import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
-
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
+import { formatDate } from '../../../shared/utils/formatDate.js';
 
 export default function InvoiceList() {
   const navigate = useNavigate();
@@ -31,13 +25,12 @@ export default function InvoiceList() {
   });
 
   const rows = Array.isArray(data) ? data : data?.data ?? [];
-
   // Client-side filtering
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const matchesSearch = !searchTerm || 
         (row.invoiceNumber ?? row.code ?? row.id ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (row.customerName ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (row.customer_name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (row.memo ?? '').toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || (row.status ?? 'draft') === statusFilter;
@@ -56,75 +49,89 @@ export default function InvoiceList() {
   }, [rows]);
 
   const columns = useMemo(
-    () => [
-      {
-        header: 'Invoice #',
-        render: (r) => (
-          <div className="flex flex-col">
-            <Link 
-              to={ROUTES.invoiceDetail(r.id)} 
-              className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
-            >
-              {r.invoiceNumber ?? r.code ?? r.id}
-            </Link>
-            {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
-          </div>
-        )
-      },
-      { 
-        header: 'Customer', 
-        render: (r) => (
-          <span className="text-sm text-gray-900 font-medium">
-            {r.customerName ?? r.customerId ?? '—'}
-          </span>
-        ) 
-      },
-      { 
-        header: 'Invoice Date', 
-        render: (r) => (
-          <span className="text-sm text-gray-700">
-            {r.invoiceDate ?? '—'}
-          </span>
-        ) 
-      },
-      { 
-        header: 'Due Date', 
-        render: (r) => (
-          <span className="text-sm text-gray-700">
-            {r.dueDate ?? '—'}
-          </span>
-        ) 
-      },
-      {
-        header: 'Amount',
-        render: (r) => (
+  () => [
+    {
+      header: 'Invoice #',
+      render: (r) => (
+        <div className="flex flex-col">
+          <Link 
+            to={ROUTES.invoiceDetail(r.id)} 
+            className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+          >
+            {r.invoiceNumber ?? r.code ?? r.id}
+          </Link>
+          {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
+        </div>
+      )
+    },
+    { 
+      header: 'Customer', 
+      render: (r) => (
+        <span className="text-sm text-gray-900 font-medium">
+          {r.customer_name ?? r.customer_id ?? '—'}
+        </span>
+      ) 
+    },
+    { 
+      header: 'Invoice Date', 
+      render: (r) => (
+        <span className="text-sm text-gray-700">
+          {formatDate(r.invoice_date) ?? '—'}
+        </span>
+      ) 
+    },
+    { 
+      header: 'Due Date', 
+      render: (r) => (
+        <span className="text-sm text-gray-700">
+          {formatDate(r.due_date) ?? '—'}
+        </span>
+      ) 
+    },
+    {
+      header: 'Amount',
+      render: (r) => {
+        if (!r.total) return <span className="text-sm text-gray-700">—</span>;
+        
+        const currency = r.currency_code || 'USD'; // Fallback to USD if not specified
+        const amount = Number(r.total);
+        
+        // Format the amount with currency
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: currency,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(amount);
+        
+        return (
           <span className="text-sm font-semibold text-gray-900">
-            {r.total ? `$${Number(r.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+            {formattedAmount}
           </span>
-        )
-      },
-      {
-        header: 'Status',
-        render: (r) => {
-          const s = r.status ?? 'draft';
-          const badgeStyles = {
-            paid: 'bg-green-100 text-green-800 border-green-200',
-            issued: 'bg-blue-100 text-blue-800 border-blue-200',
-            overdue: 'bg-red-100 text-red-800 border-red-200',
-            voided: 'bg-gray-100 text-gray-800 border-gray-200',
-            draft: 'bg-amber-100 text-amber-800 border-amber-200'
-          };
-          return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badgeStyles[s] || badgeStyles.draft}`}>
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </span>
-          );
-        }
+        );
       }
-    ],
-    []
-  );
-
+    },
+    {
+      header: 'Status',
+      render: (r) => {
+        const s = r.status ?? 'draft';
+        const badgeStyles = {
+          paid: 'bg-green-100 text-green-800 border-green-200',
+          issued: 'bg-blue-100 text-blue-800 border-blue-200',
+          overdue: 'bg-red-100 text-red-800 border-red-200',
+          voided: 'bg-gray-100 text-gray-800 border-gray-200',
+          draft: 'bg-amber-100 text-amber-800 border-amber-200'
+        };
+        return (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badgeStyles[s] || badgeStyles.draft}`}>
+            {s.charAt(0).toUpperCase() + s.slice(1)}
+          </span>
+        );
+      }
+    }
+  ],
+  []
+);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
