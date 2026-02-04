@@ -6,11 +6,9 @@ import { ArrowLeft, HandCoins, RefreshCcw, Save, Send, Trash2, Calendar, User, D
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js';
+import { formatDate } from '../../../shared/utils/formatDate.js';
 
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
@@ -29,17 +27,22 @@ export default function CustomerReceiptDetail() {
     queryFn: () => api.get(id)
   });
 
-  const receipt = data?.data ?? data;
+  // Extract data from the nested structure
+  const receipt = data?.customerReceipt || data?.data?.customerReceipt || data;
+  const allocations = data?.allocations || data?.data?.allocations || [];
+  
+  console.log('Receipt data:', receipt);
+  console.log('Allocations:', allocations);
 
   const [action, setAction] = useState(null);
   const [rule, setRule] = useState('due_date');
-  const [allocations, setAllocations] = useState([]);
+  const [manualAllocations, setManualAllocations] = useState([]);
   const [reason, setReason] = useState('');
 
   const run = useMutation({
     mutationFn: async () => {
       if (action === 'auto') return api.autoAllocate(id, { rule });
-      if (action === 'reallocate') return api.reallocate(id, { allocations });
+      if (action === 'reallocate') return api.reallocate(id, { allocations: manualAllocations });
       if (action === 'post') return api.post(id);
       if (action === 'void') return api.void(id, { reason });
       throw new Error('Unknown action');
@@ -49,7 +52,7 @@ export default function CustomerReceiptDetail() {
       qc.invalidateQueries({ queryKey: qk.customerReceipt(id) });
       setAction(null);
       setReason('');
-      setAllocations([]);
+      setManualAllocations([]);
     },
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
@@ -62,27 +65,40 @@ export default function CustomerReceiptDetail() {
   };
 
   const calculateAllocatedTotal = () => {
-    if (!receipt?.allocations) return 0;
-    return receipt.allocations.reduce((sum, allocation) => {
-      return sum + (parseFloat(allocation.amountApplied ?? allocation.amount ?? 0));
+    if (!allocations || !Array.isArray(allocations)) return 0;
+    return allocations.reduce((sum, allocation) => {
+      return sum + (parseFloat(allocation.amount_applied ?? allocation.amount ?? 0));
     }, 0);
   };
 
   const allocatedTotal = calculateAllocatedTotal();
-  const unallocated = (receipt?.amountTotal ?? 0) - allocatedTotal;
+  const unallocated = (parseFloat(receipt?.amount_total ?? 0)) - allocatedTotal;
+  
+  // Currency formatting
+  const currency = receipt?.currency_code || 'USD';
+  
+  const formatCurrency = (amount) => {
+    const numAmount = parseFloat(amount) || 0;
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numAmount);
+  };
 
   const addAllocation = () => {
-    setAllocations([...allocations, { invoiceId: '', amountApplied: 0 }]);
+    setManualAllocations([...manualAllocations, { invoice_id: '', amount_applied: 0 }]);
   };
 
   const removeAllocation = (index) => {
-    setAllocations(allocations.filter((_, i) => i !== index));
+    setManualAllocations(manualAllocations.filter((_, i) => i !== index));
   };
 
   const updateAllocation = (index, field, value) => {
-    const newAllocations = [...allocations];
+    const newAllocations = [...manualAllocations];
     newAllocations[index] = { ...newAllocations[index], [field]: value };
-    setAllocations(newAllocations);
+    setManualAllocations(newAllocations);
   };
 
   return (
@@ -95,7 +111,7 @@ export default function CustomerReceiptDetail() {
               <div className="flex items-center gap-3 mb-2">
                 <HandCoins className="h-7 w-7 text-gray-700" />
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {receipt?.receiptNumber ?? receipt?.code ?? (isLoading ? 'Loading...' : 'Receipt')}
+                  {receipt?.receipt_no ?? receipt?.code ?? (isLoading ? 'Loading...' : 'Receipt')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -127,6 +143,7 @@ export default function CustomerReceiptDetail() {
               size="sm"
               onClick={() => setAction('auto')}
               className="border-blue-600 text-blue-700 hover:bg-blue-50"
+              disabled={status !== 'draft'}
             >
               <RefreshCcw className="h-4 w-4 mr-2" />
               Auto-Allocate
@@ -135,10 +152,11 @@ export default function CustomerReceiptDetail() {
               variant="outline"
               size="sm"
               onClick={() => {
-                setAllocations(receipt?.allocations ?? []);
+                setManualAllocations(allocations);
                 setAction('reallocate');
               }}
               className="border-purple-600 text-purple-700 hover:bg-purple-50"
+              disabled={status !== 'draft'}
             >
               <Save className="h-4 w-4 mr-2" />
               Reallocate
@@ -147,6 +165,7 @@ export default function CustomerReceiptDetail() {
               size="sm"
               onClick={() => setAction('post')}
               className="bg-green-600 hover:bg-green-700 text-white"
+              disabled={status !== 'draft'}
             >
               <Send className="h-4 w-4 mr-2" />
               Post
@@ -156,6 +175,7 @@ export default function CustomerReceiptDetail() {
               size="sm"
               onClick={() => setAction('void')}
               className="border-red-600 text-red-700 hover:bg-red-50"
+              disabled={status === 'voided'}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Void
@@ -177,8 +197,14 @@ export default function CustomerReceiptDetail() {
                     <span className="text-xs font-medium text-gray-500">Customer</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {receipt?.customerName ?? receipt?.customerId ?? '—'}
+                    {receipt?.customer_name ?? receipt?.customer_id ?? '—'}
                   </div>
+                  {receipt?.customer_email && (
+                    <div className="text-xs text-gray-500 mt-1">{receipt.customer_email}</div>
+                  )}
+                  {receipt?.customer_phone && (
+                    <div className="text-xs text-gray-500 mt-0.5">{receipt.customer_phone}</div>
+                  )}
                 </div>
 
                 <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
@@ -187,14 +213,14 @@ export default function CustomerReceiptDetail() {
                     <span className="text-xs font-medium text-gray-500">Receipt Date</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {receipt?.receiptDate ?? '—'}
+                    {formatDate(receipt?.receipt_date) ?? '—'}
                   </div>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
                   <div className="text-xs font-medium text-gray-500 mb-2">Cash Account</div>
                   <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
-                    {receipt?.cashAccountId ? `${receipt.cashAccountId.substring(0, 12)}...` : '—'}
+                    {receipt?.cash_account_id ? `${receipt.cash_account_id.substring(0, 12)}...` : '—'}
                   </div>
                 </div>
 
@@ -204,7 +230,7 @@ export default function CustomerReceiptDetail() {
                     <span className="text-xs font-medium text-gray-500">Total Amount</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    ${Number(receipt?.amountTotal ?? 0).toFixed(2)}
+                    {formatCurrency(receipt?.amount_total ?? 0)}
                   </div>
                 </div>
 
@@ -230,38 +256,44 @@ export default function CustomerReceiptDetail() {
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Invoice ID
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Invoice #
+                      </th>
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Amount Applied
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {(receipt?.allocations ?? []).map((a, idx) => (
+                    {allocations.map((a, idx) => (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
-                          {a.invoiceId ? `${a.invoiceId.substring(0, 12)}...` : '—'}
+                          {a.invoice_id ? `${a.invoice_id.substring(0, 12)}...` : '—'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {a.invoice_number ?? '—'}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                          ${Number(a.amountApplied ?? a.amount ?? 0).toFixed(2)}
+                          {formatCurrency(a.amount_applied ?? a.amount ?? 0)}
                         </td>
                       </tr>
                     ))}
-                    {!(receipt?.allocations ?? []).length ? (
+                    {!allocations.length ? (
                       <tr>
-                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={2}>
+                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={3}>
                           No allocations yet
                         </td>
                       </tr>
                     ) : null}
                   </tbody>
-                  {(receipt?.allocations ?? []).length > 0 && (
+                  {allocations.length > 0 && (
                     <tfoot className="bg-gray-50 border-t-2 border-gray-200">
                       <tr>
-                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total Allocated:
                         </td>
                         <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
-                          ${allocatedTotal.toFixed(2)}
+                          {formatCurrency(allocatedTotal)}
                         </td>
                       </tr>
                     </tfoot>
@@ -281,21 +313,25 @@ export default function CustomerReceiptDetail() {
 
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Currency</span>
+                  <span className="font-medium text-gray-900">{currency}</span>
+                </div>
+                <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Total Amount</span>
                   <span className="font-bold text-gray-900">
-                    ${Number(receipt?.amountTotal ?? 0).toFixed(2)}
+                    {formatCurrency(receipt?.amount_total ?? 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Allocated</span>
                   <span className="font-semibold text-blue-700">
-                    ${allocatedTotal.toFixed(2)}
+                    {formatCurrency(allocatedTotal)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
                   <span className="text-gray-600 font-semibold">Unallocated</span>
                   <span className={`font-bold ${unallocated < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${unallocated.toFixed(2)}
+                    {formatCurrency(unallocated)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-3 border-t border-gray-200">
@@ -306,7 +342,13 @@ export default function CustomerReceiptDetail() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Allocations</span>
-                  <span className="font-medium text-gray-900">{(receipt?.allocations ?? []).length}</span>
+                  <span className="font-medium text-gray-900">{allocations.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Payment Method</span>
+                  <span className="font-medium text-gray-900">
+                    {receipt?.payment_method_id ? `${receipt.payment_method_id.substring(0, 8)}...` : '—'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -339,6 +381,7 @@ export default function CustomerReceiptDetail() {
                 >
                   <option value="due_date">By Due Date (oldest first)</option>
                   <option value="fifo">FIFO (First In, First Out)</option>
+                  <option value="invoice_date">By Invoice Date</option>
                 </select>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -352,7 +395,7 @@ export default function CustomerReceiptDetail() {
           {action === 'reallocate' && (
             <>
               <div className="space-y-3">
-                {allocations.map((allocation, index) => (
+                {manualAllocations.map((allocation, index) => (
                   <div key={index} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-semibold text-gray-700">Allocation #{index + 1}</span>
@@ -366,9 +409,9 @@ export default function CustomerReceiptDetail() {
                     <div className="grid gap-3">
                       <Input
                         label="Invoice ID"
-                        value={allocation.invoiceId ?? ''}
-                        onChange={(e) => updateAllocation(index, 'invoiceId', e.target.value)}
-                        placeholder="UUID"
+                        value={allocation.invoice_id ?? ''}
+                        onChange={(e) => updateAllocation(index, 'invoice_id', e.target.value)}
+                        placeholder="Enter invoice UUID"
                         className="font-mono text-xs"
                       />
                       <Input
@@ -376,8 +419,8 @@ export default function CustomerReceiptDetail() {
                         type="number"
                         min="0"
                         step="0.01"
-                        value={allocation.amountApplied ?? 0}
-                        onChange={(e) => updateAllocation(index, 'amountApplied', parseFloat(e.target.value) || 0)}
+                        value={allocation.amount_applied ?? 0}
+                        onChange={(e) => updateAllocation(index, 'amount_applied', parseFloat(e.target.value) || 0)}
                       />
                     </div>
                   </div>
@@ -398,6 +441,10 @@ export default function CustomerReceiptDetail() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
                 <strong>Note:</strong> Posting finalizes the receipt and books it to the general ledger. This action cannot be undone (but the receipt can be voided later if needed).
+              </p>
+              <p className="text-sm text-blue-800 mt-2">
+                Allocated Amount: {formatCurrency(allocatedTotal)}<br/>
+                Unallocated Amount: {formatCurrency(unallocated)}
               </p>
             </div>
           )}

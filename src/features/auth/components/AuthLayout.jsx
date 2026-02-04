@@ -16,7 +16,7 @@ export function AuthLayout({ title, subtitle, children }) {
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-white/70 px-3 py-1 text-xs font-medium text-brand-deep shadow-sm">
               Accounting Suite
-              <span className="app-chip">Phase 1–4 UI</span>
+              <span className="app-chip">AptBooks 1.0.1</span>
             </div>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-brand-deep">
               Fast, clean workflows for modern accounting teams.

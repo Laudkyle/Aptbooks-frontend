@@ -77,7 +77,7 @@ export default function CustomerReceiptCreate() {
     acc.category_name?.toLowerCase().includes('cash') ||
     acc.category_name?.toLowerCase().includes('bank')
   );
-console.log('Cash Accounts:', accounts);
+
   const create = useMutation({
     mutationFn: () => receiptsApi.create(payload),
     onSuccess: (res) => {

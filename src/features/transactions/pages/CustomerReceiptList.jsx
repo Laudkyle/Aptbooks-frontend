@@ -8,7 +8,7 @@ import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-
+import {formatDate} from '../../../shared/utils/formatDate.js'
 
 export default function CustomerReceiptList() {
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ export default function CustomerReceiptList() {
   });
 
   const rows = Array.isArray(data) ? data : data?.data ?? [];
-
+console.log(rows)
   // Client-side filtering
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const matchesSearch = !searchTerm || 
-        (row.receiptNumber ?? row.code ?? row.id ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (row.receipt_no ?? row.code ?? row.id ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (row.customer_name ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (row.memo ?? '').toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -58,7 +58,7 @@ export default function CustomerReceiptList() {
               to={ROUTES.customerReceiptDetail(r.id)} 
               className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
             >
-              {r.receiptNumber ?? r.code ?? r.id}
+              {r.receipt_no ?? r.code ?? r.id}
             </Link>
             {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
           </div>
@@ -76,7 +76,7 @@ export default function CustomerReceiptList() {
         header: 'Receipt Date', 
         render: (r) => (
           <span className="text-sm text-gray-700">
-            {r.receiptDate ?? '—'}
+            {formatDate(r.receipt_date) ?? '—'}
           </span>
         ) 
       },
@@ -84,8 +84,8 @@ export default function CustomerReceiptList() {
         header: 'Amount',
         render: (r) => (
           <span className="text-sm font-semibold text-gray-900">
-            {(r.amountTotal ?? r.amount) 
-              ? `$${Number(r.amountTotal ?? r.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+            {(r.amount_total ?? r.amount) 
+              ? `$${Number(r.amount_total ?? r.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
               : '—'}
           </span>
         )
