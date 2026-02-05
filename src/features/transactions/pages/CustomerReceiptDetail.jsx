@@ -220,7 +220,7 @@ export default function CustomerReceiptDetail() {
                 <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
                   <div className="text-xs font-medium text-gray-500 mb-2">Cash Account</div>
                   <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
-                    {receipt?.cash_account_id ? `${receipt.cash_account_id.substring(0, 12)}...` : '—'}
+                    {receipt?.cash_account_name ? `${receipt.cash_account_name.substring(0, 12)}...` : '—'}
                   </div>
                 </div>
 

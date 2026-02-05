@@ -37,11 +37,11 @@ export default function VendorPaymentCreate() {
   const [idempotencyKey] = useState(() => generateUUID());
   
   const [formData, setFormData] = useState({
-    vendor_id: '',
-    payment_date: new Date().toISOString().split('T')[0],
-    payment_method_id: '',
-    cash_account_id: '',
-    amount_total: '',
+    vendorId: '',
+    paymentDate: new Date().toISOString().split('T')[0],
+    paymentMethodId: '',
+    cashAccountId: '',
+    amountTotal: '',
     reference: '',
     memo: ''
   });
@@ -72,9 +72,9 @@ export default function VendorPaymentCreate() {
 
   // Fetch outstanding bills for selected vendor
   const { data: billsData, isLoading: billsLoading } = useQuery({
-    queryKey: ['bills', { vendor_id: formData.vendor_id, status: 'issued' }],
-    queryFn: () => billsApi.list({ vendor_id: formData.vendor_id, status: 'issued', limit: 100 }),
-    enabled: !!formData.vendor_id,
+    queryKey: ['bills', { vendorId: formData.vendorId, status: 'issued' }],
+    queryFn: () => billsApi.list({ vendorId: formData.vendorId, status: 'issued', limit: 100 }),
+    enabled: !!formData.vendorId,
     staleTime: 30_000
   });
 
@@ -138,7 +138,7 @@ export default function VendorPaymentCreate() {
   ];
 
   const addAllocation = () => {
-    setAllocations([...allocations, { bill_id: '', amount_applied: '' }]);
+    setAllocations([...allocations, { billId: '', amountApplied: '' }]);
   };
 
   const removeAllocation = (index) => {
@@ -150,10 +150,10 @@ export default function VendorPaymentCreate() {
     updated[index] = { ...updated[index], [field]: value };
     
     // Auto-fill amount if bill is selected
-    if (field === 'bill_id' && value) {
+    if (field === 'billId' && value) {
       const selectedBill = bills.find(b => b.id === value);
-      if (selectedBill && !updated[index].amount_applied) {
-        updated[index].amount_applied = String(selectedBill.amount_due || 0);
+      if (selectedBill && !updated[index].amountApplied) {
+        updated[index].amountApplied = String(selectedBill.amount_due || 0);
       }
     }
     
@@ -162,31 +162,32 @@ export default function VendorPaymentCreate() {
 
   // Update vendor details when vendor changes
   useEffect(() => {
-    if (formData.vendor_id) {
-      const vendor = vendors.find(v => v.id === formData.vendor_id);
+    if (formData.vendorId) {
+      const vendor = vendors.find(v => v.id === formData.vendorId);
       setSelectedVendor(vendor);
       // Clear allocations when vendor changes
       setAllocations([]);
     } else {
       setSelectedVendor(null);
     }
-  }, [formData.vendor_id, vendors]);
+  }, [formData.vendorId, vendors]);
 
   const create = useMutation({
     mutationFn: () => {
+      const idempotencyKey = generateUUID(); 
       const payload = {
-        vendor_id: formData.vendor_id,
-        payment_date: formData.payment_date,
-        payment_method_id: formData.payment_method_id || null,
-        cash_account_id: formData.cash_account_id,
-        amount_total: parseFloat(formData.amount_total) || 0,
+        vendorId: formData.vendorId,
+        paymentDate: formData.paymentDate,
+        paymentMethodId: formData.paymentMethodId || null,
+        cashAccountId: formData.cashAccountId,
+        amountTotal: parseFloat(formData.amountTotal) || 0,
         reference: formData.reference || undefined,
         memo: formData.memo || undefined,
         allocations: allocations
-          .filter(a => a.bill_id && a.amount_applied)
+          .filter(a => a.billId && a.amountApplied)
           .map(a => ({
-            bill_id: a.bill_id,
-            amount_applied: parseFloat(a.amount_applied) || 0
+            billId: a.billId,
+            amountApplied: parseFloat(a.amountApplied) || 0
           }))
       };
       return api.create(payload, { idempotencyKey });
@@ -203,14 +204,14 @@ export default function VendorPaymentCreate() {
     }
   });
 
-  const totalAllocated = allocations.reduce((sum, a) => sum + (parseFloat(a.amount_applied) || 0), 0);
-  const paymentAmount = parseFloat(formData.amount_total) || 0;
+  const totalAllocated = allocations.reduce((sum, a) => sum + (parseFloat(a.amountApplied) || 0), 0);
+  const paymentAmount = parseFloat(formData.amountTotal) || 0;
   const unallocated = paymentAmount - totalAllocated;
 
   const isValid = 
-    formData.vendor_id &&
-    formData.payment_date &&
-    formData.cash_account_id &&
+    formData.vendorId &&
+    formData.paymentDate &&
+    formData.cashAccountId &&
     paymentAmount > 0 &&
     unallocated >= 0;
 
@@ -282,16 +283,16 @@ export default function VendorPaymentCreate() {
                         Vendor <span className="text-red-500">*</span>
                       </label>
                       <Select
-                        value={formData.vendor_id}
-                        onChange={(e) => setFormData({ ...formData, vendor_id: e.target.value })}
+                        value={formData.vendorId}
+                        onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                         options={vendorOptions}
                       />
                     </div>
                     <Input
                       label="Payment Date"
                       type="date"
-                      value={formData.payment_date}
-                      onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
+                      value={formData.paymentDate}
+                      onChange={(e) => setFormData({ ...formData, paymentDate: e.target.value })}
                       required
                     />
                   </div>
@@ -311,8 +312,8 @@ export default function VendorPaymentCreate() {
                         Cash/Bank Account <span className="text-red-500">*</span>
                       </label>
                       <Select
-                        value={formData.cash_account_id}
-                        onChange={(e) => setFormData({ ...formData, cash_account_id: e.target.value })}
+                        value={formData.cashAccountId}
+                        onChange={(e) => setFormData({ ...formData, cashAccountId: e.target.value })}
                         options={accountOptions}
                       />
                     </div>
@@ -321,8 +322,8 @@ export default function VendorPaymentCreate() {
                         Payment Method
                       </label>
                       <Select
-                        value={formData.payment_method_id}
-                        onChange={(e) => setFormData({ ...formData, payment_method_id: e.target.value })}
+                        value={formData.paymentMethodId}
+                        onChange={(e) => setFormData({ ...formData, paymentMethodId: e.target.value })}
                         options={methodOptions}
                       />
                     </div>
@@ -335,8 +336,8 @@ export default function VendorPaymentCreate() {
                         type="number"
                         step="0.01"
                         placeholder="0.00"
-                        value={formData.amount_total}
-                        onChange={(e) => setFormData({ ...formData, amount_total: e.target.value })}
+                        value={formData.amountTotal}
+                        onChange={(e) => setFormData({ ...formData, amountTotal: e.target.value })}
                         required
                       />
                       {paymentAmount > 0 && (
@@ -390,7 +391,7 @@ export default function VendorPaymentCreate() {
                   </div>
                   <button
                     onClick={addAllocation}
-                    disabled={!formData.vendor_id || billsLoading}
+                    disabled={!formData.vendorId || billsLoading}
                     className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-300 rounded-md hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
                   >
                     <Plus className="h-4 w-4" />
@@ -399,7 +400,7 @@ export default function VendorPaymentCreate() {
                 </div>
 
                 <div className="p-6">
-                  {!formData.vendor_id ? (
+                  {!formData.vendorId ? (
                     <div className="text-center py-8">
                       <AlertCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-sm text-gray-600">
@@ -432,7 +433,7 @@ export default function VendorPaymentCreate() {
                   ) : (
                     <div className="space-y-3">
                       {allocations.map((allocation, index) => {
-                        const selectedBill = bills.find(b => b.id === allocation.bill_id);
+                        const selectedBill = bills.find(b => b.id === allocation.billId);
                         return (
                           <div key={index} className="flex gap-3 items-start p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
                             <div className="flex-1 grid grid-cols-2 gap-3">
@@ -441,8 +442,8 @@ export default function VendorPaymentCreate() {
                                   Bill
                                 </label>
                                 <Select
-                                  value={allocation.bill_id}
-                                  onChange={(e) => updateAllocation(index, 'bill_id', e.target.value)}
+                                  value={allocation.billId}
+                                  onChange={(e) => updateAllocation(index, 'billId', e.target.value)}
                                   options={billOptions}
                                 />
                                 {selectedBill && (
@@ -456,8 +457,8 @@ export default function VendorPaymentCreate() {
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"
-                                value={allocation.amount_applied}
-                                onChange={(e) => updateAllocation(index, 'amount_applied', e.target.value)}
+                                value={allocation.amountApplied}
+                                onChange={(e) => updateAllocation(index, 'amountApplied', e.target.value)}
                               />
                             </div>
                             <button
@@ -512,7 +513,7 @@ export default function VendorPaymentCreate() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Bills Applied</span>
                     <span className="font-semibold text-gray-900">
-                      {allocations.filter(a => a.bill_id).length}
+                      {allocations.filter(a => a.billId).length}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm pt-3 border-t border-gray-200">
@@ -557,9 +558,9 @@ export default function VendorPaymentCreate() {
                 </div>
                 <div className="p-6 space-y-2">
                   {[
-                    { label: 'Vendor', valid: !!formData.vendor_id },
-                    { label: 'Payment Date', valid: !!formData.payment_date },
-                    { label: 'Cash Account', valid: !!formData.cash_account_id },
+                    { label: 'Vendor', valid: !!formData.vendorId },
+                    { label: 'Payment Date', valid: !!formData.paymentDate },
+                    { label: 'Cash Account', valid: !!formData.cashAccountId },
                     { label: 'Payment Amount > 0', valid: paymentAmount > 0 },
                     { label: 'No Over-allocation', valid: unallocated >= 0 }
                   ].map((item, idx) => (

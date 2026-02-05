@@ -100,7 +100,6 @@ export default function TaxAdmin() {
   const jurisdictions = Array.isArray(jurisQ.data?.data) ? jurisQ.data?.data : [];
   const taxCodes = Array.isArray(codesQ.data?.data) ? codesQ.data?.data : [];
   const accounts = Array.isArray(accountsQ.data) ? accountsQ.data : [];
-  console.log(jurisQ.data)
 
   const jurisOptions = [{ value: '', label: 'No jurisdiction' }].concat(
     jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` }))
