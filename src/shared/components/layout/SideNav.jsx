@@ -328,6 +328,9 @@ export function SideNav() {
             <PermissionGate any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacPermissionsRead]}>
               <Item to={ROUTES.adminRoles} icon={Shield} label="Roles" collapsed={!sidebarOpen} />
             </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.rbacRolesRead, PERMISSIONS.rbacPermissionsRead]}>
+              <Item to={ROUTES.adminPermissions} icon={Shield} label="Permissions" collapsed={!sidebarOpen} />
+            </PermissionGate>
             <PermissionGate any={[PERMISSIONS.settingsRead]}>
               <Item to={ROUTES.adminSettings} icon={Settings} label="Settings" collapsed={!sidebarOpen} />
             </PermissionGate>
