@@ -105,6 +105,32 @@ export const qk = {
   stockCounts: (qs) => ['inventory', 'stockCounts', qs ?? {}],
   stockCount: (id) => ['inventory', 'stockCounts', id],
   inventoryValuationReport: (qs) => ['inventory', 'reports', 'valuation', qs ?? {}],
-  inventoryMovementsReport: (qs) => ['inventory', 'reports', 'movements', qs ?? {}]
+  inventoryMovementsReport: (qs) => ['inventory', 'reports', 'movements', qs ?? {}],
+
+  // Phase 8 — Compliance
+  ifrs16Leases: (qs) => ['compliance', 'ifrs16', 'leases', qs ?? {}],
+  ifrs16Lease: (id) => ['compliance', 'ifrs16', 'leases', id],
+  ifrs16LeaseSchedule: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'schedule'],
+
+  ifrs15Settings: ['compliance', 'ifrs15', 'settings'],
+  ifrs15Contracts: (qs) => ['compliance', 'ifrs15', 'contracts', qs ?? {}],
+  ifrs15Contract: (id) => ['compliance', 'ifrs15', 'contracts', id],
+  ifrs15ContractSchedule: (id) => ['compliance', 'ifrs15', 'contracts', id, 'schedule'],
+  ifrs15ContractCosts: (id) => ['compliance', 'ifrs15', 'contracts', id, 'costs'],
+
+  ias12Settings: ['compliance', 'ias12', 'settings'],
+  ias12Authorities: ['compliance', 'ias12', 'authorities'],
+  ias12RateSets: ['compliance', 'ias12', 'rateSets'],
+  ias12RateSetLines: (rateSetId) => ['compliance', 'ias12', 'rateSets', rateSetId, 'lines'],
+  ias12TempDiffCategories: ['compliance', 'ias12', 'tempDiffCategories'],
+  ias12TempDifferences: (qs) => ['compliance', 'ias12', 'tempDifferences', qs ?? {}],
+  ias12DeferredTaxRuns: (qs) => ['compliance', 'ias12', 'deferredTaxRuns', qs ?? {}],
+  ias12DeferredTaxRun: (runId) => ['compliance', 'ias12', 'deferredTaxRuns', runId],
+
+  ifrs9Settings: ['compliance', 'ifrs9', 'settings'],
+  ifrs9Models: ['compliance', 'ifrs9', 'models'],
+  ifrs9Runs: (qs) => ['compliance', 'ifrs9', 'runs', qs ?? {}],
+  ifrs9Run: (runId) => ['compliance', 'ifrs9', 'runs', runId],
+  coaAccounts: (qs) => ['coa', 'accounts', qs ?? {}],
 
 };

@@ -310,6 +310,104 @@ modules: {
   }
 },
 
+compliance: {
+  health: '/compliance/health',
+  ifrs16: {
+    leases: {
+      list: (qs) => `/compliance/ifrs16/leases?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/compliance/ifrs16/leases',
+      detail: (leaseId) => `/compliance/ifrs16/leases/${leaseId}`,
+      status: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/status`,
+      scheduleGenerate: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/schedule/generate`,
+      schedule: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/schedule`,
+      post: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/post`,
+      initialRecognitionPost: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/initial-recognition/post`
+    }
+  },
+  ifrs15: {
+    settings: {
+      get: '/compliance/ifrs15/settings',
+      put: '/compliance/ifrs15/settings'
+    },
+    contracts: {
+      list: (qs) => `/compliance/ifrs15/contracts?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/compliance/ifrs15/contracts',
+      detail: (contractId) => `/compliance/ifrs15/contracts/${contractId}`,
+      activate: (contractId) => `/compliance/ifrs15/contracts/${contractId}/activate`,
+      obligations: (contractId) => `/compliance/ifrs15/contracts/${contractId}/obligations`,
+      scheduleGenerate: (contractId) => `/compliance/ifrs15/contracts/${contractId}/schedule/generate`,
+      schedule: (contractId) => `/compliance/ifrs15/contracts/${contractId}/schedule`,
+      post: (contractId) => `/compliance/ifrs15/contracts/${contractId}/post`,
+      costs: (contractId) => `/compliance/ifrs15/contracts/${contractId}/costs`,
+      costScheduleGenerate: (contractId, costId) => `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/schedule/generate`,
+      costPost: (contractId, costId) => `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/post`
+    }
+  },
+  ias12: {
+    health: '/compliance/ias12/health',
+    settings: { get: '/compliance/ias12/settings', put: '/compliance/ias12/settings' },
+    authorities: {
+      list: '/compliance/ias12/authorities',
+      create: '/compliance/ias12/authorities',
+      update: (authorityId) => `/compliance/ias12/authorities/${authorityId}`
+    },
+    rateSets: {
+      list: '/compliance/ias12/rate-sets',
+      create: '/compliance/ias12/rate-sets',
+      lines: (rateSetId) => `/compliance/ias12/rate-sets/${rateSetId}/lines`,
+      addLine: (rateSetId) => `/compliance/ias12/rate-sets/${rateSetId}/lines`
+    },
+    tempDiffCategories: {
+      list: '/compliance/ias12/temp-difference-categories',
+      create: '/compliance/ias12/temp-difference-categories'
+    },
+    tempDifferences: {
+      list: (qs) => `/compliance/ias12/temp-differences?${new URLSearchParams(qs ?? {}).toString()}`,
+      create: '/compliance/ias12/temp-differences',
+      update: (id) => `/compliance/ias12/temp-differences/${id}`,
+      remove: (id) => `/compliance/ias12/temp-differences/${id}`,
+      import: '/compliance/ias12/temp-differences/import',
+      copyForward: '/compliance/ias12/temp-differences/copy-forward'
+    },
+    deferredTax: {
+      compute: '/compliance/ias12/deferred-tax/compute',
+      runs: (qs) => `/compliance/ias12/deferred-tax/runs?${new URLSearchParams(qs ?? {}).toString()}`,
+      runDetail: (runId) => `/compliance/ias12/deferred-tax/runs/${runId}`,
+      finalize: (runId) => `/compliance/ias12/deferred-tax/runs/${runId}/finalize`,
+      post: '/compliance/ias12/deferred-tax/post',
+      reverse: '/compliance/ias12/deferred-tax/reverse'
+    },
+    reports: {
+      rollForward: (qs) => `/compliance/ias12/reports/roll-forward?${new URLSearchParams(qs ?? {}).toString()}`,
+      byCategory: (qs) => `/compliance/ias12/reports/by-category?${new URLSearchParams(qs ?? {}).toString()}`,
+      unrecognised: (qs) => `/compliance/ias12/reports/unrecognised?${new URLSearchParams(qs ?? {}).toString()}`
+    }
+  },
+  ifrs9: {
+    settings: { get: '/compliance/ifrs9/settings', put: '/compliance/ifrs9/settings' },
+    models: {
+      list: '/compliance/ifrs9/ecl-models',
+      create: '/compliance/ifrs9/ecl-models',
+      addBucket: (modelId) => `/compliance/ifrs9/ecl-models/${modelId}/buckets`
+    },
+    counterparties: {
+      upsertProfile: '/compliance/ifrs9/counterparties/profile',
+      profile: (businessPartnerId) => `/compliance/ifrs9/counterparties/${businessPartnerId}/profile`
+    },
+    ecl: {
+      compute: '/compliance/ifrs9/ecl/compute',
+      runs: (qs) => `/compliance/ifrs9/ecl/runs?${new URLSearchParams(qs ?? {}).toString()}`,
+      runDetail: (runId) => `/compliance/ifrs9/ecl/runs/${runId}`,
+      finalize: (runId) => `/compliance/ifrs9/ecl/runs/${runId}/finalize`,
+      post: '/compliance/ifrs9/ecl/post',
+      reverse: '/compliance/ifrs9/ecl/reverse'
+    },
+    reports: {
+      allowanceMovement: (qs) => `/compliance/ifrs9/reports/allowance-movement?${new URLSearchParams(qs ?? {}).toString()}`,
+      disclosures: (qs) => `/compliance/ifrs9/reports/disclosures?${new URLSearchParams(qs ?? {}).toString()}`
+    }
+  }
+},
 reporting: {
   ar: {
     agedReceivables: (qs) => `/reporting/ar/aged-receivables?${new URLSearchParams(qs ?? {}).toString()}`,

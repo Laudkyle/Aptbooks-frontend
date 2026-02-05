@@ -114,8 +114,14 @@ const ComplianceOverview = lazy(() =>
 const IFRS16LeasesPage = lazy(() =>
   import("../../features/compliance/pages/IFRS16LeasesPage.jsx")
 );
+const IFRS16LeaseDetailPage = lazy(() =>
+  import("../../features/compliance/pages/IFRS16LeaseDetailPage.jsx")
+);
 const IFRS15ContractsPage = lazy(() =>
   import("../../features/compliance/pages/IFRS15ContractsPage.jsx")
+);
+const IFRS15ContractDetailPage = lazy(() =>
+  import("../../features/compliance/pages/IFRS15ContractDetailPage.jsx")
 );
 const IFRS9EclPage = lazy(() =>
   import("../../features/compliance/pages/IFRS9ECLPage.jsx")
@@ -2036,6 +2042,17 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: ROUTES.complianceIFRS16LeaseDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs16Read]}>
+                <Lazy>
+                  <IFRS16LeaseDetailPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+
+          {
             path: ROUTES.complianceIFRS15,
             element: (
               <RequirePermission any={[PERMISSIONS.complianceIfrs15Read]}>
@@ -2045,6 +2062,17 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          {
+            path: ROUTES.complianceIFRS15ContractDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.complianceIfrs15Read]}>
+                <Lazy>
+                  <IFRS15ContractDetailPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+
           {
             path: ROUTES.complianceIFRS9,
             element: (
