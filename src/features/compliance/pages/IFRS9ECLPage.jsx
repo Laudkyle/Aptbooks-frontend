@@ -20,7 +20,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDate } from '../../../shared/utils/formatters.js';
+import { formatDate } from '../../../shared/utils/formatDate.js';
 
 export default function IFRS9ECLPage() {
   const qc = useQueryClient();

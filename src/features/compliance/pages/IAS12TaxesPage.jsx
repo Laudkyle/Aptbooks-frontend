@@ -21,7 +21,8 @@ import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { ConfirmDialog } from '../../../shared/components/ui/ConfirmDialog.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatCurrency, formatDate } from '../../../shared/utils/formatters.js';
+import {formatDate } from '../../../shared/utils/formatDate.js';
+import {formatMoney } from '../../../shared/utils/formatMoney.js';
 
 const yn = [
   { value: '0', label: 'No' },
@@ -218,8 +219,8 @@ export default function IAS12TaxesPage() {
     () => [
       { header: 'Description', render: (r) => <div className="font-medium text-slate-900">{r.description ?? '—'}</div> },
       { header: 'Category', render: (r) => <span className="text-sm text-slate-700">{r.category_name ?? r.category_id ?? '—'}</span> },
-      { header: 'Carrying', render: (r) => <span className="text-sm text-slate-700">{formatCurrency(r.carrying_amount)}</span> },
-      { header: 'Tax base', render: (r) => <span className="text-sm text-slate-700">{formatCurrency(r.tax_base)}</span> }
+      { header: 'Carrying', render: (r) => <span className="text-sm text-slate-700">{formatMoney(r.carrying_amount)}</span> },
+      { header: 'Tax base', render: (r) => <span className="text-sm text-slate-700">{formatMoney(r.tax_base)}</span> }
     ],
     []
   );

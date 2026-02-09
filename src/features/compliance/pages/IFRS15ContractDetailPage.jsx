@@ -22,7 +22,9 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatCurrency, formatDate } from '../../../shared/utils/formatters.js';
+import { formatDate } from '../../../shared/utils/formatDate.js';
+import { formatMoney } from '../../../shared/utils/formatMoney.js';
+
 
 export default function IFRS15ContractDetailPage() {
   const { contractId } = useParams();
@@ -158,7 +160,7 @@ export default function IFRS15ContractDetailPage() {
   const obligationColumns = useMemo(
     () => [
       { header: 'Name', render: (r) => <span className="font-medium text-slate-800">{r.name ?? '—'}</span> },
-      { header: 'SSP', render: (r) => <span>{formatCurrency(r.standalone_selling_price ?? r.ssp ?? 0, contract?.currency)}</span> },
+      { header: 'SSP', render: (r) => <span>{formatMoney(r.standalone_selling_price ?? r.ssp ?? 0, contract?.currency)}</span> },
       { header: 'Allocation', render: (r) => <span>{r.allocation_percent ?? r.allocationPct ?? '—'}</span> }
     ],
     [contract?.currency]
@@ -167,7 +169,7 @@ export default function IFRS15ContractDetailPage() {
   const scheduleColumns = useMemo(
     () => [
       { header: 'Date', render: (r) => <span>{formatDate(r.date ?? r.recognition_date)}</span> },
-      { header: 'Amount', render: (r) => <span>{formatCurrency(r.amount ?? r.revenue_amount ?? 0, contract?.currency)}</span> },
+      { header: 'Amount', render: (r) => <span>{formatMoney(r.amount ?? r.revenue_amount ?? 0, contract?.currency)}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'pending') === 'posted' ? 'success' : 'muted'}>{r.status ?? 'pending'}</Badge> }
     ],
     [contract?.currency]
@@ -176,7 +178,7 @@ export default function IFRS15ContractDetailPage() {
   const costColumns = useMemo(
     () => [
       { header: 'Name', render: (r) => <span className="font-medium text-slate-800">{r.name ?? '—'}</span> },
-      { header: 'Amount', render: (r) => <span>{formatCurrency(r.amount ?? 0, contract?.currency)}</span> },
+      { header: 'Amount', render: (r) => <span>{formatMoney(r.amount ?? 0, contract?.currency)}</span> },
       { header: 'Method', render: (r) => <span className="text-sm text-slate-700">{r.recognition_method ?? '—'}</span> }
     ],
     [contract?.currency]
@@ -221,7 +223,7 @@ export default function IFRS15ContractDetailPage() {
           </div>
           <div className="space-y-1">
             <div className="text-sm text-slate-700">Transaction price</div>
-            <div className="text-sm font-medium text-slate-900">{formatCurrency(contract?.total_transaction_price ?? contract?.transaction_price ?? 0, contract?.currency)}</div>
+            <div className="text-sm font-medium text-slate-900">{formatMoney(contract?.total_transaction_price ?? contract?.transaction_price ?? 0, contract?.currency)}</div>
           </div>
         </div>
       </ContentCard>

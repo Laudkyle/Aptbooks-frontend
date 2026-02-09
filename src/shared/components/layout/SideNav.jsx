@@ -283,16 +283,16 @@ export function SideNav() {
               <Item to={ROUTES.compliance} icon={Shield} label="Overview" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.complianceIfrs16Read]} fallback={null}>
-              <Item to={ROUTES.complianceIfrs16} icon={Shield} label="IFRS 16 (Leases)" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.complianceIFRS16} icon={Shield} label="IFRS 16 (Leases)" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.complianceIfrs15Read]} fallback={null}>
-              <Item to={ROUTES.complianceIfrs15} icon={Shield} label="IFRS 15 (Revenue)" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.complianceIFRS15} icon={Shield} label="IFRS 15 (Revenue)" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.complianceIfrs9Read]} fallback={null}>
-              <Item to={ROUTES.complianceIfrs9} icon={Shield} label="IFRS 9 (ECL)" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.complianceIFRS9} icon={Shield} label="IFRS 9 (ECL)" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.complianceIas12Read]} fallback={null}>
-              <Item to={ROUTES.complianceIas12} icon={Shield} label="IAS 12 (Taxes)" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.complianceIAS12} icon={Shield} label="IAS 12 (Taxes)" collapsed={!sidebarOpen} />
             </PermissionGate>
           </nav>
         </div>
@@ -301,11 +301,11 @@ export function SideNav() {
           <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">WORKFLOW</div>
           <nav className="mt-2 space-y-1">
             <PermissionGate any={[PERMISSIONS.documentsRead]} fallback={null}>
-              <Item to={ROUTES.workflowDocuments} icon={FileText} label="Documents" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.documents} icon={FileText} label="Documents" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.documentsManage]} fallback={null}>
-              <Item to={ROUTES.workflowDocumentTypes} icon={Settings} label="Document Types" collapsed={!sidebarOpen} />
-              <Item to={ROUTES.workflowApprovalLevels} icon={Settings} label="Approval Levels" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.documentTypes} icon={Settings} label="Document Types" collapsed={!sidebarOpen} />
+              <Item to={ROUTES.documentApprovalLevels} icon={Settings} label="Approval Levels" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.approvalsInboxRead]} fallback={null}>
               <Item to={ROUTES.workflowApprovalsInbox} icon={Inbox} label="Approvals Inbox" collapsed={!sidebarOpen} />
