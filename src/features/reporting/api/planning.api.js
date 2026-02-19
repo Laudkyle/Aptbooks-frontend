@@ -10,85 +10,119 @@ import { ensureIdempotencyKey } from '../../../shared/api/idempotency';
 export function makePlanningApi(http) {
   const base = '/reporting';
 
-  // Helpers
-  const idem = (cfg = {}) => ensureIdempotencyKey(cfg);
+  // Helper that accepts idempotencyKey parameter
+  const idem = (cfg = {}, idempotencyKey) => {
+    const headers = idempotencyKey ? { 'Idempotency-Key': idempotencyKey, ...cfg.headers } : cfg.headers;
+    return ensureIdempotencyKey({ ...cfg, headers });
+  };
 
   return {
     // 7.1 Centers
     centers: {
       list: (type, params = {}) => http.get(`${base}/centers/${type}`, { params }),
       usage: (type, id) => http.get(`${base}/centers/${type}/${id}/usage`),
-      create: (type, body) => http.post(`${base}/centers/${type}`, body, idem()),
-      update: (type, id, body) => http.put(`${base}/centers/${type}/${id}`, body, idem()),
-      archive: (type, id) => http.delete(`${base}/centers/${type}/${id}`, idem())
+      create: (type, body, options = {}) => http.post(`${base}/centers/${type}`, body, idem(options, options?.idempotencyKey)),
+      update: (type, id, body, options = {}) => http.put(`${base}/centers/${type}/${id}`, body, idem(options, options?.idempotencyKey)),
+      archive: (type, id, options = {}) => http.delete(`${base}/centers/${type}/${id}`, idem(options, options?.idempotencyKey))
     },
 
     // 7.2 Projects
     projects: {
       list: (params = {}) => http.get(`${base}/projects`, { params }),
       get: (id) => http.get(`${base}/projects/${id}`),
-      create: (body) => http.post(`${base}/projects`, body, idem()),
-      update: (id, body) => http.put(`${base}/projects/${id}`, body, idem()),
-      archive: (id) => http.delete(`${base}/projects/${id}`, idem()),
+      create: (body, options = {}) => http.post(`${base}/projects`, body, idem(options, options?.idempotencyKey)),
+      update: (id, body, options = {}) => http.put(`${base}/projects/${id}`, body, idem(options, options?.idempotencyKey)),
+      archive: (id, options = {}) => http.delete(`${base}/projects/${id}`, idem(options, options?.idempotencyKey)),
       phases: {
         list: (projectId) => http.get(`${base}/projects/${projectId}/phases`),
-        create: (projectId, body) => http.post(`${base}/projects/${projectId}/phases`, body, idem()),
-        update: (projectId, phaseId, body) => http.put(`${base}/projects/${projectId}/phases/${phaseId}`, body, idem()),
-        archive: (projectId, phaseId) => http.delete(`${base}/projects/${projectId}/phases/${phaseId}`, idem()),
+        create: (projectId, body, options = {}) => http.post(`${base}/projects/${projectId}/phases`, body, idem(options, options?.idempotencyKey)),
+        update: (projectId, phaseId, body, options = {}) => http.put(`${base}/projects/${projectId}/phases/${phaseId}`, body, idem(options, options?.idempotencyKey)),
+        archive: (projectId, phaseId, options = {}) => http.delete(`${base}/projects/${projectId}/phases/${phaseId}`, idem(options, options?.idempotencyKey)),
         tasks: {
           list: (projectId, phaseId) => http.get(`${base}/projects/${projectId}/phases/${phaseId}/tasks`),
-          create: (projectId, phaseId, body) => http.post(`${base}/projects/${projectId}/phases/${phaseId}/tasks`, body, idem()),
-          update: (projectId, phaseId, taskId, body) => http.put(`${base}/projects/${projectId}/phases/${phaseId}/tasks/${taskId}`, body, idem()),
-          archive: (projectId, phaseId, taskId) => http.delete(`${base}/projects/${projectId}/phases/${phaseId}/tasks/${taskId}`, idem())
+          create: (projectId, phaseId, body, options = {}) => http.post(`${base}/projects/${projectId}/phases/${phaseId}/tasks`, body, idem(options, options?.idempotencyKey)),
+          update: (projectId, phaseId, taskId, body, options = {}) => http.put(`${base}/projects/${projectId}/phases/${phaseId}/tasks/${taskId}`, body, idem(options, options?.idempotencyKey)),
+          archive: (projectId, phaseId, taskId, options = {}) => http.delete(`${base}/projects/${projectId}/phases/${phaseId}/tasks/${taskId}`, idem(options, options?.idempotencyKey))
         }
       }
     },
 
-    // 7.3 Budgets
-    budgets: {
-      list: () => http.get(`${base}/budgets`),
-      get: (id) => http.get(`${base}/budgets/${id}`),
-      create: (body) => http.post(`${base}/budgets`, body, idem()),
-      update: (id, body) => http.put(`${base}/budgets/${id}`, body, idem()),
-      versions: {
-        create: (budgetId, body) => http.post(`${base}/budgets/${budgetId}/versions`, body, idem()),
-        addLines: (budgetId, versionId, body) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/lines`, body, idem()),
-        importCsv: (budgetId, versionId, csvText) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/lines/import-csv`, csvText, {
-          ...idem(),
-          headers: { 'Content-Type': 'text/csv', ...(idem().headers || {}) }
-        }),
-        distribute: (budgetId, versionId, body) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/distribute`, body, idem()),
-        finalize: (budgetId, versionId) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/finalize`, {}, idem()),
-        submit: (budgetId, versionId) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/submit`, {}, idem()),
-        approve: (budgetId, versionId) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/approve`, {}, idem()),
-        reject: (budgetId, versionId, body) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/reject`, body, idem())
-      }
-    },
+// 7.3 Budgets
+budgets: {
+  list: () => http.get(`${base}/budgets`),
+  get: (id) => http.get(`${base}/budgets/${id}`),
+  create: (body, options = {}) => http.post(`${base}/budgets`, body, idem(options, options?.idempotencyKey)),
+  update: (id, body, options = {}) => http.put(`${base}/budgets/${id}`, body, idem(options, options?.idempotencyKey)),
+  
+  // New budget status management endpoints
+  archive: (id, options = {}) => http.post(`${base}/budgets/${id}/archive`, {}, idem(options, options?.idempotencyKey)),
+  activate: (id, options = {}) => http.post(`${base}/budgets/${id}/activate`, {}, idem(options, options?.idempotencyKey)),
+  
+  versions: {
+    create: (budgetId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/versions`, body, idem(options, options?.idempotencyKey)),
+    addLines: (budgetId, versionId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/lines`, body, idem(options, options?.idempotencyKey)),
+    upsertAmount: (budgetId, versionId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/annual`, body, idem(options, options?.idempotencyKey)),
+    importCsv: (budgetId, versionId, csvText, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/lines/import-csv`, csvText, {
+      ...idem(options, options?.idempotencyKey),
+      headers: { 'Content-Type': 'text/csv', ...(idem(options, options?.idempotencyKey).headers || {}) }
+    }),
+    distribute: (budgetId, versionId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/distribute`, body, idem(options, options?.idempotencyKey)),
+    finalize: (budgetId, versionId, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/finalize`, {}, idem(options, options?.idempotencyKey)),
+    submit: (budgetId, versionId, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/submit`, {}, idem(options, options?.idempotencyKey)),
+    approve: (budgetId, versionId, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/approve`, {}, idem(options, options?.idempotencyKey)),
+    reject: (budgetId, versionId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/versions/${versionId}/reject`, body, idem(options, options?.idempotencyKey)),
+    
+    // Additional version operations that might be useful
+    get: (budgetId, versionId) => http.get(`${base}/budgets/${budgetId}/versions/${versionId}`),
+    list: (budgetId) => http.get(`${base}/budgets/${budgetId}/versions`),
+    
+    // Variance analysis
+    variance: (budgetId, versionId, periodId) => 
+      http.get(`${base}/budgets/${budgetId}/versions/${versionId}/variance`, { params: { periodId } }),
+    
+    // Mass operations
+    massAdjust: (budgetId, versionId, body, options = {}) => 
+      http.post(`${base}/budgets/${budgetId}/versions/${versionId}/lines/mass-adjust`, body, idem(options, options?.idempotencyKey)),
+    
+    // Copy version
+    copy: (budgetId, sourceVersionId, body, options = {}) => 
+      http.post(`${base}/budgets/${budgetId}/versions/${sourceVersionId}/copy`, body, idem(options, options?.idempotencyKey))
+  },
+  
+  // Alert rules
+  alerts: {
+    list: (budgetId) => http.get(`${base}/budgets/${budgetId}/alert-rules`),
+    create: (budgetId, body, options = {}) => http.post(`${base}/budgets/${budgetId}/alert-rules`, body, idem(options, options?.idempotencyKey)),
+    update: (budgetId, ruleId, body, options = {}) => http.put(`${base}/budgets/${budgetId}/alert-rules/${ruleId}`, body, idem(options, options?.idempotencyKey)),
+    delete: (budgetId, ruleId, options = {}) => http.delete(`${base}/budgets/${budgetId}/alert-rules/${ruleId}`, idem(options, options?.idempotencyKey)),
+    get: (budgetId, ruleId) => http.get(`${base}/budgets/${budgetId}/alert-rules/${ruleId}`)
+  }
+},
 
     // 7.4 Forecasts
     forecasts: {
       list: (params = {}) => http.get(`${base}/forecasts`, { params }),
-      create: (body) => http.post(`${base}/forecasts`, body, idem()),
-      activate: (id) => http.post(`${base}/forecasts/${id}/activate`, {}, idem()),
-      archive: (id) => http.post(`${base}/forecasts/${id}/archive`, {}, idem()),
+      create: (body, options = {}) => http.post(`${base}/forecasts`, body, idem(options, options?.idempotencyKey)),
+      activate: (id, options = {}) => http.post(`${base}/forecasts/${id}/activate`, {}, idem(options, options?.idempotencyKey)),
+      archive: (id, options = {}) => http.post(`${base}/forecasts/${id}/archive`, {}, idem(options, options?.idempotencyKey)),
       versions: {
-        create: (forecastId, body) => http.post(`${base}/forecasts/${forecastId}/versions`, body, idem()),
-        finalize: (forecastId, versionId) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/finalize`, {}, idem()),
-        copy: (forecastId, versionId, body) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/copy`, body, idem()),
-        submit: (forecastId, versionId) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/submit`, {}, idem()),
-        approve: (forecastId, versionId) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/approve`, {}, idem()),
-        reject: (forecastId, versionId, body) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/reject`, body, idem())
+        create: (forecastId, body, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions`, body, idem(options, options?.idempotencyKey)),
+        finalize: (forecastId, versionId, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/finalize`, {}, idem(options, options?.idempotencyKey)),
+        copy: (forecastId, versionId, body, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/copy`, body, idem(options, options?.idempotencyKey)),
+        submit: (forecastId, versionId, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/submit`, {}, idem(options, options?.idempotencyKey)),
+        approve: (forecastId, versionId, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/approve`, {}, idem(options, options?.idempotencyKey)),
+        reject: (forecastId, versionId, body, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/reject`, body, idem(options, options?.idempotencyKey))
       },
       lines: {
-        addToLatestDraft: (forecastId, body) => http.post(`${base}/forecasts/${forecastId}/lines`, body, idem()),
-        addToVersion: (forecastId, versionId, body) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/lines`, body, idem()),
-        importCsvToLatestDraft: (forecastId, csvText) => http.post(`${base}/forecasts/${forecastId}/lines/import-csv`, csvText, {
-          ...idem(),
-          headers: { 'Content-Type': 'text/csv', ...(idem().headers || {}) }
+        addToLatestDraft: (forecastId, body, options = {}) => http.post(`${base}/forecasts/${forecastId}/lines`, body, idem(options, options?.idempotencyKey)),
+        addToVersion: (forecastId, versionId, body, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/lines`, body, idem(options, options?.idempotencyKey)),
+        importCsvToLatestDraft: (forecastId, csvText, options = {}) => http.post(`${base}/forecasts/${forecastId}/lines/import-csv`, csvText, {
+          ...idem(options, options?.idempotencyKey),
+          headers: { 'Content-Type': 'text/csv', ...(idem(options, options?.idempotencyKey).headers || {}) }
         }),
-        importCsvToVersion: (forecastId, versionId, csvText) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/lines/import-csv`, csvText, {
-          ...idem(),
-          headers: { 'Content-Type': 'text/csv', ...(idem().headers || {}) }
+        importCsvToVersion: (forecastId, versionId, csvText, options = {}) => http.post(`${base}/forecasts/${forecastId}/versions/${versionId}/lines/import-csv`, csvText, {
+          ...idem(options, options?.idempotencyKey),
+          headers: { 'Content-Type': 'text/csv', ...(idem(options, options?.idempotencyKey).headers || {}) }
         })
       },
       compare: (forecastId, params) => http.get(`${base}/forecasts/${forecastId}/compare`, { params }),
@@ -100,40 +134,40 @@ export function makePlanningApi(http) {
     allocations: {
       bases: {
         list: () => http.get(`${base}/allocations/bases`),
-        create: (body) => http.post(`${base}/allocations/bases`, body, idem())
+        create: (body, options = {}) => http.post(`${base}/allocations/bases`, body, idem(options, options?.idempotencyKey))
       },
       rules: {
         list: () => http.get(`${base}/allocations/rules`),
-        create: (body) => http.post(`${base}/allocations/rules`, body, idem())
+        create: (body, options = {}) => http.post(`${base}/allocations/rules`, body, idem(options, options?.idempotencyKey))
       },
       preview: (body) => http.post(`${base}/allocations/preview`, body),
-      compute: (body) => http.post(`${base}/allocations/compute`, body, idem()),
-      post: (id, body) => http.post(`${base}/allocations/${id}/post`, body, idem())
+      compute: (body, options = {}) => http.post(`${base}/allocations/compute`, body, idem(options, options?.idempotencyKey)),
+      post: (id, body, options = {}) => http.post(`${base}/allocations/${id}/post`, body, idem(options, options?.idempotencyKey))
     },
 
     // 7.6 KPIs
     kpis: {
       definitions: {
         list: (params = {}) => http.get(`${base}/kpis/definitions`, { params }),
-        create: (body) => http.post(`${base}/kpis/definitions`, body, idem()),
-        update: (id, body) => http.put(`${base}/kpis/definitions/${id}`, body, idem()),
-        archive: (id) => http.delete(`${base}/kpis/definitions/${id}`, idem()),
+        create: (body, options = {}) => http.post(`${base}/kpis/definitions`, body, idem(options, options?.idempotencyKey)),
+        update: (id, body, options = {}) => http.put(`${base}/kpis/definitions/${id}`, body, idem(options, options?.idempotencyKey)),
+        archive: (id, options = {}) => http.delete(`${base}/kpis/definitions/${id}`, idem(options, options?.idempotencyKey)),
         targets: {
           list: (id, params = {}) => http.get(`${base}/kpis/definitions/${id}/targets`, { params }),
-          create: (id, body) => http.post(`${base}/kpis/definitions/${id}/targets`, body, idem())
+          create: (id, body, options = {}) => http.post(`${base}/kpis/definitions/${id}/targets`, body, idem(options, options?.idempotencyKey))
         }
       },
       values: {
         list: (params = {}) => http.get(`${base}/kpis/values`, { params }),
-        compute: (body) => http.post(`${base}/kpis/values/compute`, body, idem()),
-        importCsv: (csvText) => http.post(`${base}/kpis/values/import-csv`, csvText, {
-          ...idem(),
-          headers: { 'Content-Type': 'text/csv', ...(idem().headers || {}) }
+        compute: (body, options = {}) => http.post(`${base}/kpis/values/compute`, body, idem(options, options?.idempotencyKey)),
+        importCsv: (csvText, options = {}) => http.post(`${base}/kpis/values/import-csv`, csvText, {
+          ...idem(options, options?.idempotencyKey),
+          headers: { 'Content-Type': 'text/csv', ...(idem(options, options?.idempotencyKey).headers || {}) }
         })
       },
       targets: {
-        update: (targetId, body) => http.put(`${base}/kpis/targets/${targetId}`, body, idem()),
-        archive: (targetId) => http.delete(`${base}/kpis/targets/${targetId}`, idem())
+        update: (targetId, body, options = {}) => http.put(`${base}/kpis/targets/${targetId}`, body, idem(options, options?.idempotencyKey)),
+        archive: (targetId, options = {}) => http.delete(`${base}/kpis/targets/${targetId}`, idem(options, options?.idempotencyKey))
       }
     },
 

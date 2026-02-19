@@ -2,6 +2,7 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from './Button.jsx';
 
+
 export function Modal({ open, title, onClose, children, footer }) {
   if (!open) return null;
   return (
