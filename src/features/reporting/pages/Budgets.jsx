@@ -34,15 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../shared/components/ui/DropdownMenu.jsx";
-
-// Generate UUID v4 function (same as BillCreate)
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
+import { generateUUID } from "../../../shared/utils/generateUUID.js";
 
 /**
  * Helper function to safely extract rows from various API response formats
