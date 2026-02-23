@@ -366,27 +366,112 @@ export function makePlanningApi(http) {
           http.get(`${base}/budgets/${budgetId}/alert-rules/${ruleId}`),
       },
     },
-
-  // 7.4 Forecasts
+// 7.4 Forecasts
 forecasts: {
-  // Existing endpoints
+  // ============================
+  // Scenario Management
+  // ============================
+  scenarios: {
+    // List all scenarios
+    list: (params = {}) => http.get(`${base}/forecasts/scenarios`, { params }),
+    
+    // Get scenarios with usage statistics
+    getStats: () => http.get(`${base}/forecasts/scenarios/stats`),
+    
+    // Get a specific scenario by ID
+    get: (scenarioId) => http.get(`${base}/forecasts/scenarios/${scenarioId}`),
+    
+    // Get a scenario by code
+    getByCode: (code) => http.get(`${base}/forecasts/scenarios/code/${code}`),
+    
+    // Create a new scenario
+    create: (body, options = {}) =>
+      http.post(
+        `${base}/forecasts/scenarios`,
+        body,
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Update a scenario (PUT)
+    update: (scenarioId, body, options = {}) =>
+      http.put(
+        `${base}/forecasts/scenarios/${scenarioId}`,
+        body,
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Partially update a scenario (PATCH)
+    patch: (scenarioId, body, options = {}) =>
+      http.patch(
+        `${base}/forecasts/scenarios/${scenarioId}`,
+        body,
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Delete a scenario (soft delete by default, hard delete with force=true)
+    delete: (scenarioId, params = {}) => 
+      http.delete(`${base}/forecasts/scenarios/${scenarioId}`, { params }),
+    
+    // Set a scenario as default
+    setDefault: (scenarioId, options = {}) =>
+      http.post(
+        `${base}/forecasts/scenarios/${scenarioId}/set-default`,
+        {},
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Restore a soft-deleted scenario
+    restore: (scenarioId, options = {}) =>
+      http.post(
+        `${base}/forecasts/scenarios/${scenarioId}/restore`,
+        {},
+        idem(options, options?.idempotencyKey),
+      ),
+  },
+
+  // ============================
+  // Existing Forecast Endpoints
+  // ============================
+  
+  // List forecasts
   list: (params = {}) => http.get(`${base}/forecasts`, { params }),
   
-  // NEW: Get single forecast by ID
+  // GET single forecast by ID
   get: (id, params = {}) => http.get(`${base}/forecasts/${id}`, { params }),
   
+  // Update forecast (PUT)
+  update: (id, body, options = {}) =>
+    http.put(
+      `${base}/forecasts/${id}`,
+      body,
+      idem(options, options?.idempotencyKey),
+    ),
+  
+  // Partially update forecast (PATCH)
+  patch: (id, body, options = {}) =>
+    http.patch(
+      `${base}/forecasts/${id}`,
+      body,
+      idem(options, options?.idempotencyKey),
+    ),
+  
+  // Create forecast
   create: (body, options = {}) =>
     http.post(
       `${base}/forecasts`,
       body,
       idem(options, options?.idempotencyKey),
     ),
+  
+  // Activate forecast
   activate: (id, options = {}) =>
     http.post(
       `${base}/forecasts/${id}/activate`,
       {},
       idem(options, options?.idempotencyKey),
     ),
+  
+  // Archive forecast
   archive: (id, options = {}) =>
     http.post(
       `${base}/forecasts/${id}/archive`,
@@ -394,47 +479,77 @@ forecasts: {
       idem(options, options?.idempotencyKey),
     ),
   
-  // NEW: Get forecast summary
+  // Get forecast summary
   getSummary: (id) => http.get(`${base}/forecasts/${id}/summary`),
   
+  // ============================
+  // Version Management
+  // ============================
   versions: {
-    // NEW: List all versions for a forecast
+    // List all versions for a forecast
     list: (forecastId) => http.get(`${base}/forecasts/${forecastId}/versions`),
     
-    // NEW: Get a specific version with its lines
+    // Get a specific version with its lines
     get: (forecastId, versionId) => 
       http.get(`${base}/forecasts/${forecastId}/versions/${versionId}`),
     
+    // Update forecast version (PUT)
+    update: (forecastId, versionId, body, options = {}) =>
+      http.put(
+        `${base}/forecasts/${forecastId}/versions/${versionId}`,
+        body,
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Partially update forecast version (PATCH)
+    patch: (forecastId, versionId, body, options = {}) =>
+      http.patch(
+        `${base}/forecasts/${forecastId}/versions/${versionId}`,
+        body,
+        idem(options, options?.idempotencyKey),
+      ),
+    
+    // Create a new version
     create: (forecastId, body, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions`,
         body,
         idem(options, options?.idempotencyKey),
       ),
+    
+    // Finalize a version
     finalize: (forecastId, versionId, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions/${versionId}/finalize`,
         {},
         idem(options, options?.idempotencyKey),
       ),
+    
+    // Copy a version
     copy: (forecastId, versionId, body, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions/${versionId}/copy`,
         body,
         idem(options, options?.idempotencyKey),
       ),
+    
+    // Submit for approval
     submit: (forecastId, versionId, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions/${versionId}/submit`,
         {},
         idem(options, options?.idempotencyKey),
       ),
+    
+    // Approve version
     approve: (forecastId, versionId, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions/${versionId}/approve`,
         {},
         idem(options, options?.idempotencyKey),
       ),
+    
+    // Reject version
     reject: (forecastId, versionId, body, options = {}) =>
       http.post(
         `${base}/forecasts/${forecastId}/versions/${versionId}/reject`,
@@ -442,27 +557,35 @@ forecasts: {
         idem(options, options?.idempotencyKey),
       ),
     
-    // NEW: Get workflow history for a version
+    // Get workflow history for a version
     getHistory: (forecastId, versionId) => 
       http.get(`${base}/forecasts/${forecastId}/versions/${versionId}/history`),
     
+    // ============================
+    // Lines Management
+    // ============================
     lines: {
-      // NEW: List lines for a specific version with pagination and filtering
+      // List lines for a specific version with pagination and filtering
       list: (forecastId, versionId, params = {}) => 
         http.get(`${base}/forecasts/${forecastId}/versions/${versionId}/lines`, { params }),
       
+      // Add lines to latest draft version
       addToLatestDraft: (forecastId, body, options = {}) =>
         http.post(
           `${base}/forecasts/${forecastId}/lines`,
           body,
           idem(options, options?.idempotencyKey),
         ),
+      
+      // Add lines to a specific version
       addLines: (forecastId, versionId, body, options = {}) =>
         http.post(
           `${base}/forecasts/${forecastId}/versions/${versionId}/lines`,
           body,
           idem(options, options?.idempotencyKey),
         ),
+      
+      // Import CSV to latest draft version
       importCsvToLatestDraft: (forecastId, csvText, options = {}) =>
         http.post(
           `${base}/forecasts/${forecastId}/lines/import-csv`,
@@ -475,6 +598,8 @@ forecasts: {
             },
           },
         ),
+      
+      // Import CSV to a specific version
       importCsvToVersion: (forecastId, versionId, csvText, options = {}) =>
         http.post(
           `${base}/forecasts/${forecastId}/versions/${versionId}/lines/import-csv`,
@@ -490,11 +615,18 @@ forecasts: {
     },
   },
   
+  // ============================
+  // Analysis Endpoints
+  // ============================
+  
+  // Compare two versions
   compare: (forecastId, params) =>
     http.get(`${base}/forecasts/${forecastId}/compare`, { params }),
   
+  // Forecast vs Budget comparison
   vsBudget: (params) => http.get(`${base}/forecasts/vs-budget`, { params }),
   
+  // Variance analysis (Forecast vs Actual)
   variance: (forecastId, params) =>
     http.get(`${base}/forecasts/${forecastId}/variance`, { params }),
 },

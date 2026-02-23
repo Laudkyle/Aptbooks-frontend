@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from "react-router-dom";
 import {
   CloudSun,
   Plus,
@@ -58,31 +58,35 @@ import {
   Zap,
   Scale,
   LineChart,
-  Gauge
-} from 'lucide-react';
+  Gauge,
+  Tag,
+  Star,
+  Trash2,
+  RotateCcw,
+  ActivitySquare,
+} from "lucide-react";
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { makePlanningApi } from '../api/planning.api.js';
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
-import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { useApi } from "../../../shared/hooks/useApi.js";
+import { makePlanningApi } from "../api/planning.api.js";
+import { makeCoaApi } from "../../accounting/chartOfAccounts/api/coa.api.js";
+import { makePeriodsApi } from "../../accounting/periods/api/periods.api.js";
+import { PageHeader } from "../../../shared/components/layout/PageHeader.jsx";
+import { ContentCard } from "../../../shared/components/layout/ContentCard.jsx";
+import { Button } from "../../../shared/components/ui/Button.jsx";
+import { Modal } from "../../../shared/components/ui/Modal.jsx";
+import { Input } from "../../../shared/components/ui/Input.jsx";
+import { Select } from "../../../shared/components/ui/Select.jsx";
+import { Badge } from "../../../shared/components/ui/Badge.jsx";
+import { DataTable } from "../../../shared/components/data/DataTable.jsx";
+import { Tabs } from "../../../shared/components/ui/Tabs.jsx";
+import { useToast } from "../../../shared/components/ui/Toast.jsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../shared/components/ui/DropdownMenu.jsx";
-import { ROUTES } from '../../../app/constants/routes.js';
+import { ROUTES } from "../../../app/constants/routes.js";
 import { generateUUID } from "../../../shared/utils/generateUUID.js";
 
 /**
@@ -90,15 +94,12 @@ import { generateUUID } from "../../../shared/utils/generateUUID.js";
  */
 function extractData(data) {
   if (!data) return null;
-  
-  // Handle { data: { ... } } structure
   if (data.data && data.data.data) {
     return data.data.data;
   }
   if (data.data) {
     return data.data;
   }
-  
   return data;
 }
 
@@ -107,12 +108,10 @@ function extractData(data) {
  */
 function extractRows(data) {
   if (!data) return [];
-  
   if (Array.isArray(data)) return data;
   if (data.data && Array.isArray(data.data.data)) return data.data.data;
   if (Array.isArray(data.data)) return data.data;
   if (Array.isArray(data.items)) return data.items;
-  
   return [];
 }
 
@@ -129,18 +128,33 @@ export default function ForecastDetail() {
   // UI State
   const [selectedVersionId, setSelectedVersionId] = useState(null);
   const [expandedVersions, setExpandedVersions] = useState(new Set());
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState("table");
   const [showFilters, setShowFilters] = useState(false);
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReason, setRejectionReason] = useState("");
   const [selectedVersionForRejection, setSelectedVersionForRejection] = useState(null);
-  const [activeTab, setActiveTab] = useState('versions');
+  const [activeTab, setActiveTab] = useState("versions");
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [compareResults, setCompareResults] = useState(null);
+  
+  // Scenario Management State
+  const [scenarioModalOpen, setScenarioModalOpen] = useState(false);
+  const [editingScenario, setEditingScenario] = useState(null);
+  const [scenarioForm, setScenarioForm] = useState({
+    code: "",
+    name: "",
+    description: "",
+    isDefault: false,
+    isActive: true,
+  });
+  const [deleteScenarioModalOpen, setDeleteScenarioModalOpen] = useState(false);
+  const [scenarioToDelete, setScenarioToDelete] = useState(null);
+  const [forceDelete, setForceDelete] = useState(false);
+
   const [filters, setFilters] = useState({
-    account: '',
-    period: '',
-    amountRange: { min: '', max: '' }
+    account: "",
+    period: "",
+    amountRange: { min: "", max: "" },
   });
 
   // Modal States
@@ -151,7 +165,7 @@ export default function ForecastDetail() {
     addLines: false,
     versionDimensions: false,
     copyVersion: false,
-    compareVersions: false
+    compareVersions: false,
   });
 
   // Selected version for editing
@@ -160,32 +174,31 @@ export default function ForecastDetail() {
   // Form States
   const [versionForm, setVersionForm] = useState({
     versionNo: 1,
-    name: '',
-    status: 'draft',
-    scenarioKey: null,
+    name: "",
+    status: "draft",
+    scenarioId: null,
     probabilityWeight: 1,
-    dimensionJson: {}
+    dimensionJson: {},
   });
 
   const [copyForm, setCopyForm] = useState({
-    baseVersionId: '',
-    compareVersionId: '',
-    periodId: '',
+    baseVersionId: "",
+    compareVersionId: "",
+    periodId: "",
     newVersionNo: 2,
-    name: '',
-    scenarioKey: null,
-    probabilityWeight: 1
+    name: "",
+    scenarioId: null,
+    probabilityWeight: 1,
   });
 
   const [addLinesForm, setAddLinesForm] = useState({
-    versionId: '',
-    lines: [{ accountId: '', periodId: '', amount: '' }]
+    versionId: "",
+    lines: [{ accountId: "", periodId: "", amount: "" }],
   });
 
-  
   const [csvForm, setCsvForm] = useState({
-    versionId: '',
-    data: ''
+    versionId: "",
+    data: "",
   });
 
   // ============================
@@ -193,33 +206,69 @@ export default function ForecastDetail() {
   // ============================
 
   // Fetch Forecast with all nested data
-  const { 
-    data: forecastData, 
-    isLoading: forecastLoading, 
+  const {
+    data: forecastData,
+    isLoading: forecastLoading,
     error: forecastError,
-    refetch: refetchForecast 
+    refetch: refetchForecast,
   } = useQuery({
-    queryKey: ['forecast', id],
+    queryKey: ["forecast", id],
     queryFn: () => api.forecasts.get(id, { includeLines: true }),
     enabled: !!id,
-    staleTime: 30000
+    staleTime: 30000,
+  });
+
+  // Fetch Scenarios
+  const {
+    data: scenariosData,
+    isLoading: scenariosLoading,
+    refetch: refetchScenarios,
+  } = useQuery({
+    queryKey: ["scenarios"],
+    queryFn: () => api.forecasts.scenarios.list({ includeInactive: true }),
+    staleTime: 60000,
+  });
+
+  // Fetch Scenarios with Stats
+  const {
+    data: scenariosStatsData,
+    refetch: refetchScenariosStats,
+  } = useQuery({
+    queryKey: ["scenarios", "stats"],
+    queryFn: () => api.forecasts.scenarios.getStats(),
+    staleTime: 60000,
   });
 
   // Extract forecast data
   const forecast = useMemo(() => extractData(forecastData), [forecastData]);
+  const scenarios = useMemo(() => extractRows(scenariosData), [scenariosData]);
+  const scenariosStats = useMemo(() => extractRows(scenariosStatsData), [scenariosStatsData]);
+
+  // Create scenarios map for quick lookup
+  const scenariosMap = useMemo(() => {
+    const map = new Map();
+    scenarios.forEach((s) => map.set(s.id, s));
+    return map;
+  }, [scenarios]);
 
   // Extract versions from forecast
   const versions = useMemo(() => {
     if (!forecast) return [];
-    if (forecast.versions && Array.isArray(forecast.versions)) return forecast.versions;
+    if (forecast.versions && Array.isArray(forecast.versions))
+      return forecast.versions;
     return [];
   }, [forecast]);
 
   // Get lines for a specific version
-  const getLinesForVersion = useCallback((versionId) => {
-    const version = versions.find(v => v.id === versionId);
-    return version?.lines && Array.isArray(version.lines) ? version.lines : [];
-  }, [versions]);
+  const getLinesForVersion = useCallback(
+    (versionId) => {
+      const version = versions.find((v) => v.id === versionId);
+      return version?.lines && Array.isArray(version.lines)
+        ? version.lines
+        : [];
+    },
+    [versions],
+  );
 
   // Get currently selected version's lines
   const currentLines = useMemo(() => {
@@ -228,31 +277,32 @@ export default function ForecastDetail() {
 
   // Fetch Accounts
   const { data: accountsData } = useQuery({
-    queryKey: ['accounts'],
+    queryKey: ["accounts"],
     queryFn: () => coaApi.list({ includeArchived: false }),
-    staleTime: 60000
+    staleTime: 60000,
   });
 
   const accounts = useMemo(() => extractRows(accountsData), [accountsData]);
 
   const accountsMap = useMemo(() => {
     const map = new Map();
-    accounts.forEach(acc => map.set(acc.id, acc));
+    accounts.forEach((acc) => map.set(acc.id, acc));
     return map;
   }, [accounts]);
 
   const { data: periodsData } = useQuery({
-    queryKey: ['periods'],
-    queryFn: () => periodsApi.list({ 
-      status: 'open' 
-    }),
-    staleTime: 60000
+    queryKey: ["periods"],
+    queryFn: () =>
+      periodsApi.list({
+        status: "open",
+      }),
+    staleTime: 60000,
   });
 
   const periods = useMemo(() => extractRows(periodsData), [periodsData]);
   const periodsMap = useMemo(() => {
     const map = new Map();
-    periods.forEach(p => map.set(p.id, p));
+    periods.forEach((p) => map.set(p.id, p));
     return map;
   }, [periods]);
 
@@ -265,7 +315,98 @@ export default function ForecastDetail() {
   }, [versions, selectedVersionId]);
 
   // ============================
-  // Mutations
+  // Scenario Mutations
+  // ============================
+
+  const createScenarioMutation = useMutation({
+    mutationFn: async () => {
+      const idempotencyKey = generateUUID();
+      return api.forecasts.scenarios.create(scenarioForm, { idempotencyKey });
+    },
+    onSuccess: () => {
+      toast.success("Scenario created successfully");
+      setScenarioModalOpen(false);
+      resetScenarioForm();
+      refetchScenarios();
+      refetchScenariosStats();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to create scenario");
+    },
+  });
+
+  const updateScenarioMutation = useMutation({
+    mutationFn: async () => {
+      const idempotencyKey = generateUUID();
+      return api.forecasts.scenarios.update(editingScenario.id, scenarioForm, { idempotencyKey });
+    },
+    onSuccess: () => {
+      toast.success("Scenario updated successfully");
+      setScenarioModalOpen(false);
+      setEditingScenario(null);
+      resetScenarioForm();
+      refetchScenarios();
+      refetchScenariosStats();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to update scenario");
+    },
+  });
+
+  const deleteScenarioMutation = useMutation({
+    mutationFn: async () => {
+      const params = forceDelete ? { force: true } : {};
+      return api.forecasts.scenarios.delete(scenarioToDelete.id, params);
+    },
+    onSuccess: (data) => {
+      if (data?.softDeleted) {
+        toast.success("Scenario deactivated (in use)");
+      } else {
+        toast.success("Scenario deleted successfully");
+      }
+      setDeleteScenarioModalOpen(false);
+      setScenarioToDelete(null);
+      setForceDelete(false);
+      refetchScenarios();
+      refetchScenariosStats();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to delete scenario");
+    },
+  });
+
+  const setDefaultScenarioMutation = useMutation({
+    mutationFn: async (scenarioId) => {
+      const idempotencyKey = generateUUID();
+      return api.forecasts.scenarios.setDefault(scenarioId, { idempotencyKey });
+    },
+    onSuccess: () => {
+      toast.success("Default scenario updated");
+      refetchScenarios();
+      refetchScenariosStats();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to set default scenario");
+    },
+  });
+
+  const restoreScenarioMutation = useMutation({
+    mutationFn: async (scenarioId) => {
+      const idempotencyKey = generateUUID();
+      return api.forecasts.scenarios.restore(scenarioId, { idempotencyKey });
+    },
+    onSuccess: () => {
+      toast.success("Scenario restored successfully");
+      refetchScenarios();
+      refetchScenariosStats();
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to restore scenario");
+    },
+  });
+
+  // ============================
+  // Version Mutations
   // ============================
 
   const createVersionMutation = useMutation({
@@ -275,44 +416,46 @@ export default function ForecastDetail() {
         versionNo: Number(versionForm.versionNo),
         name: versionForm.name || null,
         status: versionForm.status,
-        scenarioKey: versionForm.scenarioKey,
+        scenarioId: versionForm.scenarioId,
         probabilityWeight: Number(versionForm.probabilityWeight),
-        dimensionJson: versionForm.dimensionJson
+        dimensionJson: versionForm.dimensionJson,
       };
       return api.forecasts.versions.create(id, payload, { idempotencyKey });
     },
     onSuccess: (data) => {
-      toast.success('Version created successfully');
-      closeModal('createVersion');
+      toast.success("Version created successfully");
+      closeModal("createVersion");
       resetVersionForm();
       refetchForecast();
-      
+
       const newVersion = extractData(data);
       if (newVersion?.id) {
         setSelectedVersionId(newVersion.id);
-        setExpandedVersions(prev => new Set([...prev, newVersion.id]));
+        setExpandedVersions((prev) => new Set([...prev, newVersion.id]));
       }
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to create version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to create version");
+    },
   });
 
   const updateVersionMutation = useMutation({
     mutationFn: async ({ versionId, data }) => {
       const idempotencyKey = generateUUID();
-      return api.forecasts.updateVersion(id, versionId, data, { idempotencyKey });
+      return api.forecasts.versions.patch(id, versionId, data, {
+        idempotencyKey,
+      });
     },
     onSuccess: () => {
-      toast.success('Version updated successfully');
-      closeModal('editVersion');
+      toast.success("Version updated successfully");
+      closeModal("editVersion");
       refetchForecast();
       setEditingVersion(null);
       resetVersionForm();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to update version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to update version");
+    },
   });
 
   const copyVersionMutation = useMutation({
@@ -320,101 +463,104 @@ export default function ForecastDetail() {
       const idempotencyKey = generateUUID();
       const payload = {
         newVersionNo: Number(copyForm.newVersionNo),
-        name: copyForm.name || `${copyForm.name || 'Copy'} (v${copyForm.newVersionNo})`,
-        scenarioKey: copyForm.scenarioKey,
-        probabilityWeight: Number(copyForm.probabilityWeight)
+        name:
+          copyForm.name ||
+          `${copyForm.name || "Copy"} (v${copyForm.newVersionNo})`,
+        scenarioId: copyForm.scenarioId,
+        probabilityWeight: Number(copyForm.probabilityWeight),
       };
-      return api.forecasts.versions.copy(id, versionId, payload, { idempotencyKey });
+      return api.forecasts.versions.copy(id, versionId, payload, {
+        idempotencyKey,
+      });
     },
     onSuccess: (data) => {
-      toast.success('Version copied successfully');
-      closeModal('copyVersion');
+      toast.success("Version copied successfully");
+      closeModal("copyVersion");
       resetCopyForm();
       refetchForecast();
-      
+
       const newVersion = extractData(data);
       if (newVersion?.id) {
         setSelectedVersionId(newVersion.id);
-        setExpandedVersions(prev => new Set([...prev, newVersion.id]));
+        setExpandedVersions((prev) => new Set([...prev, newVersion.id]));
       }
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to copy version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to copy version");
+    },
   });
 
   const compareVersionsMutation = useMutation({
     mutationFn: async () => {
       const idempotencyKey = generateUUID();
-      const payload = {
+      const params = {
         baseVersionId: copyForm.baseVersionId,
         compareVersionId: copyForm.compareVersionId,
-        periodId: copyForm.periodId || undefined
+        periodId: copyForm.periodId || undefined,
       };
-      return api.forecasts.compare(id, payload, { idempotencyKey });
+      return api.forecasts.compare(id, params, { idempotencyKey });
     },
     onSuccess: (data) => {
-      toast.success('Comparison completed');
+      toast.success("Comparison completed");
       setCompareResults(extractData(data));
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to compare versions');
-    }
+      toast.error(err?.response?.data?.message || "Failed to compare versions");
+    },
   });
 
   const addLinesMutation = useMutation({
     mutationFn: async () => {
       const idempotencyKey = generateUUID();
       const validLines = addLinesForm.lines
-        .filter(l => l.accountId && l.periodId && l.amount)
-        .map(l => ({
+        .filter((l) => l.accountId && l.periodId && l.amount)
+        .map((l) => ({
           accountId: l.accountId,
           periodId: l.periodId,
-          amount: Number(l.amount)
+          amount: Number(l.amount),
         }));
 
       if (validLines.length === 0) {
-        throw new Error('No valid lines to add');
+        throw new Error("No valid lines to add");
       }
 
       return api.forecasts.versions.lines.addLines(
-        id, 
-        addLinesForm.versionId || selectedVersionId, 
+        id,
+        addLinesForm.versionId || selectedVersionId,
         { lines: validLines },
-        { idempotencyKey }
+        { idempotencyKey },
       );
     },
     onSuccess: () => {
-      toast.success('Forecast lines added successfully');
-      closeModal('addLines');
+      toast.success("Forecast lines added successfully");
+      closeModal("addLines");
       resetAddLinesForm();
       refetchForecast();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to add lines');
-    }
+      toast.error(err?.response?.data?.message || "Failed to add lines");
+    },
   });
-
 
   const importCsvMutation = useMutation({
     mutationFn: async () => {
       const idempotencyKey = generateUUID();
-      return api.forecasts.importCsvToVersion(
+      return api.forecasts.versions.lines.importCsvToVersion(
         id,
         csvForm.versionId || selectedVersionId,
         csvForm.data,
-        { idempotencyKey }
+        { idempotencyKey },
       );
     },
     onSuccess: () => {
-      toast.success('CSV imported successfully');
-      closeModal('importCsv');
+      toast.success("CSV imported successfully");
+      closeModal("importCsv");
       resetCsvForm();
       refetchForecast();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to import CSV');
-    }
+      toast.error(err?.response?.data?.message || "Failed to import CSV");
+    },
   });
 
   const finalizeVersionMutation = useMutation({
@@ -423,12 +569,12 @@ export default function ForecastDetail() {
       return api.forecasts.versions.finalize(id, versionId, { idempotencyKey });
     },
     onSuccess: () => {
-      toast.success('Version finalized successfully');
+      toast.success("Version finalized successfully");
       refetchForecast();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to finalize version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to finalize version");
+    },
   });
 
   const submitVersionMutation = useMutation({
@@ -437,12 +583,12 @@ export default function ForecastDetail() {
       return api.forecasts.versions.submit(id, versionId, { idempotencyKey });
     },
     onSuccess: () => {
-      toast.success('Version submitted for approval');
+      toast.success("Version submitted for approval");
       refetchForecast();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to submit version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to submit version");
+    },
   });
 
   const approveVersionMutation = useMutation({
@@ -451,32 +597,37 @@ export default function ForecastDetail() {
       return api.forecasts.versions.approve(id, versionId, { idempotencyKey });
     },
     onSuccess: () => {
-      toast.success('Version approved successfully');
+      toast.success("Version approved successfully");
       refetchForecast();
       setRejectionModalOpen(false);
-      setRejectionReason('');
+      setRejectionReason("");
       setSelectedVersionForRejection(null);
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to approve version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to approve version");
+    },
   });
 
   const rejectVersionMutation = useMutation({
     mutationFn: async ({ versionId, reason }) => {
       const idempotencyKey = generateUUID();
-      return api.forecasts.versions.reject(id, versionId, { reason }, { idempotencyKey });
+      return api.forecasts.versions.reject(
+        id,
+        versionId,
+        { reason },
+        { idempotencyKey },
+      );
     },
     onSuccess: () => {
-      toast.success('Version rejected');
+      toast.success("Version rejected");
       refetchForecast();
       setRejectionModalOpen(false);
-      setRejectionReason('');
+      setRejectionReason("");
       setSelectedVersionForRejection(null);
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to reject version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to reject version");
+    },
   });
 
   const archiveVersionMutation = useMutation({
@@ -485,38 +636,41 @@ export default function ForecastDetail() {
       return api.forecasts.versions.archive(id, versionId, { idempotencyKey });
     },
     onSuccess: () => {
-      toast.success('Version archived successfully');
+      toast.success("Version archived successfully");
       refetchForecast();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || 'Failed to archive version');
-    }
+      toast.error(err?.response?.data?.message || "Failed to archive version");
+    },
   });
 
   // ============================
   // Utility Functions
   // ============================
 
-  const formatCurrency = (amount, currency = forecast?.currency_code || 'USD') => {
-    if (amount == null || amount === '') return '—';
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(num)) return '—';
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+  const formatCurrency = (
+    amount,
+    currency = forecast?.currency_code || "USD",
+  ) => {
+    if (amount == null || amount === "") return "—";
+    const num = typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(num)) return "—";
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(num);
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '—';
+    if (!dateString) return "—";
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     } catch {
       return dateString;
@@ -524,14 +678,14 @@ export default function ForecastDetail() {
   };
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return '—';
+    if (!dateString) return "—";
     try {
-      return new Date(dateString).toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return new Date(dateString).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return dateString;
@@ -539,97 +693,103 @@ export default function ForecastDetail() {
   };
 
   const getStatusBadge = (status, workflowStatus = null) => {
-    // First check workflow status if available
     if (workflowStatus) {
       const workflowConfig = {
-        draft: { tone: 'muted', label: 'Draft' },
-        submitted: { tone: 'info', label: 'Submitted' },
-        approved: { tone: 'success', label: 'Approved' },
-        rejected: { tone: 'danger', label: 'Rejected' },
-        finalized: { tone: 'success', label: 'Finalized' }
+        draft: { tone: "muted", label: "Draft" },
+        submitted: { tone: "info", label: "Submitted" },
+        approved: { tone: "success", label: "Approved" },
+        rejected: { tone: "danger", label: "Rejected" },
+        finalized: { tone: "success", label: "Finalized" },
       };
       const normalized = workflowStatus.toLowerCase();
       if (workflowConfig[normalized]) {
         return workflowConfig[normalized];
       }
     }
-    
-    // Fallback to simple status
+
     const config = {
-      draft: { tone: 'muted', label: 'Draft' },
-      active: { tone: 'success', label: 'Active' },
-      archived: { tone: 'warning', label: 'Archived' }
+      draft: { tone: "muted", label: "Draft" },
+      active: { tone: "success", label: "Active" },
+      archived: { tone: "warning", label: "Archived" },
     };
-    const normalized = (status || 'draft').toLowerCase();
+    const normalized = (status || "draft").toLowerCase();
     return config[normalized] || config.draft;
   };
 
   const formatAccountDisplay = (account) => {
-    if (!account) return '';
-    return `${account.code || ''} ${account.name || account.accountName || ''}`.trim();
+    if (!account) return "";
+    return `${account.code || ""} ${account.name || account.accountName || ""}`.trim();
   };
 
   const formatPeriodDisplay = (period) => {
-    if (!period) return '';
+    if (!period) return "";
     if (period.name) return period.name;
     if (period.code) return period.code;
-    return `${period.start_date || ''} - ${period.end_date || ''}`;
+    return `${period.start_date || ""} - ${period.end_date || ""}`;
   };
 
   const openModal = (modalName, versionId = null) => {
     if (versionId) {
-      switch(modalName) {
-        case 'addLines':
-          setAddLinesForm(prev => ({ ...prev, versionId }));
+      switch (modalName) {
+        case "addLines":
+          setAddLinesForm((prev) => ({ ...prev, versionId }));
           break;
-       
-        case 'importCsvToVersion':
-          setCsvForm(prev => ({ ...prev, versionId }));
+        case "importCsv":
+          setCsvForm((prev) => ({ ...prev, versionId }));
           break;
       }
     }
-    setModals(prev => ({ ...prev, [modalName]: true }));
+    setModals((prev) => ({ ...prev, [modalName]: true }));
   };
 
   const closeModal = (modalName) => {
-    setModals(prev => ({ ...prev, [modalName]: false }));
+    setModals((prev) => ({ ...prev, [modalName]: false }));
   };
 
   const resetVersionForm = () => {
     setVersionForm({
       versionNo: versions.length + 1,
-      name: '',
-      status: 'draft',
-      scenarioKey: null,
+      name: "",
+      status: "draft",
+      scenarioId: null,
       probabilityWeight: 1,
-      dimensionJson: {}
+      dimensionJson: {},
     });
   };
 
   const resetCopyForm = () => {
     setCopyForm({
-      baseVersionId: '',
-      compareVersionId: '',
-      periodId: '',
+      baseVersionId: "",
+      compareVersionId: "",
+      periodId: "",
       newVersionNo: versions.length + 2,
-      name: '',
-      scenarioKey: null,
-      probabilityWeight: 1
+      name: "",
+      scenarioId: null,
+      probabilityWeight: 1,
     });
   };
 
   const resetAddLinesForm = () => {
     setAddLinesForm({
-      versionId: '',
-      lines: [{ accountId: '', periodId: '', amount: '' }]
+      versionId: "",
+      lines: [{ accountId: "", periodId: "", amount: "" }],
     });
   };
 
-
   const resetCsvForm = () => {
     setCsvForm({
-      versionId: '',
-      data: ''
+      versionId: "",
+      data: "",
+    });
+  };
+
+  const resetScenarioForm = () => {
+    setScenarioForm({
+      code: "",
+      name: "",
+      description: "",
+      isDefault: false,
+      isActive: true,
     });
   };
 
@@ -637,48 +797,73 @@ export default function ForecastDetail() {
     setEditingVersion(version);
     setVersionForm({
       versionNo: version.version_no || version.versionNo,
-      name: version.name || '',
+      name: version.name || "",
       status: version.status,
-      scenarioKey: version.scenario_key || version.scenarioKey,
-      probabilityWeight: version.probability_weight || version.probabilityWeight || 1,
-      dimensionJson: version.dimension_json || version.dimensionJson || {}
+      scenarioId: version.scenario_id || version.scenarioId,
+      probabilityWeight:
+        version.probability_weight || version.probabilityWeight || 1,
+      dimensionJson: version.dimension_json || version.dimensionJson || {},
     });
-    openModal('editVersion');
+    openModal("editVersion");
   };
 
   const handleCopyVersion = (version) => {
     setCopyForm({
       baseVersionId: version.id,
-      compareVersionId: '',
-      periodId: '',
+      compareVersionId: "",
+      periodId: "",
       newVersionNo: (version.version_no || version.versionNo) + 1,
-      name: `${version.name || 'Copy'} (v${(version.version_no || version.versionNo) + 1})`,
-      scenarioKey: version.scenario_key || version.scenarioKey,
-      probabilityWeight: version.probability_weight || version.probabilityWeight || 1
+      name: `${version.name || "Copy"} (v${(version.version_no || version.versionNo) + 1})`,
+      scenarioId: version.scenario_id || version.scenarioId,
+      probabilityWeight:
+        version.probability_weight || version.probabilityWeight || 1,
     });
-    openModal('copyVersion');
+    openModal("copyVersion");
+  };
+
+  const handleEditScenario = (scenario) => {
+    setEditingScenario(scenario);
+    setScenarioForm({
+      code: scenario.code,
+      name: scenario.name,
+      description: scenario.description || "",
+      isDefault: scenario.is_default,
+      isActive: scenario.is_active,
+    });
+    setScenarioModalOpen(true);
+  };
+
+  const handleDeleteScenario = (scenario) => {
+    setScenarioToDelete(scenario);
+    setDeleteScenarioModalOpen(true);
   };
 
   const handleFinalizeVersion = (versionId) => {
-    if (window.confirm('Are you sure you want to finalize this version? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        "Are you sure you want to finalize this version? This action cannot be undone.",
+      )
+    ) {
       finalizeVersionMutation.mutate(versionId);
     }
   };
 
   const handleArchiveVersion = (versionId) => {
-    if (window.confirm('Archive this version? It will be hidden from most views.')) {
+    if (
+      window.confirm("Archive this version? It will be hidden from most views.")
+    ) {
       archiveVersionMutation.mutate(versionId);
     }
   };
 
   const handleSubmitVersion = (versionId) => {
-    if (window.confirm('Submit this version for approval?')) {
+    if (window.confirm("Submit this version for approval?")) {
       submitVersionMutation.mutate(versionId);
     }
   };
 
   const handleApproveVersion = (versionId) => {
-    if (window.confirm('Approve this version?')) {
+    if (window.confirm("Approve this version?")) {
       approveVersionMutation.mutate(versionId);
     }
   };
@@ -690,15 +875,15 @@ export default function ForecastDetail() {
 
   const confirmRejectVersion = () => {
     if (selectedVersionForRejection && rejectionReason.trim()) {
-      rejectVersionMutation.mutate({ 
-        versionId: selectedVersionForRejection, 
-        reason: rejectionReason 
+      rejectVersionMutation.mutate({
+        versionId: selectedVersionForRejection,
+        reason: rejectionReason,
       });
     }
   };
 
   const toggleVersionExpand = (versionId) => {
-    setExpandedVersions(prev => {
+    setExpandedVersions((prev) => {
       const next = new Set(prev);
       if (next.has(versionId)) {
         next.delete(versionId);
@@ -712,20 +897,27 @@ export default function ForecastDetail() {
   // Get available actions for a version based on its status
   const getVersionActions = (version) => {
     const status = version.status?.toLowerCase();
-    const workflowStatus = version.status?.toLowerCase();
-    
+    const workflowStatus = version.workflow_status?.toLowerCase();
+
     const actions = {
-      canEdit: status === 'draft' || workflowStatus === 'draft' || workflowStatus === 'rejected',
-      canSubmit: workflowStatus === 'draft' || workflowStatus === 'rejected',
-      canApprove: workflowStatus === 'submitted',
-      canReject: workflowStatus === 'submitted',
-      canFinalize: workflowStatus === 'approved' && status !== 'finalized',
-      canArchive: status !== 'archived' && workflowStatus !== 'submitted' && workflowStatus !== 'approved',
+      canEdit:
+        status === "draft" ||
+        workflowStatus === "draft" ||
+        workflowStatus === "rejected",
+      canSubmit: workflowStatus === "draft" || workflowStatus === "rejected",
+      canApprove: workflowStatus === "submitted" || workflowStatus === "in_review",
+      canReject: workflowStatus === "submitted" || workflowStatus === "in_review",
+      canFinalize: workflowStatus === "approved" && status !== "finalized",
+      canArchive:
+        status !== "archived" &&
+        workflowStatus !== "submitted" &&
+        workflowStatus !== "approved" &&
+        workflowStatus !== "in_review",
       canCopy: true,
-      canAddLines: workflowStatus === 'draft' || workflowStatus === 'rejected',
-      canImportCsv: workflowStatus === 'draft' || workflowStatus === 'rejected'
+      canAddLines: workflowStatus === "draft" || workflowStatus === "rejected",
+      canImportCsv: workflowStatus === "draft" || workflowStatus === "rejected",
     };
-    
+
     return actions;
   };
 
@@ -735,8 +927,8 @@ export default function ForecastDetail() {
 
   const versionColumns = [
     {
-      header: 'Version',
-      accessor: 'version_no',
+      header: "Version",
+      accessor: "version_no",
       render: (row) => (
         <div className="flex items-center gap-2">
           <button
@@ -746,59 +938,67 @@ export default function ForecastDetail() {
             {expandedVersions.has(row.id) ? (
               <ChevronDown className="h-4 w-4 text-slate-400" />
             ) : (
-              <ChevronRightIcon className="h-4 w-4 text-slate-400" />
+              <ChevronRight className="h-4 w-4 text-slate-400" />
             )}
           </button>
           <GitBranch className="h-4 w-4 text-slate-400" />
-          <span className="font-medium">v{row.version_no || row.versionNo}</span>
+          <span className="font-medium">
+            v{row.version_no || row.versionNo}
+          </span>
         </div>
-      )
+      ),
     },
     {
-      header: 'Name',
-      accessor: 'name',
-      render: (row) => row.name || '—'
+      header: "Name",
+      accessor: "name",
+      render: (row) => row.name || "—",
     },
     {
-      header: 'Scenario',
-      accessor: 'scenario_key',
+      header: "Scenario",
+      accessor: "scenario_id",
       render: (row) => {
-        const scenario = row.scenario_key || row.scenarioKey;
+        const scenario = scenariosMap.get(row.scenario_id || row.scenarioId);
         return scenario ? (
-          <Badge tone="info" size="sm">{scenario}</Badge>
-        ) : '—';
-      }
+          <Badge tone="info" size="sm">
+            {scenario.name}
+          </Badge>
+        ) : (
+          "—"
+        );
+      },
     },
     {
-      header: 'Probability',
-      accessor: 'probability_weight',
+      header: "Probability",
+      accessor: "probability_weight",
       render: (row) => {
         const weight = row.probability_weight || row.probabilityWeight;
-        return weight ? `${weight * 100}%` : '—';
-      }
+        return weight ? `${weight * 100}%` : "—";
+      },
     },
     {
-      header: 'Status',
-      accessor: 'status',
+      header: "Status",
+      accessor: "status",
       render: (row) => {
         const badge = getStatusBadge(row.status, row.workflow_status);
         return <Badge tone={badge.tone}>{badge.label}</Badge>;
-      }
+      },
     },
     {
-      header: 'Lines',
+      header: "Lines",
       render: (row) => {
         const lineCount = row.lines?.length || 0;
-        return <Badge tone={lineCount > 0 ? 'info' : 'muted'}>{lineCount}</Badge>;
-      }
+        return (
+          <Badge tone={lineCount > 0 ? "info" : "muted"}>{lineCount}</Badge>
+        );
+      },
     },
     {
-      header: 'Created',
-      accessor: 'created_at',
-      render: (row) => formatDate(row.created_at || row.createdAt)
+      header: "Created",
+      accessor: "created_at",
+      render: (row) => formatDate(row.created_at || row.createdAt),
     },
     {
-      header: '',
+      header: "",
       render: (row) => {
         const actions = getVersionActions(row);
         return (
@@ -809,9 +1009,9 @@ export default function ForecastDetail() {
               onClick={() => setSelectedVersionId(row.id)}
               leftIcon={row.id === selectedVersionId ? Eye : EyeOff}
             >
-              {row.id === selectedVersionId ? 'Viewing' : 'View'}
+              {row.id === selectedVersionId ? "Viewing" : "View"}
             </Button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -825,44 +1025,50 @@ export default function ForecastDetail() {
                     <span>Edit Details</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canCopy && (
                   <DropdownMenuItem onClick={() => handleCopyVersion(row)}>
                     <Copy className="mr-2 h-4 w-4" />
                     <span>Copy Version</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canSubmit && (
                   <DropdownMenuItem onClick={() => handleSubmitVersion(row.id)}>
                     <Send className="mr-2 h-4 w-4 text-blue-600" />
                     <span>Submit for Approval</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canApprove && (
-                  <DropdownMenuItem onClick={() => handleApproveVersion(row.id)}>
+                  <DropdownMenuItem
+                    onClick={() => handleApproveVersion(row.id)}
+                  >
                     <ThumbsUp className="mr-2 h-4 w-4 text-green-600" />
                     <span>Approve</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canReject && (
                   <DropdownMenuItem onClick={() => handleRejectVersion(row.id)}>
                     <ThumbsDown className="mr-2 h-4 w-4 text-red-600" />
                     <span>Reject</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canFinalize && (
-                  <DropdownMenuItem onClick={() => handleFinalizeVersion(row.id)}>
+                  <DropdownMenuItem
+                    onClick={() => handleFinalizeVersion(row.id)}
+                  >
                     <CheckCircle2 className="mr-2 h-4 w-4 text-purple-600" />
                     <span>Finalize</span>
                   </DropdownMenuItem>
                 )}
-                
+
                 {actions.canArchive && (
-                  <DropdownMenuItem onClick={() => handleArchiveVersion(row.id)}>
+                  <DropdownMenuItem
+                    onClick={() => handleArchiveVersion(row.id)}
+                  >
                     <Archive className="mr-2 h-4 w-4 text-amber-600" />
                     <span>Archive</span>
                   </DropdownMenuItem>
@@ -871,42 +1077,151 @@ export default function ForecastDetail() {
             </DropdownMenu>
           </div>
         );
-      }
-    }
+      },
+    },
+  ];
+
+  const scenarioColumns = [
+    {
+      header: "Code",
+      accessor: "code",
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <Tag className="h-4 w-4 text-slate-400" />
+          <span className="font-mono font-medium">{row.code}</span>
+          {row.is_default && (
+            <Badge tone="brand" size="sm">
+              Default
+            </Badge>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Name",
+      accessor: "name",
+      render: (row) => row.name,
+    },
+    {
+      header: "Description",
+      accessor: "description",
+      render: (row) => row.description || "—",
+    },
+    {
+      header: "Status",
+      accessor: "is_active",
+      render: (row) => (
+        <Badge tone={row.is_active ? "success" : "muted"}>
+          {row.is_active ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+    {
+      header: "Usage",
+      accessor: "version_count",
+      render: (row) => (
+        <Badge tone={row.version_count > 0 ? "info" : "muted"}>
+          {row.version_count || 0} versions
+        </Badge>
+      ),
+    },
+    {
+      header: "Created",
+      accessor: "created_at",
+      render: (row) => formatDate(row.created_at),
+    },
+    {
+      header: "",
+      render: (row) => (
+        <div className="flex items-center gap-2 justify-end">
+          {!row.is_default && row.is_active && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDefaultScenarioMutation.mutate(row.id)}
+              leftIcon={Star}
+              disabled={setDefaultScenarioMutation.isPending}
+            >
+              Set Default
+            </Button>
+          )}
+          
+          {!row.is_active && row.deleted_at && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => restoreScenarioMutation.mutate(row.id)}
+              leftIcon={RotateCcw}
+              disabled={restoreScenarioMutation.isPending}
+            >
+              Restore
+            </Button>
+          )}
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleEditScenario(row)}>
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Edit</span>
+              </DropdownMenuItem>
+              
+              {!row.is_default && (
+                <DropdownMenuItem 
+                  onClick={() => handleDeleteScenario(row)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <span>Delete</span>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+    },
   ];
 
   const lineColumns = [
     {
-      header: 'Account',
-      accessor: 'accountId',
+      header: "Account",
+      accessor: "accountId",
       render: (row) => {
         const account = accountsMap.get(row.accountId || row.account_id);
         return account ? (
           <div className="flex flex-col">
-            <span className="font-medium">{account.name || account.accountName}</span>
+            <span className="font-medium">
+              {account.name || account.accountName}
+            </span>
             <span className="text-xs text-slate-500">{account.code}</span>
           </div>
         ) : (
           row.accountId || row.account_id
         );
-      }
+      },
     },
     {
-      header: 'Period',
-      accessor: 'periodId',
+      header: "Period",
+      accessor: "periodId",
       render: (row) => {
         const period = periodsMap.get(row.periodId || row.period_id);
-        return period ? formatPeriodDisplay(period) : (row.periodId || row.period_id);
-      }
+        return period
+          ? formatPeriodDisplay(period)
+          : row.periodId || row.period_id;
+      },
     },
     {
-      header: 'Amount',
-      accessor: 'amount',
+      header: "Amount",
+      accessor: "amount",
       render: (row) => (
         <span className="font-semibold">{formatCurrency(row.amount)}</span>
       ),
-      align: 'right'
-    }
+      align: "right",
+    },
   ];
 
   // ============================
@@ -920,7 +1235,11 @@ export default function ForecastDetail() {
           title="Loading Forecast..."
           icon={CloudSun}
           actions={
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.forecasts)}>
+            <Button
+              variant="outline"
+              leftIcon={ArrowLeft}
+              onClick={() => navigate(ROUTES.forecasts)}
+            >
               Back
             </Button>
           }
@@ -941,7 +1260,11 @@ export default function ForecastDetail() {
           title="Error"
           icon={CloudSun}
           actions={
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.forecasts)}>
+            <Button
+              variant="outline"
+              leftIcon={ArrowLeft}
+              onClick={() => navigate(ROUTES.forecasts)}
+            >
               Back
             </Button>
           }
@@ -949,7 +1272,9 @@ export default function ForecastDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-lg font-medium text-slate-900">Failed to load forecast</div>
+            <div className="text-lg font-medium text-slate-900">
+              Failed to load forecast
+            </div>
             <div className="text-slate-500">{forecastError.message}</div>
             <Button onClick={() => refetchForecast()}>Retry</Button>
           </div>
@@ -965,7 +1290,11 @@ export default function ForecastDetail() {
           title="Forecast Not Found"
           icon={CloudSun}
           actions={
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.forecasts)}>
+            <Button
+              variant="outline"
+              leftIcon={ArrowLeft}
+              onClick={() => navigate(ROUTES.forecasts)}
+            >
               Back
             </Button>
           }
@@ -987,13 +1316,12 @@ export default function ForecastDetail() {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        title={forecast.name || 'Untitled Forecast'}
+        title={forecast.name || "Untitled Forecast"}
         subtitle={
           <div className="flex items-center gap-3 mt-1">
-            <Badge tone={forecast.status === 'active' ? 'success' : 'muted'}>
-              {forecast.status || 'draft'}
+            <Badge tone={forecast.status === "active" ? "success" : "muted"}>
+              {forecast.status || "draft"}
             </Badge>
-            <span>FY {forecast.fiscal_year}</span>
             <span>{forecast.currency_code}</span>
           </div>
         }
@@ -1012,7 +1340,8 @@ export default function ForecastDetail() {
               leftIcon={RefreshCw}
               onClick={() => {
                 refetchForecast();
-                toast.success('Data refreshed');
+                refetchScenarios();
+                toast.success("Data refreshed");
               }}
             >
               Refresh
@@ -1021,7 +1350,7 @@ export default function ForecastDetail() {
               leftIcon={Plus}
               onClick={() => {
                 resetVersionForm();
-                openModal('createVersion');
+                openModal("createVersion");
               }}
             >
               New Version
@@ -1033,52 +1362,64 @@ export default function ForecastDetail() {
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'versions', label: 'Versions', icon: Layers },
-          { id: 'compare', label: 'Compare', icon: GitCompare },
-          { id: 'scenarios', label: 'Scenarios', icon: Target },
-          { id: 'metrics', label: 'Metrics', icon: Gauge }
+          { value: "versions", label: "Versions", icon: Layers },
+          { value: "compare", label: "Compare", icon: GitCompare },
+          { value: "scenarios", label: "Scenarios", icon: Target },
+          { value: "metrics", label: "Metrics", icon: Gauge },
         ]}
-        activeTab={activeTab}
-        onChange={setActiveTab}
+        value={activeTab}
+        onChange={(newTab) => {
+          console.log("Tab changed to:", newTab);
+          setActiveTab(newTab);
+        }}
       />
 
-      {/* Main Content */}
-      {activeTab === 'versions' && (
+      {/* Main Content - Conditionally rendered based on activeTab */}
+      {activeTab === "versions" && (
         <div className="grid gap-6 lg:grid-cols-4">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Forecast Info */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">Forecast Information</h3>
+              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                Forecast Information
+              </h3>
               <div className="space-y-3">
                 <div>
                   <div className="text-xs text-slate-500">Name</div>
-                  <div className="text-sm font-medium">{forecast.name || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-slate-500">Fiscal Year</div>
-                  <div className="text-sm font-medium">{forecast.fiscal_year || '—'}</div>
+                  <div className="text-sm font-medium">
+                    {forecast.name || "—"}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Currency</div>
-                  <div className="text-sm font-medium">{forecast.currency_code || 'USD'}</div>
+                  <div className="text-sm font-medium">
+                    {forecast.currency_code || "USD"}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Status</div>
-                  <Badge tone={forecast.status === 'active' ? 'success' : 'muted'} size="sm">
-                    {forecast.status || 'draft'}
+                  <Badge
+                    tone={forecast.status === "active" ? "success" : "muted"}
+                    size="sm"
+                  >
+                    {forecast.status || "draft"}
                   </Badge>
                 </div>
                 <div>
                   <div className="text-xs text-slate-500">Created</div>
-                  <div className="text-sm">{formatDate(forecast.created_at)}</div>
+                  <div className="text-sm">
+                    {formatDate(forecast.created_at)}
+                  </div>
                 </div>
               </div>
             </ContentCard>
 
             {/* Quick Stats */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">Statistics</h3>
+              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                Statistics
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Total Versions</span>
@@ -1087,43 +1428,109 @@ export default function ForecastDetail() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Total Lines</span>
                   <Badge tone="info">
-                    {versions.reduce((sum, v) => sum + (v.lines?.length || 0), 0)}
+                    {versions.reduce(
+                      (sum, v) => sum + (v.lines?.length || 0),
+                      0,
+                    )}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Draft Versions</span>
                   <Badge tone="muted">
-                    {versions.filter(v => v.status === 'draft' || v.workflow_status === 'draft').length}
+                    {
+                      versions.filter(
+                        (v) =>
+                          v.status === "draft" || v.workflow_status === "draft",
+                      ).length
+                    }
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Submitted</span>
+                  <span className="text-sm text-slate-600">In Review</span>
                   <Badge tone="info">
-                    {versions.filter(v => v.workflow_status === 'submitted').length}
+                    {
+                      versions.filter(
+                        (v) => v.workflow_status === "in_review" || v.workflow_status === "submitted"
+                      ).length
+                    }
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Approved</span>
                   <Badge tone="success">
-                    {versions.filter(v => v.workflow_status === 'approved').length}
+                    {
+                      versions.filter((v) => v.workflow_status === "approved")
+                        .length
+                    }
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600">Finalized</span>
                   <Badge tone="success">
-                    {versions.filter(v => v.status === 'finalized').length}
+                    {versions.filter((v) => v.status === "finalized").length}
                   </Badge>
                 </div>
               </div>
             </ContentCard>
 
+            {/* Scenarios Summary */}
+            <ContentCard>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Scenarios
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={Plus}
+                  onClick={() => {
+                    setEditingScenario(null);
+                    resetScenarioForm();
+                    setScenarioModalOpen(true);
+                  }}
+                >
+                  New
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {scenarios.slice(0, 3).map((scenario) => (
+                  <div key={scenario.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-3 w-3 text-slate-400" />
+                      <span className="text-sm">{scenario.name}</span>
+                      {scenario.is_default && (
+                        <Star className="h-3 w-3 text-amber-400" />
+                      )}
+                    </div>
+                    <Badge size="sm" tone={scenario.is_active ? "success" : "muted"}>
+                      {scenario.version_count || 0}
+                    </Badge>
+                  </div>
+                ))}
+                {scenarios.length > 3 && (
+                  <button
+                    onClick={() => setActiveTab("scenarios")}
+                    className="text-xs text-blue-600 hover:text-blue-700 mt-2"
+                  >
+                    View all {scenarios.length} scenarios →
+                  </button>
+                )}
+              </div>
+            </ContentCard>
+
             {/* Help */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">Quick Tips</h3>
+              <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                Quick Tips
+              </h3>
               <div className="space-y-2 text-xs text-slate-600">
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
-                  <span>Create multiple versions for scenario planning</span>
+                  <span>Create scenarios like Base, Optimistic, Pessimistic</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
+                  <span>Assign scenarios to versions for comparison</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
@@ -1132,10 +1539,6 @@ export default function ForecastDetail() {
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
                   <span>Compare versions to analyze variances</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
-                  <span>Finalized versions are locked from edits</span>
                 </div>
               </div>
             </ContentCard>
@@ -1146,9 +1549,12 @@ export default function ForecastDetail() {
             <ContentCard>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-base font-semibold text-slate-900">Forecast Versions</h3>
+                  <h3 className="text-base font-semibold text-slate-900">
+                    Forecast Versions
+                  </h3>
                   <p className="text-sm text-slate-500 mt-1">
-                    {versions.length} version{versions.length !== 1 ? 's' : ''} • Click to expand and view lines
+                    {versions.length} version{versions.length !== 1 ? "s" : ""}{" "}
+                    • Click to expand and view lines
                   </p>
                 </div>
                 {versions.length > 0 && (
@@ -1156,16 +1562,24 @@ export default function ForecastDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      leftIcon={expandedVersions.size === versions.length ? Minimize2 : Maximize2}
+                      leftIcon={
+                        expandedVersions.size === versions.length
+                          ? Minimize2
+                          : Maximize2
+                      }
                       onClick={() => {
                         if (expandedVersions.size === versions.length) {
                           setExpandedVersions(new Set());
                         } else {
-                          setExpandedVersions(new Set(versions.map(v => v.id)));
+                          setExpandedVersions(
+                            new Set(versions.map((v) => v.id)),
+                          );
                         }
                       }}
                     >
-                      {expandedVersions.size === versions.length ? 'Collapse All' : 'Expand All'}
+                      {expandedVersions.size === versions.length
+                        ? "Collapse All"
+                        : "Expand All"}
                     </Button>
                   </div>
                 )}
@@ -1174,14 +1588,16 @@ export default function ForecastDetail() {
               {versions.length === 0 ? (
                 <div className="py-12 text-center">
                   <Layers className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                  <h3 className="text-sm font-medium text-slate-900 mb-1">No versions yet</h3>
+                  <h3 className="text-sm font-medium text-slate-900 mb-1">
+                    No versions yet
+                  </h3>
                   <p className="text-sm text-slate-500 mb-4">
                     Create your first version to start building the forecast
                   </p>
                   <Button
                     onClick={() => {
                       resetVersionForm();
-                      openModal('createVersion');
+                      openModal("createVersion");
                     }}
                   >
                     Create Version
@@ -1194,19 +1610,25 @@ export default function ForecastDetail() {
                     const isExpanded = expandedVersions.has(version.id);
                     const versionLines = version.lines || [];
                     const actions = getVersionActions(version);
-                    const badge = getStatusBadge(version.status, version.workflow_status);
-                    
+                    const badge = getStatusBadge(
+                      version.status,
+                      version.workflow_status,
+                    );
+                    const scenario = scenariosMap.get(version.scenario_id || version.scenarioId);
+
                     return (
                       <div
                         key={version.id}
                         className={`border rounded-lg overflow-hidden ${
-                          isSelected ? 'border-blue-300 ring-1 ring-blue-200' : 'border-slate-200'
+                          isSelected
+                            ? "border-blue-300 ring-1 ring-blue-200"
+                            : "border-slate-200"
                         }`}
                       >
                         {/* Version Header */}
                         <div
                           className={`flex items-center justify-between p-4 cursor-pointer ${
-                            isSelected ? 'bg-blue-50/50' : 'hover:bg-slate-50'
+                            isSelected ? "bg-blue-50/50" : "hover:bg-slate-50"
                           }`}
                           onClick={() => {
                             setSelectedVersionId(version.id);
@@ -1226,52 +1648,80 @@ export default function ForecastDetail() {
                               {isExpanded ? (
                                 <ChevronDown className="h-4 w-4 text-slate-500" />
                               ) : (
-                                <ChevronRightIcon className="h-4 w-4 text-slate-500" />
+                                <ChevronRight className="h-4 w-4 text-slate-500" />
                               )}
                             </button>
-                            <GitBranch className={`h-5 w-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
+                            <GitBranch
+                              className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-slate-400"}`}
+                            />
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className={`font-semibold ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>
-                                  Version {version.version_no || version.versionNo}
+                                <span
+                                  className={`font-semibold ${isSelected ? "text-blue-900" : "text-slate-900"}`}
+                                >
+                                  Version{" "}
+                                  {version.version_no || version.versionNo}
                                 </span>
                                 {version.name && (
-                                  <span className="text-sm text-slate-600">• {version.name}</span>
+                                  <span className="text-sm text-slate-600">
+                                    • {version.name}
+                                  </span>
                                 )}
-                                {version.scenario_key && (
-                                  <Badge tone="info" size="sm">{version.scenario_key}</Badge>
+                                {scenario && (
+                                  <Badge tone="info" size="sm">
+                                    {scenario.name}
+                                  </Badge>
                                 )}
                               </div>
                               <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                                 <Badge tone={badge.tone} size="sm">
                                   {badge.label}
                                 </Badge>
-                                <span>{versionLines.length} line{versionLines.length !== 1 ? 's' : ''}</span>
+                                <span>
+                                  {versionLines.length} line
+                                  {versionLines.length !== 1 ? "s" : ""}
+                                </span>
                                 {version.probability_weight && (
-                                  <span>{(version.probability_weight * 100)}% probability</span>
+                                  <span>
+                                    {version.probability_weight * 100}%
+                                    probability
+                                  </span>
                                 )}
-                                <span>Created {formatDate(version.created_at)}</span>
+                                <span>
+                                  Created {formatDate(version.created_at)}
+                                </span>
                               </div>
-                              
+
                               {/* Workflow metadata */}
                               {version.submitted_at && (
                                 <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
                                   <Clock className="h-3 w-3" />
-                                  <span>Submitted {formatDateTime(version.submitted_at)}</span>
+                                  <span>
+                                    Submitted{" "}
+                                    {formatDateTime(version.submitted_at)}
+                                  </span>
                                 </div>
                               )}
                               {version.approved_at && (
                                 <div className="flex items-center gap-2 mt-1 text-xs text-green-600">
                                   <UserCheck className="h-3 w-3" />
-                                  <span>Approved {formatDateTime(version.approved_at)}</span>
+                                  <span>
+                                    Approved{" "}
+                                    {formatDateTime(version.approved_at)}
+                                  </span>
                                 </div>
                               )}
                               {version.rejected_at && (
                                 <div className="flex items-center gap-2 mt-1 text-xs text-red-600">
                                   <XCircle className="h-3 w-3" />
-                                  <span>Rejected {formatDateTime(version.rejected_at)}</span>
+                                  <span>
+                                    Rejected{" "}
+                                    {formatDateTime(version.rejected_at)}
+                                  </span>
                                   {version.rejection_reason && (
-                                    <span className="italic">: {version.rejection_reason}</span>
+                                    <span className="italic">
+                                      : {version.rejection_reason}
+                                    </span>
                                   )}
                                 </div>
                               )}
@@ -1279,18 +1729,23 @@ export default function ForecastDetail() {
                           </div>
 
                           {/* Quick Actions */}
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {actions.canAddLines && (
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 leftIcon={ListPlus}
-                                onClick={() => openModal('addLines', version.id)}
+                                onClick={() =>
+                                  openModal("addLines", version.id)
+                                }
                               >
                                 Add Lines
                               </Button>
                             )}
-                            
+
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1302,56 +1757,85 @@ export default function ForecastDetail() {
 
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 {actions.canEdit && (
-                                  <DropdownMenuItem onClick={() => handleEditVersion(version)}>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditVersion(version)}
+                                  >
                                     <Edit className="mr-2 h-4 w-4" />
                                     <span>Edit Details</span>
                                   </DropdownMenuItem>
                                 )}
-                                
-                                                           
+
                                 {actions.canImportCsv && (
-                                  <DropdownMenuItem onClick={() => openModal('importCsv', version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      openModal("importCsv", version.id)
+                                    }
+                                  >
                                     <Upload className="mr-2 h-4 w-4" />
                                     <span>Import CSV</span>
                                   </DropdownMenuItem>
                                 )}
-                                
+
                                 {actions.canSubmit && (
-                                  <DropdownMenuItem onClick={() => handleSubmitVersion(version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleSubmitVersion(version.id)
+                                    }
+                                  >
                                     <Send className="mr-2 h-4 w-4 text-blue-600" />
                                     <span>Submit for Approval</span>
                                   </DropdownMenuItem>
                                 )}
-                                
+
                                 {actions.canApprove && (
-                                  <DropdownMenuItem onClick={() => handleApproveVersion(version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleApproveVersion(version.id)
+                                    }
+                                  >
                                     <ThumbsUp className="mr-2 h-4 w-4 text-green-600" />
                                     <span>Approve</span>
                                   </DropdownMenuItem>
                                 )}
-                                
+
                                 {actions.canReject && (
-                                  <DropdownMenuItem onClick={() => handleRejectVersion(version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleRejectVersion(version.id)
+                                    }
+                                  >
                                     <ThumbsDown className="mr-2 h-4 w-4 text-red-600" />
                                     <span>Reject</span>
                                   </DropdownMenuItem>
                                 )}
-                                
+
                                 {actions.canFinalize && (
-                                  <DropdownMenuItem onClick={() => handleFinalizeVersion(version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleFinalizeVersion(version.id)
+                                    }
+                                  >
                                     <CheckCircle2 className="mr-2 h-4 w-4 text-purple-600" />
                                     <span>Finalize</span>
                                   </DropdownMenuItem>
                                 )}
-                                
+
                                 {actions.canArchive && (
-                                  <DropdownMenuItem onClick={() => handleArchiveVersion(version.id)}>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      handleArchiveVersion(version.id)
+                                    }
+                                  >
                                     <Archive className="mr-2 h-4 w-4 text-amber-600" />
                                     <span>Archive</span>
                                   </DropdownMenuItem>
@@ -1366,13 +1850,17 @@ export default function ForecastDetail() {
                           <div className="border-t border-slate-200 bg-slate-50/50 p-4">
                             {versionLines.length === 0 ? (
                               <div className="text-center py-6">
-                                <p className="text-sm text-slate-500 mb-3">No forecast lines in this version</p>
+                                <p className="text-sm text-slate-500 mb-3">
+                                  No forecast lines in this version
+                                </p>
                                 {actions.canAddLines && (
                                   <div className="flex justify-center gap-2">
                                     <Button
                                       size="sm"
                                       leftIcon={ListPlus}
-                                      onClick={() => openModal('addLines', version.id)}
+                                      onClick={() =>
+                                        openModal("addLines", version.id)
+                                      }
                                     >
                                       Add Lines
                                     </Button>
@@ -1380,7 +1868,9 @@ export default function ForecastDetail() {
                                       size="sm"
                                       variant="outline"
                                       leftIcon={Upload}
-                                      onClick={() => openModal('importCsv', version.id)}
+                                      onClick={() =>
+                                        openModal("importCsv", version.id)
+                                      }
                                     >
                                       Import CSV
                                     </Button>
@@ -1390,23 +1880,35 @@ export default function ForecastDetail() {
                             ) : (
                               <div>
                                 <div className="flex items-center justify-between mb-3">
-                                  <h4 className="text-sm font-medium text-slate-700">Forecast Lines</h4>
+                                  <h4 className="text-sm font-medium text-slate-700">
+                                    Forecast Lines
+                                  </h4>
                                   <div className="flex items-center gap-2">
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       leftIcon={Filter}
-                                      onClick={() => setShowFilters(!showFilters)}
+                                      onClick={() =>
+                                        setShowFilters(!showFilters)
+                                      }
                                     >
                                       Filter
                                     </Button>
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      leftIcon={viewMode === 'table' ? Grid : TableIcon}
-                                      onClick={() => setViewMode(viewMode === 'table' ? 'grid' : 'table')}
+                                      leftIcon={
+                                        viewMode === "table" ? Grid : TableIcon
+                                      }
+                                      onClick={() =>
+                                        setViewMode(
+                                          viewMode === "table"
+                                            ? "grid"
+                                            : "table",
+                                        )
+                                      }
                                     >
-                                      {viewMode === 'table' ? 'Grid' : 'Table'}
+                                      {viewMode === "table" ? "Grid" : "Table"}
                                     </Button>
                                   </div>
                                 </div>
@@ -1415,9 +1917,17 @@ export default function ForecastDetail() {
                                 {showFilters && (
                                   <div className="mb-4 p-3 bg-white rounded-lg border border-slate-200">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-xs font-medium text-slate-700">Filters</span>
+                                      <span className="text-xs font-medium text-slate-700">
+                                        Filters
+                                      </span>
                                       <button
-                                        onClick={() => setFilters({ account: '', period: '', amountRange: { min: '', max: '' } })}
+                                        onClick={() =>
+                                          setFilters({
+                                            account: "",
+                                            period: "",
+                                            amountRange: { min: "", max: "" },
+                                          })
+                                        }
                                         className="text-xs text-blue-600 hover:text-blue-700"
                                       >
                                         Clear all
@@ -1427,25 +1937,35 @@ export default function ForecastDetail() {
                                       <Select
                                         size="sm"
                                         value={filters.account}
-                                        onChange={(e) => setFilters(f => ({ ...f, account: e.target.value }))}
-                                        options={[
-                                          { label: 'All Accounts', value: '' },
-                                          ...accounts.map(a => ({ 
-                                            label: formatAccountDisplay(a), 
-                                            value: a.id 
+                                        onChange={(e) =>
+                                          setFilters((f) => ({
+                                            ...f,
+                                            account: e.target.value,
                                           }))
+                                        }
+                                        options={[
+                                          { label: "All Accounts", value: "" },
+                                          ...accounts.map((a) => ({
+                                            label: formatAccountDisplay(a),
+                                            value: a.id,
+                                          })),
                                         ]}
                                       />
                                       <Select
                                         size="sm"
                                         value={filters.period}
-                                        onChange={(e) => setFilters(f => ({ ...f, period: e.target.value }))}
-                                        options={[
-                                          { label: 'All Periods', value: '' },
-                                          ...periods.map(p => ({ 
-                                            label: formatPeriodDisplay(p), 
-                                            value: p.id 
+                                        onChange={(e) =>
+                                          setFilters((f) => ({
+                                            ...f,
+                                            period: e.target.value,
                                           }))
+                                        }
+                                        options={[
+                                          { label: "All Periods", value: "" },
+                                          ...periods.map((p) => ({
+                                            label: formatPeriodDisplay(p),
+                                            value: p.id,
+                                          })),
                                         ]}
                                       />
                                       <div className="flex gap-2">
@@ -1454,20 +1974,30 @@ export default function ForecastDetail() {
                                           type="number"
                                           placeholder="Min"
                                           value={filters.amountRange.min}
-                                          onChange={(e) => setFilters(f => ({ 
-                                            ...f, 
-                                            amountRange: { ...f.amountRange, min: e.target.value }
-                                          }))}
+                                          onChange={(e) =>
+                                            setFilters((f) => ({
+                                              ...f,
+                                              amountRange: {
+                                                ...f.amountRange,
+                                                min: e.target.value,
+                                              },
+                                            }))
+                                          }
                                         />
                                         <Input
                                           size="sm"
                                           type="number"
                                           placeholder="Max"
                                           value={filters.amountRange.max}
-                                          onChange={(e) => setFilters(f => ({ 
-                                            ...f, 
-                                            amountRange: { ...f.amountRange, max: e.target.value }
-                                          }))}
+                                          onChange={(e) =>
+                                            setFilters((f) => ({
+                                              ...f,
+                                              amountRange: {
+                                                ...f.amountRange,
+                                                max: e.target.value,
+                                              },
+                                            }))
+                                          }
                                         />
                                       </div>
                                     </div>
@@ -1475,47 +2005,104 @@ export default function ForecastDetail() {
                                 )}
 
                                 {/* Lines Display */}
-                                {viewMode === 'table' ? (
+                                {viewMode === "table" ? (
                                   <DataTable
                                     columns={lineColumns}
-                                    rows={versionLines.filter(line => {
-                                      if (filters.account && line.accountId !== filters.account && line.account_id !== filters.account) return false;
-                                      if (filters.period && line.periodId !== filters.period && line.period_id !== filters.period) return false;
-                                      if (filters.amountRange.min && line.amount < parseFloat(filters.amountRange.min)) return false;
-                                      if (filters.amountRange.max && line.amount > parseFloat(filters.amountRange.max)) return false;
+                                    rows={versionLines.filter((line) => {
+                                      if (
+                                        filters.account &&
+                                        line.accountId !== filters.account &&
+                                        line.account_id !== filters.account
+                                      )
+                                        return false;
+                                      if (
+                                        filters.period &&
+                                        line.periodId !== filters.period &&
+                                        line.period_id !== filters.period
+                                      )
+                                        return false;
+                                      if (
+                                        filters.amountRange.min &&
+                                        line.amount <
+                                          parseFloat(filters.amountRange.min)
+                                      )
+                                        return false;
+                                      if (
+                                        filters.amountRange.max &&
+                                        line.amount >
+                                          parseFloat(filters.amountRange.max)
+                                      )
+                                        return false;
                                       return true;
                                     })}
                                     empty={{
-                                      title: 'No matching lines',
-                                      description: 'Try adjusting your filters'
+                                      title: "No matching lines",
+                                      description: "Try adjusting your filters",
                                     }}
                                   />
                                 ) : (
                                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                    {versionLines.filter(line => {
-                                      if (filters.account && line.accountId !== filters.account && line.account_id !== filters.account) return false;
-                                      if (filters.period && line.periodId !== filters.period && line.period_id !== filters.period) return false;
-                                      if (filters.amountRange.min && line.amount < parseFloat(filters.amountRange.min)) return false;
-                                      if (filters.amountRange.max && line.amount > parseFloat(filters.amountRange.max)) return false;
-                                      return true;
-                                    }).map((line, idx) => {
-                                      const account = accountsMap.get(line.accountId || line.account_id);
-                                      const period = periodsMap.get(line.periodId || line.period_id);
-                                      return (
-                                        <div key={idx} className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
-                                          <div className="flex items-start justify-between mb-2">
-                                            <Badge tone="info" size="sm">{account?.code || '—'}</Badge>
-                                            <span className="text-xs text-slate-500">{period?.name || period?.code || '—'}</span>
+                                    {versionLines
+                                      .filter((line) => {
+                                        if (
+                                          filters.account &&
+                                          line.accountId !== filters.account &&
+                                          line.account_id !== filters.account
+                                        )
+                                          return false;
+                                        if (
+                                          filters.period &&
+                                          line.periodId !== filters.period &&
+                                          line.period_id !== filters.period
+                                        )
+                                          return false;
+                                        if (
+                                          filters.amountRange.min &&
+                                          line.amount <
+                                            parseFloat(filters.amountRange.min)
+                                        )
+                                          return false;
+                                        if (
+                                          filters.amountRange.max &&
+                                          line.amount >
+                                            parseFloat(filters.amountRange.max)
+                                        )
+                                          return false;
+                                        return true;
+                                      })
+                                      .map((line, idx) => {
+                                        const account = accountsMap.get(
+                                          line.accountId || line.account_id,
+                                        );
+                                        const period = periodsMap.get(
+                                          line.periodId || line.period_id,
+                                        );
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+                                          >
+                                            <div className="flex items-start justify-between mb-2">
+                                              <Badge tone="info" size="sm">
+                                                {account?.code || "—"}
+                                              </Badge>
+                                              <span className="text-xs text-slate-500">
+                                                {period?.name ||
+                                                  period?.code ||
+                                                  "—"}
+                                              </span>
+                                            </div>
+                                            <div className="font-medium text-sm text-slate-900 mb-1">
+                                              {account?.name ||
+                                                account?.accountName ||
+                                                "—"}
+                                            </div>
+                                            <div className="text-base font-semibold text-slate-900">
+                                              {formatCurrency(line.amount)}
+                                            </div>
                                           </div>
-                                          <div className="font-medium text-sm text-slate-900 mb-1">
-                                            {account?.name || account?.accountName || '—'}
-                                          </div>
-                                          <div className="text-base font-semibold text-slate-900">
-                                            {formatCurrency(line.amount)}
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
+                                        );
+                                      })}
                                   </div>
                                 )}
                               </div>
@@ -1533,16 +2120,19 @@ export default function ForecastDetail() {
       )}
 
       {/* Compare Tab */}
-      {activeTab === 'compare' && (
+      {activeTab === "compare" && (
         <ContentCard>
           <div className="space-y-6">
             <div className="bg-blue-50 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <GitCompare className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-blue-900">Compare Forecast Versions</p>
+                  <p className="text-sm font-medium text-blue-900">
+                    Compare Forecast Versions
+                  </p>
                   <p className="text-xs text-blue-700 mt-1">
-                    Analyze variances between two versions for specific periods or accounts
+                    Analyze variances between two versions for specific periods
+                    or accounts
                   </p>
                 </div>
               </div>
@@ -1552,13 +2142,18 @@ export default function ForecastDetail() {
               <Select
                 label="Base Version"
                 value={copyForm.baseVersionId}
-                onChange={(e) => setCopyForm(f => ({ ...f, baseVersionId: e.target.value }))}
+                onChange={(e) =>
+                  setCopyForm((f) => ({ ...f, baseVersionId: e.target.value }))
+                }
                 options={[
-                  { label: 'Select Base Version', value: '' },
-                  ...versions.map(v => ({
-                    label: `v${v.version_no || v.versionNo}${v.name ? ` - ${v.name}` : ''}`,
-                    value: v.id
-                  }))
+                  { label: "Select Base Version", value: "" },
+                  ...versions.map((v) => {
+                    const scenario = scenariosMap.get(v.scenario_id || v.scenarioId);
+                    return {
+                      label: `v${v.version_no || v.versionNo}${v.name ? ` - ${v.name}` : ""}${scenario ? ` (${scenario.name})` : ""}`,
+                      value: v.id,
+                    };
+                  }),
                 ]}
                 required
               />
@@ -1566,13 +2161,21 @@ export default function ForecastDetail() {
               <Select
                 label="Compare Version"
                 value={copyForm.compareVersionId}
-                onChange={(e) => setCopyForm(f => ({ ...f, compareVersionId: e.target.value }))}
-                options={[
-                  { label: 'Select Compare Version', value: '' },
-                  ...versions.map(v => ({
-                    label: `v${v.version_no || v.versionNo}${v.name ? ` - ${v.name}` : ''}`,
-                    value: v.id
+                onChange={(e) =>
+                  setCopyForm((f) => ({
+                    ...f,
+                    compareVersionId: e.target.value,
                   }))
+                }
+                options={[
+                  { label: "Select Compare Version", value: "" },
+                  ...versions.map((v) => {
+                    const scenario = scenariosMap.get(v.scenario_id || v.scenarioId);
+                    return {
+                      label: `v${v.version_no || v.versionNo}${v.name ? ` - ${v.name}` : ""}${scenario ? ` (${scenario.name})` : ""}`,
+                      value: v.id,
+                    };
+                  }),
                 ]}
                 required
               />
@@ -1580,13 +2183,15 @@ export default function ForecastDetail() {
               <Select
                 label="Period (Optional)"
                 value={copyForm.periodId}
-                onChange={(e) => setCopyForm(f => ({ ...f, periodId: e.target.value }))}
+                onChange={(e) =>
+                  setCopyForm((f) => ({ ...f, periodId: e.target.value }))
+                }
                 options={[
-                  { label: 'All Periods', value: '' },
-                  ...periods.map(p => ({
+                  { label: "All Periods", value: "" },
+                  ...periods.map((p) => ({
                     label: formatPeriodDisplay(p),
-                    value: p.id
-                  }))
+                    value: p.id,
+                  })),
                 ]}
               />
             </div>
@@ -1605,54 +2210,238 @@ export default function ForecastDetail() {
             {/* Comparison Results */}
             {compareResults && (
               <div className="mt-6 border-t border-slate-200 pt-6">
-                <h3 className="text-sm font-semibold text-slate-900 mb-4">Comparison Results</h3>
-                
-                <div className="grid gap-4 md:grid-cols-3 mb-6">
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                  Comparison Results
+                </h3>
+
+                {/* Summary Cards */}
+                <div className="grid gap-4 md:grid-cols-4 mb-6">
                   <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">Total Variance</div>
-                    <div className={`text-lg font-semibold ${
-                      compareResults.totalVariance > 0 ? 'text-green-600' : 
-                      compareResults.totalVariance < 0 ? 'text-red-600' : 'text-slate-900'
-                    }`}>
-                      {formatCurrency(compareResults.totalVariance)}
+                    <div className="text-xs text-slate-500 mb-1">
+                      Base Version
+                    </div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {versions.find(
+                        (v) => v.id === compareResults.baseVersionId,
+                      )?.version_no || "N/A"}
                     </div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">Variance Percentage</div>
-                    <div className={`text-lg font-semibold ${
-                      compareResults.variancePercentage > 0 ? 'text-green-600' : 
-                      compareResults.variancePercentage < 0 ? 'text-red-600' : 'text-slate-900'
-                    }`}>
-                      {compareResults.variancePercentage?.toFixed(2)}%
+                    <div className="text-xs text-slate-500 mb-1">
+                      Compare Version
+                    </div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {versions.find(
+                        (v) => v.id === compareResults.compareVersionId,
+                      )?.version_no || "N/A"}
                     </div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">Periods Compared</div>
-                    <div className="text-lg font-semibold text-slate-900">
-                      {compareResults.periodsCompared || 'All'}
+                    <div className="text-xs text-slate-500 mb-1">Period</div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {periodsMap.get(compareResults.periodId)?.name ||
+                        compareResults.periodId ||
+                        "All Periods"}
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <div className="text-xs text-slate-500 mb-1">
+                      Total Accounts
+                    </div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {compareResults.lines?.length || 0}
                     </div>
                   </div>
                 </div>
 
-                {compareResults.details && (
-                  <DataTable
-                    columns={[
-                      { header: 'Account', accessor: 'account' },
-                      { header: 'Base Amount', render: (r) => formatCurrency(r.baseAmount) },
-                      { header: 'Compare Amount', render: (r) => formatCurrency(r.compareAmount) },
-                      { header: 'Variance', render: (r) => (
-                        <span className={r.variance > 0 ? 'text-green-600' : r.variance < 0 ? 'text-red-600' : ''}>
-                          {formatCurrency(r.variance)}
+                {/* Variance Summary */}
+                {compareResults.lines && compareResults.lines.length > 0 && (
+                  <>
+                    <div className="grid gap-4 md:grid-cols-3 mb-6">
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <div className="text-xs text-slate-500 mb-1">
+                          Total Base Amount
+                        </div>
+                        <div className="text-lg font-semibold text-slate-900">
+                          {formatCurrency(
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.base_amount) || 0),
+                              0,
+                            ),
+                          )}
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <div className="text-xs text-slate-500 mb-1">
+                          Total Compare Amount
+                        </div>
+                        <div className="text-lg font-semibold text-slate-900">
+                          {formatCurrency(
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.compare_amount) || 0),
+                              0,
+                            ),
+                          )}
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <div className="text-xs text-slate-500 mb-1">
+                          Net Variance
+                        </div>
+                        <div
+                          className={`text-lg font-semibold ${
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.delta) || 0),
+                              0,
+                            ) > 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {formatCurrency(
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.delta) || 0),
+                              0,
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lines Table */}
+                    <DataTable
+                      columns={[
+                        {
+                          header: "Account Code",
+                          accessor: "account_code",
+                          render: (row) => (
+                            <div className="font-mono text-sm">
+                              {row.account_code}
+                            </div>
+                          ),
+                        },
+                        {
+                          header: "Account Name",
+                          accessor: "account_name",
+                          render: (row) => (
+                            <div className="font-medium">
+                              {row.account_name}
+                            </div>
+                          ),
+                        },
+                        {
+                          header: "Base Amount",
+                          accessor: "base_amount",
+                          align: "right",
+                          render: (row) => (
+                            <span className="font-medium">
+                              {formatCurrency(row.base_amount)}
+                            </span>
+                          ),
+                        },
+                        {
+                          header: "Compare Amount",
+                          accessor: "compare_amount",
+                          align: "right",
+                          render: (row) => (
+                            <span className="font-medium">
+                              {formatCurrency(row.compare_amount)}
+                            </span>
+                          ),
+                        },
+                        {
+                          header: "Variance",
+                          accessor: "delta",
+                          align: "right",
+                          render: (row) => {
+                            const delta = parseFloat(row.delta) || 0;
+                            return (
+                              <span
+                                className={`font-semibold ${
+                                  delta > 0
+                                    ? "text-green-600"
+                                    : delta < 0
+                                      ? "text-red-600"
+                                      : "text-slate-900"
+                                }`}
+                              >
+                                {formatCurrency(delta)}
+                              </span>
+                            );
+                          },
+                        },
+                        {
+                          header: "Variance %",
+                          align: "right",
+                          render: (row) => {
+                            const base = parseFloat(row.base_amount) || 0;
+                            const compare = parseFloat(row.compare_amount) || 0;
+                            const delta = parseFloat(row.delta) || 0;
+
+                            let percent = 0;
+                            if (base !== 0) {
+                              percent = (delta / Math.abs(base)) * 100;
+                            } else if (compare !== 0) {
+                              percent = 100;
+                            }
+
+                            return (
+                              <span
+                                className={`font-medium ${
+                                  percent > 0
+                                    ? "text-green-600"
+                                    : percent < 0
+                                      ? "text-red-600"
+                                      : "text-slate-900"
+                                }`}
+                              >
+                                {percent > 0 ? "+" : ""}
+                                {percent.toFixed(2)}%
+                              </span>
+                            );
+                          },
+                        },
+                      ]}
+                      rows={compareResults.lines}
+                      empty={{
+                        title: "No comparison data",
+                        description:
+                          "No lines found for the selected versions and period",
+                      }}
+                    />
+
+                    {/* Summary Row */}
+                    <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-medium text-slate-700">
+                          Total Variance:
                         </span>
-                      )},
-                      { header: 'Variance %', render: (r) => (
-                        <span className={r.variancePercent > 0 ? 'text-green-600' : r.variancePercent < 0 ? 'text-red-600' : ''}>
-                          {r.variancePercent?.toFixed(2)}%
+                        <span
+                          className={`font-bold ${
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.delta) || 0),
+                              0,
+                            ) > 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {formatCurrency(
+                            compareResults.lines.reduce(
+                              (sum, line) =>
+                                sum + (parseFloat(line.delta) || 0),
+                              0,
+                            ),
+                          )}
                         </span>
-                      )}
-                    ]}
-                    rows={compareResults.details}
-                  />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -1661,67 +2450,73 @@ export default function ForecastDetail() {
       )}
 
       {/* Scenarios Tab */}
-      {activeTab === 'scenarios' && (
+      {activeTab === "scenarios" && (
         <ContentCard>
           <div className="space-y-6">
             <div className="bg-purple-50 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <Target className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-purple-900">Scenario Analysis</p>
+                  <p className="text-sm font-medium text-purple-900">
+                    Scenario Management
+                  </p>
                   <p className="text-xs text-purple-700 mt-1">
-                    View and manage forecast scenarios with probability weights
+                    Create and manage scenarios for what-if analysis and forecasting
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {versions.filter(v => v.scenario_key).length === 0 ? (
-                <div className="text-center py-12">
-                  <Target className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-sm text-slate-500">No scenarios defined yet</p>
-                </div>
-              ) : (
-                versions.filter(v => v.scenario_key).map(version => (
-                  <div key={version.id} className="border border-slate-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Badge tone="purple">{version.scenario_key}</Badge>
-                        <span className="font-medium">v{version.version_no || version.versionNo}</span>
-                        {version.name && <span className="text-sm text-slate-600">• {version.name}</span>}
-                      </div>
-                      <Badge tone={version.probability_weight ? 'success' : 'muted'}>
-                        {(version.probability_weight * 100)}% probability
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-slate-600">{version.lines?.length || 0} lines</span>
-                      <span className="text-slate-600">
-                        Total: {formatCurrency(version.lines?.reduce((sum, l) => sum + (l.amount || 0), 0) || 0)}
-                      </span>
-                      <Badge tone={version.workflow_status === 'approved' ? 'success' : 'muted'}>
-                        {version.workflow_status || version.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))
-              )}
+            <div className="flex justify-end">
+              <Button
+                leftIcon={Plus}
+                onClick={() => {
+                  setEditingScenario(null);
+                  resetScenarioForm();
+                  setScenarioModalOpen(true);
+                }}
+              >
+                New Scenario
+              </Button>
             </div>
+
+            {scenariosLoading ? (
+              <div className="text-center py-12">
+                <div className="text-slate-500">Loading scenarios...</div>
+              </div>
+            ) : scenarios.length === 0 ? (
+              <div className="text-center py-12">
+                <Target className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+                <p className="text-sm text-slate-500">No scenarios defined yet</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Create your first scenario to start scenario planning
+                </p>
+              </div>
+            ) : (
+              <DataTable
+                columns={scenarioColumns}
+                rows={scenarios}
+                empty={{
+                  title: "No scenarios found",
+                  description: "Try adjusting your filters",
+                }}
+              />
+            )}
           </div>
         </ContentCard>
       )}
 
       {/* Metrics Tab */}
-      {activeTab === 'metrics' && (
+      {activeTab === "metrics" && (
         <ContentCard>
           <div className="space-y-6">
             <div className="bg-green-50 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <Gauge className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-green-900">Forecast Metrics</p>
+                  <p className="text-sm font-medium text-green-900">
+                    Forecast Metrics
+                  </p>
                   <p className="text-xs text-green-700 mt-1">
                     Key performance indicators and forecast accuracy metrics
                   </p>
@@ -1731,83 +2526,171 @@ export default function ForecastDetail() {
 
             <div className="grid gap-4 md:grid-cols-4">
               <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">Total Forecast Value</div>
+                <div className="text-xs text-slate-500 mb-1">
+                  Total Forecast Value
+                </div>
                 <div className="text-xl font-semibold text-slate-900">
-                  {formatCurrency(versions.reduce((sum, v) => {
-                    if (v.workflow_status === 'approved' || v.status === 'active') {
-                      return sum + (v.lines?.reduce((s, l) => s + (l.amount || 0), 0) || 0);
-                    }
-                    return sum;
-                  }, 0))}
+                  {formatCurrency(
+                    versions.reduce((sum, v) => {
+                      if (
+                        v.workflow_status === "approved" ||
+                        v.status === "active"
+                      ) {
+                        return (
+                          sum +
+                          (v.lines?.reduce((s, l) => s + (l.amount || 0), 0) ||
+                            0)
+                        );
+                      }
+                      return sum;
+                    }, 0),
+                  )}
                 </div>
               </div>
 
               <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">Active Scenarios</div>
+                <div className="text-xs text-slate-500 mb-1">
+                  Total Scenarios
+                </div>
                 <div className="text-xl font-semibold text-slate-900">
-                  {versions.filter(v => v.scenario_key).length}
+                  {scenarios.length}
                 </div>
               </div>
 
               <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">Weighted Forecast</div>
+                <div className="text-xs text-slate-500 mb-1">
+                  Weighted Forecast
+                </div>
                 <div className="text-xl font-semibold text-slate-900">
-                  {formatCurrency(versions.reduce((sum, v) => {
-                    const weight = v.probability_weight || 0;
-                    const value = v.lines?.reduce((s, l) => s + (l.amount || 0), 0) || 0;
-                    return sum + (value * weight);
-                  }, 0))}
+                  {formatCurrency(
+                    versions.reduce((sum, v) => {
+                      const weight = v.probability_weight || 0;
+                      const value =
+                        v.lines?.reduce((s, l) => s + (l.amount || 0), 0) || 0;
+                      return sum + value * weight;
+                    }, 0),
+                  )}
                 </div>
               </div>
 
               <div className="bg-slate-50 rounded-lg p-4">
                 <div className="text-xs text-slate-500 mb-1">Approval Rate</div>
                 <div className="text-xl font-semibold text-slate-900">
-                  {versions.length > 0 
-                    ? Math.round((versions.filter(v => v.workflow_status === 'approved').length / versions.length) * 100)
-                    : 0}%
+                  {versions.length > 0
+                    ? Math.round(
+                        (versions.filter(
+                          (v) => v.workflow_status === "approved",
+                        ).length /
+                          versions.length) *
+                          100,
+                      )
+                    : 0}
+                  %
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-slate-200 pt-4">
-              <h4 className="text-sm font-medium text-slate-900 mb-3">Version Distribution</h4>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-20 text-sm text-slate-600">Draft:</div>
-                  <div className="flex-1">
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-slate-400 rounded-full"
-                        style={{ width: `${(versions.filter(v => v.workflow_status === 'draft').length / Math.max(versions.length, 1)) * 100}%` }}
-                      />
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Version Distribution */}
+              <div className="border border-slate-200 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">
+                  Version Distribution
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-sm text-slate-600">Draft:</div>
+                    <div className="flex-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-slate-400 rounded-full"
+                          style={{
+                            width: `${(versions.filter((v) => v.workflow_status === "draft").length / Math.max(versions.length, 1)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-sm font-medium">
+                      {
+                        versions.filter((v) => v.workflow_status === "draft")
+                          .length
+                      }
                     </div>
                   </div>
-                  <div className="text-sm font-medium">{versions.filter(v => v.workflow_status === 'draft').length}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-sm text-slate-600">In Review:</div>
+                    <div className="flex-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-400 rounded-full"
+                          style={{
+                            width: `${(versions.filter((v) => v.workflow_status === "in_review" || v.workflow_status === "submitted").length / Math.max(versions.length, 1)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-sm font-medium">
+                      {
+                        versions.filter((v) => v.workflow_status === "in_review" || v.workflow_status === "submitted")
+                          .length
+                      }
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-sm text-slate-600">Approved:</div>
+                    <div className="flex-1">
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-400 rounded-full"
+                          style={{
+                            width: `${(versions.filter((v) => v.workflow_status === "approved").length / Math.max(versions.length, 1)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-sm font-medium">
+                      {
+                        versions.filter((v) => v.workflow_status === "approved")
+                          .length
+                      }
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 text-sm text-slate-600">Submitted:</div>
-                  <div className="flex-1">
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-blue-400 rounded-full"
-                        style={{ width: `${(versions.filter(v => v.workflow_status === 'submitted').length / Math.max(versions.length, 1)) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium">{versions.filter(v => v.workflow_status === 'submitted').length}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-20 text-sm text-slate-600">Approved:</div>
-                  <div className="flex-1">
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-green-400 rounded-full"
-                        style={{ width: `${(versions.filter(v => v.workflow_status === 'approved').length / Math.max(versions.length, 1)) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium">{versions.filter(v => v.workflow_status === 'approved').length}</div>
+              </div>
+
+              {/* Scenario Distribution */}
+              <div className="border border-slate-200 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">
+                  Scenario Usage
+                </h4>
+                <div className="space-y-2">
+                  {scenariosStats && scenariosStats.length > 0 ? (
+                    scenariosStats.slice(0, 5).map((scenario) => (
+                      <div key={scenario.id} className="flex items-center gap-2">
+                        <div className="w-24 text-sm text-slate-600 truncate">
+                          {scenario.name}:
+                        </div>
+                        <div className="flex-1">
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${
+                                scenario.is_default ? "bg-amber-400" : "bg-purple-400"
+                              }`}
+                              style={{
+                                width: `${Math.min((scenario.version_count / Math.max(versions.length, 1)) * 100, 100)}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="text-sm font-medium">
+                          {scenario.version_count}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500 text-center py-4">
+                      No scenarios with versions yet
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -1819,10 +2702,235 @@ export default function ForecastDetail() {
       {/* Modals */}
       {/* ============================ */}
 
+      {/* Create/Edit Scenario Modal */}
+      <Modal
+        open={scenarioModalOpen}
+        onClose={() => {
+          setScenarioModalOpen(false);
+          setEditingScenario(null);
+          resetScenarioForm();
+        }}
+        title={editingScenario ? "Edit Scenario" : "Create Scenario"}
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="bg-purple-50 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <Target className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-purple-900">
+                  {editingScenario ? "Edit Scenario" : "New Scenario"}
+                </p>
+                <p className="text-xs text-purple-700 mt-1">
+                  {editingScenario 
+                    ? "Update scenario details and settings" 
+                    : "Create a new scenario for what-if analysis"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Input
+            label="Scenario Code"
+            value={scenarioForm.code}
+            onChange={(e) =>
+              setScenarioForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))
+            }
+            placeholder="e.g., BASE, OPTIMISTIC, PESSIMISTIC"
+            helperText="Unique code used to identify the scenario"
+            disabled={!!editingScenario}
+            required
+          />
+
+          <Input
+            label="Scenario Name"
+            value={scenarioForm.name}
+            onChange={(e) =>
+              setScenarioForm((f) => ({ ...f, name: e.target.value }))
+            }
+            placeholder="e.g., Base Case, Optimistic Scenario"
+            required
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Description
+            </label>
+            <textarea
+              className="w-full h-24 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              value={scenarioForm.description}
+              onChange={(e) =>
+                setScenarioForm((f) => ({ ...f, description: e.target.value }))
+              }
+              placeholder="Describe the scenario assumptions and context..."
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isDefault"
+                checked={scenarioForm.isDefault}
+                onChange={(e) =>
+                  setScenarioForm((f) => ({ ...f, isDefault: e.target.checked }))
+                }
+                className="h-4 w-4 text-purple-600 rounded border-slate-300"
+              />
+              <label htmlFor="isDefault" className="text-sm text-slate-700">
+                Set as default scenario
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={scenarioForm.isActive}
+                onChange={(e) =>
+                  setScenarioForm((f) => ({ ...f, isActive: e.target.checked }))
+                }
+                className="h-4 w-4 text-purple-600 rounded border-slate-300"
+              />
+              <label htmlFor="isActive" className="text-sm text-slate-700">
+                Active (available for use)
+              </label>
+            </div>
+          </div>
+
+          {editingScenario && editingScenario.is_default && !scenarioForm.isDefault && (
+            <div className="bg-amber-50 rounded-lg p-3 flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-800">
+                Unchecking default will require selecting another default scenario.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setScenarioModalOpen(false);
+              setEditingScenario(null);
+              resetScenarioForm();
+            }}
+            disabled={createScenarioMutation.isPending || updateScenarioMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              if (editingScenario) {
+                updateScenarioMutation.mutate();
+              } else {
+                createScenarioMutation.mutate();
+              }
+            }}
+            loading={createScenarioMutation.isPending || updateScenarioMutation.isPending}
+            leftIcon={editingScenario ? Edit : Plus}
+          >
+            {editingScenario ? "Update Scenario" : "Create Scenario"}
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Delete Scenario Confirmation Modal */}
+      <Modal
+        open={deleteScenarioModalOpen}
+        onClose={() => {
+          setDeleteScenarioModalOpen(false);
+          setScenarioToDelete(null);
+          setForceDelete(false);
+        }}
+        title="Delete Scenario"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="bg-red-50 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-red-900">
+                  Delete Scenario "{scenarioToDelete?.name}"
+                </p>
+                <p className="text-xs text-red-700 mt-1">
+                  {scenarioToDelete?.version_count > 0
+                    ? `This scenario is used by ${scenarioToDelete.version_count} version(s).`
+                    : "Are you sure you want to delete this scenario?"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {scenarioToDelete?.version_count > 0 && (
+            <div className="bg-amber-50 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Info className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs text-amber-800 font-medium">
+                    Scenario in use
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1">
+                    This scenario is currently used by {scenarioToDelete.version_count} forecast version(s).
+                    Deleting it will:
+                  </p>
+                  <ul className="list-disc list-inside text-xs text-amber-700 mt-1 ml-1">
+                    <li>Remove the scenario association from those versions</li>
+                    <li>Not delete the versions themselves</li>
+                    <li>Make the versions appear without a scenario</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="forceDelete"
+              checked={forceDelete}
+              onChange={(e) => setForceDelete(e.target.checked)}
+              className="h-4 w-4 text-red-600 rounded border-slate-300"
+            />
+            <label htmlFor="forceDelete" className="text-sm text-slate-700">
+              Force delete (bypass soft delete)
+            </label>
+          </div>
+          <p className="text-xs text-slate-500">
+            Force delete will permanently remove the scenario from the database.
+            Only use if you're sure you want to completely remove it.
+          </p>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setDeleteScenarioModalOpen(false);
+              setScenarioToDelete(null);
+              setForceDelete(false);
+            }}
+            disabled={deleteScenarioMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => deleteScenarioMutation.mutate()}
+            loading={deleteScenarioMutation.isPending}
+            leftIcon={Trash2}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            Delete Scenario
+          </Button>
+        </div>
+      </Modal>
+
       {/* Create Version Modal */}
       <Modal
         open={modals.createVersion}
-        onClose={() => closeModal('createVersion')}
+        onClose={() => closeModal("createVersion")}
         title="Create Forecast Version"
         size="lg"
       >
@@ -1831,7 +2939,7 @@ export default function ForecastDetail() {
             <div className="flex items-start gap-3">
               <GitBranch className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">New Version for FY {forecast.fiscal_year}</p>
+                <p className="text-sm font-medium text-blue-900">New Version</p>
                 <p className="text-xs text-blue-700 mt-1">
                   Create a new version for scenario planning and forecasting
                 </p>
@@ -1845,24 +2953,31 @@ export default function ForecastDetail() {
               type="number"
               min="1"
               value={versionForm.versionNo}
-              onChange={(e) => setVersionForm(f => ({ ...f, versionNo: parseInt(e.target.value) || 1 }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  versionNo: parseInt(e.target.value) || 1,
+                }))
+              }
               required
               helperText="Unique version number within this forecast"
             />
 
             <Select
-              label="Scenario Key (Optional)"
-              value={versionForm.scenarioKey || ''}
-              onChange={(e) => setVersionForm(f => ({ ...f, scenarioKey: e.target.value || null }))}
+              label="Scenario"
+              value={versionForm.scenarioId || ""}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  scenarioId: e.target.value || null,
+                }))
+              }
               options={[
-                { label: 'No Scenario', value: '' },
-                { label: 'Base Case', value: 'base' },
-                { label: 'Optimistic', value: 'optimistic' },
-                { label: 'Pessimistic', value: 'pessimistic' },
-                { label: 'Best Case', value: 'best_case' },
-                { label: 'Worst Case', value: 'worst_case' },
-                { label: 'Conservative', value: 'conservative' },
-                { label: 'Aggressive', value: 'aggressive' }
+                { label: "No Scenario", value: "" },
+                ...scenarios.filter(s => s.is_active).map((s) => ({
+                  label: `${s.name} (${s.code})${s.is_default ? ' - Default' : ''}`,
+                  value: s.id,
+                })),
               ]}
             />
           </div>
@@ -1870,7 +2985,9 @@ export default function ForecastDetail() {
           <Input
             label="Version Name (Optional)"
             value={versionForm.name}
-            onChange={(e) => setVersionForm(f => ({ ...f, name: e.target.value }))}
+            onChange={(e) =>
+              setVersionForm((f) => ({ ...f, name: e.target.value }))
+            }
             placeholder="e.g., Base Forecast, Optimistic Scenario"
           />
 
@@ -1878,11 +2995,13 @@ export default function ForecastDetail() {
             <Select
               label="Initial Status"
               value={versionForm.status}
-              onChange={(e) => setVersionForm(f => ({ ...f, status: e.target.value }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({ ...f, status: e.target.value }))
+              }
               options={[
-                { label: 'Draft', value: 'draft' },
-                { label: 'Active', value: 'active' },
-                { label: 'Archived', value: 'archived' }
+                { label: "Draft", value: "draft" },
+                { label: "Active", value: "active" },
+                { label: "Archived", value: "archived" },
               ]}
             />
 
@@ -1893,41 +3012,21 @@ export default function ForecastDetail() {
               max="1"
               step="0.01"
               value={versionForm.probabilityWeight}
-              onChange={(e) => setVersionForm(f => ({ ...f, probabilityWeight: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  probabilityWeight: parseFloat(e.target.value) || 0,
+                }))
+              }
               helperText="0-1 scale for weighted forecasts"
             />
-          </div>
-
-          <div className="border-t border-slate-200 pt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Management Dimensions (Optional)
-            </label>
-            <textarea
-              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={JSON.stringify(versionForm.dimensionJson, null, 2)}
-              onChange={(e) => {
-                try {
-                  setVersionForm(f => ({ ...f, dimensionJson: JSON.parse(e.target.value) }));
-                } catch {
-                  // Invalid JSON, don't update
-                }
-              }}
-              placeholder='{
-  "costCenter": "IT",
-  "project": "Q2-2026",
-  "department": "Engineering"
-}'
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              JSON object of dimensions that apply to all lines in this version
-            </p>
           </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
           <Button
             variant="outline"
-            onClick={() => closeModal('createVersion')}
+            onClick={() => closeModal("createVersion")}
             disabled={createVersionMutation.isPending}
           >
             Cancel
@@ -1946,7 +3045,7 @@ export default function ForecastDetail() {
       <Modal
         open={modals.editVersion}
         onClose={() => {
-          closeModal('editVersion');
+          closeModal("editVersion");
           setEditingVersion(null);
           resetVersionForm();
         }}
@@ -1958,9 +3057,12 @@ export default function ForecastDetail() {
             <div className="flex items-start gap-3">
               <Edit className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Edit Version {editingVersion?.version_no || editingVersion?.versionNo}</p>
+                <p className="text-sm font-medium text-blue-900">
+                  Edit Version{" "}
+                  {editingVersion?.version_no || editingVersion?.versionNo}
+                </p>
                 <p className="text-xs text-blue-700 mt-1">
-                  Update version details, scenario, or management dimensions
+                  Update version details or scenario
                 </p>
               </div>
             </div>
@@ -1972,24 +3074,31 @@ export default function ForecastDetail() {
               type="number"
               min="1"
               value={versionForm.versionNo}
-              onChange={(e) => setVersionForm(f => ({ ...f, versionNo: parseInt(e.target.value) || 1 }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  versionNo: parseInt(e.target.value) || 1,
+                }))
+              }
               required
               helperText="Unique version number within this forecast"
             />
 
             <Select
-              label="Scenario Key"
-              value={versionForm.scenarioKey || ''}
-              onChange={(e) => setVersionForm(f => ({ ...f, scenarioKey: e.target.value || null }))}
+              label="Scenario"
+              value={versionForm.scenarioId || ""}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  scenarioId: e.target.value || null,
+                }))
+              }
               options={[
-                { label: 'None', value: '' },
-                { label: 'Base Case', value: 'base' },
-                { label: 'Optimistic', value: 'optimistic' },
-                { label: 'Pessimistic', value: 'pessimistic' },
-                { label: 'Best Case', value: 'best_case' },
-                { label: 'Worst Case', value: 'worst_case' },
-                { label: 'Conservative', value: 'conservative' },
-                { label: 'Aggressive', value: 'aggressive' }
+                { label: "None", value: "" },
+                ...scenarios.filter(s => s.is_active).map((s) => ({
+                  label: `${s.name} (${s.code})${s.is_default ? ' - Default' : ''}`,
+                  value: s.id,
+                })),
               ]}
             />
           </div>
@@ -1997,7 +3106,9 @@ export default function ForecastDetail() {
           <Input
             label="Version Name"
             value={versionForm.name}
-            onChange={(e) => setVersionForm(f => ({ ...f, name: e.target.value }))}
+            onChange={(e) =>
+              setVersionForm((f) => ({ ...f, name: e.target.value }))
+            }
             placeholder="e.g., Base Forecast, Optimistic Scenario"
           />
 
@@ -2005,11 +3116,13 @@ export default function ForecastDetail() {
             <Select
               label="Status"
               value={versionForm.status}
-              onChange={(e) => setVersionForm(f => ({ ...f, status: e.target.value }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({ ...f, status: e.target.value }))
+              }
               options={[
-                { label: 'Draft', value: 'draft' },
-                { label: 'Active', value: 'active' },
-                { label: 'Archived', value: 'archived' }
+                { label: "Draft", value: "draft" },
+                { label: "Active", value: "active" },
+                { label: "Archived", value: "archived" },
               ]}
             />
 
@@ -2020,70 +3133,57 @@ export default function ForecastDetail() {
               max="1"
               step="0.01"
               value={versionForm.probabilityWeight}
-              onChange={(e) => setVersionForm(f => ({ ...f, probabilityWeight: parseFloat(e.target.value) || 0 }))}
+              onChange={(e) =>
+                setVersionForm((f) => ({
+                  ...f,
+                  probabilityWeight: parseFloat(e.target.value) || 0,
+                }))
+              }
               helperText="0-1 scale for weighted forecasts"
             />
           </div>
 
           {/* Status Change Warning */}
-          {editingVersion?.status === 'finalized' && versionForm.status !== 'finalized' && (
-            <div className="bg-amber-50 rounded-lg p-3 flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-800">
-                Changing a finalized version back to draft will allow edits but may affect reporting.
-              </p>
-            </div>
-          )}
-
-          <div className="border-t border-slate-200 pt-4">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Management Dimensions
-            </label>
-            <textarea
-              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={JSON.stringify(versionForm.dimensionJson, null, 2)}
-              onChange={(e) => {
-                try {
-                  setVersionForm(f => ({ ...f, dimensionJson: JSON.parse(e.target.value) }));
-                } catch {
-                  // Invalid JSON, don't update
-                }
-              }}
-              placeholder='{
-  "costCenter": "IT",
-  "project": "Q2-2026",
-  "department": "Engineering"
-}'
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              JSON object of dimensions that apply to all lines in this version
-            </p>
-          </div>
+          {editingVersion?.status === "finalized" &&
+            versionForm.status !== "finalized" && (
+              <div className="bg-amber-50 rounded-lg p-3 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">
+                  Changing a finalized version back to draft will allow edits
+                  but may affect reporting.
+                </p>
+              </div>
+            )}
 
           {/* Version Metadata */}
           <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="font-medium">Created:</span> {formatDateTime(editingVersion?.created_at)}
+                <span className="font-medium">Created:</span>{" "}
+                {formatDateTime(editingVersion?.created_at)}
               </div>
               {editingVersion?.submitted_at && (
                 <div>
-                  <span className="font-medium">Submitted:</span> {formatDateTime(editingVersion.submitted_at)}
+                  <span className="font-medium">Submitted:</span>{" "}
+                  {formatDateTime(editingVersion.submitted_at)}
                 </div>
               )}
               {editingVersion?.approved_at && (
                 <div>
-                  <span className="font-medium">Approved:</span> {formatDateTime(editingVersion.approved_at)}
+                  <span className="font-medium">Approved:</span>{" "}
+                  {formatDateTime(editingVersion.approved_at)}
                 </div>
               )}
               {editingVersion?.rejected_at && (
                 <div>
-                  <span className="font-medium">Rejected:</span> {formatDateTime(editingVersion.rejected_at)}
+                  <span className="font-medium">Rejected:</span>{" "}
+                  {formatDateTime(editingVersion.rejected_at)}
                 </div>
               )}
               {editingVersion?.finalized_at && (
                 <div>
-                  <span className="font-medium">Finalized:</span> {formatDateTime(editingVersion.finalized_at)}
+                  <span className="font-medium">Finalized:</span>{" "}
+                  {formatDateTime(editingVersion.finalized_at)}
                 </div>
               )}
             </div>
@@ -2094,7 +3194,7 @@ export default function ForecastDetail() {
           <Button
             variant="outline"
             onClick={() => {
-              closeModal('editVersion');
+              closeModal("editVersion");
               setEditingVersion(null);
               resetVersionForm();
             }}
@@ -2111,10 +3211,10 @@ export default function ForecastDetail() {
                     versionNo: versionForm.versionNo,
                     name: versionForm.name || null,
                     status: versionForm.status,
-                    scenarioKey: versionForm.scenarioKey,
+                    scenarioId: versionForm.scenarioId,
                     probabilityWeight: versionForm.probabilityWeight,
-                    dimensionJson: versionForm.dimensionJson
-                  }
+                    dimensionJson: versionForm.dimensionJson,
+                  },
                 });
               }
             }}
@@ -2130,7 +3230,7 @@ export default function ForecastDetail() {
       <Modal
         open={modals.copyVersion}
         onClose={() => {
-          closeModal('copyVersion');
+          closeModal("copyVersion");
           resetCopyForm();
         }}
         title="Copy Forecast Version"
@@ -2141,7 +3241,9 @@ export default function ForecastDetail() {
             <div className="flex items-start gap-3">
               <Copy className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Copy Version to New Scenario</p>
+                <p className="text-sm font-medium text-blue-900">
+                  Copy Version to New Scenario
+                </p>
                 <p className="text-xs text-blue-700 mt-1">
                   Create a new version based on an existing one
                 </p>
@@ -2155,21 +3257,30 @@ export default function ForecastDetail() {
               type="number"
               min="1"
               value={copyForm.newVersionNo}
-              onChange={(e) => setCopyForm(f => ({ ...f, newVersionNo: parseInt(e.target.value) || 1 }))}
+              onChange={(e) =>
+                setCopyForm((f) => ({
+                  ...f,
+                  newVersionNo: parseInt(e.target.value) || 1,
+                }))
+              }
               required
             />
 
             <Select
-              label="Scenario Key"
-              value={copyForm.scenarioKey || ''}
-              onChange={(e) => setCopyForm(f => ({ ...f, scenarioKey: e.target.value || null }))}
+              label="Scenario"
+              value={copyForm.scenarioId || ""}
+              onChange={(e) =>
+                setCopyForm((f) => ({
+                  ...f,
+                  scenarioId: e.target.value || null,
+                }))
+              }
               options={[
-                { label: 'Same as Source', value: '' },
-                { label: 'Base Case', value: 'base' },
-                { label: 'Optimistic', value: 'optimistic' },
-                { label: 'Pessimistic', value: 'pessimistic' },
-                { label: 'Best Case', value: 'best_case' },
-                { label: 'Worst Case', value: 'worst_case' }
+                { label: "Same as Source", value: "" },
+                ...scenarios.filter(s => s.is_active).map((s) => ({
+                  label: `${s.name} (${s.code})${s.is_default ? ' - Default' : ''}`,
+                  value: s.id,
+                })),
               ]}
             />
           </div>
@@ -2177,7 +3288,9 @@ export default function ForecastDetail() {
           <Input
             label="New Version Name"
             value={copyForm.name}
-            onChange={(e) => setCopyForm(f => ({ ...f, name: e.target.value }))}
+            onChange={(e) =>
+              setCopyForm((f) => ({ ...f, name: e.target.value }))
+            }
             placeholder="e.g., Optimistic Scenario v2"
           />
 
@@ -2188,7 +3301,12 @@ export default function ForecastDetail() {
             max="1"
             step="0.01"
             value={copyForm.probabilityWeight}
-            onChange={(e) => setCopyForm(f => ({ ...f, probabilityWeight: parseFloat(e.target.value) || 0 }))}
+            onChange={(e) =>
+              setCopyForm((f) => ({
+                ...f,
+                probabilityWeight: parseFloat(e.target.value) || 0,
+              }))
+            }
             helperText="0-1 scale for weighted forecasts"
           />
         </div>
@@ -2197,7 +3315,7 @@ export default function ForecastDetail() {
           <Button
             variant="outline"
             onClick={() => {
-              closeModal('copyVersion');
+              closeModal("copyVersion");
               resetCopyForm();
             }}
             disabled={copyVersionMutation.isPending}
@@ -2219,7 +3337,7 @@ export default function ForecastDetail() {
       <Modal
         open={modals.addLines}
         onClose={() => {
-          closeModal('addLines');
+          closeModal("addLines");
           resetAddLinesForm();
         }}
         title="Add Forecast Lines"
@@ -2230,13 +3348,19 @@ export default function ForecastDetail() {
             <div className="flex items-start gap-3">
               <ListPlus className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Add or update forecast lines</p>
+                <p className="text-sm font-medium text-blue-900">
+                  Add or update forecast lines
+                </p>
                 <p className="text-xs text-blue-700 mt-1">
                   Each line requires an account, period, and amount
                 </p>
                 {addLinesForm.versionId && (
                   <p className="text-xs text-blue-600 mt-2">
-                    Adding to Version {versions.find(v => v.id === addLinesForm.versionId)?.version_no}
+                    Adding to Version{" "}
+                    {
+                      versions.find((v) => v.id === addLinesForm.versionId)
+                        ?.version_no
+                    }
                   </p>
                 )}
               </div>
@@ -2246,15 +3370,20 @@ export default function ForecastDetail() {
           {addLinesForm.versionId && (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {addLinesForm.lines.map((line, index) => (
-                <div key={index} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <div
+                  key={index}
+                  className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-slate-700">Line {index + 1}</span>
+                    <span className="text-sm font-medium text-slate-700">
+                      Line {index + 1}
+                    </span>
                     {addLinesForm.lines.length > 1 && (
                       <button
                         onClick={() => {
                           const newLines = [...addLinesForm.lines];
                           newLines.splice(index, 1);
-                          setAddLinesForm(f => ({ ...f, lines: newLines }));
+                          setAddLinesForm((f) => ({ ...f, lines: newLines }));
                         }}
                         className="text-red-600 hover:text-red-700 text-sm"
                       >
@@ -2269,15 +3398,18 @@ export default function ForecastDetail() {
                       value={line.accountId}
                       onChange={(e) => {
                         const newLines = [...addLinesForm.lines];
-                        newLines[index] = { ...newLines[index], accountId: e.target.value };
-                        setAddLinesForm(f => ({ ...f, lines: newLines }));
+                        newLines[index] = {
+                          ...newLines[index],
+                          accountId: e.target.value,
+                        };
+                        setAddLinesForm((f) => ({ ...f, lines: newLines }));
                       }}
                       options={[
-                        { label: 'Select Account', value: '' },
-                        ...accounts.map(a => ({ 
-                          label: formatAccountDisplay(a), 
-                          value: a.id 
-                        }))
+                        { label: "Select Account", value: "" },
+                        ...accounts.map((a) => ({
+                          label: formatAccountDisplay(a),
+                          value: a.id,
+                        })),
                       ]}
                       required
                     />
@@ -2287,18 +3419,20 @@ export default function ForecastDetail() {
                       value={line.periodId}
                       onChange={(e) => {
                         const newLines = [...addLinesForm.lines];
-                        newLines[index] = { ...newLines[index], periodId: e.target.value };
-                        setAddLinesForm(f => ({ ...f, lines: newLines }));
+                        newLines[index] = {
+                          ...newLines[index],
+                          periodId: e.target.value,
+                        };
+                        setAddLinesForm((f) => ({ ...f, lines: newLines }));
                       }}
                       options={[
-                        { label: periods.length === 0 ? `No periods for FY ${forecast.fiscal_year}` : 'Select Period', value: '' },
-                        ...periods.map(p => ({ 
-                          label: formatPeriodDisplay(p), 
-                          value: p.id 
-                        }))
+                        { label: "Select Period", value: "" },
+                        ...periods.map((p) => ({
+                          label: formatPeriodDisplay(p),
+                          value: p.id,
+                        })),
                       ]}
                       required
-                      disabled={periods.length === 0}
                     />
 
                     <div className="md:col-span-2">
@@ -2309,8 +3443,11 @@ export default function ForecastDetail() {
                         value={line.amount}
                         onChange={(e) => {
                           const newLines = [...addLinesForm.lines];
-                          newLines[index] = { ...newLines[index], amount: e.target.value };
-                          setAddLinesForm(f => ({ ...f, lines: newLines }));
+                          newLines[index] = {
+                            ...newLines[index],
+                            amount: e.target.value,
+                          };
+                          setAddLinesForm((f) => ({ ...f, lines: newLines }));
                         }}
                         leftIcon={DollarSign}
                         required
@@ -2325,10 +3462,15 @@ export default function ForecastDetail() {
           {addLinesForm.versionId && (
             <Button
               variant="outline"
-              onClick={() => setAddLinesForm(f => ({ 
-                ...f, 
-                lines: [...f.lines, { accountId: '', periodId: '', amount: '' }] 
-              }))}
+              onClick={() =>
+                setAddLinesForm((f) => ({
+                  ...f,
+                  lines: [
+                    ...f.lines,
+                    { accountId: "", periodId: "", amount: "" },
+                  ],
+                }))
+              }
               leftIcon={Plus}
               className="w-full"
             >
@@ -2340,8 +3482,7 @@ export default function ForecastDetail() {
             <div className="bg-amber-50 rounded-lg p-3 flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-amber-800">
-                No open periods found for fiscal year {forecast.fiscal_year}. 
-                Please create or open periods first.
+                No open periods found. Please create or open periods first.
               </p>
             </div>
           )}
@@ -2351,7 +3492,7 @@ export default function ForecastDetail() {
           <Button
             variant="outline"
             onClick={() => {
-              closeModal('addLines');
+              closeModal("addLines");
               resetAddLinesForm();
             }}
             disabled={addLinesMutation.isPending}
@@ -2361,7 +3502,11 @@ export default function ForecastDetail() {
           <Button
             onClick={() => addLinesMutation.mutate()}
             loading={addLinesMutation.isPending}
-            disabled={!addLinesForm.lines.some(l => l.accountId && l.periodId && l.amount) || periods.length === 0}
+            disabled={
+              !addLinesForm.lines.some(
+                (l) => l.accountId && l.periodId && l.amount,
+              ) || periods.length === 0
+            }
             leftIcon={ListPlus}
           >
             Add Lines
@@ -2369,12 +3514,11 @@ export default function ForecastDetail() {
         </div>
       </Modal>
 
-      
       {/* Import CSV Modal */}
       <Modal
         open={modals.importCsv}
         onClose={() => {
-          closeModal('importCsv');
+          closeModal("importCsv");
           resetCsvForm();
         }}
         title="Import Forecast Lines (CSV)"
@@ -2387,19 +3531,22 @@ export default function ForecastDetail() {
               <div>
                 <p className="text-sm font-medium text-blue-900">CSV Import</p>
                 <p className="text-xs text-blue-700 mt-1">
-                  Required columns: <span className="font-mono">accountId, periodId, amount</span>
+                  Required columns:{" "}
+                  <span className="font-mono">accountId, periodId, amount</span>
                 </p>
                 {csvForm.versionId && (
                   <p className="text-xs text-blue-600 mt-2">
-                    Importing to Version {versions.find(v => v.id === csvForm.versionId)?.version_no}
+                    Importing to Version{" "}
+                    {
+                      versions.find((v) => v.id === csvForm.versionId)
+                        ?.version_no
+                    }
                   </p>
                 )}
-                <p className="text-xs text-blue-600 mt-2">
-                  Example:
-                </p>
+                <p className="text-xs text-blue-600 mt-2">Example:</p>
                 <pre className="text-xs bg-blue-100 p-2 rounded mt-1">
-                  accountId,periodId,amount{'\n'}
-                  uuid-1,uuid-2,1000{'\n'}
+                  accountId,periodId,amount{"\n"}
+                  uuid-1,uuid-2,1000{"\n"}
                   uuid-3,uuid-4,2000
                 </pre>
               </div>
@@ -2414,7 +3561,9 @@ export default function ForecastDetail() {
               <textarea
                 className="w-full h-48 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={csvForm.data}
-                onChange={(e) => setCsvForm(f => ({ ...f, data: e.target.value }))}
+                onChange={(e) =>
+                  setCsvForm((f) => ({ ...f, data: e.target.value }))
+                }
                 placeholder="accountId,periodId,amount&#10;..."
               />
             </div>
@@ -2425,7 +3574,7 @@ export default function ForecastDetail() {
           <Button
             variant="outline"
             onClick={() => {
-              closeModal('importCsv');
+              closeModal("importCsv");
               resetCsvForm();
             }}
             disabled={importCsvMutation.isPending}
@@ -2448,7 +3597,7 @@ export default function ForecastDetail() {
         open={rejectionModalOpen}
         onClose={() => {
           setRejectionModalOpen(false);
-          setRejectionReason('');
+          setRejectionReason("");
           setSelectedVersionForRejection(null);
         }}
         title="Reject Version"
@@ -2459,7 +3608,9 @@ export default function ForecastDetail() {
             <div className="flex items-start gap-3">
               <ThumbsDown className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-amber-900">Provide Rejection Reason</p>
+                <p className="text-sm font-medium text-amber-900">
+                  Provide Rejection Reason
+                </p>
                 <p className="text-xs text-amber-700 mt-1">
                   Please explain why this version is being rejected
                 </p>
@@ -2486,7 +3637,7 @@ export default function ForecastDetail() {
             variant="outline"
             onClick={() => {
               setRejectionModalOpen(false);
-              setRejectionReason('');
+              setRejectionReason("");
               setSelectedVersionForRejection(null);
             }}
             disabled={rejectVersionMutation.isPending}
