@@ -19,7 +19,7 @@ export default function BalanceSheet() {
 
   const q = useQuery({
     queryKey: ['balanceSheet', { periodId, comparePeriodId }],
-    queryFn: () => api.balanceSheet({ periodId, comparePeriodId: comparePeriodId || undefined }),
+    queryFn: () => api.balanceSheet({ periodId, comparePeriodId: comparePeriodId || '' }),
     enabled: !!periodId
   });
 

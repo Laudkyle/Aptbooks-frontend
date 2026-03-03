@@ -19,7 +19,7 @@ export default function ChangesInEquity() {
 
   const q = useQuery({
     queryKey: ['changesEquity', { periodId, comparePeriodId }],
-    queryFn: () => api.changesInEquity({ periodId, comparePeriodId: comparePeriodId || undefined }),
+    queryFn: () => api.changesInEquity({ periodId, comparePeriodId: comparePeriodId || '' }),
     enabled: !!periodId
   });
 

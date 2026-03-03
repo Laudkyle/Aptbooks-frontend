@@ -30,8 +30,8 @@ export default function PnL() {
     queryKey: ['pnl', { periodId, comparePeriodId, mode }],
     queryFn: () => api.incomeStatement({ 
       periodId, 
-      comparePeriodId: comparePeriodId || undefined, 
-      mode: mode || undefined 
+      comparePeriodId: comparePeriodId || '', 
+      mode: mode || '' 
     }),
     enabled: !!periodId
   });

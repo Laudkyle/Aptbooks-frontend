@@ -19,7 +19,7 @@ export default function Cashflow() {
 
   const q = useQuery({
     queryKey: ['cashFlow', { periodId, comparePeriodId }],
-    queryFn: () => api.cashFlow({ periodId, comparePeriodId: comparePeriodId || undefined }),
+    queryFn: () => api.cashFlow({ periodId, comparePeriodId: comparePeriodId || '' }),
     enabled: !!periodId
   });
 
