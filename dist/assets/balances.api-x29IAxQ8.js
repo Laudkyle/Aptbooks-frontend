@@ -1,0 +1,1 @@
+import{e as n}from"./index-DdEGcRtF.js";function i(c){return{trialBalance:async a=>(await c.get(n.accounting.balances.trialBalance(a))).data,gl:async a=>(await c.get(n.accounting.balances.gl(a))).data,accountActivity:async a=>(await c.get(n.accounting.balances.accountActivity(a))).data}}export{i as m};

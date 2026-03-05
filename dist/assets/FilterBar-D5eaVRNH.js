@@ -1,0 +1,1 @@
+import{j as e,y as r}from"./index-DdEGcRtF.js";function x({className:a,children:l,right:s}){return e.jsxs("div",{className:r("app-surface flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between",a),children:[e.jsx("div",{className:"flex flex-wrap items-center gap-2",children:l}),s?e.jsx("div",{className:"flex items-center gap-2",children:s}):null]})}export{x as F};
