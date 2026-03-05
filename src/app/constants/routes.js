@@ -180,6 +180,7 @@ export const ROUTES = {
 
   // Phase 8 — Workflow & Documents
   documents: '/workflow/documents',
+  documentCreate: '/workflow/documents/create',
   documentTypes: '/workflow/documents/types',
   documentApprovalLevels: '/workflow/documents/approval-levels',
   documentDetail: (id = ':id') => `/workflow/documents/${id}`,

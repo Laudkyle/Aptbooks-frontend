@@ -143,6 +143,9 @@ const DocumentTypesPage = lazy(() =>
 const ApprovalLevelsPage = lazy(() =>
   import("../../features/workflow/pages/ApprovalLevelsPage.jsx")
 );
+const DocumentCreatePage = lazy(() =>
+  import("../../features/workflow/pages/DocumentCreatePage.jsx")
+);
 
 // Phase 4 — Accounting
 const AccountList = lazy(() =>
@@ -2101,6 +2104,16 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.documentsRead]}>
                 <Lazy>
                   <DocumentsLibraryPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.documentCreate,
+            element: (
+              <RequirePermission any={[PERMISSIONS.documentsManage]}>
+                <Lazy>
+                  <DocumentCreatePage />
                 </Lazy>
               </RequirePermission>
             ),
