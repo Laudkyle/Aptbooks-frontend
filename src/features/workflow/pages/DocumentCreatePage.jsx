@@ -5,7 +5,7 @@ import { ArrowLeft, FilePlus2, Plus, Trash2, FileText } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeWorkflowDocumentsApi } from '../approvals/api/workflowDocuments.api.js';
-import { makeDocumentTypesApi } from './documentTypes.api.js';
+import { makeDocumentTypesApi } from '../approvals/api/documentTypes.api.js'
 import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
