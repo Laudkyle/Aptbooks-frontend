@@ -37,7 +37,7 @@ export default function AssetCategoryEdit() {
   const accountOptions = useMemo(() => {
     const opts = toOptions(accountsRaw, {
       valueKey: 'id',
-      label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id
+      label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() 
     });
     return [NONE_OPTION, ...opts];
   }, [accountsRaw]);

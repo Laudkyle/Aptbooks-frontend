@@ -39,12 +39,12 @@ export default function AssetRevalue() {
 
   const accountOptions = useMemo(() => [NONE_OPTION, ...toOptions(accountsRaw, {
     valueKey: 'id',
-    label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id
+    label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() 
   })], [accountsRaw]);
 
   const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, {
     valueKey: 'id',
-    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim() || p.id
+    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim()
   })], [periodsRaw]);
 
   const [form, setForm] = useState({"periodId": "", "entryDate": "", "newValue": 0, "revaluationReserveAccountId": "", "memo": ""});

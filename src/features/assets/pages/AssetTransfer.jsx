@@ -44,7 +44,7 @@ export default function AssetTransfer() {
 
   const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, {
     valueKey: 'id',
-    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim() || p.id
+    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim()
   })], [periodsRaw]);
 
   const [form, setForm] = useState({"eventDate": "", "toLocationId": "", "toDepartmentId": "", "toCostCenterId": "", "reference": "", "memo": ""});

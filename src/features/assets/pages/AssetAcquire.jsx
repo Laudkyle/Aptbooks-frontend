@@ -44,7 +44,7 @@ export default function AssetAcquire() {
 
   const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periodsRaw, {
     valueKey: 'id',
-    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim() || p.id
+    label: (p) => p.name ?? `${p.startDate ?? ''} → ${p.endDate ?? ''}`.trim()
   })], [periodsRaw]);
 
   const [form, setForm] = useState({"periodId": "", "entryDate": "", "fundingAccountId": "", "memo": ""});
