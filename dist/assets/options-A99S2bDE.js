@@ -1,0 +1,1 @@
+function a(r){return r?Array.isArray(r)?r:Array.isArray(r.items)?r.items:Array.isArray(r.data)?r.data:Array.isArray(r.rows)?r.rows:[]:[]}function s(r,{valueKey:i="id",label:n=t=>t?.name??t?.code??t?.id}={}){return a(r).map(t=>({value:String(t?.[i]??""),label:String(n(t)??"")})).filter(t=>t.value)}const u={value:"",label:"— None —"};export{u as N,s as t};
