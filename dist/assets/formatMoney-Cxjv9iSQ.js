@@ -1,0 +1,1 @@
+function t(r,n="GHS"){if(r==null||r==="")return"";const e=Number(r);if(Number.isNaN(e))return String(r);try{return new Intl.NumberFormat(void 0,{style:"currency",currency:n}).format(e)}catch{return e.toFixed(2)}}export{t as f};
