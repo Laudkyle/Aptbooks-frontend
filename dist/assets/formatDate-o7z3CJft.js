@@ -1,1 +1,0 @@
-function n(t){if(!t)return"";try{const r=new Date(t);return Number.isNaN(r.getTime())?String(t):r.toLocaleDateString(void 0,{year:"numeric",month:"short",day:"2-digit"})}catch{return String(t)}}export{n as f};
