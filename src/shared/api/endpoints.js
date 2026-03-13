@@ -60,6 +60,16 @@ export const endpoints = {
       get: (key) => `/core/settings/${encodeURIComponent(key)}`,
       put: (key) => `/core/settings/${encodeURIComponent(key)}`,
       bulk: "/core/settings/bulk",
+
+      workflowStatics: {
+        list: "/core/settings/workflow-statics",
+        resolve: (qs) =>
+          `/core/settings/workflow-statics/resolve?${new URLSearchParams(qs ?? {}).toString()}`,
+        get: (id) => `/core/settings/workflow-statics/${id}`,
+        create: "/core/settings/workflow-statics",
+        update: (id) => `/core/settings/workflow-statics/${id}`,
+        remove: (id) => `/core/settings/workflow-statics/${id}`,
+      },
     },
     dimensionSecurity: {
       rules: (qs) =>
@@ -575,15 +585,18 @@ export const endpoints = {
     types: {
       list: "/workflow/documents/types",
       create: "/workflow/documents/types",
-      getLadder: (typeId) => `/workflow/documents/types/${typeId}/approval-levels`,
+      getLadder: (typeId) =>
+        `/workflow/documents/types/${typeId}/approval-levels`,
       setApprovalLevels: (typeId) =>
         `/workflow/documents/types/${typeId}/approval-levels`,
     },
     approvalLevels: {
       list: "/workflow/documents/approval-levels",
       create: "/workflow/documents/approval-levels",
-      getUsers: (levelId) => `/workflow/documents/approval-levels/${levelId}/users`,
-      setUsers: (levelId) => `/workflow/documents/approval-levels/${levelId}/users`,
+      getUsers: (levelId) =>
+        `/workflow/documents/approval-levels/${levelId}/users`,
+      setUsers: (levelId) =>
+        `/workflow/documents/approval-levels/${levelId}/users`,
     },
   },
 };

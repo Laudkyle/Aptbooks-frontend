@@ -14,7 +14,7 @@
  * @param {import('../../../shared/http/http').Http} http — shared axios/fetch wrapper
  */
 export function makeWorkflowDocumentsApi(http) {
-  const BASE = '/documents';
+  const BASE = '/workflow/documents';
 
   return {
     /**
