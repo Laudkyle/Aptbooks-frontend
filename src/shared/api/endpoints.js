@@ -447,5 +447,40 @@ reporting: {
     releaseInfo: '/utilities/release/info',
     testsList: '/utilities/tests/list',
     testsRun: '/utilities/tests/run'
+  }, documentTypes: {
+    list: (qs) => `/workflow/documents/document-types?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: '/workflow/documents/document-types',
+    get: (id) => `/workflow/documents/document-types/${id}`,
+    update: (id) => `/workflow/documents/document-types/${id}`,
+    delete: (id) => `/workflow/documents/document-types/${id}`,
+    approvalLevels: (id) => `/workflow/documents/document-types/${id}/approval-levels`,
+    updateApprovalLevels: (id) => `/workflow/documents/document-types/${id}/approval-levels`
+  },
+  
+  approvalLevels: {
+    list: (qs) => `/workflow/documents/approval-levels/?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: '/workflow/documents/approval-levels/',
+    get: (id) => `/workflow/documents/approval-levels//${id}`,
+    update: (id) => `/workflow/documents/approval-levels//${id}`,
+    delete: (id) => `/workflow/documents/approval-levels//${id}`,
+    reorder: '/workflow/documents/approval-levels//reorder'
+  },
+  
+  approvalMappings: {
+    list: (qs) => `/workflow/documents/approval-mappings?${new URLSearchParams(qs ?? {}).toString()}`,
+    get: (documentTypeId) => `/workflow/documents/approval-mappings/${documentTypeId}`,
+    update: (documentTypeId) => `/workflow/documents/approval-mappings/${documentTypeId}`
+  },documents: {
+  types: {
+    list:               '/workflow/documents/types',
+    create:             '/workflow/documents/types',
+    setApprovalLevels:  (typeId) => `/workflow/documents/types/${typeId}/approval-levels`,
+        getLadder:          (typeId) => `/workflow/documents/types/${typeId}/approval-levels`
+  },
+  approvalLevels: {
+    list:   '/workflow/documents/approval-levels',
+    create: '/workflow/documents/approval-levels'
   }
+},
+
 };
