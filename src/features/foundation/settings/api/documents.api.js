@@ -2,7 +2,11 @@ import { endpoints } from '../../../../shared/api/endpoints.js';
 
 export function makeDocumentsApi(http) {
   return {
-    // Document Types
+    // Exposed so consumers can make ad-hoc calls (e.g. fetching org users)
+    // without needing a separate api factory passed down the tree.
+    _http: http,
+
+    // ── Document Types ──────────────────────────────────────────────────────
     listDocumentTypes: async () => {
       const res = await http.get(endpoints.documents.types.list);
       return res.data;
@@ -12,7 +16,7 @@ export function makeDocumentsApi(http) {
       return res.data;
     },
 
-    // Approval Levels
+    // ── Approval Levels ─────────────────────────────────────────────────────
     listApprovalLevels: async () => {
       const res = await http.get(endpoints.documents.approvalLevels.list);
       return res.data;
@@ -22,17 +26,28 @@ export function makeDocumentsApi(http) {
       return res.data;
     },
 
-    // Fetch the currently saved ladder for a given document type
+    // ── Approval Ladder (type → ordered levels) ─────────────────────────────
     getDocumentTypeLadder: async (typeId) => {
       const res = await http.get(endpoints.documents.types.getLadder(typeId));
-      return res.data; // returns array of approval_level rows ordered by sequence
+      return res.data;
     },
-
-    // Replace the ladder for a given document type
     setDocumentTypeApprovalLevels: async (typeId, approvalLevelIds) => {
       const res = await http.put(
         endpoints.documents.types.setApprovalLevels(typeId),
         { approval_level_ids: approvalLevelIds }
+      );
+      return res.data;
+    },
+
+    // ── Approval Level Users (level → assigned approvers) ───────────────────
+    getApprovalLevelUsers: async (levelId) => {
+      const res = await http.get(endpoints.documents.approvalLevels.getUsers(levelId));
+      return res.data; // [{ id, email, first_name, last_name, assigned_at }]
+    },
+    setApprovalLevelUsers: async (levelId, userIds) => {
+      const res = await http.put(
+        endpoints.documents.approvalLevels.setUsers(levelId),
+        { user_ids: userIds }
       );
       return res.data;
     }

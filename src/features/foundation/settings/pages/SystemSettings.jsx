@@ -62,12 +62,108 @@ export default function SystemSettings() {
     </div>
   );
 }
+// ===========================================================================
+// APPROVERS PANEL
+// ===========================================================================
+function ApproversPanel({ documentsApi, qc, toast }) {
+  const [editingLevelId, setEditingLevelId] = useState(null);
+
+  const levelsQ = useQuery({
+    queryKey: ["approval-levels"],
+    queryFn: documentsApi.listApprovalLevels,
+    staleTime: 30_000,
+  });
+
+  const levels = (levelsQ.data ?? []).sort((a, b) => a.sequence - b.sequence);
+  const editingLevel = levels.find((l) => l.id === editingLevelId) || null;
+
+  return (
+    <>
+      <ContentCard
+        title="Approvers"
+        subtitle="Assign users who are permitted to approve documents at each approval level"
+      >
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+            <svg
+              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-sm text-blue-800">
+              <strong className="font-semibold">Any one assigned user</strong>{" "}
+              can approve a document at their level — the first to act advances
+              the workflow. If a level has no assignees, any user with the{" "}
+              <code className="px-1 py-0.5 bg-blue-100 rounded text-xs font-mono">
+                approvals.act
+              </code>{" "}
+              permission can approve it.
+            </p>
+          </div>
+
+          {levelsQ.isError ? (
+            <ErrorBanner
+              message="Failed to load approval levels."
+              onRetry={() =>
+                qc.invalidateQueries({ queryKey: ["approval-levels"] })
+              }
+            />
+          ) : levelsQ.isLoading ? (
+            <LoadingRows cols={3} />
+          ) : levels.length === 0 ? (
+            <EmptyState message="No approval levels configured yet. Create levels in the Approval Levels tab first." />
+          ) : (
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <Table>
+                <THead>
+                  <tr>
+                    <TH>Level</TH>
+                    <TH>Assigned Approvers</TH>
+                    <TH className="text-right">Actions</TH>
+                  </tr>
+                </THead>
+                <TBody>
+                  {levels.map((level) => (
+                    <ApproverLevelRow
+                      key={level.id}
+                      level={level}
+                      documentsApi={documentsApi}
+                      onEdit={() => setEditingLevelId(level.id)}
+                    />
+                  ))}
+                </TBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </ContentCard>
+
+      {editingLevel && (
+        <AssignApproversModal
+          level={editingLevel}
+          onClose={() => setEditingLevelId(null)}
+          documentsApi={documentsApi}
+          qc={qc}
+          toast={toast}
+        />
+      )}
+    </>
+  );
+}
 
 // ===========================================================================
 // APPROVALS TAB
 // ===========================================================================
 function ApprovalsTab({ documentsApi, qc, toast }) {
-  const [subTab, setSubTab] = useState('levels');
+  const [subTab, setSubTab] = useState("levels");
   const [showLevelModal, setShowLevelModal] = useState(false);
   const [showTypeModal, setShowTypeModal] = useState(false);
   const [editingTypeId, setEditingTypeId] = useState(null);
@@ -77,17 +173,18 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
       {/* Sub-tabs */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-lg w-fit">
         {[
-          { value: 'levels', label: 'Approval Levels' },
-          { value: 'types', label: 'Document Types' },
-          { value: 'ladder', label: 'Approval Ladders' }
+          { value: "levels", label: "Approval Levels" },
+          { value: "types", label: "Document Types" },
+          { value: "ladder", label: "Approval Ladders" },
+          { value: "approvers", label: "Approvers" },
         ].map((t) => (
           <button
             key={t.value}
             onClick={() => setSubTab(t.value)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               subTab === t.value
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
             {t.label}
@@ -96,7 +193,7 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
       </div>
 
       {/* Panels */}
-      {subTab === 'levels' && (
+      {subTab === "levels" && (
         <ApprovalLevelsPanel
           documentsApi={documentsApi}
           qc={qc}
@@ -105,7 +202,7 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
           setShowModal={setShowLevelModal}
         />
       )}
-      {subTab === 'types' && (
+      {subTab === "types" && (
         <DocumentTypesPanel
           documentsApi={documentsApi}
           qc={qc}
@@ -114,7 +211,7 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
           setShowModal={setShowTypeModal}
         />
       )}
-      {subTab === 'ladder' && (
+      {subTab === "ladder" && (
         <ApprovalLadderPanel
           documentsApi={documentsApi}
           qc={qc}
@@ -123,6 +220,9 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
           setEditingTypeId={setEditingTypeId}
         />
       )}
+      {subTab === "approvers" && (
+        <ApproversPanel documentsApi={documentsApi} qc={qc} toast={toast} />
+      )}
     </div>
   );
 }
@@ -130,11 +230,17 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
 // ---------------------------------------------------------------------------
 // Approval Levels Panel
 // ---------------------------------------------------------------------------
-function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal }) {
+function ApprovalLevelsPanel({
+  documentsApi,
+  qc,
+  toast,
+  showModal,
+  setShowModal,
+}) {
   const levelsQ = useQuery({
-    queryKey: ['approval-levels'],
+    queryKey: ["approval-levels"],
     queryFn: documentsApi.listApprovalLevels,
-    staleTime: 30_000
+    staleTime: 30_000,
   });
 
   const levels = levelsQ.data ?? [];
@@ -144,21 +250,43 @@ function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal 
       <ContentCard
         title="Approval Levels"
         subtitle="Define the sequential approval tiers used in your organisation's document workflow"
-        actions={<Button onClick={() => setShowModal(true)}>+ Add Level</Button>}
+        actions={
+          <Button onClick={() => setShowModal(true)}>+ Add Level</Button>
+        }
       >
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
-            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <p className="text-sm text-blue-800">
-              <strong className="font-semibold">How approval levels work:</strong> Each level represents a distinct tier (e.g. Team Lead → Finance Manager → CFO).
-              Assign levels to document types via the <em>Approval Ladders</em> tab to define the exact sequence required.
+              <strong className="font-semibold">
+                How approval levels work:
+              </strong>{" "}
+              Each level represents a distinct tier (e.g. Team Lead → Finance
+              Manager → CFO). Assign levels to document types via the{" "}
+              <em>Approval Ladders</em> tab to define the exact sequence
+              required.
             </p>
           </div>
 
           {levelsQ.isError ? (
-            <ErrorBanner message="Failed to load approval levels." onRetry={() => qc.invalidateQueries({ queryKey: ['approval-levels'] })} />
+            <ErrorBanner
+              message="Failed to load approval levels."
+              onRetry={() =>
+                qc.invalidateQueries({ queryKey: ["approval-levels"] })
+              }
+            />
           ) : levelsQ.isLoading ? (
             <LoadingRows cols={4} />
           ) : (
@@ -175,8 +303,12 @@ function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal 
                 <TBody>
                   {levels.length === 0 ? (
                     <tr>
-                      <TD colSpan={4} className="text-center text-slate-500 py-10">
-                        No approval levels configured yet. Click <strong>+ Add Level</strong> to get started.
+                      <TD
+                        colSpan={4}
+                        className="text-center text-slate-500 py-10"
+                      >
+                        No approval levels configured yet. Click{" "}
+                        <strong>+ Add Level</strong> to get started.
                       </TD>
                     </tr>
                   ) : (
@@ -194,8 +326,12 @@ function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal 
                               {level.code}
                             </code>
                           </TD>
-                          <TD className="font-medium text-slate-900">{level.name}</TD>
-                          <TD><StatusBadge active={level.is_active} /></TD>
+                          <TD className="font-medium text-slate-900">
+                            {level.name}
+                          </TD>
+                          <TD>
+                            <StatusBadge active={level.is_active} />
+                          </TD>
                         </tr>
                       ))
                   )}
@@ -219,6 +355,346 @@ function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal 
   );
 }
 
+function ApproverLevelRow({ level, documentsApi, onEdit }) {
+  const usersQ = useQuery({
+    queryKey: ["approval-level-users", level.id],
+    queryFn: () => documentsApi.getApprovalLevelUsers(level.id),
+    staleTime: 30_000,
+  });
+
+  const assignees = usersQ.data ?? [];
+
+  return (
+    <tr className="hover:bg-slate-50">
+      <TD>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex-shrink-0">
+            {level.sequence}
+          </span>
+          <div>
+            <div className="font-medium text-slate-900">{level.name}</div>
+            <code className="text-xs font-mono text-slate-400">
+              {level.code}
+            </code>
+          </div>
+        </div>
+      </TD>
+      <TD>
+        {usersQ.isLoading ? (
+          <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
+        ) : assignees.length === 0 ? (
+          <span className="inline-flex items-center gap-1.5 text-sm text-amber-600">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            Open — any permitted user can approve
+          </span>
+        ) : (
+          <div className="flex items-center gap-2 flex-wrap">
+            {assignees.slice(0, 4).map((u) => (
+              <UserChip key={u.id} user={u} />
+            ))}
+            {assignees.length > 4 && (
+              <span className="text-xs text-slate-500">
+                +{assignees.length - 4} more
+              </span>
+            )}
+          </div>
+        )}
+      </TD>
+      <TD className="text-right">
+        <Button size="sm" variant="secondary" onClick={onEdit}>
+          Assign
+        </Button>
+      </TD>
+    </tr>
+  );
+}
+
+// ─── AssignApproversModal ─────────────────────────────────────────────────────
+
+function AssignApproversModal({ level, onClose, documentsApi, qc, toast }) {
+  const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  // Fetch org users — reuses the existing core/users list endpoint
+  const orgUsersQ = useQuery({
+    queryKey: ["org-users"],
+    queryFn: async () => {
+      // Uses the same http instance passed down via documentsApi's closure.
+      // We call the endpoint directly since makeDocumentsApi already holds http.
+      const res = await documentsApi._http.get("/core/users");
+      return res.data?.data ?? res.data ?? [];
+    },
+    staleTime: 60_000,
+  });
+
+  // Fetch currently assigned users for this level
+  const assignedQ = useQuery({
+    queryKey: ["approval-level-users", level.id],
+    queryFn: () => documentsApi.getApprovalLevelUsers(level.id),
+    staleTime: 0,
+  });
+
+  // Seed selections once assigned list loads
+  useEffect(() => {
+    if (assignedQ.data) {
+      setSelectedIds(assignedQ.data.map((u) => u.id));
+    }
+  }, [assignedQ.data]);
+
+  const toggle = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const save = useMutation({
+    mutationFn: () => documentsApi.setApprovalLevelUsers(level.id, selectedIds),
+    onSuccess: () => {
+      toast.success(`Approvers updated for "${level.name}"`);
+      qc.invalidateQueries({ queryKey: ["approval-level-users", level.id] });
+      onClose();
+    },
+    onError: (e) => toast.error(e.message || "Failed to update approvers"),
+  });
+
+  const allUsers = orgUsersQ.data ?? [];
+  const isLoading = orgUsersQ.isLoading || assignedQ.isLoading;
+
+  const filtered = allUsers.filter((u) => {
+    const term = search.toLowerCase();
+    return (
+      u.email?.toLowerCase().includes(term) ||
+      u.first_name?.toLowerCase().includes(term) ||
+      u.last_name?.toLowerCase().includes(term)
+    );
+  });
+
+  const selectedUsers = allUsers.filter((u) => selectedIds.includes(u.id));
+  const unselectedUsers = filtered.filter((u) => !selectedIds.includes(u.id));
+
+  return (
+    <Modal open onClose={onClose} title={`Assign Approvers — ${level.name}`}>
+      <div className="space-y-5">
+        <p className="text-sm text-slate-600">
+          Select the users who can approve documents at the{" "}
+          <strong>{level.name}</strong> level. Any one of them can act to
+          advance the workflow.
+        </p>
+
+        {isLoading ? (
+          <div className="flex items-center gap-3 py-6 text-sm text-slate-500">
+            <div className="w-4 h-4 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin flex-shrink-0" />
+            Loading users...
+          </div>
+        ) : orgUsersQ.isError ? (
+          <ErrorBanner message="Failed to load users. Please close and try again." />
+        ) : (
+          <>
+            {/* Selected users — always visible at top */}
+            {selectedUsers.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  Assigned ({selectedUsers.length})
+                </p>
+                <div className="border border-brand-200 bg-brand-50 rounded-lg overflow-hidden">
+                  {selectedUsers.map((u) => (
+                    <div
+                      key={u.id}
+                      className="flex items-center justify-between px-4 py-3 border-b border-brand-100 last:border-b-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <UserAvatar user={u} size="sm" />
+                        <div>
+                          <div className="text-sm font-medium text-slate-900">
+                            {u.first_name} {u.last_name}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {u.email}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggle(u.id)}
+                        className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                        title="Remove"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search + unselected users */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {selectedUsers.length > 0 ? "Add More Users" : "Select Users"}
+              </p>
+              <Input
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="mb-2"
+              />
+              <div className="border border-slate-200 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+                {unselectedUsers.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-slate-400">
+                    {search
+                      ? "No users match your search"
+                      : "All users are assigned"}
+                  </div>
+                ) : (
+                  unselectedUsers.map((u) => (
+                    <button
+                      key={u.id}
+                      onClick={() => toggle(u.id)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0 group transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <UserAvatar user={u} size="sm" />
+                        <div>
+                          <div className="text-sm font-medium text-slate-900">
+                            {u.first_name} {u.last_name}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            {u.email}
+                          </div>
+                        </div>
+                      </div>
+                      <svg
+                        className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Warning if clearing all assignees */}
+        {!isLoading && selectedIds.length === 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex gap-3">
+            <svg
+              className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <p className="text-sm text-amber-800">
+              No users assigned — this level will be <strong>open</strong> and
+              any user with the{" "}
+              <code className="px-1 bg-amber-100 rounded text-xs font-mono">
+                approvals.act
+              </code>{" "}
+              permission can approve it.
+            </p>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center pt-2 border-t">
+          <p className="text-xs text-slate-500">
+            {selectedIds.length === 0
+              ? "Open level — no restriction on approver"
+              : `${selectedIds.length} user${selectedIds.length > 1 ? "s" : ""} assigned`}
+          </p>
+          <div className="flex gap-3">
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => save.mutate()}
+              disabled={save.isLoading || isLoading}
+            >
+              {save.isLoading ? "Saving..." : "Save Approvers"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Small shared display components ─────────────────────────────────────────
+
+function UserAvatar({ user, size = "sm" }) {
+  const initials =
+    [user.first_name?.[0], user.last_name?.[0]]
+      .filter(Boolean)
+      .join("")
+      .toUpperCase() ||
+    user.email?.[0]?.toUpperCase() ||
+    "?";
+  const dim = size === "sm" ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm";
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-full bg-brand-100 text-brand-700 font-semibold flex-shrink-0 ${dim}`}
+    >
+      {initials}
+    </span>
+  );
+}
+
+function UserChip({ user }) {
+  const initials =
+    [user.first_name?.[0], user.last_name?.[0]]
+      .filter(Boolean)
+      .join("")
+      .toUpperCase() || "?";
+  const label = user.first_name
+    ? `${user.first_name} ${user.last_name}`
+    : user.email;
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-brand-200 text-brand-800 text-[10px] font-bold">
+        {initials}
+      </span>
+      {label}
+    </span>
+  );
+}
 function CreateApprovalLevelModal({
   onClose,
   documentsApi,
@@ -349,11 +825,17 @@ function CreateApprovalLevelModal({
 // ---------------------------------------------------------------------------
 // Document Types Panel
 // ---------------------------------------------------------------------------
-function DocumentTypesPanel({ documentsApi, qc, toast, showModal, setShowModal }) {
+function DocumentTypesPanel({
+  documentsApi,
+  qc,
+  toast,
+  showModal,
+  setShowModal,
+}) {
   const typesQ = useQuery({
-    queryKey: ['document-types'],
+    queryKey: ["document-types"],
     queryFn: documentsApi.listDocumentTypes,
-    staleTime: 30_000
+    staleTime: 30_000,
   });
 
   const types = typesQ.data ?? [];
@@ -367,18 +849,34 @@ function DocumentTypesPanel({ documentsApi, qc, toast, showModal, setShowModal }
       >
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
-            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <p className="text-sm text-blue-800">
-              <strong className="font-semibold">Document types</strong> categorise the documents uploaded to the system
-              (e.g. Purchase Orders, Contracts, Expense Claims). Each type can be assigned a specific approval ladder
-              in the <em>Approval Ladders</em> tab.
+              <strong className="font-semibold">Document types</strong>{" "}
+              categorise the documents uploaded to the system (e.g. Purchase
+              Orders, Contracts, Expense Claims). Each type can be assigned a
+              specific approval ladder in the <em>Approval Ladders</em> tab.
             </p>
           </div>
 
           {typesQ.isError ? (
-            <ErrorBanner message="Failed to load document types." onRetry={() => qc.invalidateQueries({ queryKey: ['document-types'] })} />
+            <ErrorBanner
+              message="Failed to load document types."
+              onRetry={() =>
+                qc.invalidateQueries({ queryKey: ["document-types"] })
+              }
+            />
           ) : typesQ.isLoading ? (
             <LoadingRows cols={4} />
           ) : (
@@ -395,8 +893,12 @@ function DocumentTypesPanel({ documentsApi, qc, toast, showModal, setShowModal }
                 <TBody>
                   {types.length === 0 ? (
                     <tr>
-                      <TD colSpan={4} className="text-center text-slate-500 py-10">
-                        No document types configured yet. Click <strong>+ Add Type</strong> to get started.
+                      <TD
+                        colSpan={4}
+                        className="text-center text-slate-500 py-10"
+                      >
+                        No document types configured yet. Click{" "}
+                        <strong>+ Add Type</strong> to get started.
                       </TD>
                     </tr>
                   ) : (
@@ -408,8 +910,12 @@ function DocumentTypesPanel({ documentsApi, qc, toast, showModal, setShowModal }
                           </code>
                         </TD>
                         <TD className="font-medium text-slate-900">{t.name}</TD>
-                        <TD className="text-slate-500 text-sm">{t.description || '—'}</TD>
-                        <TD><StatusBadge active={t.is_active} /></TD>
+                        <TD className="text-slate-500 text-sm">
+                          {t.description || "—"}
+                        </TD>
+                        <TD>
+                          <StatusBadge active={t.is_active} />
+                        </TD>
                       </tr>
                     ))
                   )}
@@ -549,7 +1055,13 @@ function CreateDocumentTypeModal({ onClose, documentsApi, qc, toast }) {
 // ---------------------------------------------------------------------------
 // Approval Ladder Panel
 // ---------------------------------------------------------------------------
-function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditingTypeId }) {
+function ApprovalLadderPanel({
+  documentsApi,
+  qc,
+  toast,
+  editingTypeId,
+  setEditingTypeId,
+}) {
   const typesQ = useQuery({
     queryKey: ["document-types"],
     queryFn: documentsApi.listDocumentTypes,
@@ -644,7 +1156,9 @@ function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditin
                         </span>
                       </TD>
                       <TD className="text-right">
-                        <Button onClick={() => setEditingTypeId(docType.id)}>Configure</Button>
+                        <Button onClick={() => setEditingTypeId(docType.id)}>
+                          Configure
+                        </Button>
                       </TD>
                     </tr>
                   ))}
@@ -654,7 +1168,7 @@ function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditin
           )}
         </div>
       </ContentCard>
-      
+
       {editingType && (
         <EditLadderModal
           docType={editingType}
@@ -672,14 +1186,21 @@ function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditin
 // ---------------------------------------------------------------------------
 // Edit Ladder Modal
 // ---------------------------------------------------------------------------
-function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast }) {
+function EditLadderModal({
+  docType,
+  allLevels,
+  onClose,
+  documentsApi,
+  qc,
+  toast,
+}) {
   const [selectedIds, setSelectedIds] = useState([]);
 
   // Fetch the existing ladder for this document type on mount
   const ladderQ = useQuery({
-    queryKey: ['document-type-ladder', docType.id],
-    queryFn:  () => documentsApi.getDocumentTypeLadder(docType.id),
-    staleTime: 0 // always fresh when modal opens
+    queryKey: ["document-type-ladder", docType.id],
+    queryFn: () => documentsApi.getDocumentTypeLadder(docType.id),
+    staleTime: 0, // always fresh when modal opens
   });
 
   // Once loaded, seed selectedIds in the correct saved order
@@ -692,7 +1213,7 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
 
   const toggleLevel = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -719,18 +1240,24 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
       documentsApi.setDocumentTypeApprovalLevels(docType.id, selectedIds),
     onSuccess: () => {
       toast.success(`Approval ladder updated for "${docType.name}"`);
-      qc.invalidateQueries({ queryKey: ['document-types'] });
-      qc.invalidateQueries({ queryKey: ['document-type-ladder', docType.id] });
+      qc.invalidateQueries({ queryKey: ["document-types"] });
+      qc.invalidateQueries({ queryKey: ["document-type-ladder", docType.id] });
       onClose();
     },
-    onError: (e) => toast.error(e.message || 'Failed to update ladder')
+    onError: (e) => toast.error(e.message || "Failed to update ladder"),
   });
 
-  const selectedLevels   = selectedIds.map((id) => allLevels.find((l) => l.id === id)).filter(Boolean);
+  const selectedLevels = selectedIds
+    .map((id) => allLevels.find((l) => l.id === id))
+    .filter(Boolean);
   const unselectedLevels = allLevels.filter((l) => !selectedIds.includes(l.id));
 
   return (
-    <Modal open onClose={onClose} title={`Configure Approval Ladder — ${docType.name}`}>
+    <Modal
+      open
+      onClose={onClose}
+      title={`Configure Approval Ladder — ${docType.name}`}
+    >
       <div className="space-y-5">
         <p className="text-sm text-slate-600">
           Select the approval levels required for this document type and arrange
@@ -748,7 +1275,8 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
         {/* Error state — still allow editing, just warn */}
         {ladderQ.isError && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
-            Could not load the existing ladder. You can still configure it — saving will replace whatever is currently set.
+            Could not load the existing ladder. You can still configure it —
+            saving will replace whatever is currently set.
           </div>
         )}
 
@@ -760,7 +1288,9 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
             </p>
             <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
               {unselectedLevels.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-400">All levels assigned</div>
+                <div className="p-4 text-center text-sm text-slate-400">
+                  All levels assigned
+                </div>
               ) : (
                 unselectedLevels.map((level) => (
                   <button
@@ -769,14 +1299,25 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
                     className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-brand-50 border-b border-slate-100 last:border-b-0 group transition-colors"
                   >
                     <div>
-                      <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                      <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
+                      <span className="text-sm font-medium text-slate-900">
+                        {level.name}
+                      </span>
+                      <span className="ml-2 text-xs text-slate-400">
+                        seq {level.sequence}
+                      </span>
                     </div>
                     <svg
                       className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors"
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
                 ))
@@ -787,12 +1328,16 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
           {/* Selected & ordered */}
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Approval Chain{' '}
-              <span className="text-slate-400 font-normal normal-case">(in order)</span>
+              Approval Chain{" "}
+              <span className="text-slate-400 font-normal normal-case">
+                (in order)
+              </span>
             </p>
             <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
               {ladderQ.isLoading ? (
-                <div className="p-4 text-center text-sm text-slate-400">Loading...</div>
+                <div className="p-4 text-center text-sm text-slate-400">
+                  Loading...
+                </div>
               ) : selectedLevels.length === 0 ? (
                 <div className="p-4 text-center text-sm text-slate-400">
                   ← Select levels to build the chain
@@ -808,8 +1353,12 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
                         {idx + 1}
                       </span>
                       <div>
-                        <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                        <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
+                        <span className="text-sm font-medium text-slate-900">
+                          {level.name}
+                        </span>
+                        <span className="ml-2 text-xs text-slate-400">
+                          seq {level.sequence}
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -819,8 +1368,18 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
                         className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move up"
                       >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 15l7-7 7 7"
+                          />
                         </svg>
                       </button>
                       <button
@@ -829,8 +1388,18 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
                         className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move down"
                       >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
                         </svg>
                       </button>
                       <button
@@ -838,8 +1407,18 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
                         className="p-1 text-slate-400 hover:text-red-500 ml-1"
                         title="Remove"
                       >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -862,16 +1441,36 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
               </span>
               {selectedLevels.map((level) => (
                 <React.Fragment key={level.id}>
-                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-4 h-4 text-slate-400 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                   <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                     {level.name}
                   </span>
                 </React.Fragment>
               ))}
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-4 h-4 text-slate-400 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
               <span className="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">
                 Approved
@@ -883,16 +1482,18 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
         <div className="flex justify-between items-center pt-2 border-t">
           <p className="text-xs text-slate-500">
             {selectedLevels.length === 0
-              ? 'No levels selected — documents of this type will skip the approval workflow.'
-              : `${selectedLevels.length} level${selectedLevels.length > 1 ? 's' : ''} in chain`}
+              ? "No levels selected — documents of this type will skip the approval workflow."
+              : `${selectedLevels.length} level${selectedLevels.length > 1 ? "s" : ""} in chain`}
           </p>
           <div className="flex gap-3">
-            <Button variant="secondary" onClick={onClose}>Cancel</Button>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
               onClick={() => save.mutate()}
               disabled={save.isLoading || ladderQ.isLoading}
             >
-              {save.isLoading ? 'Saving...' : 'Save Ladder'}
+              {save.isLoading ? "Saving..." : "Save Ladder"}
             </Button>
           </div>
         </div>
