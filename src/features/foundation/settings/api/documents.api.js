@@ -1,3 +1,4 @@
+import { ensureIdempotencyKey } from '../../../../shared/api/idempotency.js';
 import { endpoints } from '../../../../shared/api/endpoints.js';
 
 export function makeDocumentsApi(http) {
@@ -12,7 +13,11 @@ export function makeDocumentsApi(http) {
       return res.data;
     },
     createDocumentType: async (payload) => {
-      const res = await http.post(endpoints.documents.types.create, payload);
+      const res = await http.post(
+        endpoints.documents.types.create, 
+        payload, 
+        { headers: ensureIdempotencyKey() }
+      );
       return res.data;
     },
 
@@ -22,7 +27,11 @@ export function makeDocumentsApi(http) {
       return res.data;
     },
     createApprovalLevel: async (payload) => {
-      const res = await http.post(endpoints.documents.approvalLevels.create, payload);
+      const res = await http.post(
+        endpoints.documents.approvalLevels.create, 
+        payload, 
+        { headers: ensureIdempotencyKey() }
+      );
       return res.data;
     },
 
@@ -34,7 +43,8 @@ export function makeDocumentsApi(http) {
     setDocumentTypeApprovalLevels: async (typeId, approvalLevelIds) => {
       const res = await http.put(
         endpoints.documents.types.setApprovalLevels(typeId),
-        { approval_level_ids: approvalLevelIds }
+        { approval_level_ids: approvalLevelIds },
+        { headers: ensureIdempotencyKey() }
       );
       return res.data;
     },
@@ -47,7 +57,8 @@ export function makeDocumentsApi(http) {
     setApprovalLevelUsers: async (levelId, userIds) => {
       const res = await http.put(
         endpoints.documents.approvalLevels.setUsers(levelId),
-        { user_ids: userIds }
+        { user_ids: userIds },
+        { headers: ensureIdempotencyKey() }
       );
       return res.data;
     }
