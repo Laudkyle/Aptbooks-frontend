@@ -11,11 +11,22 @@ import { formatDate } from '../../../shared/utils/formatDate.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
+import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
+import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function CreditNoteDetail() {
   const { id } = useParams();
@@ -46,10 +57,10 @@ export default function CreditNoteDetail() {
   const applications = note?.applications || [];
   const lines = note?.lines || [];
 
-  const status = (note?.status ?? 'draft').toLowerCase();
 
   // Action state
   const [action, setAction] = useState(null);
+  const [comment, setComment] = useState('');
   const [applyBody, setApplyBody] = useState({ invoice_id: '', amount_applied: '' });
   const [voidBody, setVoidBody] = useState({ reason: '' });
 
@@ -120,6 +131,7 @@ export default function CreditNoteDetail() {
 
   const handleCloseAction = useCallback(() => {
     setAction(null);
+    setComment('');
     setApplyBody({ invoice_id: '', amount_applied: '' });
     setVoidBody({ reason: '' });
   }, []);
@@ -139,19 +151,26 @@ export default function CreditNoteDetail() {
   // Mutation for actions
   const runAction = useMutation({
     mutationFn: async () => {
-      if (action === 'issue') return api.issue(id);
+      const idempotencyKey = generateUUID();
+      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
+      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey });
+      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
+      if (action === 'issue') return api.issue(id, { idempotencyKey });
       if (action === 'apply') {
         const amount = parseFloat(applyBody.amount_applied);
         return api.apply(id, { 
           invoice_id: applyBody.invoice_id.trim(), 
           amount_applied: amount 
-        });
+        }, { idempotencyKey });
       }
-      if (action === 'void') return api.void(id, voidBody);
+      if (action === 'void') return api.void(id, voidBody, { idempotencyKey });
       throw new Error('Unknown action');
     },
     onSuccess: (response) => {
       const messages = {
+        submit: 'Submitted for approval',
+        approve: 'Credit note approved successfully',
+        reject: 'Credit note rejected',
         issue: 'Credit note issued successfully',
         apply: 'Credit note applied to invoice',
         void: 'Credit note voided'
@@ -167,10 +186,12 @@ export default function CreditNoteDetail() {
     }
   });
 
-  // Determine available actions based on status
-  const canIssue = status === 'draft';
-  const canApply = (status === 'issued' || status === 'partial') && remainingAmount > 0;
-  const canVoid = status !== 'voided';
+  const workflowState = normalizeTransactionWorkflow({ type: 'creditNote', entity: note, payload: note });
+  const status = workflowState.businessStatus;
+  const availableActions = resolveTransactionActions({ type: 'creditNote', state: workflowState, remainingAmount });
+  const canIssue = availableActions.forwardAction?.key === 'issue';
+  const canApply = availableActions.forwardAction?.key === 'apply';
+  const canVoid = Boolean(availableActions.voidAction);
 
   // Loading state
   if (isLoading) {
@@ -240,46 +261,18 @@ export default function CreditNoteDetail() {
         subtitle={`Credit note • ${formatDate(creditNoteDate)}`}
         icon={FileMinus2}
         actions={
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              leftIcon={ArrowLeft} 
-              onClick={handleBack}
-              aria-label="Go back"
-            >
-              Back
-            </Button>
-            {canIssue && (
-              <Button 
-                variant="outline" 
-                leftIcon={Send} 
-                onClick={() => handleOpenAction('issue')}
-                aria-label="Issue credit note"
-              >
-                Issue
-              </Button>
-            )}
-            {canApply && (
-              <Button 
-                onClick={() => handleOpenAction('apply')}
-                aria-label="Apply credit note to invoice"
-              >
-                Apply to Invoice
-              </Button>
-            )}
-            {canVoid && (
-              <Button 
-                variant="danger" 
-                leftIcon={Trash2} 
-                onClick={() => handleOpenAction('void')}
-                aria-label="Void credit note"
-              >
-                Void
-              </Button>
-            )}
-          </div>
+          <Button 
+            variant="outline" 
+            leftIcon={ArrowLeft} 
+            onClick={handleBack}
+            aria-label="Go back"
+          >
+            Back
+          </Button>
         }
       />
+
+      <TransactionWorkflowActionBar actions={availableActions} onAction={handleOpenAction} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main content */}
@@ -664,7 +657,44 @@ export default function CreditNoteDetail() {
       </div>
 
       {/* Action Modals */}
-      
+
+      <Modal 
+        open={action === 'submit' || action === 'approve' || action === 'reject'}
+        onClose={handleCloseAction}
+        title={
+          action === 'submit' ? 'Submit for Approval' :
+          action === 'approve' ? 'Approve Credit Note' :
+          action === 'reject' ? 'Reject Credit Note' : 'Action'
+        }
+      >
+        <div className="space-y-4">
+          {action === 'approve' || action === 'reject' ? (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Comment {action === 'reject' ? '(recommended)' : '(optional)'}
+              </label>
+              <Textarea
+                rows={4}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder={action === 'reject' ? 'Add a reason for rejection...' : 'Add an approval comment...'}
+              />
+            </div>
+          ) : (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+              This will send the credit note into the approval workflow.
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="outline" onClick={handleCloseAction}>Cancel</Button>
+          <Button onClick={() => runAction.mutate()} loading={runAction.isPending}>
+            Confirm
+          </Button>
+        </div>
+      </Modal>
+
       {/* Issue Modal */}
       <Modal 
         open={action === 'issue'} 

@@ -276,6 +276,10 @@ export const endpoints = {
           `/modules/transactions/customer-receipts?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/modules/transactions/customer-receipts",
         detail: (id) => `/modules/transactions/customer-receipts/${id}`,
+        submitForApproval: (id) =>
+          `/modules/transactions/customer-receipts/${id}/submit-for-approval`,
+        approve: (id) => `/modules/transactions/customer-receipts/${id}/approve`,
+        reject: (id) => `/modules/transactions/customer-receipts/${id}/reject`,
         autoAllocate: (id) =>
           `/modules/transactions/customer-receipts/${id}/auto-allocate`,
         reallocate: (id) =>
@@ -288,6 +292,10 @@ export const endpoints = {
           `/modules/transactions/vendor-payments?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/modules/transactions/vendor-payments",
         detail: (id) => `/modules/transactions/vendor-payments/${id}`,
+        submitForApproval: (id) =>
+          `/modules/transactions/vendor-payments/${id}/submit-for-approval`,
+        approve: (id) => `/modules/transactions/vendor-payments/${id}/approve`,
+        reject: (id) => `/modules/transactions/vendor-payments/${id}/reject`,
         autoAllocate: (id) =>
           `/modules/transactions/vendor-payments/${id}/auto-allocate`,
         reallocate: (id) =>
@@ -300,6 +308,10 @@ export const endpoints = {
           `/modules/transactions/credit-notes?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/modules/transactions/credit-notes",
         detail: (id) => `/modules/transactions/credit-notes/${id}`,
+        submitForApproval: (id) =>
+          `/modules/transactions/credit-notes/${id}/submit-for-approval`,
+        approve: (id) => `/modules/transactions/credit-notes/${id}/approve`,
+        reject: (id) => `/modules/transactions/credit-notes/${id}/reject`,
         issue: (id) => `/modules/transactions/credit-notes/${id}/issue`,
         apply: (id) => `/modules/transactions/credit-notes/${id}/apply`,
         void: (id) => `/modules/transactions/credit-notes/${id}/void`,
@@ -309,6 +321,10 @@ export const endpoints = {
           `/modules/transactions/debit-notes?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/modules/transactions/debit-notes",
         detail: (id) => `/modules/transactions/debit-notes/${id}`,
+        submitForApproval: (id) =>
+          `/modules/transactions/debit-notes/${id}/submit-for-approval`,
+        approve: (id) => `/modules/transactions/debit-notes/${id}/approve`,
+        reject: (id) => `/modules/transactions/debit-notes/${id}/reject`,
         issue: (id) => `/modules/transactions/debit-notes/${id}/issue`,
         apply: (id) => `/modules/transactions/debit-notes/${id}/apply`,
         void: (id) => `/modules/transactions/debit-notes/${id}/void`,

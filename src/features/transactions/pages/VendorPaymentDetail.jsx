@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   ArrowLeft, 
   HandCoins, 
-  RefreshCcw, 
   Send, 
   Trash2,
   Calendar,
@@ -23,9 +22,19 @@ import { formatDate } from '../../../shared/utils/formatDate.js';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
+import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
+import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function VendorPaymentDetail() {
   const { id } = useParams();
@@ -46,26 +55,32 @@ export default function VendorPaymentDetail() {
   const allocations = paymentData?.allocations || payment?.allocations || [];
 
   const [action, setAction] = useState(null);
-  const [rule, setRule] = useState('due_date');
+  const [comment, setComment] = useState('');
   const [reason, setReason] = useState('');
 
   const run = useMutation({
     mutationFn: async () => {
-      if (action === 'auto') return api.autoAllocate(id, { rule });
-      if (action === 'post') return api.post(id);
-      if (action === 'void') return api.void(id, { reason });
+      const idempotencyKey = generateUUID();
+      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
+      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey });
+      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
+      if (action === 'post') return api.post(id, { idempotencyKey });
+      if (action === 'void') return api.void(id, { reason }, { idempotencyKey });
       throw new Error('Unknown action');
     },
     onSuccess: () => {
       toast.success('Action completed successfully');
       qc.invalidateQueries({ queryKey: qk.vendorPayment(id) });
       setAction(null);
+      setComment('');
       setReason('');
     },
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
 
-  const status = payment?.status ?? 'draft';
+  const workflowState = normalizeTransactionWorkflow({ type: 'vendorPayment', entity: payment, payload: paymentData });
+  const status = workflowState.businessStatus;
+  const availableActions = resolveTransactionActions({ type: 'vendorPayment', state: workflowState });
   const statusColors = {
     posted: 'bg-green-100 text-green-800 border-green-200',
     draft: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -146,40 +161,7 @@ export default function VendorPaymentDetail() {
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium text-gray-700">Actions:</span>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('auto')}
-              className="border-blue-600 text-blue-700 hover:bg-blue-50"
-              disabled={status !== 'draft'}
-            >
-              <RefreshCcw className="h-4 w-4 mr-2" />
-              Auto-Allocate
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => setAction('post')}
-              className="bg-green-600 hover:bg-green-700 text-white"
-              disabled={status !== 'draft'}
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Post
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('void')}
-              className="border-red-600 text-red-700 hover:bg-red-50"
-              disabled={status === 'voided'}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Void
-            </Button>
-          </div>
-        </div>
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
@@ -371,15 +353,7 @@ export default function VendorPaymentDetail() {
                   <p className="text-sm text-gray-600 mb-4">
                     This payment hasn't been applied to any bills yet.
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setAction('auto')}
-                    disabled={status !== 'draft'}
-                    className="border-blue-600 text-blue-700 hover:bg-blue-50"
-                  >
-                    <RefreshCcw className="h-4 w-4 mr-2" />
-                    Auto-Allocate Bills
-                  </Button>
+                  <p className="text-xs text-gray-500">Allocate this payment from the payables workspace after posting if needed.</p>
                 </div>
               )}
             </div>
@@ -492,36 +466,34 @@ export default function VendorPaymentDetail() {
         open={!!action} 
         onClose={() => setAction(null)} 
         title={
-          action === 'auto' ? 'Auto-Allocate Payment' :
+          action === 'submit' ? 'Submit for Approval' :
+          action === 'approve' ? 'Approve Payment' :
+          action === 'reject' ? 'Reject Payment' :
           action === 'post' ? 'Post Payment' :
           action === 'void' ? 'Void Payment' : 'Action'
         }
       >
         <div className="space-y-4">
-          {action === 'auto' && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Allocation Rule
-                </label>
-                <select
-                  value={rule}
-                  onChange={(e) => setRule(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                >
-                  <option value="due_date">By Due Date (oldest first)</option>
-                  <option value="fifo">FIFO (First In, First Out)</option>
-                </select>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
-                  Auto-allocation will automatically apply this payment to open invoices based on the selected rule.
-                </p>
-                <p className="text-sm text-blue-800 mt-2">
-                  Available payment amount: {formatCurrency(unallocated)}
-                </p>
-              </div>
-            </>
+          {(action === 'submit' || action === 'approve' || action === 'reject') && (
+            <div>
+              {action === 'submit' ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">This will send the payment into the approval workflow.</p>
+                </div>
+              ) : (
+                <>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Comment {action === 'reject' ? '(recommended)' : '(optional)'}
+                  </label>
+                  <Textarea
+                    rows={4}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder={action === 'reject' ? 'Explain why this payment is being rejected...' : 'Add an approval comment...'}
+                  />
+                </>
+              )}
+            </div>
           )}
 
           {action === 'post' && (
@@ -571,7 +543,7 @@ export default function VendorPaymentDetail() {
         <div className="mt-6 flex justify-end gap-3">
           <Button 
             variant="outline" 
-            onClick={() => setAction(null)}
+            onClick={() => { setAction(null); setComment(''); setReason(''); }}
             className="border-gray-300"
           >
             Cancel

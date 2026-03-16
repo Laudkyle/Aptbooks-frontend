@@ -1,13 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, FileText, Send, ShieldCheck, ShieldX, Trash2, Calendar, User, DollarSign } from 'lucide-react';
+import { ArrowLeft, FileText, Calendar, User, DollarSign,Send,ShieldCheck,ShieldX,CheckCircle2,Trash2 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeBillsApi } from '../api/bills.api.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
+import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
+import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
@@ -62,7 +65,10 @@ export default function BillDetail() {
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
 
-  const status = bill?.status ?? 'draft';
+  const record = bill?.bill ?? bill;
+  const workflowState = normalizeTransactionWorkflow({ type: 'bill', entity: record, payload: bill });
+  const status = workflowState.businessStatus;
+  const availableActions = resolveTransactionActions({ type: 'bill', state: workflowState });
   const statusColors = {
     paid: 'bg-green-100 text-green-800 border-green-200',
     issued: 'bg-blue-100 text-blue-800 border-blue-200',

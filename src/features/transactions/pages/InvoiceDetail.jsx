@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, FileText, Send, ShieldCheck, ShieldX, Trash2, Calendar, User, DollarSign } from 'lucide-react';
+import { ArrowLeft, FileText, Calendar, User, DollarSign } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
@@ -9,6 +9,9 @@ import { makeInvoicesApi } from '../api/invoices.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
+import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
+import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -61,7 +64,10 @@ export default function InvoiceDetail() {
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
 
-  const status = invoice?.invoice.status ?? 'draft';
+  const record = invoice?.invoice ?? invoice;
+  const workflowState = normalizeTransactionWorkflow({ type: 'invoice', entity: record, payload: invoice });
+  const status = workflowState.businessStatus;
+  const availableActions = resolveTransactionActions({ type: 'invoice', state: workflowState });
   const statusColors = {
     paid: 'bg-green-100 text-green-800 border-green-200',
     issued: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -124,55 +130,7 @@ export default function InvoiceDetail() {
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium text-gray-700">Actions:</span>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('submit')}
-              className="border-blue-600 text-blue-700 hover:bg-blue-50"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Submit for Approval
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('approve')}
-              className="border-green-600 text-green-700 hover:bg-green-50"
-            >
-              <ShieldCheck className="h-4 w-4 mr-2" />
-              Approve
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('reject')}
-              className="border-orange-600 text-orange-700 hover:bg-orange-50"
-            >
-              <ShieldX className="h-4 w-4 mr-2" />
-              Reject
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => setAction('issue')}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Issue Invoice
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('void')}
-              className="border-red-600 text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Void
-            </Button>
-          </div>
-        </div>
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}

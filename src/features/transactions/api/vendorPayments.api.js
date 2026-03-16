@@ -7,7 +7,12 @@ export function makeVendorPaymentsApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.vendorPayments.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.vendorPayments.detail(id))).data,
-
+    submitForApproval: async (id, { idempotencyKey } = {}) =>
+      (await http.post(endpoints.modules.transactions.vendorPayments.submitForApproval(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
+    approve: async (id, body = {}, { idempotencyKey } = {}) =>
+      (await http.post(endpoints.modules.transactions.vendorPayments.approve(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
+    reject: async (id, body = {}, { idempotencyKey } = {}) =>
+      (await http.post(endpoints.modules.transactions.vendorPayments.reject(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     autoAllocate: async (id, body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.vendorPayments.autoAllocate(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     reallocate: async (id, body, { idempotencyKey } = {}) =>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, HandCoins, RefreshCcw, Save, Send, Trash2, Calendar, User, DollarSign } from 'lucide-react';
+import { ArrowLeft, HandCoins, Send, Trash2, Calendar, User, DollarSign } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
@@ -10,9 +10,19 @@ import { formatDate } from '../../../shared/utils/formatDate.js';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
+import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
+import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function CustomerReceiptDetail() {
   const { id } = useParams();
@@ -31,33 +41,33 @@ export default function CustomerReceiptDetail() {
   const receipt = data?.customerReceipt || data?.data?.customerReceipt || data;
   const allocations = data?.allocations || data?.data?.allocations || [];
   
-  console.log('Receipt data:', receipt);
-  console.log('Allocations:', allocations);
-
   const [action, setAction] = useState(null);
-  const [rule, setRule] = useState('due_date');
-  const [manualAllocations, setManualAllocations] = useState([]);
+  const [comment, setComment] = useState('');
   const [reason, setReason] = useState('');
 
   const run = useMutation({
     mutationFn: async () => {
-      if (action === 'auto') return api.autoAllocate(id, { rule });
-      if (action === 'reallocate') return api.reallocate(id, { allocations: manualAllocations });
-      if (action === 'post') return api.post(id);
-      if (action === 'void') return api.void(id, { reason });
+      const idempotencyKey = generateUUID();
+      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
+      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey });
+      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
+      if (action === 'post') return api.post(id, { idempotencyKey });
+      if (action === 'void') return api.void(id, { reason }, { idempotencyKey });
       throw new Error('Unknown action');
     },
     onSuccess: () => {
       toast.success('Action completed successfully');
       qc.invalidateQueries({ queryKey: qk.customerReceipt(id) });
       setAction(null);
+      setComment('');
       setReason('');
-      setManualAllocations([]);
     },
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
 
-  const status = receipt?.status ?? 'draft';
+  const workflowState = normalizeTransactionWorkflow({ type: 'customerReceipt', entity: receipt, payload: data?.data ?? data });
+  const status = workflowState.businessStatus;
+  const availableActions = resolveTransactionActions({ type: 'customerReceipt', state: workflowState });
   const statusColors = {
     posted: 'bg-green-100 text-green-800 border-green-200',
     draft: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -85,20 +95,6 @@ export default function CustomerReceiptDetail() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(numAmount);
-  };
-
-  const addAllocation = () => {
-    setManualAllocations([...manualAllocations, { invoice_id: '', amount_applied: 0 }]);
-  };
-
-  const removeAllocation = (index) => {
-    setManualAllocations(manualAllocations.filter((_, i) => i !== index));
-  };
-
-  const updateAllocation = (index, field, value) => {
-    const newAllocations = [...manualAllocations];
-    newAllocations[index] = { ...newAllocations[index], [field]: value };
-    setManualAllocations(newAllocations);
   };
 
   return (
@@ -135,53 +131,7 @@ export default function CustomerReceiptDetail() {
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium text-gray-700">Actions:</span>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('auto')}
-              className="border-blue-600 text-blue-700 hover:bg-blue-50"
-              disabled={status !== 'draft'}
-            >
-              <RefreshCcw className="h-4 w-4 mr-2" />
-              Auto-Allocate
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setManualAllocations(allocations);
-                setAction('reallocate');
-              }}
-              className="border-purple-600 text-purple-700 hover:bg-purple-50"
-              disabled={status !== 'draft'}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Reallocate
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => setAction('post')}
-              className="bg-green-600 hover:bg-green-700 text-white"
-              disabled={status !== 'draft'}
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Post
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('void')}
-              className="border-red-600 text-red-700 hover:bg-red-50"
-              disabled={status === 'voided'}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Void
-            </Button>
-          </div>
-        </div>
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
@@ -361,80 +311,34 @@ export default function CustomerReceiptDetail() {
         open={!!action} 
         onClose={() => setAction(null)} 
         title={
-          action === 'auto' ? 'Auto-Allocate Payment' :
-          action === 'reallocate' ? 'Reallocate Payment' :
+          action === 'submit' ? 'Submit for Approval' :
+          action === 'approve' ? 'Approve Receipt' :
+          action === 'reject' ? 'Reject Receipt' :
           action === 'post' ? 'Post Receipt' :
           action === 'void' ? 'Void Receipt' : 'Action'
         }
       >
         <div className="space-y-4">
-          {action === 'auto' && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Allocation Rule
-                </label>
-                <select
-                  value={rule}
-                  onChange={(e) => setRule(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                >
-                  <option value="due_date">By Due Date (oldest first)</option>
-                  <option value="fifo">FIFO (First In, First Out)</option>
-                  <option value="invoice_date">By Invoice Date</option>
-                </select>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
-                  Auto-allocation will automatically apply this payment to open invoices based on the selected rule.
-                </p>
-              </div>
-            </>
-          )}
-
-          {action === 'reallocate' && (
-            <>
-              <div className="space-y-3">
-                {manualAllocations.map((allocation, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-gray-700">Allocation #{index + 1}</span>
-                      <button
-                        onClick={() => removeAllocation(index)}
-                        className="text-red-600 hover:text-red-700 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid gap-3">
-                      <Input
-                        label="Invoice ID"
-                        value={allocation.invoice_id ?? ''}
-                        onChange={(e) => updateAllocation(index, 'invoice_id', e.target.value)}
-                        placeholder="Enter invoice UUID"
-                        className="font-mono text-xs"
-                      />
-                      <Input
-                        label="Amount Applied"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={allocation.amount_applied ?? 0}
-                        onChange={(e) => updateAllocation(index, 'amount_applied', parseFloat(e.target.value) || 0)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addAllocation}
-                className="w-full border-green-600 text-green-700 hover:bg-green-50"
-              >
-                Add Allocation
-              </Button>
-            </>
+          {(action === 'submit' || action === 'approve' || action === 'reject') && (
+            <div>
+              {action === 'submit' ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">This will send the receipt into the approval workflow.</p>
+                </div>
+              ) : (
+                <>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Comment {action === 'reject' ? '(recommended)' : '(optional)'}
+                  </label>
+                  <Textarea
+                    rows={4}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder={action === 'reject' ? 'Explain why this receipt is being rejected...' : 'Add an approval comment...'}
+                  />
+                </>
+              )}
+            </div>
           )}
 
           {action === 'post' && (
@@ -467,7 +371,7 @@ export default function CustomerReceiptDetail() {
         <div className="mt-6 flex justify-end gap-3">
           <Button 
             variant="outline" 
-            onClick={() => setAction(null)}
+            onClick={() => { setAction(null); setComment(''); setReason(''); }}
             className="border-gray-300"
           >
             Cancel
