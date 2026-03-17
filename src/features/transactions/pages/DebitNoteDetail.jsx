@@ -109,7 +109,8 @@ export default function DebitNoteDetail() {
       maximumFractionDigits: 2
     }).format(numAmount);
   }, []);
-
+ const workflowState = normalizeTransactionWorkflow({ type: 'debitNote', entity: note, payload: note });
+  const status = workflowState.workflowStatus || 'draft';
   // Get status badge configuration
   const getStatusConfig = useCallback((status) => {
     const configs = {
@@ -124,7 +125,7 @@ export default function DebitNoteDetail() {
   }, []);
 
   const statusConfig = getStatusConfig(status);
-
+ 
   // Action handlers
   const handleOpenAction = useCallback((actionType) => {
     setAction(actionType);
@@ -187,8 +188,7 @@ export default function DebitNoteDetail() {
     }
   });
 
-  const workflowState = normalizeTransactionWorkflow({ type: 'debitNote', entity: note, payload: note });
-  const status = workflowState.businessStatus;
+
   const availableActions = resolveTransactionActions({ type: 'debitNote', state: workflowState, remainingAmount });
   const canIssue = availableActions.forwardAction?.key === 'issue';
   const canApply = availableActions.forwardAction?.key === 'apply';

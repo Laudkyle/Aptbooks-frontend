@@ -15,12 +15,12 @@ const ACTION_CONFIG = {
 
 function workflowForward(state, approvedAction) {
   const { approvalRequired, workflowStatus, canApprove, businessStatus } = state;
-
+console.log("Resolving forward action with state:", workflowStatus, approvalRequired, canApprove, businessStatus,state);
   if (!approvalRequired) return approvedAction;
-  if (workflowStatus === 'submitted') return canApprove ? ACTION_CONFIG.approve : null;
-  if (workflowStatus === 'approved') return approvedAction;
-  if (workflowStatus === 'rejected' && businessStatus === 'draft') return ACTION_CONFIG.submit;
-  if ((workflowStatus === 'draft' || workflowStatus === 'none') && businessStatus === 'draft') return ACTION_CONFIG.submit;
+  if (workflowStatus == 'submitted') return canApprove ? ACTION_CONFIG.approve : null;
+  if (workflowStatus == 'approved') return approvedAction;
+  if (workflowStatus == 'rejected' && businessStatus === 'draft') return ACTION_CONFIG.submit;
+  if ((workflowStatus == 'draft' || workflowStatus === 'none') && businessStatus === 'draft') return ACTION_CONFIG.submit;
   return null;
 }
 

@@ -109,6 +109,8 @@ export default function CreditNoteDetail() {
     }).format(numAmount);
   }, []);
 
+
+  
   // Get status badge configuration
   const getStatusConfig = useCallback((status) => {
     const configs = {
@@ -122,8 +124,10 @@ export default function CreditNoteDetail() {
     return configs[status] || { tone: 'muted', label: status || 'Draft', icon: FileText };
   }, []);
 
-  const statusConfig = getStatusConfig(status);
-
+// Get workflow state first
+const workflowState = normalizeTransactionWorkflow({ type: 'creditNote', entity: note, payload: note });
+const status = workflowState.workflowStatus;
+const statusConfig = getStatusConfig(status);
   // Action handlers
   const handleOpenAction = useCallback((actionType) => {
     setAction(actionType);
@@ -186,8 +190,7 @@ export default function CreditNoteDetail() {
     }
   });
 
-  const workflowState = normalizeTransactionWorkflow({ type: 'creditNote', entity: note, payload: note });
-  const status = workflowState.businessStatus;
+ 
   const availableActions = resolveTransactionActions({ type: 'creditNote', state: workflowState, remainingAmount });
   const canIssue = availableActions.forwardAction?.key === 'issue';
   const canApply = availableActions.forwardAction?.key === 'apply';
