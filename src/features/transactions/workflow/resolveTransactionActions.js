@@ -1,6 +1,6 @@
 const ACTION_CONFIG = {
   submit: { key: 'submit', label: 'Submit for Approval', className: 'bg-blue-600 hover:bg-blue-700 text-white' },
-  approve: { key: 'approve', label: 'Approve', className: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+  approve: { key: 'approve', label: 'Approve', className: 'bg-green-600 hover:bg-green-700 text-white' },
   issueInvoice: { key: 'issue', label: 'Issue Invoice', className: 'bg-green-600 hover:bg-green-700 text-white' },
   issueBill: { key: 'issue', label: 'Issue Bill', className: 'bg-green-600 hover:bg-green-700 text-white' },
   issueCreditNote: { key: 'issue', label: 'Issue Credit Note', className: 'bg-green-600 hover:bg-green-700 text-white' },
@@ -9,13 +9,12 @@ const ACTION_CONFIG = {
   postPayment: { key: 'post', label: 'Post Payment', className: 'bg-green-600 hover:bg-green-700 text-white' },
   applyCreditNote: { key: 'apply', label: 'Apply Credit Note', className: 'bg-indigo-600 hover:bg-indigo-700 text-white' },
   applyDebitNote: { key: 'apply', label: 'Apply Debit Note', className: 'bg-indigo-600 hover:bg-indigo-700 text-white' },
-  reject: { key: 'reject', label: 'Reject', className: 'border-orange-600 text-orange-700 hover:bg-orange-50' },
-  void: { key: 'void', label: 'Void', className: 'border-red-600 text-red-700 hover:bg-red-50' }
+  reject: { key: 'reject', label: 'Reject', className: 'border-blue-500 text-white-700 bg-blue-500 hover:bg-blue-700' },
+  void: { key: 'void', label: 'Void', className: 'border-red-600 bg-red-500 text-white hover:bg-red-700' }
 };
 
 function workflowForward(state, approvedAction) {
   const { approvalRequired, workflowStatus, canApprove, businessStatus } = state;
-console.log("Resolving forward action with state:", workflowStatus, approvalRequired, canApprove, businessStatus,state);
   if (!approvalRequired) return approvedAction;
   if (workflowStatus == 'submitted') return canApprove ? ACTION_CONFIG.approve : null;
   if (workflowStatus == 'approved') return approvedAction;

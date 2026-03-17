@@ -12,15 +12,14 @@ const icons = {
   void: Trash2
 };
 
-function ActionButton({ action, onClick, variant = 'outline', size = 'sm' }) {
+function ActionButton({ action, onClick, size = 'sm' }) {
   if (!action) return null;
   const Icon = icons[action.key];
   return (
     <Button
-      variant={variant}
       size={size}
       onClick={() => onClick(action.key)}
-      className={action.className}
+      className={`${action.className}`}
     >
       {Icon ? <Icon className="h-4 w-4 mr-2" /> : null}
       {action.label}
@@ -49,8 +48,8 @@ export function TransactionWorkflowActionBar({ actions, onAction }) {
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm font-medium text-gray-700">Actions:</span>
         <ActionButton action={forwardAction} onClick={onAction} size="sm" />
-        <ActionButton action={rejectAction} onClick={onAction} variant="outline" size="sm" />
-        <ActionButton action={voidAction} onClick={onAction} variant="outline" size="sm" />
+        <ActionButton action={rejectAction} onClick={onAction}  size="sm" />
+        <ActionButton action={voidAction} onClick={onAction}  size="sm" />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Calendar, User, DollarSign,Send,ShieldCheck,ShieldX,CheckCircle2,Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Calendar, User, DollarSign } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
@@ -69,6 +69,7 @@ export default function BillDetail() {
   const workflowState = normalizeTransactionWorkflow({ type: 'bill', entity: record, payload: bill });
   const status = workflowState.businessStatus;
   const availableActions = resolveTransactionActions({ type: 'bill', state: workflowState });
+  
   const statusColors = {
     paid: 'bg-green-100 text-green-800 border-green-200',
     issued: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -85,7 +86,7 @@ export default function BillDetail() {
   };
 
   const total = calculateTotal();
-  const currency = bill?.bill.currency_code || bill?.currency_code || 'USD';
+  const currency = bill?.bill?.currency_code || bill?.currency_code || 'USD';
   
   // Helper function to format currency amounts
   const formatCurrency = (amount) => {
@@ -107,7 +108,7 @@ export default function BillDetail() {
               <div className="flex items-center gap-3 mb-2">
                 <FileText className="h-7 w-7 text-gray-700" />
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {bill?.bill.billNumber ?? bill?.bill.code ?? (isLoading ? 'Loading...' : 'Bill')}
+                  {bill?.bill?.billNumber ?? bill?.bill?.code ?? (isLoading ? 'Loading...' : 'Bill')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -130,56 +131,8 @@ export default function BillDetail() {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium text-gray-700">Actions:</span>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('submit')}
-              className="border-blue-600 text-blue-700 hover:bg-blue-50"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Submit for Approval
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('approve')}
-              className="border-green-600 text-green-700 hover:bg-green-50"
-            >
-              <ShieldCheck className="h-4 w-4 mr-2" />
-              Approve
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('reject')}
-              className="border-orange-600 text-orange-700 hover:bg-orange-50"
-            >
-              <ShieldX className="h-4 w-4 mr-2" />
-              Reject
-            </Button>
-            <Button 
-              size="sm"
-              onClick={() => setAction('issue')}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Issue Bill
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setAction('void')}
-              className="border-red-600 text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Void
-            </Button>
-          </div>
-        </div>
+        {/* Action Buttons - Using the shared component */}
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
@@ -195,7 +148,7 @@ export default function BillDetail() {
                     <span className="text-xs font-medium text-gray-500">Vendor</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {bill?.bill.vendor_name ?? bill?.bill.vendor_id ?? '—'}
+                    {bill?.bill?.vendor_name ?? bill?.bill?.vendor_id ?? '—'}
                   </div>
                 </div>
 
@@ -205,11 +158,11 @@ export default function BillDetail() {
                     <span className="text-xs font-medium text-gray-500">Dates</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {formatDate(bill?.bill.billDate) || formatDate(bill?.bill.bill_date)} → {formatDate(bill?.bill.dueDate) || formatDate(bill?.bill.due_date)}
+                    {formatDate(bill?.bill?.billDate) || formatDate(bill?.bill?.bill_date)} → {formatDate(bill?.bill?.dueDate) || formatDate(bill?.bill?.due_date)}
                   </div>
                 </div>
 
-                {bill?.bill.memo && (
+                {bill?.bill?.memo && (
                   <div className="md:col-span-2 bg-gray-50 rounded-lg border border-gray-200 p-4">
                     <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
                     <div className="text-sm text-gray-700">{bill.bill.memo}</div>
@@ -316,16 +269,16 @@ export default function BillDetail() {
                   <span className="text-gray-600">Line Items</span>
                   <span className="font-medium text-gray-900">{(bill?.lines ?? []).length}</span>
                 </div>
-                {(bill?.bill.billDate || bill?.bill.bill_date) && (
+                {(bill?.bill?.billDate || bill?.bill?.bill_date) && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Bill Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(bill?.bill.billDate) || formatDate(bill?.bill.bill_date)}</span>
+                    <span className="font-medium text-gray-900">{formatDate(bill?.bill?.billDate) || formatDate(bill?.bill?.bill_date)}</span>
                   </div>
                 )}
-                {(formatDate(bill?.bill.dueDate) || formatDate(bill?.bill.due_date)) && (
+                {(bill?.bill?.dueDate || bill?.bill?.due_date) && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Due Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(bill?.bill.dueDate) || formatDate(bill?.bill.due_date)}</span>
+                    <span className="font-medium text-gray-900">{formatDate(bill?.bill?.dueDate) || formatDate(bill?.bill?.due_date)}</span>
                   </div>
                 )}
               </div>
