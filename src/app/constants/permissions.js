@@ -72,6 +72,56 @@ debitNoteIssue: 'transactions.debit_note.issue',
 debitNoteApply: 'transactions.debit_note.apply',
 debitNoteVoid: 'transactions.debit_note.void',
 
+quotationRead: 'transactions.quotation.read',
+quotationManage: 'transactions.quotation.manage',
+quotationIssue: 'transactions.quotation.issue',
+quotationVoid: 'transactions.quotation.void',
+
+salesOrderRead: 'transactions.sales_order.read',
+salesOrderManage: 'transactions.sales_order.manage',
+salesOrderIssue: 'transactions.sales_order.issue',
+salesOrderVoid: 'transactions.sales_order.void',
+
+purchaseRequisitionRead: 'transactions.purchase_requisition.read',
+purchaseRequisitionManage: 'transactions.purchase_requisition.manage',
+purchaseRequisitionIssue: 'transactions.purchase_requisition.issue',
+purchaseRequisitionVoid: 'transactions.purchase_requisition.void',
+
+purchaseOrderRead: 'transactions.purchase_order.read',
+purchaseOrderManage: 'transactions.purchase_order.manage',
+purchaseOrderIssue: 'transactions.purchase_order.issue',
+purchaseOrderVoid: 'transactions.purchase_order.void',
+
+goodsReceiptRead: 'transactions.goods_receipt.read',
+goodsReceiptManage: 'transactions.goods_receipt.manage',
+goodsReceiptPost: 'transactions.goods_receipt.post',
+goodsReceiptVoid: 'transactions.goods_receipt.void',
+
+expenseRead: 'transactions.expense.read',
+expenseManage: 'transactions.expense.manage',
+expensePost: 'transactions.expense.post',
+expenseVoid: 'transactions.expense.void',
+
+pettyCashRead: 'transactions.petty_cash.read',
+pettyCashManage: 'transactions.petty_cash.manage',
+pettyCashPost: 'transactions.petty_cash.post',
+pettyCashVoid: 'transactions.petty_cash.void',
+
+advanceRead: 'transactions.advance.read',
+advanceManage: 'transactions.advance.manage',
+advancePost: 'transactions.advance.post',
+advanceVoid: 'transactions.advance.void',
+
+returnRead: 'transactions.return.read',
+returnManage: 'transactions.return.manage',
+returnPost: 'transactions.return.post',
+returnVoid: 'transactions.return.void',
+
+refundRead: 'transactions.refund.read',
+refundManage: 'transactions.refund.manage',
+refundPost: 'transactions.refund.post',
+refundVoid: 'transactions.refund.void',
+
 approvalsAct: 'approvals.act',
 
 collectionsRead: 'collections.read',

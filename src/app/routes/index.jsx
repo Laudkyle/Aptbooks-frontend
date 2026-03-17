@@ -295,6 +295,37 @@ const DebitNoteDetail = lazy(() =>
   import("../../features/transactions/pages/DebitNoteDetail.jsx")
 );
 
+const QuotationList = lazy(() => import('../../features/transactions/pages/QuotationList.jsx'));
+const QuotationCreate = lazy(() => import('../../features/transactions/pages/QuotationCreate.jsx'));
+const QuotationDetail = lazy(() => import('../../features/transactions/pages/QuotationDetail.jsx'));
+const SalesOrderList = lazy(() => import('../../features/transactions/pages/SalesOrderList.jsx'));
+const SalesOrderCreate = lazy(() => import('../../features/transactions/pages/SalesOrderCreate.jsx'));
+const SalesOrderDetail = lazy(() => import('../../features/transactions/pages/SalesOrderDetail.jsx'));
+const PurchaseRequisitionList = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionList.jsx'));
+const PurchaseRequisitionCreate = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionCreate.jsx'));
+const PurchaseRequisitionDetail = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionDetail.jsx'));
+const PurchaseOrderList = lazy(() => import('../../features/transactions/pages/PurchaseOrderList.jsx'));
+const PurchaseOrderCreate = lazy(() => import('../../features/transactions/pages/PurchaseOrderCreate.jsx'));
+const PurchaseOrderDetail = lazy(() => import('../../features/transactions/pages/PurchaseOrderDetail.jsx'));
+const GoodsReceiptList = lazy(() => import('../../features/transactions/pages/GoodsReceiptList.jsx'));
+const GoodsReceiptCreate = lazy(() => import('../../features/transactions/pages/GoodsReceiptCreate.jsx'));
+const GoodsReceiptDetail = lazy(() => import('../../features/transactions/pages/GoodsReceiptDetail.jsx'));
+const ExpenseList = lazy(() => import('../../features/transactions/pages/ExpenseList.jsx'));
+const ExpenseCreate = lazy(() => import('../../features/transactions/pages/ExpenseCreate.jsx'));
+const ExpenseDetail = lazy(() => import('../../features/transactions/pages/ExpenseDetail.jsx'));
+const PettyCashList = lazy(() => import('../../features/transactions/pages/PettyCashList.jsx'));
+const PettyCashCreate = lazy(() => import('../../features/transactions/pages/PettyCashCreate.jsx'));
+const PettyCashDetail = lazy(() => import('../../features/transactions/pages/PettyCashDetail.jsx'));
+const AdvanceList = lazy(() => import('../../features/transactions/pages/AdvanceList.jsx'));
+const AdvanceCreate = lazy(() => import('../../features/transactions/pages/AdvanceCreate.jsx'));
+const AdvanceDetail = lazy(() => import('../../features/transactions/pages/AdvanceDetail.jsx'));
+const ReturnList = lazy(() => import('../../features/transactions/pages/ReturnList.jsx'));
+const ReturnCreate = lazy(() => import('../../features/transactions/pages/ReturnCreate.jsx'));
+const ReturnDetail = lazy(() => import('../../features/transactions/pages/ReturnDetail.jsx'));
+const RefundList = lazy(() => import('../../features/transactions/pages/RefundList.jsx'));
+const RefundCreate = lazy(() => import('../../features/transactions/pages/RefundCreate.jsx'));
+const RefundDetail = lazy(() => import('../../features/transactions/pages/RefundDetail.jsx'));
+
 const CollectionsHub = lazy(() =>
   import("../../features/ar/pages/CollectionsHub.jsx")
 );
@@ -1026,6 +1057,46 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+
+          { path: ROUTES.quotations, element: (<RequirePermission any={[PERMISSIONS.quotationRead, PERMISSIONS.quotationManage]}><Lazy><QuotationList /></Lazy></RequirePermission>) },
+          { path: ROUTES.quotationNew, element: (<RequirePermission any={[PERMISSIONS.quotationManage]}><Lazy><QuotationCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.quotationDetail(), element: (<RequirePermission any={[PERMISSIONS.quotationRead, PERMISSIONS.quotationManage]}><Lazy><QuotationDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.salesOrders, element: (<RequirePermission any={[PERMISSIONS.salesOrderRead, PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderList /></Lazy></RequirePermission>) },
+          { path: ROUTES.salesOrderNew, element: (<RequirePermission any={[PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.salesOrderDetail(), element: (<RequirePermission any={[PERMISSIONS.salesOrderRead, PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.purchaseRequisitions, element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionRead, PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionList /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseRequisitionNew, element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseRequisitionDetail(), element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionRead, PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.purchaseOrders, element: (<RequirePermission any={[PERMISSIONS.purchaseOrderRead, PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderList /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseOrderNew, element: (<RequirePermission any={[PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseOrderDetail(), element: (<RequirePermission any={[PERMISSIONS.purchaseOrderRead, PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.goodsReceipts, element: (<RequirePermission any={[PERMISSIONS.goodsReceiptRead, PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptList /></Lazy></RequirePermission>) },
+          { path: ROUTES.goodsReceiptNew, element: (<RequirePermission any={[PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.goodsReceiptDetail(), element: (<RequirePermission any={[PERMISSIONS.goodsReceiptRead, PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.expenses, element: (<RequirePermission any={[PERMISSIONS.expenseRead, PERMISSIONS.expenseManage]}><Lazy><ExpenseList /></Lazy></RequirePermission>) },
+          { path: ROUTES.expenseNew, element: (<RequirePermission any={[PERMISSIONS.expenseManage]}><Lazy><ExpenseCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.expenseDetail(), element: (<RequirePermission any={[PERMISSIONS.expenseRead, PERMISSIONS.expenseManage]}><Lazy><ExpenseDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.pettyCash, element: (<RequirePermission any={[PERMISSIONS.pettyCashRead, PERMISSIONS.pettyCashManage]}><Lazy><PettyCashList /></Lazy></RequirePermission>) },
+          { path: ROUTES.pettyCashNew, element: (<RequirePermission any={[PERMISSIONS.pettyCashManage]}><Lazy><PettyCashCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.pettyCashDetail(), element: (<RequirePermission any={[PERMISSIONS.pettyCashRead, PERMISSIONS.pettyCashManage]}><Lazy><PettyCashDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.advances, element: (<RequirePermission any={[PERMISSIONS.advanceRead, PERMISSIONS.advanceManage]}><Lazy><AdvanceList /></Lazy></RequirePermission>) },
+          { path: ROUTES.advanceNew, element: (<RequirePermission any={[PERMISSIONS.advanceManage]}><Lazy><AdvanceCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.advanceDetail(), element: (<RequirePermission any={[PERMISSIONS.advanceRead, PERMISSIONS.advanceManage]}><Lazy><AdvanceDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.returns, element: (<RequirePermission any={[PERMISSIONS.returnRead, PERMISSIONS.returnManage]}><Lazy><ReturnList /></Lazy></RequirePermission>) },
+          { path: ROUTES.returnNew, element: (<RequirePermission any={[PERMISSIONS.returnManage]}><Lazy><ReturnCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.returnDetail(), element: (<RequirePermission any={[PERMISSIONS.returnRead, PERMISSIONS.returnManage]}><Lazy><ReturnDetail /></Lazy></RequirePermission>) },
+
+          { path: ROUTES.refunds, element: (<RequirePermission any={[PERMISSIONS.refundRead, PERMISSIONS.refundManage]}><Lazy><RefundList /></Lazy></RequirePermission>) },
+          { path: ROUTES.refundNew, element: (<RequirePermission any={[PERMISSIONS.refundManage]}><Lazy><RefundCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.refundDetail(), element: (<RequirePermission any={[PERMISSIONS.refundRead, PERMISSIONS.refundManage]}><Lazy><RefundDetail /></Lazy></RequirePermission>) },
 
           // Phase 5 — AR Ops
           {

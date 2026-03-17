@@ -93,6 +93,46 @@ export const ROUTES = {
   debitNoteNew: '/transactions/debit-notes/new',
   debitNoteDetail: (id=':id') => `/transactions/debit-notes/${id}`,
 
+  quotations: '/transactions/quotations',
+  quotationNew: '/transactions/quotations/new',
+  quotationDetail: (id=':id') => `/transactions/quotations/${id}`,
+
+  salesOrders: '/transactions/sales-orders',
+  salesOrderNew: '/transactions/sales-orders/new',
+  salesOrderDetail: (id=':id') => `/transactions/sales-orders/${id}`,
+
+  purchaseRequisitions: '/transactions/purchase-requisitions',
+  purchaseRequisitionNew: '/transactions/purchase-requisitions/new',
+  purchaseRequisitionDetail: (id=':id') => `/transactions/purchase-requisitions/${id}`,
+
+  purchaseOrders: '/transactions/purchase-orders',
+  purchaseOrderNew: '/transactions/purchase-orders/new',
+  purchaseOrderDetail: (id=':id') => `/transactions/purchase-orders/${id}`,
+
+  goodsReceipts: '/transactions/goods-receipts',
+  goodsReceiptNew: '/transactions/goods-receipts/new',
+  goodsReceiptDetail: (id=':id') => `/transactions/goods-receipts/${id}`,
+
+  expenses: '/transactions/expenses',
+  expenseNew: '/transactions/expenses/new',
+  expenseDetail: (id=':id') => `/transactions/expenses/${id}`,
+
+  pettyCash: '/transactions/petty-cash',
+  pettyCashNew: '/transactions/petty-cash/new',
+  pettyCashDetail: (id=':id') => `/transactions/petty-cash/${id}`,
+
+  advances: '/transactions/advances',
+  advanceNew: '/transactions/advances/new',
+  advanceDetail: (id=':id') => `/transactions/advances/${id}`,
+
+  returns: '/transactions/returns',
+  returnNew: '/transactions/returns/new',
+  returnDetail: (id=':id') => `/transactions/returns/${id}`,
+
+  refunds: '/transactions/refunds',
+  refundNew: '/transactions/refunds/new',
+  refundDetail: (id=':id') => `/transactions/refunds/${id}`,
+
   // Phase 5 — AR Ops
   arCollections: '/ar/collections',
   arDisputes: '/ar/disputes',

@@ -52,6 +52,36 @@ export const qk = {
   debitNotes: (qs) => ['debitNotes', qs ?? {}],
   debitNote: (id) => ['debitNotes', id],
 
+  quotations: (qs) => ['quotations', qs ?? {}],
+  quotation: (id) => ['quotations', id],
+
+  salesOrders: (qs) => ['salesOrders', qs ?? {}],
+  salesOrder: (id) => ['salesOrders', id],
+
+  purchaseRequisitions: (qs) => ['purchaseRequisitions', qs ?? {}],
+  purchaseRequisition: (id) => ['purchaseRequisitions', id],
+
+  purchaseOrders: (qs) => ['purchaseOrders', qs ?? {}],
+  purchaseOrder: (id) => ['purchaseOrders', id],
+
+  goodsReceipts: (qs) => ['goodsReceipts', qs ?? {}],
+  goodsReceipt: (id) => ['goodsReceipts', id],
+
+  expenses: (qs) => ['expenses', qs ?? {}],
+  expense: (id) => ['expenses', id],
+
+  pettyCash: (qs) => ['pettyCash', qs ?? {}],
+  pettyCashItem: (id) => ['pettyCash', id],
+
+  advances: (qs) => ['advances', qs ?? {}],
+  advance: (id) => ['advances', id],
+
+  returns: (qs) => ['returns', qs ?? {}],
+  returnItem: (id) => ['returns', id],
+
+  refunds: (qs) => ['refunds', qs ?? {}],
+  refund: (id) => ['refunds', id],
+
   collectionsQueue: (qs) => ['collections', 'queue', qs ?? {}],
   collectionsQueuePartner: (partnerId, qs) => ['collections', 'queue', partnerId, qs ?? {}],
   collectionsCases: (qs) => ['collections', 'cases', qs ?? {}],
