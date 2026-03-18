@@ -35,7 +35,7 @@ export default function OperationalDocDetail({ moduleKey }) {
 
   const state = normalizeTransactionWorkflow({ entity: header, payload: detail, type: config.type });
   const availableActions = getPhase1Actions(config, state);
-
+console.log({ state, availableActions });
   const run = useMutation({
     mutationFn: async ({ key }) => {
       if (key === 'submit') return api.submitForApproval(id);
@@ -56,7 +56,7 @@ export default function OperationalDocDetail({ moduleKey }) {
   });
 
   const total = Number(header.amount_total ?? lines.reduce((sum, line) => sum + Number(line.line_total ?? 0), 0));
-  const currency = header.currency_code || 'USD';
+  const currency = header.currency_code || 'GHS';
 
   return (
     <div className="min-h-screen bg-gray-50">
