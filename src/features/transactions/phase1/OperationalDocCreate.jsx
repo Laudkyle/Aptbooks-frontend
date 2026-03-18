@@ -13,6 +13,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { makeOpsDocsApi } from '../api/opsDocs.api.js';
 import { makePartnersApi } from '../../business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
 import { getPhase1ModuleConfig } from './moduleConfigs.js';
 import { makeEmptyForm, sanitizePayload, toCurrency } from './helpers.js';
 
@@ -33,7 +34,16 @@ export default function OperationalDocCreate({ moduleKey }) {
   const api = useMemo(() => makeOpsDocsApi(http, config.endpoints), [http, config]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  
   const [form, setForm] = useState(() => makeEmptyForm(config));
+
+  // Fetch periods for date-based documents
+  const periodsQuery = useQuery({
+    queryKey: ['periods', 'open'],
+    queryFn: () => periodsApi.list({ status: 'open' }),
+    enabled: config.requirePeriod || config.key === 'journal' // Enable for documents that need periods
+  });
 
   const partnersQuery = useQuery({
     queryKey: ['partners', config.partnerRole],
@@ -47,6 +57,7 @@ export default function OperationalDocCreate({ moduleKey }) {
 
   const accounts = Array.isArray(accountsQuery.data) ? accountsQuery.data : accountsQuery.data?.data ?? [];
   const partners = Array.isArray(partnersQuery.data) ? partnersQuery.data : partnersQuery.data?.data ?? [];
+  const periods = Array.isArray(periodsQuery.data) ? periodsQuery.data : periodsQuery.data?.data ?? [];
   
   // Filter partners by role if specified
   const filteredPartners = config.partnerRole 
@@ -121,12 +132,24 @@ export default function OperationalDocCreate({ moduleKey }) {
     label: a.code ? `${a.code} - ${a.name || a.accountName}` : (a.name || a.accountName || a.id)
   }));
 
+  const periodOptions = periods.map((p) => ({ 
+    value: p.id, 
+    label: p.name || p.code || p.id 
+  }));
+
   const selectedPartner = filteredPartners.find(p => p.id === form.partnerId);
+  const selectedPeriod = periods.find(p => p.id === form.periodId);
 
   const handleSubmit = () => {
     // Validate required fields
     if (config.partnerRole && !form.partnerId) {
       toast.error(`Please select a ${config.partnerRole}`);
+      return;
+    }
+    
+    // Validate period for documents that need it
+    if ((config.requirePeriod || config.key === 'journal') && !form.periodId) {
+      toast.error('Please select an accounting period');
       return;
     }
     
@@ -201,6 +224,30 @@ export default function OperationalDocCreate({ moduleKey }) {
               <h3 className="text-sm font-semibold text-gray-900 mb-4">{config.singular} Summary</h3>
               
               <div className="space-y-3">
+                {/* Period selection in summary if needed */}
+                {(config.requirePeriod || config.key === 'journal') && (
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500">Accounting Period</div>
+                      <div className="text-sm font-medium text-gray-900 mt-0.5">
+                        {selectedPeriod ? (
+                          <div>
+                            <div>{selectedPeriod.name || selectedPeriod.code}</div>
+                            {selectedPeriod.startDate && selectedPeriod.endDate && (
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {new Date(selectedPeriod.startDate).toLocaleDateString()} - {new Date(selectedPeriod.endDate).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">Not selected</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {config.partnerRole && (
                   <div className="flex items-start gap-3">
                     <User className="h-4 w-4 text-gray-400 mt-0.5" />
@@ -278,6 +325,30 @@ export default function OperationalDocCreate({ moduleKey }) {
               <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
               
               <div className="grid gap-5 md:grid-cols-2">
+                {/* Period Selection - Added from JournalCreate */}
+                {(config.requirePeriod || config.key === 'journal') && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Accounting Period <span className="text-red-500">*</span>
+                    </label>
+                    {periodsQuery.isLoading ? (
+                      <div className="text-sm text-gray-500">Loading periods...</div>
+                    ) : (
+                      <Select
+                        value={form.periodId}
+                        onChange={(e) => updateField('periodId', e.target.value)}
+                        options={[
+                          { value: '', label: 'Select accounting period...' },
+                          ...periodOptions
+                        ]}
+                      />
+                    )}
+                    {periods.length === 0 && !periodsQuery.isLoading && (
+                      <p className="text-xs text-amber-600 mt-1">No open periods available. Please open a period first.</p>
+                    )}
+                  </div>
+                )}
+
                 {config.partnerRole && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
@@ -286,18 +357,14 @@ export default function OperationalDocCreate({ moduleKey }) {
                     {partnersQuery.isLoading ? (
                       <div className="text-sm text-gray-500">Loading {config.partnerRole}s...</div>
                     ) : (
-                      <select
+                      <Select
                         value={form.partnerId}
                         onChange={(e) => updateField('partnerId', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                      >
-                        <option value="">Select a {config.partnerRole}</option>
-                        {filteredPartners.map((partner) => (
-                          <option key={partner.id} value={partner.id}>
-                            {partner.name || partner.businessName || partner.id}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: '', label: `Select a ${config.partnerRole}...` },
+                          ...partnerOptions
+                        ]}
+                      />
                     )}
                   </div>
                 )}
@@ -359,18 +426,14 @@ export default function OperationalDocCreate({ moduleKey }) {
                     {accountsQuery.isLoading ? (
                       <div className="text-sm text-gray-500">Loading accounts...</div>
                     ) : (
-                      <select
+                      <Select
                         value={form.cashAccountId}
                         onChange={(e) => updateField('cashAccountId', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                      >
-                        <option value="">Select cash/bank account</option>
-                        {accounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: '', label: 'Select cash/bank account...' },
+                          ...accountOptions
+                        ]}
+                      />
                     )}
                   </div>
                 )}
@@ -383,18 +446,14 @@ export default function OperationalDocCreate({ moduleKey }) {
                     {accountsQuery.isLoading ? (
                       <div className="text-sm text-gray-500">Loading accounts...</div>
                     ) : (
-                      <select
+                      <Select
                         value={form.primaryAccountId}
                         onChange={(e) => updateField('primaryAccountId', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                      >
-                        <option value="">Select primary account</option>
-                        {accounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: '', label: 'Select primary account...' },
+                          ...accountOptions
+                        ]}
+                      />
                     )}
                   </div>
                 )}
@@ -430,15 +489,11 @@ export default function OperationalDocCreate({ moduleKey }) {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         {field.label}
                       </label>
-                      <select
+                      <Select
                         value={form[field.key]}
                         onChange={(e) => updateField(field.key, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                      >
-                        {field.options.map(opt => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
+                        options={field.options || []}
+                      />
                     </div>
                   ) : null
                 ))}
@@ -553,18 +608,14 @@ export default function OperationalDocCreate({ moduleKey }) {
                           {accountsQuery.isLoading ? (
                             <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
                           ) : (
-                            <select
+                            <Select
                               value={line.accountId}
                               onChange={(e) => updateLine(index, 'accountId', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                            >
-                              <option value="">Select account</option>
-                              {filteredAccounts.map((account) => (
-                                <option key={account.id} value={account.id}>
-                                  {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                                </option>
-                              ))}
-                            </select>
+                              options={[
+                                { value: '', label: 'Select account...' },
+                                ...accountOptions
+                              ]}
+                            />
                           )}
                         </div>
                       </div>
