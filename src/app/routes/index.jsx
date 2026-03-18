@@ -446,6 +446,33 @@ const InventoryStockCountDetail = lazy(() =>
 const InventoryReports = lazy(() =>
   import("../../features/inventory/pages/Reports.jsx")
 );
+const InventoryBins = lazy(() =>
+  import("../../features/inventory/pages/Bins.jsx")
+);
+const InventoryBinNew = lazy(() =>
+  import("../../features/inventory/pages/BinCreate.jsx")
+);
+const InventoryReservations = lazy(() =>
+  import("../../features/inventory/pages/Reservations.jsx")
+);
+const InventoryReservationNew = lazy(() =>
+  import("../../features/inventory/pages/ReservationCreate.jsx")
+);
+const InventoryTransfers = lazy(() =>
+  import("../../features/inventory/pages/Transfers.jsx")
+);
+const InventoryTransferNew = lazy(() =>
+  import("../../features/inventory/pages/TransferCreate.jsx")
+);
+const InventoryTransferDetail = lazy(() =>
+  import("../../features/inventory/pages/TransferDetail.jsx")
+);
+const InventoryTraceability = lazy(() =>
+  import("../../features/inventory/pages/Traceability.jsx")
+);
+const InventoryReorder = lazy(() =>
+  import("../../features/inventory/pages/Reorder.jsx")
+);
 
 // Phase 7 — Reporting & Planning
 const Centers = lazy(() =>
@@ -1539,6 +1566,54 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          {
+            path: ROUTES.inventoryBins,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryWarehousesRead, PERMISSIONS.inventoryWarehousesManage]}>
+                <Lazy><InventoryBins /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryReservations,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryReservationsRead, PERMISSIONS.inventoryReservationsManage]}>
+                <Lazy><InventoryReservations /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransfers,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryTransfersRead, PERMISSIONS.inventoryTransfersManage, PERMISSIONS.inventoryTransfersApprove, PERMISSIONS.inventoryTransfersPost]}>
+                <Lazy><InventoryTransfers /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransferDetail(":id"),
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryTransfersRead, PERMISSIONS.inventoryTransfersManage, PERMISSIONS.inventoryTransfersApprove, PERMISSIONS.inventoryTransfersPost]}>
+                <Lazy><InventoryTransferDetail /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTraceability,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryTraceabilityRead, PERMISSIONS.inventoryTraceabilityManage]}>
+                <Lazy><InventoryTraceability /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryReorder,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryReorderRead, PERMISSIONS.inventoryReorderManage]}>
+                <Lazy><InventoryReorder /></Lazy>
+              </RequirePermission>
+            ),
+          },
 
           // Phase 7 — Reporting & Planning
           {
@@ -1618,6 +1693,30 @@ export const router = createBrowserRouter([
                 <Lazy>
                   <InventoryStockCountNew />
                 </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryBinsNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryWarehousesManage]}>
+                <Lazy><InventoryBinNew /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryReservationsNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryReservationsManage]}>
+                <Lazy><InventoryReservationNew /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.inventoryTransfersNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.inventoryTransfersManage]}>
+                <Lazy><InventoryTransferNew /></Lazy>
               </RequirePermission>
             ),
           },

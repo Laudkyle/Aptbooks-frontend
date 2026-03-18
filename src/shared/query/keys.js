@@ -136,6 +136,15 @@ export const qk = {
   stockCount: (id) => ['inventory', 'stockCounts', id],
   inventoryValuationReport: (qs) => ['inventory', 'reports', 'valuation', qs ?? {}],
   inventoryMovementsReport: (qs) => ['inventory', 'reports', 'movements', qs ?? {}],
+  inventoryBins: (qs) => ['inventory', 'bins', qs ?? {}],
+  inventoryReservations: (qs) => ['inventory', 'reservations', qs ?? {}],
+  inventoryAvailability: (warehouseId, itemId) => ['inventory', 'availability', warehouseId, itemId],
+  inventoryTransfers: (qs) => ['inventory', 'transfers', qs ?? {}],
+  inventoryTransfer: (id) => ['inventory', 'transfers', id],
+  inventoryBatches: (qs) => ['inventory', 'traceability', 'batches', qs ?? {}],
+  inventorySerials: (qs) => ['inventory', 'traceability', 'serials', qs ?? {}],
+  inventoryReorderSettings: (qs) => ['inventory', 'reorder', 'settings', qs ?? {}],
+  inventoryReorderSuggestions: (qs) => ['inventory', 'reorder', 'suggestions', qs ?? {}],
 
   // Phase 8 — Compliance
   ifrs16Leases: (qs) => ['compliance', 'ifrs16', 'leases', qs ?? {}],

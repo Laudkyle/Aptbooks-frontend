@@ -738,6 +738,21 @@ export function SideNav() {
                   collapsed={!sidebarOpen}
                 />
               </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryWarehousesRead, PERMISSIONS.inventoryWarehousesManage]}>
+                <Item to={ROUTES.inventoryBins} icon={Folders} label="Warehouse Bins" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryReservationsRead, PERMISSIONS.inventoryReservationsManage]}>
+                <Item to={ROUTES.inventoryReservations} icon={Package} label="Reservations" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryTransfersRead, PERMISSIONS.inventoryTransfersManage, PERMISSIONS.inventoryTransfersApprove, PERMISSIONS.inventoryTransfersPost]}>
+                <Item to={ROUTES.inventoryTransfers} icon={ArrowLeftRight} label="Transfers" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryTraceabilityRead, PERMISSIONS.inventoryTraceabilityManage]}>
+                <Item to={ROUTES.inventoryTraceability} icon={ClipboardList} label="Traceability" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.inventoryReorderRead, PERMISSIONS.inventoryReorderManage]}>
+                <Item to={ROUTES.inventoryReorder} icon={BarChart4} label="Reorder" collapsed={!sidebarOpen} />
+              </PermissionGate>
             </nav>
           </PermissionGate>
 

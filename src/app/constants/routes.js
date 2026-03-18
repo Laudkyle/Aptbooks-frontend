@@ -183,6 +183,15 @@ export const ROUTES = {
   inventoryStockCountsNew: '/inventory/stock-counts/new',
   inventoryStockCountDetail: (id = ':id') => `/inventory/stock-counts/${id}`,
   inventoryReports: '/inventory/reports',
+  inventoryBins: '/inventory/bins',
+  inventoryBinsNew: '/inventory/bins/new',
+  inventoryReservations: '/inventory/reservations',
+  inventoryReservationsNew: '/inventory/reservations/new',
+  inventoryTransfers: '/inventory/transfers',
+  inventoryTransfersNew: '/inventory/transfers/new',
+  inventoryTransferDetail: (id = ':id') => `/inventory/transfers/${id}`,
+  inventoryTraceability: '/inventory/traceability',
+  inventoryReorder: '/inventory/reorder',
 
   // Phase 7 — Reporting & Planning
   planningCenters: (type = ':type') => `/planning/centers/${type}`,
