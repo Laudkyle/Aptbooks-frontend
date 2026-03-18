@@ -11,3 +11,4 @@ export function makeExportsApi(http) {
     accountActivity: async (qs) => getBlob(endpoints.accounting.exports.accountActivity(qs))
   };
 }
+

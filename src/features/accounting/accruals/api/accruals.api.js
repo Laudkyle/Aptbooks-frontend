@@ -12,3 +12,4 @@ export function makeAccrualsApi(http) {
     runDetail: async (runId) => (await http.get(endpoints.accounting.accruals.runDetail(runId))).data
   };
 }
+

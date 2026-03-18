@@ -13,6 +13,7 @@ import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Ta
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
 
+
 export default function AccrualCreate() {
   const { http } = useApi();
   const api = useMemo(() => makeAccrualsApi(http), [http]);

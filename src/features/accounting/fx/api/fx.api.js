@@ -9,3 +9,4 @@ export function makeFxApi(http) {
     effectiveRate: async (qs) => (await http.get(endpoints.accounting.fx.effectiveRate(qs))).data
   };
 }
+

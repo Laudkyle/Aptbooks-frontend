@@ -15,6 +15,7 @@ export default function BalanceByAccount() {
   const api = useMemo(() => makeBalancesApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
 
+  
   const accountsQ = useQuery({ queryKey: ['coa', 'active'], queryFn: () => coaApi.list({ includeArchived: 'false' }), staleTime: 10_000 });
 
   const [accountId, setAccountId] = useState('');

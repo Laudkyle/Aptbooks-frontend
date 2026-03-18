@@ -9,3 +9,4 @@ export function makeStatementsApi(http) {
     changesInEquity: async (qs) => (await http.get(endpoints.accounting.statements.changesInEquity(qs))).data
   };
 }
+

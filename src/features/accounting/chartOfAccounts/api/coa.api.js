@@ -9,3 +9,4 @@ export function makeCoaApi(http) {
     archive: async (id) => (await http.post(endpoints.accounting.accounts.archive(id))).data
   };
 }
+

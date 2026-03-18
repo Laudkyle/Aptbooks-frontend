@@ -17,6 +17,7 @@ function formatCurrency(amount, currency = 'GHS') {
     : `${currency} ${formattedAmount}`;
 }
 
+
 function formatDate(dateString) {
   if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString('en-US', {

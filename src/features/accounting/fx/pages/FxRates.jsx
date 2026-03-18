@@ -17,6 +17,7 @@ export default function FxRates() {
 
   const [tab, setTab] = useState('types');
 
+  
   const typesQ = useQuery({ 
     queryKey: ['fx-rate-types'], 
     queryFn: () => api.listRateTypes?.() || Promise.resolve([]), 

@@ -13,6 +13,7 @@ import { formatMoney } from '../../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../../shared/utils/formatDate.js';
 import { Calendar, Hash, CheckCircle2, XCircle, Clock, ChevronLeft, RefreshCw } from 'lucide-react';
 
+
 export default function JournalDetail() {
   const { id } = useParams();
   const { http } = useApi();

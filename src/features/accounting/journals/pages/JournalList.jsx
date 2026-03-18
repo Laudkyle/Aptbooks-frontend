@@ -14,6 +14,7 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
 
+
 export default function JournalList() {
   const { http } = useApi();
   const api = useMemo(() => makeJournalsApi(http), [http]);

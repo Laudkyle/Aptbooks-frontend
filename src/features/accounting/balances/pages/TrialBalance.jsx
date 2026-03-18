@@ -14,6 +14,7 @@ export default function TrialBalance() {
   const api = useMemo(() => makeBalancesApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   
+  
   const periodsQ = useQuery({ 
     queryKey: ['periods'], 
     queryFn: periodsApi.list, 

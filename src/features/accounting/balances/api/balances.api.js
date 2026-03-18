@@ -7,3 +7,4 @@ export function makeBalancesApi(http) {
     accountActivity: async (qs) => (await http.get(endpoints.accounting.balances.accountActivity(qs))).data
   };
 }
+

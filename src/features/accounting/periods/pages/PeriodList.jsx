@@ -19,6 +19,7 @@ export default function PeriodList() {
   const qc = useQueryClient();
   const toast = useToast();
 
+  
   const q = useQuery({ queryKey: ['periods'], queryFn: api.list, staleTime: 10_000 });
 
   const [createOpen, setCreateOpen] = useState(false);

@@ -15,6 +15,7 @@ export default function PnL() {
   const api = useMemo(() => makeStatementsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   
+  
   const periodsQ = useQuery({ 
     queryKey: ['periods'], 
     queryFn: periodsApi.list, 

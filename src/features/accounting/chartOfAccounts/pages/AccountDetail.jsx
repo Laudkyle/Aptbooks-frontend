@@ -17,6 +17,7 @@ export default function AccountDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
+  
 
   const q = useQuery({
     queryKey: ['coa', id],

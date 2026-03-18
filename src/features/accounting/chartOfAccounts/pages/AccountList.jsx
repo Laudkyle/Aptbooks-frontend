@@ -15,6 +15,7 @@ import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
 
+
 const ACCOUNT_TYPES = [
   { value: '', label: 'All types' },
   { value: 'ASSET', label: 'Asset' },

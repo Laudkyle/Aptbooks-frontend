@@ -15,6 +15,7 @@ export function makePeriodsApi(http) {
       const response = await http.post(endpoints.accounting.periods.create, body);
       return response.data;
     },
+    
     closePreview: async (id) => {
       const response = await http.get(endpoints.accounting.periods.closePreview(id));
       return response.data;

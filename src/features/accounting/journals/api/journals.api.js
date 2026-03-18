@@ -19,3 +19,4 @@ export function makeJournalsApi(http) {
     void: async (id, body) => (await http.post(endpoints.accounting.journals.void(id), body)).data
   };
 }
+

@@ -18,6 +18,7 @@ export default function PeriodClose() {
   const toast = useToast();
   const perms = usePermissions();
 
+  
   const preview = useQuery({
     queryKey: ['period-close-preview', id],
     queryFn: () => api.closePreview(id),
