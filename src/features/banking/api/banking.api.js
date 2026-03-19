@@ -92,6 +92,110 @@ export function makeBankingApi(http) {
       return http.get(`/modules/banking/reconciliations/${id}/diff`).then((r) => r.data);
     },
 
+
+    // Treasury — Phase 3
+    listPaymentRuns(params) {
+      return http.get(`/modules/banking/treasury/payment-runs${qs(params)}`).then((r) => r.data);
+    },
+    getPaymentRun(id) {
+      return http.get(`/modules/banking/treasury/payment-runs/${id}`).then((r) => r.data);
+    },
+    createPaymentRun(payload) {
+      return http.post('/modules/banking/treasury/payment-runs', payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    addPaymentRunLines(id, payload) {
+      return http.post(`/modules/banking/treasury/payment-runs/${id}/lines`, payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    submitPaymentRun(id) {
+      return http.post(`/modules/banking/treasury/payment-runs/${id}/submit`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    approvePaymentRun(id) {
+      return http.post(`/modules/banking/treasury/payment-runs/${id}/approve`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    executePaymentRun(id) {
+      return http.post(`/modules/banking/treasury/payment-runs/${id}/execute`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    cancelPaymentRun(id, payload) {
+      return http.post(`/modules/banking/treasury/payment-runs/${id}/cancel`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+
+    listBankTransfers(params) {
+      return http.get(`/modules/banking/treasury/bank-transfers${qs(params)}`).then((r) => r.data);
+    },
+    getBankTransfer(id) {
+      return http.get(`/modules/banking/treasury/bank-transfers/${id}`).then((r) => r.data);
+    },
+    createBankTransfer(payload) {
+      return http.post('/modules/banking/treasury/bank-transfers', payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    submitBankTransfer(id) {
+      return http.post(`/modules/banking/treasury/bank-transfers/${id}/submit`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    approveBankTransfer(id) {
+      return http.post(`/modules/banking/treasury/bank-transfers/${id}/approve`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    postBankTransfer(id) {
+      return http.post(`/modules/banking/treasury/bank-transfers/${id}/post`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    cancelBankTransfer(id, payload) {
+      return http.post(`/modules/banking/treasury/bank-transfers/${id}/cancel`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+
+    listApprovalBatches() {
+      return http.get('/modules/banking/treasury/approval-batches').then((r) => r.data);
+    },
+    getApprovalBatch(id) {
+      return http.get(`/modules/banking/treasury/approval-batches/${id}`).then((r) => r.data);
+    },
+    createApprovalBatch(payload) {
+      return http.post('/modules/banking/treasury/approval-batches', payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    addApprovalBatchItems(id, payload) {
+      return http.post(`/modules/banking/treasury/approval-batches/${id}/items`, payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    submitApprovalBatch(id) {
+      return http.post(`/modules/banking/treasury/approval-batches/${id}/submit`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    approveApprovalBatch(id) {
+      return http.post(`/modules/banking/treasury/approval-batches/${id}/approve`, {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    cancelApprovalBatch(id, payload) {
+      return http.post(`/modules/banking/treasury/approval-batches/${id}/cancel`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+
+    listCheques(params) {
+      return http.get(`/modules/banking/treasury/cheques${qs(params)}`).then((r) => r.data);
+    },
+    getCheque(id) {
+      return http.get(`/modules/banking/treasury/cheques/${id}`).then((r) => r.data);
+    },
+    createCheque(payload) {
+      return http.post('/modules/banking/treasury/cheques', payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    issueCheque(id, payload) {
+      return http.post(`/modules/banking/treasury/cheques/${id}/issue`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    clearCheque(id, payload) {
+      return http.post(`/modules/banking/treasury/cheques/${id}/clear`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    voidCheque(id, payload) {
+      return http.post(`/modules/banking/treasury/cheques/${id}/void`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+    bounceCheque(id, payload) {
+      return http.post(`/modules/banking/treasury/cheques/${id}/bounce`, payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+    },
+
+    getCashForecast(params) {
+      return http.get(`/modules/banking/treasury/cash-forecast${qs(params)}`).then((r) => r.data);
+    },
+    listCashForecastSnapshots() {
+      return http.get('/modules/banking/treasury/cash-forecast/snapshots').then((r) => r.data);
+    },
+
+    getTreasuryDashboard() {
+      return http.get('/modules/banking/treasury/dashboard').then((r) => r.data);
+    },
+
     // Reporting (banking)
     statementStatus(qsParams) {
       return http.get(`/reporting/banking/statement-status${qs(qsParams)}`).then((r) => r.data);

@@ -106,6 +106,36 @@ const BankCashbookPage = lazy(() =>
 const BankReconciliationsPage = lazy(() =>
   import("../../features/banking/pages/ReconciliationsPage.jsx")
 );
+const TreasuryOverview = lazy(() =>
+  import("../../features/banking/pages/TreasuryOverview.jsx")
+);
+const TreasuryDashboardPage = lazy(() =>
+  import("../../features/banking/pages/TreasuryDashboardPage.jsx")
+);
+const PaymentRunsPage = lazy(() =>
+  import("../../features/banking/pages/PaymentRunsPage.jsx")
+);
+const PaymentRunDetailPage = lazy(() =>
+  import("../../features/banking/pages/PaymentRunDetailPage.jsx")
+);
+const BankTransfersPage = lazy(() =>
+  import("../../features/banking/pages/BankTransfersPage.jsx")
+);
+const BankTransferDetailPage = lazy(() =>
+  import("../../features/banking/pages/BankTransferDetailPage.jsx")
+);
+const ApprovalBatchesPage = lazy(() =>
+  import("../../features/banking/pages/ApprovalBatchesPage.jsx")
+);
+const ApprovalBatchDetailPage = lazy(() =>
+  import("../../features/banking/pages/ApprovalBatchDetailPage.jsx")
+);
+const ChequesPage = lazy(() =>
+  import("../../features/banking/pages/ChequesPage.jsx")
+);
+const CashForecastPage = lazy(() =>
+  import("../../features/banking/pages/CashForecastPage.jsx")
+);
 
 // Phase 8 — Compliance
 const ComplianceOverview = lazy(() =>
@@ -2181,6 +2211,106 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.bankingReconciliationsRead]}>
                 <Lazy>
                   <BankReconciliationsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.treasury,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <TreasuryOverview />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.treasuryDashboard,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <TreasuryDashboardPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.paymentRuns,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <PaymentRunsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.paymentRunDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <PaymentRunDetailPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.bankTransfers,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <BankTransfersPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.bankTransferDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <BankTransferDetailPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.paymentApprovalBatches,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <ApprovalBatchesPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.paymentApprovalBatchDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <ApprovalBatchDetailPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.cheques,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <ChequesPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.cashForecast,
+            element: (
+              <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
+                <Lazy>
+                  <CashForecastPage />
                 </Lazy>
               </RequirePermission>
             ),

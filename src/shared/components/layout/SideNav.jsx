@@ -962,6 +962,35 @@ export function SideNav() {
 
         <div className="mt-6">
           <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
+            TREASURY
+          </div>
+          <nav className="mt-2 space-y-1">
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.treasury} icon={Wallet} label="Overview" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.treasuryDashboard} icon={PieChart} label="Dashboard" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.paymentRuns} icon={HandCoins} label="Payment Runs" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.bankTransfers} icon={ArrowLeftRight} label="Bank Transfers" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.paymentApprovalBatches} icon={FileStack} label="Approval Batches" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.cheques} icon={Receipt} label="Cheques" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.bankingTreasuryRead]} fallback={null}>
+              <Item to={ROUTES.cashForecast} icon={LineChart} label="Cash Forecast" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </div>
+
+        <div className="mt-6">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             COMPLIANCE
           </div>
           <nav className="mt-2 space-y-1">

@@ -13,6 +13,7 @@ export const routeMeta = {
   [ROUTES.adminDimensionSecurity]: { title: 'Dimension Security', breadcrumbs: ['Admin', 'Dimension Security'] },
   [ROUTES.adminApiKeys]: { title: 'API Keys', breadcrumbs: ['Admin', 'API Keys'] },
   [ROUTES.utilitiesHealth]: { title: 'Health', breadcrumbs: ['Utilities', 'Health'] },
+
   [ROUTES.quotations]: { title: 'Quotations', breadcrumbs: ['Operations', 'Transactions', 'Quotations'] },
   [ROUTES.salesOrders]: { title: 'Sales Orders', breadcrumbs: ['Operations', 'Transactions', 'Sales Orders'] },
   [ROUTES.purchaseRequisitions]: { title: 'Purchase Requisitions', breadcrumbs: ['Operations', 'Transactions', 'Purchase Requisitions'] },
@@ -22,5 +23,13 @@ export const routeMeta = {
   [ROUTES.pettyCash]: { title: 'Petty Cash', breadcrumbs: ['Operations', 'Transactions', 'Petty Cash'] },
   [ROUTES.advances]: { title: 'Advances', breadcrumbs: ['Operations', 'Transactions', 'Advances'] },
   [ROUTES.returns]: { title: 'Returns', breadcrumbs: ['Operations', 'Transactions', 'Returns'] },
-  [ROUTES.refunds]: { title: 'Refunds', breadcrumbs: ['Operations', 'Transactions', 'Refunds'] }
+  [ROUTES.refunds]: { title: 'Refunds', breadcrumbs: ['Operations', 'Transactions', 'Refunds'] },
+
+  [ROUTES.treasury]: { title: 'Treasury', breadcrumbs: ['Banking', 'Treasury'] },
+  [ROUTES.treasuryDashboard]: { title: 'Treasury Dashboard', breadcrumbs: ['Banking', 'Treasury', 'Dashboard'] },
+  [ROUTES.paymentRuns]: { title: 'Payment Runs', breadcrumbs: ['Banking', 'Treasury', 'Payment Runs'] },
+  [ROUTES.bankTransfers]: { title: 'Bank Transfers', breadcrumbs: ['Banking', 'Treasury', 'Bank Transfers'] },
+  [ROUTES.paymentApprovalBatches]: { title: 'Approval Batches', breadcrumbs: ['Banking', 'Treasury', 'Approval Batches'] },
+  [ROUTES.cheques]: { title: 'Cheques', breadcrumbs: ['Banking', 'Treasury', 'Cheques'] },
+  [ROUTES.cashForecast]: { title: 'Cash Forecast', breadcrumbs: ['Banking', 'Treasury', 'Cash Forecast'] }
 };

@@ -217,6 +217,16 @@ export const ROUTES = {
   bankingReconciliations: '/banking/reconciliations',
   bankingReconciliationDetail: (id = ':id') => `/banking/reconciliations/${id}`,
   bankingStatementStatusReport: '/banking/reports/statement-status',
+  treasury: '/banking/treasury',
+  treasuryDashboard: '/banking/treasury/dashboard',
+  paymentRuns: '/banking/treasury/payment-runs',
+  paymentRunDetail: (id = ':id') => `/banking/treasury/payment-runs/${id}`,
+  bankTransfers: '/banking/treasury/bank-transfers',
+  bankTransferDetail: (id = ':id') => `/banking/treasury/bank-transfers/${id}`,
+  paymentApprovalBatches: '/banking/treasury/approval-batches',
+  paymentApprovalBatchDetail: (id = ':id') => `/banking/treasury/approval-batches/${id}`,
+  cheques: '/banking/treasury/cheques',
+  cashForecast: '/banking/treasury/cash-forecast',
 
   // Phase 8 — Compliance
   compliance: '/compliance',

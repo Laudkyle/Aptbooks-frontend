@@ -203,6 +203,10 @@ bankingCashbookRead: 'banking.cashbook.read',
 bankingReconciliationsRead: 'banking.reconciliations.read',
 bankingReconciliationRun: 'banking.reconciliation.run',
 reportingBankingRead: 'reporting.banking.read',
+bankingTreasuryRead: 'banking.treasury.read',
+bankingTreasuryManage: 'banking.treasury.manage',
+bankingTreasuryApprove: 'banking.treasury.approve',
+bankingTreasuryExecute: 'banking.treasury.execute',
 
 // Phase 8 — Compliance
 complianceIfrs16Read: 'compliance.ifrs16.read',

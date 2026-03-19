@@ -108,6 +108,12 @@ export default function BankingOverview() {
             to={ROUTES.bankingStatementStatusReport}
             tag="Reporting"
           />
+          <Tile
+            title="Treasury"
+            description="Payment runs, bank transfers, approval batches, cheques, and cash forecasting"
+            to={ROUTES.treasury}
+            tag="Control"
+          />
         </div>
 
         {/* Workflow Tips Card */}
