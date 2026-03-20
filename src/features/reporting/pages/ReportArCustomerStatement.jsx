@@ -6,7 +6,10 @@ import { makeReportingApi } from '../api/reporting.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function formatCurrency(value) {
   if (value == null || value === '') return '—';
@@ -60,6 +63,7 @@ function parseStatementData(data) {
 export default function ReportArCustomerStatement() {
   const { http } = useApi();
   const api = useMemo(() => makeReportingApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   
   const [customerId, setCustomerId] = useState('');
   const [from, setFrom] = useState('');
@@ -83,13 +87,17 @@ export default function ReportArCustomerStatement() {
     staleTime: 60_000
   });
 
+  const customersQ = useQuery({ queryKey: ['partners', 'customers'], queryFn: () => partnersApi.list({ type: 'customer' }), staleTime: 60_000 });
+  const customers = Array.isArray(customersQ.data) ? customersQ.data : customersQ.data?.data ?? [];
+  const customerOptions = [NONE_OPTION, ...toOptions(customers, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || c.id })];
+
   const statement = parseStatementData(data);
 
   const validateAndRun = () => {
     const newErrors = {};
 
     if (!customerId.trim()) {
-      newErrors.customerId = 'Customer ID is required';
+      newErrors.customerId = 'Customer is required';
     }
 
     if (from && !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
@@ -182,8 +190,8 @@ export default function ReportArCustomerStatement() {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Input
-                label="Customer ID"
+              <Select
+                label="Customer"
                 value={customerId}
                 onChange={(e) => {
                   setCustomerId(e.target.value);
@@ -191,12 +199,12 @@ export default function ReportArCustomerStatement() {
                     setErrors(prev => ({ ...prev, customerId: undefined }));
                   }
                 }}
+                options={customerOptions}
                 error={errors.customerId}
-                placeholder="Enter customer ID"
                 required
               />
               <p className="mt-1.5 text-xs text-slate-600">
-                Customer identifier (required)
+                Customer selection (required)
               </p>
             </div>
 

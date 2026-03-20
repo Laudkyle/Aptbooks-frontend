@@ -6,8 +6,10 @@ import { makeReportingApi } from '../api/reporting.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function rowsFrom(data) {
   if (!data) return [];
@@ -87,6 +89,7 @@ function calculateSummary(rows) {
 export default function ReportArOpenItems() {
   const { http } = useApi();
   const api = useMemo(() => makeReportingApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   
   const [customerId, setCustomerId] = useState('');
   const [errors, setErrors] = useState({});
@@ -102,6 +105,10 @@ export default function ReportArOpenItems() {
     enabled: false, // Don't auto-run on mount
     staleTime: 60_000
   });
+
+  const customersQ = useQuery({ queryKey: ['partners', 'customers'], queryFn: () => partnersApi.list({ type: 'customer' }), staleTime: 60_000 });
+  const customers = rowsFrom(customersQ.data);
+  const customerOptions = [NONE_OPTION, ...toOptions(customers, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || c.id })];
 
   const rows = rowsFrom(data);
   const summary = calculateSummary(rows);
@@ -176,7 +183,7 @@ export default function ReportArOpenItems() {
     const newErrors = {};
 
     if (!customerId.trim()) {
-      newErrors.customerId = 'Customer ID is required';
+      newErrors.customerId = 'Customer is required';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -327,8 +334,8 @@ export default function ReportArOpenItems() {
 
           <div className="flex items-end gap-3">
             <div className="flex-1 max-w-md">
-              <Input
-                label="Customer ID"
+              <Select
+                label="Customer"
                 value={customerId}
                 onChange={(e) => {
                   setCustomerId(e.target.value);
@@ -336,13 +343,11 @@ export default function ReportArOpenItems() {
                     setErrors(prev => ({ ...prev, customerId: undefined }));
                   }
                 }}
-                onKeyPress={handleKeyPress}
-                error={errors.customerId}
-                placeholder="Enter customer ID"
+                options={customerOptions}
                 required
               />
               <p className="mt-1.5 text-xs text-slate-600">
-                Enter the customer ID to view their open receivable items
+                Select the customer to view their open receivable items
               </p>
             </div>
 
@@ -365,7 +370,7 @@ export default function ReportArOpenItems() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm text-blue-800">
-                    Showing open items for customer ID: <span className="font-semibold">{customerId}</span>
+                    Showing open items for customer: <span className="font-semibold">{customerId}</span>
                   </p>
                 </div>
               </div>
@@ -381,7 +386,7 @@ export default function ReportArOpenItems() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Enter Customer ID to Begin</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Customer to Begin</h3>
             <p className="text-sm text-slate-600 mb-6">
               Enter a customer ID above and click "Run Report" to view their open receivable items
             </p>
@@ -400,7 +405,7 @@ export default function ReportArOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Customer ID <span className="font-mono font-semibold">{customerId}</span> has no outstanding receivable items. All invoices are paid in full.
+              Customer <span className="font-mono font-semibold">{customerId}</span> has no outstanding receivable items. All invoices are paid in full.
             </p>
             <Button
               variant="secondary"

@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
+import { makeUsersApi } from '../../users/api/users.api.js';
+import { makeRolesApi } from '../../roles/api/roles.api.js';
 import { makeDimensionSecurityApi } from '../api/dimensionSecurity.api.js';
 import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
@@ -14,6 +16,8 @@ import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 export default function DimensionRules() {
   const { http } = useApi();
   const api = useMemo(() => makeDimensionSecurityApi(http), [http]);
+  const usersApi = useMemo(() => makeUsersApi(http), [http]);
+  const rolesApi = useMemo(() => makeRolesApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
 
@@ -24,6 +28,18 @@ export default function DimensionRules() {
     queryKey: ['dimensionRules', page, pageSize],
     queryFn: () => api.list({ limit: pageSize, offset: (page - 1) * pageSize }),
     staleTime: 30_000
+  });
+
+  const usersQ = useQuery({ 
+    queryKey: ['users', 'dimension-rules'], 
+    queryFn: () => usersApi.list(), 
+    staleTime: 60_000 
+  });
+  
+  const rolesQ = useQuery({ 
+    queryKey: ['roles', 'dimension-rules'], 
+    queryFn: () => rolesApi.list(), 
+    staleTime: 60_000 
   });
 
   const rows = q.data?.data ?? [];
@@ -105,7 +121,7 @@ export default function DimensionRules() {
             </svg>
             <h3 className="text-lg font-semibold text-red-900 mb-2">Failed to Load Rules</h3>
             <p className="text-sm text-red-700 mb-4">{q.error?.message || 'An error occurred'}</p>
-            <Button variant="secondary" onClick={() => qc.invalidateQueries({ queryKey: ['dimensionRules'] })}>
+            <Button variant="secondary" onClick={() => q.refetch()}>
               Try Again
             </Button>
           </div>
@@ -270,13 +286,15 @@ export default function DimensionRules() {
           api={api}
           qc={qc}
           toast={toast}
+          users={usersQ.data?.data || []}
+          roles={rolesQ.data?.data || []}
         />
       )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <Modal
-          isOpen={true}
+          open={true}
           onClose={() => setDeleteConfirm(null)}
           title="Delete Security Rule"
         >
@@ -331,7 +349,7 @@ export default function DimensionRules() {
   );
 }
 
-function RuleFormModal({ rule, onClose, api, qc, toast }) {
+function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }) {
   const isEditing = !!rule;
 
   const [form, setForm] = useState({
@@ -348,7 +366,7 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
   const [errors, setErrors] = useState({});
 
   // Parse existing rule JSON if editing
-  React.useEffect(() => {
+  useEffect(() => {
     if (rule) {
       const ruleJson = rule.rule_json || rule.ruleJson || {};
       setForm(prev => ({
@@ -363,14 +381,8 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!form.principalId.trim()) {
+    if (!form.principalId?.trim()) {
       newErrors.principalId = 'Principal ID is required';
-    }
-
-    // Basic UUID validation
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (form.principalId && !uuidRegex.test(form.principalId)) {
-      newErrors.principalId = 'Please enter a valid UUID';
     }
 
     setErrors(newErrors);
@@ -392,7 +404,7 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
           locations: form.locations.filter(Boolean),
           costCenters: form.costCenters.filter(Boolean)
         },
-        note: form.note.trim() || null
+        note: form.note?.trim() || null
       };
 
       if (isEditing) {
@@ -419,9 +431,20 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
     }
   };
 
+  // Prepare options for select
+  const principalOptions = form.principalType === 'user'
+    ? users.map(u => ({ 
+        value: u.id, 
+        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || u.email || u.id 
+      }))
+    : roles.map(r => ({ 
+        value: r.id, 
+        label: r.name || r.code || r.id 
+      }));
+
   return (
     <Modal
-      isOpen={true}
+      open={true}
       onClose={onClose}
       title={isEditing ? 'Edit Security Rule' : 'Create Security Rule'}
     >
@@ -448,16 +471,19 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
             </div>
 
             <div>
-              <Input
-                label="Principal ID"
+              <Select
+                label="Principal"
                 value={form.principalId}
                 onChange={(e) => handleInputChange('principalId', e.target.value)}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                options={[
+                  { value: '', label: `Select ${form.principalType}...` },
+                  ...principalOptions
+                ]}
                 error={errors.principalId}
                 required
               />
               <p className="mt-1.5 text-xs text-slate-600">
-                Enter the UUID of the {form.principalType}
+                Choose the {form.principalType} this rule applies to
               </p>
             </div>
           </div>
@@ -571,7 +597,7 @@ function RuleFormModal({ rule, onClose, api, qc, toast }) {
   );
 }
 
-function DimensionListInput({ label, values, onChange, placeholder }) {
+function DimensionListInput({ label, values = [], onChange, placeholder }) {
   const [inputValue, setInputValue] = useState('');
 
   const handleAdd = () => {
@@ -621,7 +647,7 @@ function DimensionListInput({ label, values, onChange, placeholder }) {
           <div className="flex flex-wrap gap-2">
             {values.map((value, index) => (
               <span
-                key={index}
+                key={`${value}-${index}`}
                 className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 text-sm rounded-full"
               >
                 <span className="font-mono text-xs">{value}</span>

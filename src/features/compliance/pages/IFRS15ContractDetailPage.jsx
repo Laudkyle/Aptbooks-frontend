@@ -29,6 +29,8 @@ import {
 
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { makeIfrs15Api } from "../api/ifrs15.api.js";
+import { makePeriodsApi } from "../../accounting/periods/api/periods.api.js";
+import { toOptions, NONE_OPTION } from "../../../shared/utils/options.js";
 
 // If you already have these in shared utils, import them instead.
 import {formatDate} from "../../../shared/utils/formatDate.js";
@@ -37,6 +39,14 @@ import {formatMoney} from "../../../shared/utils/formatMoney.js";
 // ---------------------------
 // Helpers
 // ---------------------------
+function rowsFrom(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.items)) return data.items;
+  return [];
+}
+
 function statusBadge(status) {
   const s = (status ?? "").toLowerCase();
   if (s === "draft") return <Badge tone="warning">Draft</Badge>;
@@ -58,7 +68,9 @@ export default function IFRS15ContractDetailPage() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeIfrs15Api(http), [http]);
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const qc = useQueryClient();
+  const periodsQ = useQuery({ queryKey: ["periods", "ifrs15-post-revenue"], queryFn: () => periodsApi.list({ limit: 500, offset: 0 }), staleTime: 60_000 });
   const toast = useToast();
 
   // ---------------------------
@@ -1296,15 +1308,14 @@ export default function IFRS15ContractDetailPage() {
       >
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              label="Period ID"
+            <Select
+              label="Period"
               value={postForm.period_id}
               onChange={(e) => setPostForm((s) => ({ ...s, period_id: e.target.value }))}
-              placeholder="e.g., 2026-01"
+              options={periodOptions}
               required
               error={formErrors.period_id}
-              helperText="Accounting period identifier"
-              leftIcon={Calendar}
+              helperText="Accounting period"
             />
             <Input
               label="Entry Date (Optional)"

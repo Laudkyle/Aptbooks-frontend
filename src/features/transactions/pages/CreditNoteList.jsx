@@ -11,14 +11,17 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function CreditNoteList() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCreditNotesApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const toast = useToast();
   
   // Filter state
@@ -30,6 +33,10 @@ export default function CreditNoteList() {
     [customerId]
   );
   
+  const customersQ = useQuery({ queryKey: ['partners', 'customers'], queryFn: () => partnersApi.list({ type: 'customer' }), staleTime: 60_000 });
+  const customerRows = Array.isArray(customersQ.data) ? customersQ.data : customersQ.data?.data ?? [];
+  const customerOptions = [NONE_OPTION, ...toOptions(customerRows, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || c.id })];
+
   // Fetch credit notes
   const { 
     data, 
@@ -212,12 +219,12 @@ export default function CreditNoteList() {
         <FilterBar
           left={
             <div className="flex items-center gap-3">
-              <Input 
-                label="Customer ID" 
+              <Select 
+                label="Customer" 
                 value={customerId} 
                 onChange={handleCustomerIdChange}
-                placeholder="Filter by customer ID..."
-                aria-label="Filter credit notes by customer ID"
+                options={customerOptions}
+                aria-label="Filter credit notes by customer"
                 className="min-w-[240px]"
               />
               {customerId && (

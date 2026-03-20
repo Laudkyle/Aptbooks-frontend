@@ -14,6 +14,8 @@ import { makeOpsDocsApi } from '../api/opsDocs.api.js';
 import { makePartnersApi } from '../../business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
+import { makeUsersApi } from '../../foundation/users/api/users.api.js';
+import { endpoints } from '../../../shared/api/endpoints.js';
 import { getPhase1ModuleConfig } from './moduleConfigs.js';
 import { makeEmptyForm, sanitizePayload, toCurrency } from './helpers.js';
 
@@ -35,6 +37,7 @@ export default function OperationalDocCreate({ moduleKey }) {
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  const usersApi = useMemo(() => makeUsersApi(http), [http]);
   
   const [form, setForm] = useState(() => makeEmptyForm(config));
 
@@ -55,9 +58,40 @@ export default function OperationalDocCreate({ moduleKey }) {
     queryFn: () => coaApi.list({ includeArchived: false })
   });
 
+  const usersQuery = useQuery({
+    queryKey: ['users', 'phase1'],
+    queryFn: () => usersApi.list(),
+    enabled: config.key === 'advances'
+  });
+
+  const sourceDocsQuery = useQuery({
+    queryKey: ['transactions', 'source-docs', config.key, form.returnType, form.refundType],
+    enabled: config.requireSourceDocument,
+    queryFn: async () => {
+      if (config.key === 'goodsReceipts') {
+        const srcApi = makeOpsDocsApi(http, getPhase1ModuleConfig('purchaseOrders').endpoints);
+        return srcApi.list({ limit: 200, offset: 0 });
+      }
+      if (config.key === 'returns') {
+        const sourceKey = form.returnType === 'purchase_return' ? 'purchaseOrders' : 'salesOrders';
+        const srcApi = makeOpsDocsApi(http, getPhase1ModuleConfig(sourceKey).endpoints);
+        return srcApi.list({ limit: 200, offset: 0 });
+      }
+      if (config.key === 'refunds') {
+        const sourceKey = form.refundType === 'vendor_refund' ? 'vendorPayments' : 'customerReceipts';
+        const endpointsMap = form.refundType === 'vendor_refund' ? endpoints.modules.transactions.vendorPayments : endpoints.modules.transactions.customerReceipts;
+        const srcApi = makeOpsDocsApi(http, endpointsMap);
+        return srcApi.list({ limit: 200, offset: 0 });
+      }
+      return [];
+    }
+  });
+
   const accounts = Array.isArray(accountsQuery.data) ? accountsQuery.data : accountsQuery.data?.data ?? [];
   const partners = Array.isArray(partnersQuery.data) ? partnersQuery.data : partnersQuery.data?.data ?? [];
   const periods = Array.isArray(periodsQuery.data) ? periodsQuery.data : periodsQuery.data?.data ?? [];
+  const users = Array.isArray(usersQuery.data) ? usersQuery.data : usersQuery.data?.data ?? [];
+  const sourceDocs = Array.isArray(sourceDocsQuery.data) ? sourceDocsQuery.data : sourceDocsQuery.data?.data ?? [];
   
   // Filter partners by role if specified
   const filteredPartners = config.partnerRole 
@@ -132,10 +166,9 @@ export default function OperationalDocCreate({ moduleKey }) {
     label: a.code ? `${a.code} - ${a.name || a.accountName}` : (a.name || a.accountName || a.id)
   }));
 
-  const periodOptions = periods.map((p) => ({ 
-    value: p.id, 
-    label: p.name || p.code || p.id 
-  }));
+  const periodOptions = periods.map((p) => ({ value: p.id, label: p.name || p.code || p.id }));
+  const userOptions = users.map((u) => ({ value: u.id, label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || u.email || u.id }));
+  const sourceDocumentOptions = sourceDocs.map((d) => ({ value: d.id, label: [d.code || d.reference, d.memo || d.description].filter(Boolean).join(' — ') || d.id }));
 
   const selectedPartner = filteredPartners.find(p => p.id === form.partnerId);
   const selectedPeriod = periods.find(p => p.id === form.periodId);
@@ -410,10 +443,10 @@ export default function OperationalDocCreate({ moduleKey }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Employee ID <span className="text-red-500">*</span>
                     </label>
-                    <Input
+                    <Select
                       value={form.employeeId}
                       onChange={(e) => updateField('employeeId', e.target.value)}
-                      placeholder="Required for staff advances"
+                      options={[{ value: '', label: 'Select employee...' }, ...userOptions]}
                     />
                   </div>
                 )}
@@ -463,10 +496,10 @@ export default function OperationalDocCreate({ moduleKey }) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Source Document ID
                     </label>
-                    <Input
+                    <Select
                       value={form.sourceDocumentId}
                       onChange={(e) => updateField('sourceDocumentId', e.target.value)}
-                      placeholder="UUID of source document"
+                      options={[{ value: '', label: 'Select source document...' }, ...sourceDocumentOptions]}
                     />
                   </div>
                 )}

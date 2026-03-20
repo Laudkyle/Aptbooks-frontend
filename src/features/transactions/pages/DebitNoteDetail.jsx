@@ -7,6 +7,7 @@ import { ArrowLeft, FileMinus2, Send, Trash2, AlertCircle, CheckCircle2, FileTex
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeDebitNotesApi } from '../api/debitNotes.api.js';
+import { makeBillsApi } from '../api/bills.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
@@ -18,6 +19,7 @@ import { resolveTransactionActions } from '../workflow/resolveTransactionActions
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -34,6 +36,7 @@ export default function DebitNoteDetail() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeDebitNotesApi(http), [http]);
+  const billsApi = useMemo(() => makeBillsApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
 
@@ -52,6 +55,10 @@ export default function DebitNoteDetail() {
   });
 
   // Extract debit note data - data is already the debit note object
+  const billsQ = useQuery({ queryKey: ['transactions', 'bills', 'select'], queryFn: () => billsApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
+  const billRows = Array.isArray(billsQ.data) ? billsQ.data : billsQ.data?.data ?? [];
+  const billOptions = [{ value: '', label: 'Select bill...' }, ...billRows.map((bill) => ({ value: bill.id, label: [bill.code || bill.reference, bill.vendor_name || bill.partner_name].filter(Boolean).join(' — ') || bill.id }))];
+
   const note = data?.data ?? data;
   
   // Extract applications - use applications array from your data structure
@@ -771,13 +778,13 @@ export default function DebitNoteDetail() {
             </div>
           </div>
 
-          <Input 
-            label="Bill ID" 
+          <Select 
+            label="Bill" 
             value={applyBody.bill_id} 
             onChange={(e) => handleApplyBodyChange('bill_id', e.target.value)}
-            placeholder="Enter bill UUID..."
+            options={billOptions}
             required
-            aria-label="Bill ID to apply credit to"
+            aria-label="Bill to apply credit to"
           />
           
           <Input

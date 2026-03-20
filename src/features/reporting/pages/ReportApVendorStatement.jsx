@@ -6,7 +6,10 @@ import { makeReportingApi } from '../api/reporting.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function formatCurrency(value) {
   if (value == null || value === '') return '—';
@@ -60,6 +63,7 @@ function parseStatementData(data) {
 export default function ReportApVendorStatement() {
   const { http } = useApi();
   const api = useMemo(() => makeReportingApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   
   const [vendorId, setVendorId] = useState('');
   const [from, setFrom] = useState('');
@@ -80,13 +84,17 @@ export default function ReportApVendorStatement() {
     staleTime: 60_000
   });
 
+  const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
+  const vendors = Array.isArray(vendorsQ.data) ? vendorsQ.data : vendorsQ.data?.data ?? [];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendors, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
+
   const statement = parseStatementData(data);
 
   const validateAndRun = () => {
     const newErrors = {};
 
     if (!vendorId.trim()) {
-      newErrors.vendorId = 'Vendor ID is required';
+      newErrors.vendorId = 'Vendor is required';
     }
 
     if (from && !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
@@ -174,8 +182,8 @@ export default function ReportApVendorStatement() {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Input
-                label="Vendor ID"
+              <Select
+                label="Vendor"
                 value={vendorId}
                 onChange={(e) => {
                   setVendorId(e.target.value);
@@ -183,12 +191,12 @@ export default function ReportApVendorStatement() {
                     setErrors(prev => ({ ...prev, vendorId: undefined }));
                   }
                 }}
+                options={vendorOptions}
                 error={errors.vendorId}
-                placeholder="Enter vendor ID"
                 required
               />
               <p className="mt-1.5 text-xs text-slate-600">
-                Vendor identifier (required)
+                Vendor selection (required)
               </p>
             </div>
 

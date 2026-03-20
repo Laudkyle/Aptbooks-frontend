@@ -29,6 +29,7 @@ export default function DebitNoteList() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeDebitNotesApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const toast = useToast();
 
   // Filter state
@@ -39,6 +40,10 @@ export default function DebitNoteList() {
     () => (vendorId.trim() ? { vendor_id: vendorId.trim() } : {}),
     [vendorId],
   );
+
+  const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
+  const vendorRows = Array.isArray(vendorsQ.data) ? vendorsQ.data : vendorsQ.data?.data ?? [];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
 
   // Fetch debit notes
   const { data, isLoading, error, isError } = useQuery({
@@ -220,12 +225,12 @@ export default function DebitNoteList() {
         <FilterBar
           left={
             <div className="flex items-center gap-3">
-              <Input
-                label="Vendor ID"
+              <Select
+                label="Vendor"
                 value={vendorId}
                 onChange={handleVendorIdChange}
-                placeholder="Filter by vendor ID..."
-                aria-label="Filter debit notes by vendor ID"
+                options={vendorOptions}
+                aria-label="Filter debit notes by vendor"
                 className="min-w-[240px]"
               />
               {vendorId && (

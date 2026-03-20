@@ -6,8 +6,10 @@ import { makeReportingApi } from '../api/reporting.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function rowsFrom(data) {
   if (!data) return [];
@@ -75,6 +77,7 @@ function calculateSummary(rows) {
 export default function ReportApOpenItems() {
   const { http } = useApi();
   const api = useMemo(() => makeReportingApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   
   const [vendorId, setVendorId] = useState('');
   const [errors, setErrors] = useState({});
@@ -90,6 +93,10 @@ export default function ReportApOpenItems() {
     enabled: false, // Don't auto-run on mount
     staleTime: 60_000
   });
+
+  const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
+  const vendors = rowsFrom(vendorsQ.data);
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendors, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
 
   const rows = rowsFrom(data);
   const summary = calculateSummary(rows);
@@ -164,7 +171,7 @@ export default function ReportApOpenItems() {
     const newErrors = {};
 
     if (!vendorId.trim()) {
-      newErrors.vendorId = 'Vendor ID is required';
+      newErrors.vendorId = 'Vendor is required';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -286,8 +293,8 @@ export default function ReportApOpenItems() {
 
           <div className="flex items-end gap-3">
             <div className="flex-1 max-w-md">
-              <Input
-                label="Vendor ID"
+              <Select
+                label="Vendor"
                 value={vendorId}
                 onChange={(e) => {
                   setVendorId(e.target.value);
@@ -295,13 +302,11 @@ export default function ReportApOpenItems() {
                     setErrors(prev => ({ ...prev, vendorId: undefined }));
                   }
                 }}
-                onKeyPress={handleKeyPress}
-                error={errors.vendorId}
-                placeholder="Enter vendor ID"
+                options={vendorOptions}
                 required
               />
               <p className="mt-1.5 text-xs text-slate-600">
-                Enter the vendor ID to view their open payable items
+                Select the vendor to view their open payable items
               </p>
             </div>
 
@@ -324,7 +329,7 @@ export default function ReportApOpenItems() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm text-blue-800">
-                    Showing open items for vendor ID: <span className="font-semibold">{vendorId}</span>
+                    Showing open items for vendor: <span className="font-semibold">{vendorId}</span>
                   </p>
                 </div>
               </div>
@@ -340,7 +345,7 @@ export default function ReportApOpenItems() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Enter Vendor ID to Begin</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Vendor to Begin</h3>
             <p className="text-sm text-slate-600 mb-6">
               Enter a vendor ID above and click "Run Report" to view their open payable items
             </p>
@@ -359,7 +364,7 @@ export default function ReportApOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Vendor ID <span className="font-mono font-semibold">{vendorId}</span> has no outstanding payable items.
+              Vendor <span className="font-mono font-semibold">{vendorId}</span> has no outstanding payable items.
             </p>
             <Button
               variant="secondary"

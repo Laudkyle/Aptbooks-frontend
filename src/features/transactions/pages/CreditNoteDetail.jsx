@@ -6,6 +6,7 @@ import { ArrowLeft, FileMinus2, Send, Trash2, AlertCircle, CheckCircle2, FileTex
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeCreditNotesApi } from '../api/creditNotes.api.js';
+import { makeInvoicesApi } from '../api/invoices.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
@@ -17,6 +18,7 @@ import { resolveTransactionActions } from '../workflow/resolveTransactionActions
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -33,6 +35,7 @@ export default function CreditNoteDetail() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCreditNotesApi(http), [http]);
+  const invoicesApi = useMemo(() => makeInvoicesApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
 
@@ -51,6 +54,10 @@ export default function CreditNoteDetail() {
   });
 
   // Extract credit note data - based on your console.log, data is already the credit note object
+  const invoicesQ = useQuery({ queryKey: ['transactions', 'invoices', 'select'], queryFn: () => invoicesApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
+  const invoiceRows = Array.isArray(invoicesQ.data) ? invoicesQ.data : invoicesQ.data?.data ?? [];
+  const invoiceOptions = [{ value: '', label: 'Select invoice...' }, ...invoiceRows.map((inv) => ({ value: inv.id, label: [inv.code || inv.reference, inv.customer_name || inv.partner_name].filter(Boolean).join(' — ') || inv.id }))];
+
   const note = data?.data ?? data;
   
   // Extract allocations/applications - use applications array from your data
@@ -773,13 +780,13 @@ const statusConfig = getStatusConfig(status);
             </div>
           </div>
 
-          <Input 
-            label="Invoice ID" 
+          <Select 
+            label="Invoice" 
             value={applyBody.invoice_id} 
             onChange={(e) => handleApplyBodyChange('invoice_id', e.target.value)}
-            placeholder="Enter invoice UUID..."
+            options={invoiceOptions}
             required
-            aria-label="Invoice ID to apply credit to"
+            aria-label="Invoice to apply credit to"
           />
           
           <Input

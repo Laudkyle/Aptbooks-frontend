@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "../../../shared/components/ui/Card";
 import { Button } from "../../../shared/components/ui/Button";
 import { Badge } from "../../../shared/components/ui/Badge";
@@ -9,9 +10,14 @@ import { Textarea } from "../../../shared/components/ui/Textarea";
 import { Select } from "../../../shared/components/ui/Select";
 import { useToast } from "../../../shared/components/ui/Toast";
 import { formatDate } from "../../../shared/utils/formatDate";
-import { Calendar, Eye, Play, RotateCcw, Search, Layers, Sparkles, TrendingDown, Filter, Plus, ChevronRight, AlertCircle, CheckCircle, Clock, DollarSign, Hash, FileText, CalendarDays, RefreshCw } from "lucide-react";
+import { Calendar, Eye, Play, RotateCcw, Search, Layers, Sparkles, TrendingDown, Filter, Plus, ChevronRight, AlertCircle, CheckCircle, Clock, DollarSign, FileText, CalendarDays, RefreshCw } from "lucide-react";
+import { useApi } from "../../../shared/hooks/useApi.js";
+import { makePeriodsApi } from "../../accounting/periods/api/periods.api.js";
+import { toOptions, NONE_OPTION } from "../../../shared/utils/options.js";
 
 export default function AssetDepreciationPage({ assetsApi }) {
+  const { http } = useApi();
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const [activeTab, setActiveTab] = useState("period-end");
   const [periodId, setPeriodId] = useState("");
   const [entryDate, setEntryDate] = useState("");
@@ -29,6 +35,10 @@ export default function AssetDepreciationPage({ assetsApi }) {
   const [loadingSchedules, setLoadingSchedules] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  const periodsQ = useQuery({ queryKey: ["periods", "asset-depreciation"], queryFn: () => periodsApi.list({ limit: 500, offset: 0 }), staleTime: 60_000 });
+  const periods = Array.isArray(periodsQ.data) ? periodsQ.data : periodsQ.data?.data ?? [];
+  const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periods, { valueKey: "id", label: (p) => `${p.code ?? ""} ${p.name ?? ""}`.trim() || p.id })], [periods]);
+
   const canPreview = useMemo(() => !!periodId?.trim(), [periodId]);
   const canPost = useMemo(() => !!periodId?.trim() && !!entryDate?.trim(), [periodId, entryDate]);
 
@@ -44,7 +54,7 @@ export default function AssetDepreciationPage({ assetsApi }) {
 
   async function handlePreview() {
     if (!canPreview) {
-      toast.error("Period ID is required.");
+      toast.error("Period is required.");
       return;
     }
     try {
@@ -61,7 +71,7 @@ export default function AssetDepreciationPage({ assetsApi }) {
 
   async function handleRun() {
     if (!canPost) {
-      toast.error("Period ID and Entry Date are required.");
+      toast.error("Period and Entry Date are required.");
       return;
     }
     try {
@@ -82,7 +92,7 @@ export default function AssetDepreciationPage({ assetsApi }) {
 
   async function handleReverse() {
     if (!canPost) {
-      toast.error("Period ID and Entry Date are required.");
+      toast.error("Period and Entry Date are required.");
       return;
     }
     try {
@@ -232,20 +242,16 @@ export default function AssetDepreciationPage({ assetsApi }) {
                     <div className="space-y-5">
                       <div className="space-y-3">
                         <label className="block text-sm font-medium text-gray-700">
-                          Period ID
+                          Period
                           <span className="text-red-500 ml-1">*</span>
                         </label>
-                        <div className="relative">
-                          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input
-                            placeholder="Enter period identifier"
-                            value={periodId}
-                            onChange={(e) => setPeriodId(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
+                        <Select
+                          value={periodId}
+                          onChange={(e) => setPeriodId(e.target.value)}
+                          options={periodOptions}
+                        />
                         <p className="text-xs text-gray-500">
-                          Unique identifier for the depreciation period. Required for preview and posting.
+                          Accounting period for the depreciation preview and posting.
                         </p>
                       </div>
 

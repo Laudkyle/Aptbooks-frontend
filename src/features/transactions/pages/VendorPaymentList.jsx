@@ -11,8 +11,10 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { makePartnersApi } from '../../business/api/partners.api.js';
+import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 /**
  * VendorPaymentList Component
@@ -26,6 +28,7 @@ export default function VendorPaymentList() {
   const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeVendorPaymentsApi(http), [http]);
+  const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   
   // Filter state
   const [vendorId, setVendorId] = useState('');
@@ -36,6 +39,10 @@ export default function VendorPaymentList() {
     [vendorId]
   );
   
+  const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
+  const vendorRows = Array.isArray(vendorsQ.data) ? vendorsQ.data : vendorsQ.data?.data ?? [];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
+
   // Fetch vendor payments
   const { 
     data, 
@@ -229,12 +236,12 @@ export default function VendorPaymentList() {
         <FilterBar
           left={
             <div className="flex items-center gap-3">
-              <Input 
-                label="Vendor ID" 
+              <Select 
+                label="Vendor" 
                 value={vendorId} 
                 onChange={handleVendorIdChange}
-                placeholder="Filter by vendor ID..."
-                aria-label="Filter payments by vendor ID"
+                options={vendorOptions}
+                aria-label="Filter payments by vendor"
                 className="min-w-[240px]"
               />
               {vendorId && (
