@@ -31,5 +31,13 @@ export const routeMeta = {
   [ROUTES.bankTransfers]: { title: 'Bank Transfers', breadcrumbs: ['Banking', 'Treasury', 'Bank Transfers'] },
   [ROUTES.paymentApprovalBatches]: { title: 'Approval Batches', breadcrumbs: ['Banking', 'Treasury', 'Approval Batches'] },
   [ROUTES.cheques]: { title: 'Cheques', breadcrumbs: ['Banking', 'Treasury', 'Cheques'] },
-  [ROUTES.cashForecast]: { title: 'Cash Forecast', breadcrumbs: ['Banking', 'Treasury', 'Cash Forecast'] }
+  [ROUTES.cashForecast]: { title: 'Cash Forecast', breadcrumbs: ['Banking', 'Treasury', 'Cash Forecast'] },
+
+  [ROUTES.automation]: { title: 'Automation', breadcrumbs: ['Automation'] },
+  [ROUTES.automationRecurringTransactions]: { title: 'Recurring Transactions', breadcrumbs: ['Automation', 'Recurring Transactions'] },
+  [ROUTES.automationAccountingJobs]: { title: 'Accounting Jobs', breadcrumbs: ['Automation', 'Accounting Jobs'] },
+  [ROUTES.automationAutoReconciliation]: { title: 'Auto Reconciliation', breadcrumbs: ['Automation', 'Auto Reconciliation'] },
+  [ROUTES.automationDocumentMatching]: { title: 'Document Matching', breadcrumbs: ['Automation', 'Document Matching'] },
+  [ROUTES.automationAiClassification]: { title: 'AI Classification', breadcrumbs: ['Automation', 'AI Classification'] },
+  [ROUTES.automationSmartNotifications]: { title: 'Smart Notifications', breadcrumbs: ['Automation', 'Smart Notifications'] }
 };

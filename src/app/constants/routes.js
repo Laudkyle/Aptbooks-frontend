@@ -228,6 +228,15 @@ export const ROUTES = {
   cheques: '/banking/treasury/cheques',
   cashForecast: '/banking/treasury/cash-forecast',
 
+  // Phase 9 — Automation
+  automation: '/automation',
+  automationRecurringTransactions: '/automation/recurring-transactions',
+  automationAccountingJobs: '/automation/accounting-jobs',
+  automationAutoReconciliation: '/automation/auto-reconciliation',
+  automationDocumentMatching: '/automation/document-matching',
+  automationAiClassification: '/automation/ai-classification',
+  automationSmartNotifications: '/automation/smart-notifications',
+
   // Phase 8 — Compliance
   compliance: '/compliance',
   complianceIFRS16: '/compliance/ifrs16',

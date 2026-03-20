@@ -208,6 +208,12 @@ bankingTreasuryManage: 'banking.treasury.manage',
 bankingTreasuryApprove: 'banking.treasury.approve',
 bankingTreasuryExecute: 'banking.treasury.execute',
 
+// Phase 9 — Automation
+automationRead: 'automation.read',
+automationManage: 'automation.manage',
+automationRun: 'automation.run',
+automationNotificationsManage: 'automation.notifications.manage',
+
 // Phase 8 — Compliance
 complianceIfrs16Read: 'compliance.ifrs16.read',
 complianceIfrs16Manage: 'compliance.ifrs16.manage',

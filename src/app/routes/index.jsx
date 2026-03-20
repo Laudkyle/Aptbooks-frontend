@@ -137,6 +137,29 @@ const CashForecastPage = lazy(() =>
   import("../../features/banking/pages/CashForecastPage.jsx")
 );
 
+// Phase 9 — Automation
+const AutomationOverview = lazy(() =>
+  import("../../features/automation/pages/Overview.jsx")
+);
+const RecurringTransactionsPage = lazy(() =>
+  import("../../features/automation/pages/RecurringTransactionsPage.jsx")
+);
+const AccountingJobsPage = lazy(() =>
+  import("../../features/automation/pages/AccountingJobsPage.jsx")
+);
+const AutoReconciliationPage = lazy(() =>
+  import("../../features/automation/pages/AutoReconciliationPage.jsx")
+);
+const DocumentMatchingPage = lazy(() =>
+  import("../../features/automation/pages/DocumentMatchingPage.jsx")
+);
+const AIClassificationPage = lazy(() =>
+  import("../../features/automation/pages/AIClassificationPage.jsx")
+);
+const SmartNotificationsPage = lazy(() =>
+  import("../../features/automation/pages/SmartNotificationsPage.jsx")
+);
+
 // Phase 8 — Compliance
 const ComplianceOverview = lazy(() =>
   import("../../features/compliance/pages/ComplianceOverview.jsx")
@@ -2311,6 +2334,77 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.bankingTreasuryRead]}>
                 <Lazy>
                   <CashForecastPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+
+          {
+            path: ROUTES.automation,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]}>
+                <Lazy>
+                  <AutomationOverview />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationRecurringTransactions,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]}>
+                <Lazy>
+                  <RecurringTransactionsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationAccountingJobs,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage, PERMISSIONS.automationRun]}>
+                <Lazy>
+                  <AccountingJobsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationAutoReconciliation,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage, PERMISSIONS.automationRun]}>
+                <Lazy>
+                  <AutoReconciliationPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationDocumentMatching,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage, PERMISSIONS.automationRun]}>
+                <Lazy>
+                  <DocumentMatchingPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationAiClassification,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]}>
+                <Lazy>
+                  <AIClassificationPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.automationSmartNotifications,
+            element: (
+              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationNotificationsManage, PERMISSIONS.automationManage]}>
+                <Lazy>
+                  <SmartNotificationsPage />
                 </Lazy>
               </RequirePermission>
             ),

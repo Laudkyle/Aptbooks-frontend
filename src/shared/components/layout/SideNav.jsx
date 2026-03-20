@@ -991,6 +991,35 @@ export function SideNav() {
 
         <div className="mt-6">
           <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
+            AUTOMATION
+          </div>
+          <nav className="mt-2 space-y-1">
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automation} icon={Wrench} label="Overview" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationRecurringTransactions} icon={Repeat} label="Recurring" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationRun, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationAccountingJobs} icon={Timer} label="Accounting Jobs" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationRun, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationAutoReconciliation} icon={Merge} label="Auto Reconciliation" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationRun, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationDocumentMatching} icon={GitCompare} label="Document Matching" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationAiClassification} icon={FlaskConical} label="AI Classification" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.automationRead, PERMISSIONS.automationNotificationsManage, PERMISSIONS.automationManage]} fallback={null}>
+              <Item to={ROUTES.automationSmartNotifications} icon={MailWarning} label="Smart Notifications" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </div>
+
+        <div className="mt-6">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             COMPLIANCE
           </div>
           <nav className="mt-2 space-y-1">
