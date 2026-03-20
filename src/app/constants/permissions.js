@@ -214,6 +214,13 @@ automationManage: 'automation.manage',
 automationRun: 'automation.run',
 automationNotificationsManage: 'automation.notifications.manage',
 
+
+// Phase 10 — Printing
+printingTemplatesRead: 'printing.templates.read',
+printingTemplatesManage: 'printing.templates.manage',
+printingAssignmentsManage: 'printing.assignments.manage',
+printingRender: 'printing.render',
+
 // Phase 8 — Compliance
 complianceIfrs16Read: 'compliance.ifrs16.read',
 complianceIfrs16Manage: 'compliance.ifrs16.manage',

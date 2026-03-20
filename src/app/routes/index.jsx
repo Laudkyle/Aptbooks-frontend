@@ -160,6 +160,17 @@ const SmartNotificationsPage = lazy(() =>
   import("../../features/automation/pages/SmartNotificationsPage.jsx")
 );
 
+// Phase 10 — Printing
+const TemplatesPage = lazy(() =>
+  import("../../features/printing/pages/TemplatesPage.jsx")
+);
+const PrintAssignmentsPage = lazy(() =>
+  import("../../features/printing/pages/AssignmentsPage.jsx")
+);
+const PrintPreviewPage = lazy(() =>
+  import("../../features/printing/pages/PreviewPage.jsx")
+);
+
 // Phase 8 — Compliance
 const ComplianceOverview = lazy(() =>
   import("../../features/compliance/pages/ComplianceOverview.jsx")
@@ -2405,6 +2416,38 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationNotificationsManage, PERMISSIONS.automationManage]}>
                 <Lazy>
                   <SmartNotificationsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+
+          // Phase 10 — Printing
+          {
+            path: ROUTES.printingTemplates,
+            element: (
+              <RequirePermission any={[PERMISSIONS.printingTemplatesRead, PERMISSIONS.printingTemplatesManage]}>
+                <Lazy>
+                  <TemplatesPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.printingAssignments,
+            element: (
+              <RequirePermission any={[PERMISSIONS.printingAssignmentsManage, PERMISSIONS.printingTemplatesManage]}>
+                <Lazy>
+                  <PrintAssignmentsPage />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.printingPreview(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.printingRender, PERMISSIONS.printingTemplatesRead, PERMISSIONS.printingTemplatesManage]}>
+                <Lazy>
+                  <PrintPreviewPage />
                 </Lazy>
               </RequirePermission>
             ),

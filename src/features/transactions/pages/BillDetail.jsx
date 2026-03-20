@@ -132,7 +132,7 @@ export default function BillDetail() {
         </div>
 
         {/* Action Buttons - Using the shared component */}
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType="bill" documentId={id} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}

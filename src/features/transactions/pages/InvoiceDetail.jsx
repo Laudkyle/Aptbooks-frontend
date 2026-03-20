@@ -130,7 +130,7 @@ export default function InvoiceDetail() {
         </div>
 
         {/* Action Buttons */}
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType="invoice" documentId={id} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}

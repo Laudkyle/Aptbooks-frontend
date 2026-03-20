@@ -1,6 +1,7 @@
 import { CheckCircle2, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
+import { TransactionPrintButtons } from '../../printing/components/TransactionPrintButtons.jsx';
 
 const icons = {
   submit: Send,
@@ -27,7 +28,7 @@ function ActionButton({ action, onClick, size = 'sm' }) {
   );
 }
 
-export function TransactionWorkflowActionBar({ actions, onAction }) {
+export function TransactionWorkflowActionBar({ actions, onAction, documentType, documentId }) {
   // Create a default submit action if no actions are provided
   const defaultSubmitAction = {
     key: 'submit',
@@ -40,7 +41,7 @@ export function TransactionWorkflowActionBar({ actions, onAction }) {
   const rejectAction = actions?.rejectAction;
   const voidAction = actions?.voidAction;
 
-  const hasAnyAction = Boolean(forwardAction || rejectAction || voidAction);
+  const hasAnyAction = Boolean(forwardAction || rejectAction || voidAction || (documentType && documentId));
   if (!hasAnyAction) return null;
 
   return (
@@ -50,6 +51,9 @@ export function TransactionWorkflowActionBar({ actions, onAction }) {
         <ActionButton action={forwardAction} onClick={onAction} size="sm" />
         <ActionButton action={rejectAction} onClick={onAction}  size="sm" />
         <ActionButton action={voidAction} onClick={onAction}  size="sm" />
+        <div className="ml-auto flex items-center gap-2">
+          <TransactionPrintButtons documentType={documentType} documentId={documentId} />
+        </div>
       </div>
     </div>
   );

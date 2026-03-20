@@ -237,6 +237,11 @@ export const ROUTES = {
   automationAiClassification: '/automation/ai-classification',
   automationSmartNotifications: '/automation/smart-notifications',
 
+
+  // Phase 10 — Printing & Document Templates
+  printingTemplates: '/printing/templates',
+  printingAssignments: '/printing/assignments',
+  printingPreview: (documentType = ':documentType', documentId = ':documentId') => `/printing/preview/${documentType}/${documentId}`,
   // Phase 8 — Compliance
   compliance: '/compliance',
   complianceIFRS16: '/compliance/ifrs16',

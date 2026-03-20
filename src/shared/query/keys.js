@@ -172,4 +172,8 @@ export const qk = {
   ifrs9Run: (runId) => ['compliance', 'ifrs9', 'runs', runId],
   coaAccounts: (qs) => ['coa', 'accounts', qs ?? {}],
 
+  printingTemplates: (qs) => ['printing', 'templates', qs ?? {}],
+  printingTemplateAssignments: ['printing', 'assignments'],
+  printingPreview: (documentType, documentId, templateId) => ['printing', 'preview', documentType, documentId, templateId ?? null],
+
 };

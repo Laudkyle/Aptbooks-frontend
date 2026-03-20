@@ -131,7 +131,7 @@ export default function CustomerReceiptDetail() {
         </div>
 
         {/* Action Buttons */}
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType="receipt" documentId={id} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}

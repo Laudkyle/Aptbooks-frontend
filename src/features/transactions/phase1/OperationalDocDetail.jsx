@@ -72,7 +72,7 @@ console.log({ state, availableActions });
           <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeClass(header.status)}`}>{header.status ?? 'draft'}</span>
         </div>
 
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType={config.type} documentId={id} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">

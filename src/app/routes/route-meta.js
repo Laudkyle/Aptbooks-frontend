@@ -39,5 +39,9 @@ export const routeMeta = {
   [ROUTES.automationAutoReconciliation]: { title: 'Auto Reconciliation', breadcrumbs: ['Automation', 'Auto Reconciliation'] },
   [ROUTES.automationDocumentMatching]: { title: 'Document Matching', breadcrumbs: ['Automation', 'Document Matching'] },
   [ROUTES.automationAiClassification]: { title: 'AI Classification', breadcrumbs: ['Automation', 'AI Classification'] },
-  [ROUTES.automationSmartNotifications]: { title: 'Smart Notifications', breadcrumbs: ['Automation', 'Smart Notifications'] }
+  [ROUTES.automationSmartNotifications]: { title: 'Smart Notifications', breadcrumbs: ['Automation', 'Smart Notifications'] },
+
+  [ROUTES.printingTemplates]: { title: 'Document Templates', breadcrumbs: ['Admin', 'Document Templates'] },
+  [ROUTES.printingAssignments]: { title: 'Print Assignments', breadcrumbs: ['Admin', 'Print Assignments'] },
+  [ROUTES.printingPreview()]: { title: 'Document Preview', breadcrumbs: ['Printing', 'Preview'] },
 };

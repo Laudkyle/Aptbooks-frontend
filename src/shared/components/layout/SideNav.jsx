@@ -79,6 +79,8 @@ import {
   AlertCircle,
   ScrollText,
   Wrench,
+  BrushCleaning,
+  Printer,
 } from "lucide-react";
 import clsx from "clsx";
 import { ROUTES } from "../../../app/constants/routes.js";
@@ -1199,6 +1201,23 @@ export function SideNav() {
                 to={ROUTES.adminApiKeys}
                 icon={KeyRound}
                 label="API Keys"
+                collapsed={!sidebarOpen}
+              />
+            </PermissionGate>
+
+            <PermissionGate any={[PERMISSIONS.printingTemplatesRead, PERMISSIONS.printingTemplatesManage]}>
+              <Item
+                to={ROUTES.printingTemplates}
+                icon={BrushCleaning}
+                label="Document Templates"
+                collapsed={!sidebarOpen}
+              />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.printingAssignmentsManage, PERMISSIONS.printingTemplatesManage]}>
+              <Item
+                to={ROUTES.printingAssignments}
+                icon={Printer}
+                label="Print Assignments"
                 collapsed={!sidebarOpen}
               />
             </PermissionGate>

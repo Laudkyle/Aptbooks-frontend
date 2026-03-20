@@ -430,6 +430,28 @@ export const endpoints = {
         void: (id) => `/modules/transactions/refunds/${id}/void`,
       },
     },
+
+    printing: {
+      documentTemplates: {
+        list: (qs) =>
+          `/modules/printing/document-templates?${new URLSearchParams(qs ?? {}).toString()}`,
+        create: "/modules/printing/document-templates",
+        detail: (id) => `/modules/printing/document-templates/${id}`,
+        update: (id) => `/modules/printing/document-templates/${id}`,
+        publish: (id) => `/modules/printing/document-templates/${id}/publish`,
+        previewSample: (documentType, templateId) =>
+          `/modules/printing/render/sample/${documentType}?${new URLSearchParams(templateId ? { templateId } : {}).toString()}`,
+      },
+      assignments: {
+        list: (qs) =>
+          `/modules/printing/document-templates/assignments?${new URLSearchParams(qs ?? {}).toString()}`,
+        upsert: "/modules/printing/document-templates/assignments",
+      },
+      render: {
+        document: (documentType, documentId, qs) =>
+          `/modules/printing/render/${documentType}/${documentId}?${new URLSearchParams(qs ?? {}).toString()}`,
+      },
+    },
     ar: {
       collections: {
         queue: (qs) =>

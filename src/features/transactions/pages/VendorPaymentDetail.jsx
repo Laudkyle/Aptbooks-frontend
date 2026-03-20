@@ -161,7 +161,7 @@ export default function VendorPaymentDetail() {
         </div>
 
         {/* Action Buttons */}
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} />
+        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType="payment_out" documentId={id} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
