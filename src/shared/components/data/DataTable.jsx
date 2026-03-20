@@ -9,8 +9,12 @@ export function DataTable({
   isLoading,
   emptyTitle = 'No results',
   emptyDescription = 'Try adjusting your filters.',
+  empty,
   onRowClick
 }) {
+  const resolvedEmptyTitle = empty?.title ?? emptyTitle;
+  const resolvedEmptyDescription = empty?.description ?? emptyDescription;
+
   if (isLoading) {
     return (
       <div className="app-surface p-4">
@@ -28,8 +32,8 @@ export function DataTable({
     return (
       <div className="app-surface p-10 text-center">
         <div className="mx-auto max-w-md">
-          <div className="text-base font-semibold text-brand-deep">{emptyTitle}</div>
-          <div className="mt-1 text-sm text-slate-600">{emptyDescription}</div>
+          <div className="text-base font-semibold text-brand-deep">{resolvedEmptyTitle}</div>
+          <div className="mt-1 text-sm text-slate-600">{resolvedEmptyDescription}</div>
         </div>
       </div>
     );
@@ -37,7 +41,7 @@ export function DataTable({
 
   return (
     <div className="app-card">
-      <Table columns={columns} rows={rows}  keyField={keyField} onRowClick={onRowClick} />
+      <Table columns={columns} rows={rows} keyField={keyField} onRowClick={onRowClick} />
     </div>
   );
 }

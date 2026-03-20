@@ -18,6 +18,11 @@ const sizes = {
   lg: 'h-11 px-5 text-sm rounded-2xl'
 };
 
+const variantAliases = {
+  secondary: 'outline',
+  brand: 'primary'
+};
+
 export function Button({
   variant = 'primary',
   size = 'md',
@@ -29,14 +34,15 @@ export function Button({
   children,
   ...props
 }) {
+  const normalizedVariant = variantAliases[variant] ?? variant;
   const isDisabled = disabled || loading;
   return (
     <button
       disabled={isDisabled}
       className={clsx(
         'flex flex-row items-center justify-center gap-2 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light/30 disabled:cursor-not-allowed disabled:opacity-60',
-        variants[variant],
-        sizes[size],
+        variants[normalizedVariant] ?? variants.primary,
+        sizes[size] ?? sizes.md,
         className
       )}
       {...props}
