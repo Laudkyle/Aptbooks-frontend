@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
-
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeAutomationApi } from '../api/automation.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';

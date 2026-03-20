@@ -44,11 +44,12 @@ export function makeAutomationApi(http) {
       return http.post('/modules/automation/auto-reconciliation/runs', payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
     },
 
+
     listDocumentMatches(params) {
-      return http.get(`/modules/automation/document-matching/matches${qs(params)}`).then((r) => r.data);
+      return http.get(`/modules/automation/document-matching/profiles${qs(params)}`).then((r) => r.data);
     },
     runDocumentMatching(payload) {
-      return http.post('/modules/automation/document-matching/runs', payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
+      return http.post('/modules/automation/document-matching/profiles/runs', payload ?? {}, { headers: ensureIdempotencyKey() }).then((r) => r.data);
     },
 
     listClassificationRules(params) {
