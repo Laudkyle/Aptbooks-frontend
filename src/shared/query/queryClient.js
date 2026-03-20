@@ -5,7 +5,7 @@ export function makeQueryClient() {
     defaultOptions: {
       queries: {
         retry: (failureCount, error) => {
-          const status = error?.response?.status;
+          const status = error?.status ?? error?.response?.status;
           if (status && status >= 400 && status < 500) return false;
           return failureCount < 2;
         },

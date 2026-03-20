@@ -24,6 +24,10 @@ export function createAuthRefresher({ http, cookieRefreshMode }) {
         const err = new Error(ne.message);
         err.name = 'RefreshFailed';
         err.normalized = ne;
+        err.status = ne.status;
+        err.code = ne.code;
+        err.details = ne.details;
+        err.requestId = ne.requestId;
         throw err;
       } finally {
         inflight = null;

@@ -6,6 +6,8 @@ export function makeUtilitiesApi(http) {
     healthz: async () => (await http.get(endpoints.health.healthz)).data,
     readyz: async () => (await http.get(endpoints.health.readyz)).data,
     systemHealth: async () => (await http.get(endpoints.health.system)).data,
+    modulesHealth: async () => (await http.get(endpoints.health.modules)).data,
+    moduleHealth: async (moduleKey) => (await http.get(endpoints.health.moduleDetail(moduleKey))).data,
 
     scheduledTasks: async () => (await http.get(endpoints.utilities.scheduledTasks)).data,
     scheduledToggle: async (code, status) => (await http.post(endpoints.utilities.scheduledTaskToggle(code, status))).data,

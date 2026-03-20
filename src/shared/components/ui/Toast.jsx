@@ -1,11 +1,20 @@
 import React, { createContext, useCallback, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './Button.jsx';
+import { getErrorMessage } from '../../api/errors.js';
+
+function resolveToastMessage(input, fallback = '') {
+  if (typeof input === 'string') return input;
+  if (input instanceof Error) return getErrorMessage(input, fallback);
+  if (input && typeof input === 'object') return getErrorMessage(input, fallback);
+  return fallback;
+}
 
 export const ToastContext = createContext({
   push: () => {},
   success: () => {},
-  error: () => {}
+  error: () => {},
+  show: () => {}
 });
 
 export function ToastProvider({ children }) {
@@ -17,9 +26,11 @@ export function ToastProvider({ children }) {
 
   const push = useCallback((toast) => {
     const id = crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`;
-    const t = { id, type: 'info', title: '', message: '', ...toast };
+    const type = toast.type || toast.tone || 'info';
+    const title = toast.title || '';
+    const message = resolveToastMessage(toast.message, 'Something went wrong. Please try again.');
+    const t = { id, type, title, message, ...toast, type: type === 'danger' ? 'error' : type };
     setToasts((prev) => [t, ...prev].slice(0, 5));
-    // auto dismiss
     const ttl = toast.ttl ?? 5000;
     if (ttl) setTimeout(() => remove(id), ttl);
     return id;
@@ -28,8 +39,9 @@ export function ToastProvider({ children }) {
   const api = useMemo(
     () => ({
       push,
-      success: (message, title = 'Success') => push({ type: 'success', title, message }),
-      error: (message, title = 'Error') => push({ type: 'error', title, message })
+      show: push,
+      success: (message, title = 'Success') => push({ type: 'success', title, message: resolveToastMessage(message, 'Done successfully.') }),
+      error: (message, title = 'Error') => push({ type: 'error', title, message: resolveToastMessage(message, 'Something went wrong. Please try again.') })
     }),
     [push]
   );

@@ -220,6 +220,8 @@ export const endpoints = {
     healthz: "/healthz",
     readyz: "/readyz",
     system: "/health/system",
+    modules: "/health/modules",
+    moduleDetail: (moduleKey) => `/health/modules/${encodeURIComponent(String(moduleKey).replace(/\//g, "~"))}`,
   },
 
   modules: {

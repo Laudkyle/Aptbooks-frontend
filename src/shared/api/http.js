@@ -2,6 +2,7 @@ import axios from 'axios';
 import { authStore } from '../../app/store/auth.store.js';
 import { generateRequestId } from './request-id.js';
 import { createAuthRefresher } from './auth-refresh.js';
+import { toUserFacingError } from './errors.js';
 
 export function createHttpClient({ baseURL, cookieRefreshMode }) {
   const http = axios.create({
@@ -39,10 +40,10 @@ export function createHttpClient({ baseURL, cookieRefreshMode }) {
           return http.request(original);
         } catch (e) {
           authStore.getState().clear();
-          throw e;
+          throw toUserFacingError(e);
         }
       }
-      throw error;
+      throw toUserFacingError(error);
     }
   );
 
