@@ -1,4 +1,4 @@
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { bootstrap } from '../bootstrap/init.js';
 import { makeQueryClient } from '../../shared/query/queryClient.js';
@@ -7,12 +7,30 @@ import { AuthProvider } from './AuthProvider.jsx';
 import { OrgProvider } from './OrgProvider.jsx';
 import { AbilityProvider } from './AbilityProvider.jsx';
 import { ToastProvider } from '../../shared/components/ui/Toast.jsx';
+import { uiStore } from '../store/ui.store.js';
 
 export const ConfigContext = createContext(null);
 export const ApiContext = createContext(null);
 
 const config = bootstrap();
 const queryClient = makeQueryClient();
+
+function ThemeSync({ children }) {
+  const theme = uiStore((s) => s.theme);
+
+  useEffect(() => {
+    uiStore.getState().hydrate();
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const resolvedTheme = theme === 'dark' ? 'dark' : 'light';
+    root.dataset.theme = resolvedTheme;
+    root.style.colorScheme = resolvedTheme;
+  }, [theme]);
+
+  return children;
+}
 
 export function AppProviders({ children }) {
   const api = useMemo(() => {
@@ -26,13 +44,15 @@ export function AppProviders({ children }) {
     <ConfigContext.Provider value={config}>
       <ApiContext.Provider value={api}>
         <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <AuthProvider>
-              <OrgProvider>
-                <AbilityProvider>{children}</AbilityProvider>
-              </OrgProvider>
-            </AuthProvider>
-          </ToastProvider>
+          <ThemeSync>
+            <ToastProvider>
+              <AuthProvider>
+                <OrgProvider>
+                  <AbilityProvider>{children}</AbilityProvider>
+                </OrgProvider>
+              </AuthProvider>
+            </ToastProvider>
+          </ThemeSync>
         </QueryClientProvider>
       </ApiContext.Provider>
     </ConfigContext.Provider>

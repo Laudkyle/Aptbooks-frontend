@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, Search, Menu } from 'lucide-react';
+import { LogOut, Search, Menu, Moon, Sun } from 'lucide-react';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { uiStore } from '../../../app/store/ui.store.js';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -10,7 +10,11 @@ import { OrgSwitcher } from '../../../features/foundation/organizations/componen
 export function TopNav() {
   const { user, logout } = useAuth();
   const toggleSidebar = uiStore((s) => s.toggleSidebar);
+  const theme = uiStore((s) => s.theme);
+  const setTheme = uiStore((s) => s.setTheme);
   const navigate = useNavigate();
+
+  const isDark = theme === 'dark';
 
   return (
     <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1 backdrop-blur supports-[backdrop-filter]:bg-white/70">
@@ -40,6 +44,15 @@ export function TopNav() {
 
         <div className="flex items-center gap-2">
           <OrgSwitcher />
+          <Button
+            variant="subtle"
+            size="sm"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
           <Button variant="subtle" size="sm" onClick={() => navigate(ROUTES.search)} title="Search" className="md:hidden">
             <Search className="h-4 w-4" />
           </Button>

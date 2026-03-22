@@ -94,3 +94,90 @@ a { color: inherit;text-decoration: none;}
   outline: 2px solid var(--color-brand-light);
   outline-offset: 2px;
 }
+
+
+[data-theme="dark"] {
+  --color-brand-deep: rgb(186 230 253);
+  --color-brand-primary: rgb(56 189 248);
+  --color-brand-light: rgb(125 211 252);
+  --color-bg-main: rgb(2 6 23);
+  --color-text-body: rgb(226 232 240);
+  --color-border-subtle: rgba(148, 163, 184, 0.20);
+  --color-surface-1: rgba(15, 23, 42, 0.88);
+  --color-surface-2: rgba(15, 23, 42, 0.72);
+
+  --app-surface: rgba(15, 23, 42, 0.88);
+  --app-surface-weak: rgba(15, 23, 42, 0.72);
+  --app-border: rgba(148, 163, 184, 0.20);
+  --app-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --app-shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.40), 0 16px 44px rgba(0, 0, 0, 0.34);
+}
+
+html, body, #root {
+  background: var(--color-bg-main);
+}
+
+body {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(56, 189, 248, 0.24);
+}
+
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/60,
+[data-theme="dark"] .bg-white\/70,
+[data-theme="dark"] .bg-white\/80,
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-surface-1,
+[data-theme="dark"] .bg-surface-2 {
+  background-color: rgba(15, 23, 42, 0.88) !important;
+}
+
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-border-subtle {
+  border-color: rgba(148, 163, 184, 0.20) !important;
+}
+
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500 {
+  color: rgb(161, 193, 235) !important;
+}
+
+[data-theme="dark"] .text-slate-400 {
+  color: rgb(148 163 184) !important;
+}
+
+[data-theme="dark"] .text-brand-deep {
+  color: rgb(186 230 253) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: rgba(15, 23, 42, 0.88) !important;
+  color: rgb(226 232 240) !important;
+  border-color: rgba(148, 163, 184, 0.20) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: rgb(148 163 184) !important;
+}
+
+[data-theme="dark"] table thead,
+[data-theme="dark"] table tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.65) !important;
+}
+
+[data-theme="dark"] .shadow-sm,
+[data-theme="dark"] .shadow-soft,
+[data-theme="dark"] .shadow-lift {
+  box-shadow: var(--app-shadow-soft) !important;
+}

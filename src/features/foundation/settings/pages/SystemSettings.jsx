@@ -19,6 +19,7 @@ import {
 } from "../../../../shared/components/ui/Table.jsx";
 import { useToast } from "../../../../shared/components/ui/Toast.jsx";
 import { Modal } from "../../../../shared/components/ui/Modal.jsx";
+import { uiStore } from "../../../../app/store/ui.store.js";
 
 // ---------------------------------------------------------------------------
 // Root page
@@ -45,6 +46,7 @@ export default function SystemSettings() {
         onChange={setTab}
         tabs={[
           { value: "general",   label: "General Preferences"        },
+          { value: "appearance", label: "Appearance"                  },
           { value: "email",     label: "Email Settings"             },
           { value: "approvals", label: "Approvals & Document Types" },
           { value: "workflow",  label: "Workflow Rules"             },
@@ -52,6 +54,7 @@ export default function SystemSettings() {
       />
 
       {tab === "general"   && <GeneralSettingsTab settingsApi={settingsApi} qc={qc} toast={toast} />}
+      {tab === "appearance" && <AppearanceSettingsTab toast={toast} />}
       {tab === "email"     && <EmailSettingsTab   notifApi={notifApi}       qc={qc} toast={toast} />}
       {tab === "approvals" && <ApprovalsTab       documentsApi={documentsApi} qc={qc} toast={toast} />}
       {tab === "workflow"  && (
@@ -1247,6 +1250,92 @@ function EditSettingModal({ modal, onClose, settingsApi, qc, toast }) {
         </div>
       </div>
     </Modal>
+  );
+}
+
+
+function AppearanceSettingsTab({ toast }) {
+  const theme = uiStore((s) => s.theme);
+  const setTheme = uiStore((s) => s.setTheme);
+
+  const isDark = theme === 'dark';
+
+  const applyTheme = (nextTheme) => {
+    setTheme(nextTheme);
+    toast.success(nextTheme === 'dark' ? 'Dark mode enabled.' : 'Light mode enabled.');
+  };
+
+  return (
+    <div className="grid gap-6">
+      <ContentCard
+        title="Appearance"
+        subtitle="Choose how AptBooks looks across the application."
+      >
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-4">
+          
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => applyTheme('light')}
+                className={`rounded-2xl border p-4 text-left transition ${!isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-white' : 'border-slate-200 bg-white/80 hover:border-slate-300'}`}
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-900">Light</span>
+                  {!isDark ? <span className="rounded-full bg-brand-primary/10 px-2 py-1 text-xs font-medium text-brand-deep">Active</span> : null}
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="mb-2 h-2 w-20 rounded bg-slate-800/80" />
+                  <div className="space-y-2">
+                    <div className="h-8 rounded bg-white shadow-sm" />
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="h-12 rounded bg-white shadow-sm" />
+                      <div className="h-12 rounded bg-white shadow-sm" />
+                      <div className="h-12 rounded bg-white shadow-sm" />
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => applyTheme('dark')}
+                className={`rounded-2xl border p-4 text-left transition ${isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-slate-950/90' : 'border-slate-200 bg-slate-950/80 hover:border-slate-500'}`}
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-100'}`}>Dark</span>
+                  {isDark ? <span className="rounded-full bg-brand-primary/20 px-2 py-1 text-xs font-medium text-sky-200">Active</span> : null}
+                </div>
+                <div className="rounded-xl border border-slate-700 bg-slate-900 p-3">
+                  <div className="mb-2 h-2 w-20 rounded bg-slate-100/80" />
+                  <div className="space-y-2">
+                    <div className="h-8 rounded bg-slate-800 shadow-sm" />
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="h-12 rounded bg-slate-800 shadow-sm" />
+                      <div className="h-12 rounded bg-slate-800 shadow-sm" />
+                      <div className="h-12 rounded bg-slate-800 shadow-sm" />
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border-subtle bg-surface-2 p-5">
+            <h3 className="text-sm font-semibold text-slate-900">Where users can change it</h3>
+            <ul className="mt-3 space-y-2 text-sm text-slate-600">
+              <li>• In Settings → Appearance</li>
+              <li>• From the top bar theme toggle</li>
+              <li>• Preference is remembered on the current device</li>
+            </ul>
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+              Use dark mode for low-light environments and prolonged work sessions.
+            </div>
+          </div>
+        </div>
+      </ContentCard>
+    </div>
   );
 }
 
