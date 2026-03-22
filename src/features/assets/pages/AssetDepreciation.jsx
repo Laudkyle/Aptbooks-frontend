@@ -1,46 +1,91 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "../../../shared/components/ui/Card";
-import { Button } from "../../../shared/components/ui/Button";
-import { Badge } from "../../../shared/components/ui/Badge";
-import { Tabs } from "../../../shared/components/ui/Tabs";
-import { Table } from "../../../shared/components/ui/Table";
-import { Input } from "../../../shared/components/ui/Input";
-import { Textarea } from "../../../shared/components/ui/Textarea";
-import { Select } from "../../../shared/components/ui/Select";
-import { useToast } from "../../../shared/components/ui/Toast";
-import { formatDate } from "../../../shared/utils/formatDate";
-import { Calendar, Eye, Play, RotateCcw, Search, Layers, Sparkles, TrendingDown, Filter, Plus, ChevronRight, AlertCircle, CheckCircle, Clock, DollarSign, FileText, CalendarDays, RefreshCw } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Eye,
+  Filter,
+  Layers3,
+  Play,
+  RefreshCw,
+  RotateCcw,
+  Search,
+  TrendingDown,
+  AlertTriangle,
+  DollarSign,
+  Info,
+} from "lucide-react";
+
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { makePeriodsApi } from "../../accounting/periods/api/periods.api.js";
+import { makeAssetsApi } from "../api/assets.api.js";
 import { toOptions, NONE_OPTION } from "../../../shared/utils/options.js";
+import { formatDate } from "../../../shared/utils/formatDate";
 
-export default function AssetDepreciationPage({ assetsApi }) {
+import { PageHeader } from "../../../shared/components/layout/PageHeader.jsx";
+import { ContentCard } from "../../../shared/components/layout/ContentCard.jsx";
+import { Button } from "../../../shared/components/ui/Button.jsx";
+import { Badge } from "../../../shared/components/ui/Badge.jsx";
+import { Tabs } from "../../../shared/components/ui/Tabs.jsx";
+import { Input } from "../../../shared/components/ui/Input.jsx";
+import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
+import { Select } from "../../../shared/components/ui/Select.jsx";
+import { Table } from "../../../shared/components/ui/Table.jsx";
+import { useToast } from "../../../shared/components/ui/Toast.jsx";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "complete", label: "Complete" },
+];
+
+export default function AssetDepreciationPage() {
   const { http } = useApi();
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  const assetsApi = useMemo(() => makeAssetsApi(http), [http]);
+  const toast = useToast();
+
   const [activeTab, setActiveTab] = useState("period-end");
   const [periodId, setPeriodId] = useState("");
   const [entryDate, setEntryDate] = useState("");
   const [memo, setMemo] = useState("");
-  const toast = useToast();
   const [busy, setBusy] = useState(false);
+
   const [preview, setPreview] = useState(null);
   const [scheduleFilters, setScheduleFilters] = useState({
     assetId: "",
     status: "",
-    limit: "",
-    offset: "",
+    limit: "50",
+    offset: "0",
   });
+  const [showFilters, setShowFilters] = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
 
-  const periodsQ = useQuery({ queryKey: ["periods", "asset-depreciation"], queryFn: () => periodsApi.list({ limit: 500, offset: 0 }), staleTime: 60_000 });
-  const periods = Array.isArray(periodsQ.data) ? periodsQ.data : periodsQ.data?.data ?? [];
-  const periodOptions = useMemo(() => [NONE_OPTION, ...toOptions(periods, { valueKey: "id", label: (p) => `${p.code ?? ""} ${p.name ?? ""}`.trim() || p.id })], [periods]);
+  const periodsQ = useQuery({
+    queryKey: ["periods", "asset-depreciation"],
+    queryFn: () => periodsApi.list({ limit: 500, offset: 0 }),
+    staleTime: 60_000,
+  });
 
-  const canPreview = useMemo(() => !!periodId?.trim(), [periodId]);
-  const canPost = useMemo(() => !!periodId?.trim() && !!entryDate?.trim(), [periodId, entryDate]);
+  const periods = Array.isArray(periodsQ.data)
+    ? periodsQ.data
+    : periodsQ.data?.data ?? [];
+
+  const periodOptions = useMemo(
+    () => [
+      NONE_OPTION,
+      ...toOptions(periods, {
+        valueKey: "id",
+        label: (p) => `${p.code ?? ""} ${p.name ?? ""}`.trim() || p.id,
+      }),
+    ],
+    [periods]
+  );
+
+  const canPreview = !!periodId?.trim();
+  const canPost = !!periodId?.trim() && !!entryDate?.trim();
 
   useEffect(() => {
     if (!entryDate) {
@@ -52,18 +97,41 @@ export default function AssetDepreciationPage({ assetsApi }) {
     }
   }, [entryDate]);
 
+  const previewRows = useMemo(() => {
+    const rows = Array.isArray(preview?.lines)
+      ? preview.lines
+      : Array.isArray(preview)
+      ? preview
+      : [];
+
+    return rows.map((r, idx) => ({
+      id: r.id || r.scheduleId || r.schedule_id || `${idx}`,
+      assetCode: r.assetCode || r.asset_code || r.code || "—",
+      assetName: r.assetName || r.asset_name || r.name || "—",
+      amount: Number(r.amount ?? r.depreciationAmount ?? r.depreciation_amount ?? 0),
+      scheduleId: r.scheduleId || r.schedule_id || "—",
+      notes: r.notes || r.memo || "",
+    }));
+  }, [preview]);
+
+  const totalPreviewAmount = useMemo(
+    () => previewRows.reduce((sum, row) => sum + (Number(row.amount) || 0), 0),
+    [previewRows]
+  );
+
   async function handlePreview() {
     if (!canPreview) {
-      toast.error("Period is required.");
+      toast.error("Please select an accounting period to continue.");
       return;
     }
+
     try {
       setBusy(true);
       const res = await assetsApi.previewPeriodEnd(periodId.trim());
       setPreview(res);
-      toast.success("Preview generated successfully.");
+      toast.success("Depreciation preview is ready.");
     } catch (e) {
-      toast.error(e?.message || "Failed to preview depreciation.");
+      toast.error(e?.message || "We could not generate the depreciation preview.");
     } finally {
       setBusy(false);
     }
@@ -71,9 +139,10 @@ export default function AssetDepreciationPage({ assetsApi }) {
 
   async function handleRun() {
     if (!canPost) {
-      toast.error("Period and Entry Date are required.");
+      toast.error("Please select a period and entry date before posting.");
       return;
     }
+
     try {
       setBusy(true);
       await assetsApi.runPeriodEnd({
@@ -81,10 +150,10 @@ export default function AssetDepreciationPage({ assetsApi }) {
         entryDate,
         memo: memo?.trim() ? memo.trim() : undefined,
       });
-      toast.success("Period-end depreciation posted successfully.");
+      toast.success("Depreciation was posted successfully.");
       await handlePreview();
     } catch (e) {
-      toast.error(e?.message || "Failed to run period-end depreciation.");
+      toast.error(e?.message || "We could not post the depreciation entry.");
     } finally {
       setBusy(false);
     }
@@ -92,9 +161,10 @@ export default function AssetDepreciationPage({ assetsApi }) {
 
   async function handleReverse() {
     if (!canPost) {
-      toast.error("Period and Entry Date are required.");
+      toast.error("Please select a period and entry date before reversing.");
       return;
     }
+
     try {
       setBusy(true);
       await assetsApi.reversePeriodEnd({
@@ -102,10 +172,10 @@ export default function AssetDepreciationPage({ assetsApi }) {
         entryDate,
         memo: memo?.trim() ? memo.trim() : undefined,
       });
-      toast.success("Depreciation reversal posted successfully.");
+      toast.success("Depreciation reversal was posted successfully.");
       await handlePreview();
     } catch (e) {
-      toast.error(e?.message || "Failed to reverse period-end depreciation.");
+      toast.error(e?.message || "We could not reverse the depreciation entry.");
     } finally {
       setBusy(false);
     }
@@ -118,658 +188,418 @@ export default function AssetDepreciationPage({ assetsApi }) {
         Object.entries(scheduleFilters).filter(([, v]) => String(v || "").trim() !== "")
       );
       const res = await assetsApi.listSchedules(params);
-      setSchedules(Array.isArray(res) ? res : res?.items || []);
+      setSchedules(Array.isArray(res) ? res : res?.items || res?.data || []);
     } catch (e) {
-      toast.error(e?.message || "Failed to load schedules.");
+      toast.error(e?.message || "We could not load depreciation schedules.");
     } finally {
       setLoadingSchedules(false);
     }
   }
 
   useEffect(() => {
-    if (activeTab === "schedules") loadSchedules();
+    if (activeTab === "schedules") {
+      loadSchedules();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  function previewRows() {
-    const rows =
-      Array.isArray(preview?.lines) ? preview.lines :
-      Array.isArray(preview) ? preview :
-      [];
-
-    return rows.map((r, idx) => ({
-      id: r.id || r.scheduleId || r.schedule_id || `${idx}`,
-      assetCode: r.assetCode || r.asset_code || r.code || "—",
-      assetName: r.assetName || r.asset_name || r.name || "—",
-      amount: r.amount ?? r.depreciationAmount ?? r.depreciation_amount ?? "—",
-      scheduleId: r.scheduleId || r.schedule_id || "—",
-      notes: r.notes || r.memo || "",
-    }));
+  function clearFilters() {
+    setScheduleFilters({
+      assetId: "",
+      status: "",
+      limit: "50",
+      offset: "0",
+    });
   }
 
-  const getStatusBadge = (status) => {
-    const config = {
-      active: { variant: "success", icon: CheckCircle },
-      inactive: { variant: "muted", icon: Clock },
-      complete: { variant: "secondary", icon: CheckCircle }
-    };
-    const { variant, icon: Icon } = config[status] || { variant: "muted", icon: Clock };
-    return (
-      <Badge variant={variant} className="gap-1">
-        <Icon className="h-3 w-3" />
-        {status}
-      </Badge>
-    );
-  };
+  function getStatusBadge(status) {
+    const normalized = String(status || "").toLowerCase();
+
+    if (normalized === "active") {
+      return <Badge tone="success">Active</Badge>;
+    }
+    if (normalized === "complete") {
+      return <Badge tone="brand">Complete</Badge>;
+    }
+    if (normalized === "inactive") {
+      return <Badge tone="muted">Inactive</Badge>;
+    }
+    return <Badge tone="muted">{status || "Unknown"}</Badge>;
+  }
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <TrendingDown className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Asset Depreciation</h1>
-                <p className="text-gray-600 mt-1">
-                  Manage depreciation schedules and run period-end calculations
-                </p>
-              </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Asset Depreciation"
+        subtitle="Preview, post, reverse, and review depreciation schedules."
+        icon={TrendingDown}
+        actions={
+          activeTab === "schedules" ? (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => setShowFilters((s) => !s)}>
+                <Filter className="mr-2 h-4 w-4" />
+                {showFilters ? "Hide filters" : "Show filters"}
+              </Button>
+              <Button variant="ghost" onClick={loadSchedules} disabled={loadingSchedules}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${loadingSchedules ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
             </div>
-            <div className="flex items-center gap-2 mt-4">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                Assets Module
-              </Badge>
-              <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                Phase 6
-              </Badge>
-              <span className="text-xs text-gray-500 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                Production Environment
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
-              <FileText className="h-4 w-4 mr-2" />
-              Documentation
-            </Button>
-          </div>
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
-      {/* Main Content */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <Tabs
-          value={activeTab}
-          onChange={setActiveTab}
-          tabs={[
-            { 
-              value: "period-end", 
-              label: "Period-End Processing",
-              icon: CalendarDays 
-            },
-            { 
-              value: "schedules", 
-              label: "Depreciation Schedules",
-              icon: Layers 
-            },
-          ]}
-          variant="segmented"
-          className="border-b"
-        />
-
-        {/* PERIOD-END TAB */}
-        {activeTab === "period-end" && (
-          <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Panel - Controls */}
-              <div className="lg:col-span-1 space-y-6">
-                <Card className="border border-gray-200 shadow-none">
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Run Controls</h3>
-                        <p className="text-sm text-gray-500 mt-1">Configure and execute depreciation run</p>
+      <Tabs
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          {
+            key: "period-end",
+            label: "Period-end",
+            content: (
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <ContentCard className="xl:col-span-1">
+                  <div className="space-y-5">
+                    <div>
+                      <div className="text-base font-semibold text-slate-900">
+                        Depreciation run
                       </div>
-                      <div className="p-2 bg-gray-50 rounded-lg">
-                        <Calendar className="h-5 w-5 text-gray-600" />
+                      <div className="mt-1 text-sm text-slate-500">
+                        Select the accounting period, confirm the entry date, and review the preview before posting.
                       </div>
                     </div>
 
-                    <div className="space-y-5">
-                      <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Period
-                          <span className="text-red-500 ml-1">*</span>
-                        </label>
-                        <Select
-                          value={periodId}
-                          onChange={(e) => setPeriodId(e.target.value)}
-                          options={periodOptions}
-                        />
-                        <p className="text-xs text-gray-500">
-                          Accounting period for the depreciation preview and posting.
-                        </p>
-                      </div>
+                    <Select
+                      label="Accounting period"
+                      value={periodId}
+                      onChange={(e) => setPeriodId(e.target.value)}
+                      options={periodOptions}
+                      required
+                    />
 
-                      <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Entry Date
-                          <span className="text-red-500 ml-1">*</span>
-                        </label>
-                        <div className="relative">
-                          <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input
-                            type="date"
-                            value={entryDate}
-                            onChange={(e) => setEntryDate(e.target.value)}
-                            className="pl-10"
-                          />
+                    <Input
+                      label="Entry date"
+                      type="date"
+                      value={entryDate}
+                      onChange={(e) => setEntryDate(e.target.value)}
+                      required
+                    />
+
+                    <Textarea
+                      label="Memo"
+                      value={memo}
+                      onChange={(e) => setMemo(e.target.value)}
+                      placeholder="Optional narration for the journal entry"
+                      rows={4}
+                    />
+
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <Info className="mt-0.5 h-4 w-4 text-blue-600" />
+                        <div className="text-sm text-blue-900">
+                          Preview first to confirm the depreciation lines for the selected period before posting to journals.
                         </div>
-                        <p className="text-xs text-gray-500">
-                          Journal entry date for the depreciation posting
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Memo
-                        </label>
-                        <Textarea
-                          placeholder="Optional description for the depreciation journal entry..."
-                          value={memo}
-                          onChange={(e) => setMemo(e.target.value)}
-                          rows={3}
-                          className="resize-none"
-                        />
                       </div>
                     </div>
-                  </div>
 
-                  <div className="border-t border-gray-100 bg-gray-50 p-5">
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant="outline"
-                        onClick={handlePreview}
-                        disabled={busy || !canPreview}
-                        className="w-full"
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <Button variant="ghost" onClick={handlePreview} disabled={busy || !canPreview}>
+                        <Eye className="mr-2 h-4 w-4" />
                         Preview
                       </Button>
-                      <Button
-                        onClick={handleRun}
-                        disabled={busy || !canPost}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                      >
-                        <Play className="h-4 w-4 mr-2" />
-                        Run & Post
+                      <Button onClick={handleRun} disabled={busy || !canPost}>
+                        <Play className="mr-2 h-4 w-4" />
+                        Post
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 col-span-2"
-                        onClick={handleReverse}
-                        disabled={busy || !canPost}
-                      >
-                        <RotateCcw className="h-4 w-4 mr-2" />
-                        Reverse Entry
+                      <Button variant="ghost" onClick={handleReverse} disabled={busy || !canPost}>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Reverse
                       </Button>
                     </div>
                   </div>
-                </Card>
+                </ContentCard>
 
-                {/* Info Panel */}
-                <Card className="border border-blue-100 bg-blue-50 shadow-none">
-                  <div className="p-4">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-blue-900">Operational Notes</h4>
-                        <ul className="mt-2 space-y-2 text-sm text-blue-800">
-                          <li className="flex items-start gap-2">
-                            <div className="h-1.5 w-1.5 bg-blue-400 rounded-full mt-1.5 flex-shrink-0" />
-                            Idempotency handled via backend idempotency keys
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="h-1.5 w-1.5 bg-blue-400 rounded-full mt-1.5 flex-shrink-0" />
-                            Preview validates calculations before posting
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="h-1.5 w-1.5 bg-blue-400 rounded-full mt-1.5 flex-shrink-0" />
-                            Reversal creates offsetting journal entries
-                          </li>
-                        </ul>
+                <ContentCard className="xl:col-span-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-base font-semibold text-slate-900">
+                        Preview results
+                      </div>
+                      <div className="mt-1 text-sm text-slate-500">
+                        Review the calculated depreciation lines for this run.
                       </div>
                     </div>
+                    {previewRows.length > 0 ? (
+                      <Badge tone="success">{previewRows.length} lines</Badge>
+                    ) : null}
                   </div>
-                </Card>
-              </div>
 
-              {/* Right Panel - Preview */}
-              <div className="lg:col-span-2">
-                <Card className="border border-gray-200 shadow-none h-full">
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-50 rounded-lg">
-                          <Eye className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">Preview Results</h3>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Review depreciation calculations before posting
-                          </p>
-                        </div>
+                  {!preview ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="rounded-2xl bg-slate-100 p-4">
+                        <Eye className="h-8 w-8 text-slate-400" />
                       </div>
-                      {preview && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          {previewRows().length} Assets
-                        </Badge>
-                      )}
+                      <div className="mt-4 text-base font-semibold text-slate-900">
+                        No preview yet
+                      </div>
+                      <div className="mt-1 max-w-md text-sm text-slate-500">
+                        Select an accounting period and generate a preview to review depreciation before posting.
+                      </div>
+                      <Button className="mt-5" variant="ghost" onClick={handlePreview} disabled={!canPreview || busy}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Generate preview
+                      </Button>
                     </div>
-
-                    {!preview ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="p-4 bg-gray-100 rounded-full mb-4">
-                          <Eye className="h-8 w-8 text-gray-400" />
-                        </div>
-                        <h4 className="font-medium text-gray-900 mb-2">No Preview Data</h4>
-                        <p className="text-gray-500 max-w-sm">
-                          Enter a Period ID and click Preview to generate depreciation calculations
-                        </p>
-                        <Button
-                          variant="outline"
-                          onClick={handlePreview}
-                          disabled={busy || !canPreview}
-                          className="mt-4"
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Generate Preview
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-6">
-                        {/* Summary Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <Card className="border border-gray-200 p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm text-gray-500">Period ID</p>
-                                <p className="font-mono text-sm font-medium text-gray-900 mt-1 truncate">
-                                  {periodId}
-                                </p>
-                              </div>
-                              <Hash className="h-5 w-5 text-gray-400" />
-                            </div>
-                          </Card>
-                          <Card className="border border-gray-200 p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm text-gray-500">Entry Date</p>
-                                <p className="text-sm font-medium text-gray-900 mt-1">
-                                  {formatDate(entryDate)}
-                                </p>
-                              </div>
-                              <CalendarDays className="h-5 w-5 text-gray-400" />
-                            </div>
-                          </Card>
-                          <Card className="border border-gray-200 p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm text-gray-500">Total Amount</p>
-                                <p className="text-lg font-bold text-gray-900 mt-1">
-                                  {previewRows().reduce((sum, row) => sum + (parseFloat(row.amount) || 0), 0).toLocaleString('en-US', {
-                                    style: 'currency',
-                                    currency: 'USD'
-                                  })}
-                                </p>
-                              </div>
-                              <DollarSign className="h-5 w-5 text-gray-400" />
-                            </div>
-                          </Card>
-                        </div>
-
-                        {/* Data Table */}
-                        <div className="border border-gray-200 rounded-lg overflow-hidden">
-                          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                            <h4 className="font-medium text-gray-900">Depreciation Lines</h4>
+                  ) : (
+                    <div className="mt-6 space-y-6">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="rounded-2xl border border-border-subtle p-4">
+                          <div className="text-xs uppercase tracking-wide text-slate-500">
+                            Period
                           </div>
-                          <Table
-                            columns={[
-                              { 
-                                key: "assetCode", 
-                                header: "Asset Code",
-                                width: "120px"
-                              },
-                              { 
-                                key: "assetName", 
-                                header: "Asset Name",
-                                width: "200px"
-                              },
-                              { 
-                                key: "amount", 
-                                header: "Amount",
-                                render: (value) => (
-                                  <span className="font-medium">
-                                    {parseFloat(value).toLocaleString('en-US', {
-                                      style: 'currency',
-                                      currency: 'USD'
-                                    })}
-                                  </span>
-                                )
-                              },
-                              { 
-                                key: "scheduleId", 
-                                header: "Schedule ID",
-                                render: (value) => (
-                                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                                    {value}
-                                  </span>
-                                )
-                              },
-                              { 
-                                key: "notes", 
-                                header: "Notes",
-                                render: (value) => value || (
-                                  <span className="text-gray-400 italic">No notes</span>
-                                )
-                              },
-                            ]}
-                            data={previewRows()}
-                            className="[&>div]:border-0"
-                          />
+                          <div className="mt-2 text-sm font-medium text-slate-900">
+                            {periods.find((p) => p.id === periodId)?.name ||
+                              periods.find((p) => p.id === periodId)?.code ||
+                              periodId}
+                          </div>
                         </div>
 
-                        {/* Raw Data Toggle */}
-                        <div className="border border-gray-200 rounded-lg overflow-hidden">
-                          <details className="group">
-                            <summary className="flex items-center justify-between px-4 py-3 bg-gray-50 cursor-pointer list-none">
-                              <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-gray-500" />
-                                <span className="font-medium text-gray-900">Raw Response Data</span>
+                        <div className="rounded-2xl border border-border-subtle p-4">
+                          <div className="text-xs uppercase tracking-wide text-slate-500">
+                            Entry date
+                          </div>
+                          <div className="mt-2 text-sm font-medium text-slate-900">
+                            {entryDate ? formatDate(entryDate) : "—"}
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-border-subtle p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-xs uppercase tracking-wide text-slate-500">
+                                Total depreciation
                               </div>
-                              <ChevronRight className="h-5 w-5 text-gray-400 group-open:rotate-90 transition-transform" />
-                            </summary>
-                            <div className="border-t border-gray-200">
-                              <pre className="text-xs p-4 bg-gray-50 overflow-auto max-h-64">
-                                {JSON.stringify(preview, null, 2)}
-                              </pre>
+                              <div className="mt-2 text-lg font-semibold text-slate-900">
+                                {totalPreviewAmount.toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
+                              </div>
                             </div>
-                          </details>
+                            <DollarSign className="h-5 w-5 text-slate-400" />
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </Card>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* SCHEDULES TAB */}
-        {activeTab === "schedules" && (
-          <div className="p-6">
-            <div className="space-y-6">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-50 rounded-lg">
-                    <Layers className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Depreciation Schedules</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Manage asset depreciation schedules and configurations
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filters
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={loadSchedules}
-                    disabled={loadingSchedules}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${loadingSchedules ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Schedule
-                  </Button>
-                </div>
-              </div>
+                      <Table
+                        columns={[
+                          { key: "assetCode", header: "Asset code" },
+                          { key: "assetName", header: "Asset name" },
+                          {
+                            key: "amount",
+                            header: "Amount",
+                            render: (value) =>
+                              Number(value || 0).toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              }),
+                          },
+                          {
+                            key: "scheduleId",
+                            header: "Schedule",
+                            render: (value) => (
+                              <span className="font-mono text-xs text-slate-600">{value}</span>
+                            ),
+                          },
+                          {
+                            key: "notes",
+                            header: "Notes",
+                            render: (value) =>
+                              value ? value : <span className="italic text-slate-400">No notes</span>,
+                          },
+                        ]}
+                        data={previewRows}
+                      />
 
-              {/* Filters */}
-              {showFilters && (
-                <Card className="border border-gray-200 shadow-none">
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Asset ID</label>
-                        <div className="relative">
-                          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input
-                            placeholder="Filter by asset ID"
-                            value={scheduleFilters.assetId}
-                            onChange={(e) => setScheduleFilters((s) => ({ ...s, assetId: e.target.value }))}
-                            className="pl-10"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Status</label>
-                        <Select
-                          value={scheduleFilters.status}
-                          onChange={(v) => setScheduleFilters((s) => ({ ...s, status: v }))}
-                          options={[
-                            { value: "", label: "All Statuses" },
-                            { value: "active", label: "Active" },
-                            { value: "inactive", label: "Inactive" },
-                            { value: "complete", label: "Complete" },
-                          ]}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Limit</label>
-                        <Input
-                          placeholder="Number of records"
-                          value={scheduleFilters.limit}
-                          onChange={(e) => setScheduleFilters((s) => ({ ...s, limit: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Offset</label>
-                        <Input
-                          placeholder="Starting position"
-                          value={scheduleFilters.offset}
-                          onChange={(e) => setScheduleFilters((s) => ({ ...s, offset: e.target.value }))}
-                        />
-                      </div>
+                      <details className="rounded-2xl border border-border-subtle">
+                        <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-700">
+                          Technical response details
+                        </summary>
+                        <pre className="max-h-72 overflow-auto border-t border-border-subtle bg-slate-50 p-4 text-xs text-slate-700">
+                          {JSON.stringify(preview, null, 2)}
+                        </pre>
+                      </details>
                     </div>
-                    <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setScheduleFilters({
-                          assetId: "",
-                          status: "",
-                          limit: "",
-                          offset: "",
-                        })}
-                      >
-                        Clear All
+                  )}
+                </ContentCard>
+              </div>
+            ),
+          },
+          {
+            key: "schedules",
+            label: "Schedules",
+            content: (
+              <div className="space-y-6">
+                {showFilters ? (
+                  <ContentCard>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                      <Input
+                        label="Asset ID"
+                        value={scheduleFilters.assetId}
+                        onChange={(e) =>
+                          setScheduleFilters((s) => ({ ...s, assetId: e.target.value }))
+                        }
+                        placeholder="Filter by asset"
+                      />
+
+                      <Select
+                        label="Status"
+                        value={scheduleFilters.status}
+                        onChange={(e) =>
+                          setScheduleFilters((s) => ({ ...s, status: e.target.value }))
+                        }
+                        options={STATUS_OPTIONS}
+                      />
+
+                      <Input
+                        label="Limit"
+                        type="number"
+                        min="1"
+                        value={scheduleFilters.limit}
+                        onChange={(e) =>
+                          setScheduleFilters((s) => ({ ...s, limit: e.target.value }))
+                        }
+                      />
+
+                      <Input
+                        label="Offset"
+                        type="number"
+                        min="0"
+                        value={scheduleFilters.offset}
+                        onChange={(e) =>
+                          setScheduleFilters((s) => ({ ...s, offset: e.target.value }))
+                        }
+                      />
+                    </div>
+
+                    <div className="mt-4 flex justify-end gap-2">
+                      <Button variant="ghost" onClick={clearFilters}>
+                        Clear
                       </Button>
-                      <Button
-                        size="sm"
-                        onClick={loadSchedules}
-                        className="bg-gray-900 hover:bg-gray-800"
-                      >
-                        Apply Filters
+                      <Button onClick={loadSchedules}>
+                        <Search className="mr-2 h-4 w-4" />
+                        Apply filters
                       </Button>
                     </div>
-                  </div>
-                </Card>
-              )}
+                  </ContentCard>
+                ) : null}
 
-              {/* Schedules Table */}
-              <Card className="border border-gray-200 shadow-none overflow-hidden">
-                <div className="overflow-x-auto">
+                <ContentCard>
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-base font-semibold text-slate-900">
+                        Depreciation schedules
+                      </div>
+                      <div className="mt-1 text-sm text-slate-500">
+                        View and review depreciation schedules currently configured for assets.
+                      </div>
+                    </div>
+                    {schedules.length ? (
+                      <Badge tone="brand">{schedules.length} records</Badge>
+                    ) : null}
+                  </div>
+
                   <Table
+                    loading={loadingSchedules}
                     columns={[
-                      { 
-                        key: "id", 
+                      {
+                        key: "id",
                         header: "Schedule ID",
                         render: (value) => (
-                          <span className="font-mono text-xs font-medium">
-                            {value.slice(0, 8)}...
+                          <span className="font-mono text-xs text-slate-600">
+                            {String(value || "").slice(0, 8)}...
                           </span>
-                        )
+                        ),
                       },
-                      { 
-                        key: "assetId", 
+                      {
+                        key: "assetId",
                         header: "Asset ID",
                         render: (value) => (
-                          <span className="font-mono text-xs">
-                            {value.slice(0, 8)}...
+                          <span className="font-mono text-xs text-slate-600">
+                            {String(value || "").slice(0, 8)}...
                           </span>
-                        )
+                        ),
                       },
-                      { 
-                        key: "method", 
+                      {
+                        key: "method",
                         header: "Method",
-                        render: (value) => (
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                            {value}
-                          </Badge>
-                        )
+                        render: (value) => <Badge tone="muted">{value || "—"}</Badge>,
                       },
-                      { 
-                        key: "usefulLifeMonths", 
-                        header: "Life",
-                        render: (value) => (
-                          <span className="font-medium">
-                            {value} months
-                          </span>
-                        )
+                      {
+                        key: "usefulLifeMonths",
+                        header: "Useful life",
+                        render: (value) => `${value ?? "—"} months`,
                       },
-                      { 
-                        key: "effectiveStartDate", 
-                        header: "Start Date",
-                        render: (value) => formatDate(value)
+                      {
+                        key: "effectiveStartDate",
+                        header: "Start date",
+                        render: (value) => (value ? formatDate(value) : "—"),
                       },
-                      { 
-                        key: "effectiveEndDate", 
-                        header: "End Date",
-                        render: (value) => value === "—" ? value : formatDate(value)
+                      {
+                        key: "effectiveEndDate",
+                        header: "End date",
+                        render: (value) => (value ? formatDate(value) : "—"),
                       },
-                      { 
-                        key: "status", 
+                      {
+                        key: "status",
                         header: "Status",
-                        render: (value) => getStatusBadge(value)
-                      },
-                      { 
-                        key: "actions", 
-                        header: "",
-                        align: "right"
+                        render: (value) => getStatusBadge(value),
                       },
                     ]}
-                    loading={loadingSchedules}
+                    data={schedules}
                     emptyText={
-                      <div className="text-center py-12">
-                        <Layers className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h4 className="font-medium text-gray-900 mb-2">No Schedules Found</h4>
-                        <p className="text-gray-500 mb-4">
-                          No depreciation schedules match your current filters
-                        </p>
-                        <Button
-                          variant="outline"
-                          onClick={() => setScheduleFilters({
-                            assetId: "",
-                            status: "",
-                            limit: "",
-                            offset: "",
-                          })}
-                        >
-                          Clear Filters
+                      <div className="flex flex-col items-center justify-center py-14 text-center">
+                        <div className="rounded-2xl bg-slate-100 p-4">
+                          <Layers3 className="h-8 w-8 text-slate-400" />
+                        </div>
+                        <div className="mt-4 text-base font-semibold text-slate-900">
+                          No schedules found
+                        </div>
+                        <div className="mt-1 max-w-md text-sm text-slate-500">
+                          There are no depreciation schedules matching the current filters.
+                        </div>
+                        <Button className="mt-5" variant="ghost" onClick={clearFilters}>
+                          Reset filters
                         </Button>
                       </div>
                     }
-                    data={schedules.map((s) => ({
-                      ...s,
-                      effectiveStartDate: s.effectiveStartDate ? formatDate(s.effectiveStartDate) : "—",
-                      effectiveEndDate: s.effectiveEndDate ? formatDate(s.effectiveEndDate) : "—",
-                      actions: (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => toast.info(`View schedule ${s.id}`)}
-                          >
-                            View
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => toast.info(`Edit schedule ${s.id}`)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => toast.info(`Delete schedule ${s.id}`)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      ),
-                    }))}
-                    className="[&>div]:border-0"
                   />
-                </div>
-              </Card>
+                </ContentCard>
 
-              {/* Pagination Info */}
-              {schedules.length > 0 && (
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center justify-between text-sm text-slate-500">
                   <div>
-                    Showing <span className="font-medium">{schedules.length}</span> schedules
+                    {schedules.length > 0 ? (
+                      <>
+                        Showing <span className="font-medium text-slate-700">{schedules.length}</span> schedule(s)
+                      </>
+                    ) : (
+                      "No schedules to display"
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" disabled>
-                      Previous
-                    </Button>
-                    <span className="px-3 py-1 bg-gray-100 rounded">Page 1</span>
-                    <Button variant="ghost" size="sm">
-                      Next
-                    </Button>
+
+                  <div className="flex items-center gap-2 rounded-2xl border border-border-subtle px-3 py-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <span>Schedule creation and editing can be added here when the workflow is ready.</span>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+              </div>
+            ),
+          },
+        ]}
+      />
 
-      {/* Footer */}
-      <div className="text-xs text-gray-500 text-center pt-4 border-t border-gray-200">
-        Asset Depreciation Module • Version 2.1.0 • Last updated: {formatDate(new Date().toISOString())}
+      <div className="border-t border-border-subtle pt-4 text-xs text-slate-500">
+        Last refreshed: {formatDate(new Date().toISOString())}
       </div>
     </div>
   );
