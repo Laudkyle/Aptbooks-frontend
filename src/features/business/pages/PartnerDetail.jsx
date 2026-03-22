@@ -1,5 +1,5 @@
 
-import { useParams, Link, data } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Building2, CreditCard, MapPin, Phone, Plus, Save } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
@@ -35,6 +35,7 @@ function SectionTitle({ icon: Icon, title, subtitle }) {
 
 export default function PartnerDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makePartnersApi(http), [http]);
   const qc = useQueryClient();
@@ -165,7 +166,7 @@ const toast = useToast();
         icon={Building2}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => window.history.back()}>
+            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>
               Back
             </Button>
             <Button variant="primary" leftIcon={Save} onClick={() => setEditOpen(true)}>

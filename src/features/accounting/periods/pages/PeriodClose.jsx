@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makePeriodsApi } from '../api/periods.api.js';
@@ -13,6 +13,7 @@ import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
 
 export default function PeriodClose() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makePeriodsApi(http), [http]);
   const toast = useToast();
@@ -38,7 +39,7 @@ export default function PeriodClose() {
       }),
     onSuccess: () => {
       toast.success('Period close executed.');
-      window.location.href = '/accounting/periods';
+      navigate('/accounting/periods');
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Close failed')
   });
@@ -81,7 +82,7 @@ export default function PeriodClose() {
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => window.history.back()}>Back</Button>
+          <Button variant="secondary" onClick={() => navigate(-1)}>Back</Button>
           <Button onClick={() => close.mutate()} disabled={close.isLoading || (force === 'true' && !canForce)}>
             Close period
           </Button>

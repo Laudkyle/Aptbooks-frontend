@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeCoaApi } from '../api/coa.api.js';
@@ -14,6 +14,7 @@ import { ROUTES } from '../../../../app/constants/routes.js';
 
 export default function AccountDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
@@ -58,7 +59,7 @@ export default function AccountDetail() {
     mutationFn: () => api.archive(id),
     onSuccess: () => {
       toast.success('Account archived.');
-      window.location.href = ROUTES.accountingCoa;
+      navigate(ROUTES.accountingCoa);
     },
     onError: (e) => toast.error(e.message ?? 'Archive failed')
   });
@@ -72,7 +73,7 @@ export default function AccountDetail() {
         subtitle="Review and update account metadata."
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => (window.location.href = ROUTES.accountingCoa)}>Back</Button>
+            <Button variant="secondary" onClick={() => navigate(ROUTES.accountingCoa)}>Back</Button>
             <Button variant="danger" onClick={() => setArchiveOpen(true)} disabled={archive.isLoading}>
               Archive
             </Button>
