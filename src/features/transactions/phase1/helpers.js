@@ -18,7 +18,7 @@ export function getStatusBadgeClass(status) {
     issued: 'bg-green-100 text-green-800 border-green-200',
     posted: 'bg-green-100 text-green-800 border-green-200',
     rejected: 'bg-red-100 text-red-800 border-red-200',
-    voided: 'bg-gray-100 text-gray-700 border-gray-200'
+    voided: 'bg-surface-2 text-text-body border-border-subtle'
   };
   return map[s] || map.draft;
 }

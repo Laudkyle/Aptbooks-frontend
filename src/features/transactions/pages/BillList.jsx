@@ -62,14 +62,14 @@ export default function BillList() {
             >
               {r.billNumber ?? r.code ?? r.id}
             </Link>
-            {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
+            {r.memo && <div className="text-xs text-text-muted mt-0.5">{r.memo}</div>}
           </div>
         )
       },
       { 
         header: 'Vendor', 
         render: (r) => (
-          <span className="text-sm text-gray-900 font-medium">
+          <span className="text-sm text-text-strong font-medium">
             {r.vendor_name ?? r.customer_name ?? r.vendorId ?? '—'}
           </span>
         ) 
@@ -77,7 +77,7 @@ export default function BillList() {
       { 
         header: 'Bill Date', 
         render: (r) => (
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-text-body">
             {formatDate(r.billDate ?? r.bill_date) ?? '—'}
           </span>
         ) 
@@ -85,7 +85,7 @@ export default function BillList() {
       { 
         header: 'Due Date', 
         render: (r) => (
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-text-body">
             {formatDate(r.dueDate ?? r.due_date) ?? '—'}
           </span>
         ) 
@@ -93,7 +93,7 @@ export default function BillList() {
       {
         header: 'Amount',
         render: (r) => {
-          if (!r.total) return <span className="text-sm text-gray-700">—</span>;
+          if (!r.total) return <span className="text-sm text-text-body">—</span>;
           
           const currency = r.currency_code || 'USD';
           const amount = Number(r.total);
@@ -107,7 +107,7 @@ export default function BillList() {
           }).format(amount);
           
           return (
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-text-strong">
               {formattedAmount}
             </span>
           );
@@ -121,7 +121,7 @@ export default function BillList() {
             paid: 'bg-green-100 text-green-800 border-green-200',
             issued: 'bg-blue-100 text-blue-800 border-blue-200',
             overdue: 'bg-red-100 text-red-800 border-red-200',
-            voided: 'bg-gray-100 text-gray-800 border-gray-200',
+            voided: 'bg-surface-2 text-text-strong border-border-subtle',
             draft: 'bg-amber-100 text-amber-800 border-amber-200'
           };
           return (
@@ -143,10 +143,10 @@ export default function BillList() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <FileText className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Bills</h1>
+                <FileText className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">Bills</h1>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Create, manage, and track all vendor bills
               </p>
             </div>
@@ -164,67 +164,67 @@ export default function BillList() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'all' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'all' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
-            <div className="text-2xl font-bold text-gray-900">{statusCounts.all}</div>
-            <div className="text-xs text-gray-600 mt-1">All Bills</div>
+            <div className="text-2xl font-bold text-text-strong">{statusCounts.all}</div>
+            <div className="text-xs text-text-muted mt-1">All Bills</div>
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'draft' ? 'border-amber-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'draft' ? 'border-amber-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-2xl font-bold text-amber-600">{statusCounts.draft}</div>
-            <div className="text-xs text-gray-600 mt-1">Draft</div>
+            <div className="text-xs text-text-muted mt-1">Draft</div>
           </button>
           <button
             onClick={() => setStatusFilter('issued')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'issued' ? 'border-blue-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'issued' ? 'border-blue-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-2xl font-bold text-blue-600">{statusCounts.issued}</div>
-            <div className="text-xs text-gray-600 mt-1">Issued</div>
+            <div className="text-xs text-text-muted mt-1">Issued</div>
           </button>
           <button
             onClick={() => setStatusFilter('paid')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'paid' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'paid' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-2xl font-bold text-green-600">{statusCounts.paid}</div>
-            <div className="text-xs text-gray-600 mt-1">Paid</div>
+            <div className="text-xs text-text-muted mt-1">Paid</div>
           </button>
           <button
             onClick={() => setStatusFilter('voided')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'voided' ? 'border-gray-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'voided' ? 'border-gray-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
-            <div className="text-2xl font-bold text-gray-600">{statusCounts.voided}</div>
-            <div className="text-xs text-gray-600 mt-1">Voided</div>
+            <div className="text-2xl font-bold text-text-muted">{statusCounts.voided}</div>
+            <div className="text-xs text-text-muted mt-1">Voided</div>
           </button>
         </div>
 
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-soft" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search bills by number, vendor, or memo..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               />
             </div>
             <Button
               variant="outline"
-              className="border-gray-300"
+              className="border-border-subtle"
             >
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -232,16 +232,16 @@ export default function BillList() {
           </div>
           
           {searchTerm && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{filteredRows.length}</span> of <span className="font-semibold text-gray-900">{rows.length}</span> bills
+            <div className="mt-3 pt-3 border-t border-border-subtle">
+              <p className="text-sm text-text-muted">
+                Showing <span className="font-semibold text-text-strong">{filteredRows.length}</span> of <span className="font-semibold text-text-strong">{rows.length}</span> bills
               </p>
             </div>
           )}
         </div>
 
         {/* Data Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
           {error ? (
             <div className="p-12 text-center">
               <div className="bg-red-50 rounded-lg p-6 max-w-md mx-auto">

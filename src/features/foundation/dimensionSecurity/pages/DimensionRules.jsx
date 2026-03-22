@@ -110,8 +110,8 @@ export default function DimensionRules() {
         {q.isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Loading security rules...</p>
+              <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-text-muted">Loading security rules...</p>
             </div>
           </div>
         ) : q.isError ? (
@@ -130,13 +130,13 @@ export default function DimensionRules() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Security Rules</h3>
-            <p className="text-sm text-slate-600 mb-6">Get started by creating your first dimension security rule</p>
+            <h3 className="text-lg font-semibold text-text-strong mb-2">No Security Rules</h3>
+            <p className="text-sm text-text-muted mb-6">Get started by creating your first dimension security rule</p>
             <Button onClick={openCreateModal}>Create Security Rule</Button>
           </div>
         ) : (
           <>
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <Table>
                 <THead>
                   <tr>
@@ -150,8 +150,8 @@ export default function DimensionRules() {
                 </THead>
                 <TBody>
                   {rows.map((rule) => (
-                    <tr key={rule.id} className="hover:bg-slate-50">
-                      <TD className="font-mono text-xs text-slate-600">
+                    <tr key={rule.id} className="hover:bg-surface-2">
+                      <TD className="font-mono text-xs text-text-muted">
                         #{rule.id}
                       </TD>
                       <TD>
@@ -172,7 +172,7 @@ export default function DimensionRules() {
                           {(rule.principal_type || rule.principalType) === 'user' ? 'User' : 'Role'}
                         </span>
                       </TD>
-                      <TD className="font-mono text-xs text-slate-900">
+                      <TD className="font-mono text-xs text-text-strong">
                         {rule.principal_id || rule.principalId}
                       </TD>
                       <TD>
@@ -193,8 +193,8 @@ export default function DimensionRules() {
                           {rule.effect === 'allow' ? 'Allow' : 'Deny'}
                         </span>
                       </TD>
-                      <TD className="text-slate-600">
-                        {rule.note || <span className="text-slate-400">No description</span>}
+                      <TD className="text-text-muted">
+                        {rule.note || <span className="text-text-soft">No description</span>}
                       </TD>
                       <TD>
                         <div className="flex items-center justify-end gap-2">
@@ -223,8 +223,8 @@ export default function DimensionRules() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
-                <div className="text-sm text-slate-600">
+              <div className="flex items-center justify-between mt-6 pt-6 border-t border-border-subtle">
+                <div className="text-sm text-text-muted">
                   Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} rules
                 </div>
                 <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export default function DimensionRules() {
                           className={`px-3 py-1 text-sm rounded ${
                             page === pageNum
                               ? 'bg-brand-500 text-white font-medium'
-                              : 'text-slate-600 hover:bg-slate-100'
+                              : 'text-text-muted hover:bg-surface-2'
                           }`}
                         >
                           {pageNum}
@@ -313,20 +313,20 @@ export default function DimensionRules() {
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
+            <div className="bg-surface-2 border border-border-subtle rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Rule ID:</span>
-                <span className="font-mono text-slate-900">#{deleteConfirm.id}</span>
+                <span className="text-text-muted">Rule ID:</span>
+                <span className="font-mono text-text-strong">#{deleteConfirm.id}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Applied To:</span>
-                <span className="font-medium text-slate-900">
+                <span className="text-text-muted">Applied To:</span>
+                <span className="font-medium text-text-strong">
                   {(deleteConfirm.principal_type || deleteConfirm.principalType) === 'user' ? 'User' : 'Role'}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Principal:</span>
-                <span className="font-mono text-slate-900">{deleteConfirm.principal_id || deleteConfirm.principalId}</span>
+                <span className="text-text-muted">Principal:</span>
+                <span className="font-mono text-text-strong">{deleteConfirm.principal_id || deleteConfirm.principalId}</span>
               </div>
             </div>
 
@@ -451,11 +451,11 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
       <div className="space-y-6">
         {/* Principal Configuration */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-slate-900 border-b pb-2">Principal Configuration</h3>
+          <h3 className="text-sm font-semibold text-text-strong border-b pb-2">Principal Configuration</h3>
           
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 Applied To
               </label>
               <Select
@@ -465,7 +465,7 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
                 <option value="user">Individual User</option>
                 <option value="role">User Role</option>
               </Select>
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Choose whether this rule applies to a specific user or role
               </p>
             </div>
@@ -482,14 +482,14 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
                 error={errors.principalId}
                 required
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Choose the {form.principalType} this rule applies to
               </p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Access Level
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -499,18 +499,18 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
                 className={`p-4 rounded-lg border-2 transition-all ${
                   form.effect === 'allow'
                     ? 'border-green-500 bg-green-50'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
+                    : 'border-border-subtle bg-surface-1 hover:border-border-subtle'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <svg className={`w-5 h-5 ${form.effect === 'allow' ? 'text-green-600' : 'text-slate-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`w-5 h-5 ${form.effect === 'allow' ? 'text-green-600' : 'text-text-soft'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
-                  <span className={`font-medium ${form.effect === 'allow' ? 'text-green-900' : 'text-slate-700'}`}>
+                  <span className={`font-medium ${form.effect === 'allow' ? 'text-green-900' : 'text-text-body'}`}>
                     Allow Access
                   </span>
                 </div>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-text-muted">
                   Grant access to specified dimensions
                 </p>
               </button>
@@ -521,18 +521,18 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
                 className={`p-4 rounded-lg border-2 transition-all ${
                   form.effect === 'deny'
                     ? 'border-red-500 bg-red-50'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
+                    : 'border-border-subtle bg-surface-1 hover:border-border-subtle'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <svg className={`w-5 h-5 ${form.effect === 'deny' ? 'text-red-600' : 'text-slate-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`w-5 h-5 ${form.effect === 'deny' ? 'text-red-600' : 'text-text-soft'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span className={`font-medium ${form.effect === 'deny' ? 'text-red-900' : 'text-slate-700'}`}>
+                  <span className={`font-medium ${form.effect === 'deny' ? 'text-red-900' : 'text-text-body'}`}>
                     Deny Access
                   </span>
                 </div>
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-text-muted">
                   Restrict access to specified dimensions
                 </p>
               </button>
@@ -542,8 +542,8 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
 
         {/* Dimension Restrictions */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-slate-900 border-b pb-2">Dimension Restrictions (Optional)</h3>
-          <p className="text-sm text-slate-600">
+          <h3 className="text-sm font-semibold text-text-strong border-b pb-2">Dimension Restrictions (Optional)</h3>
+          <p className="text-sm text-text-muted">
             Leave blank to apply to all dimensions, or specify particular dimensions to restrict access.
           </p>
 
@@ -571,11 +571,11 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-text-body mb-2">
             Description (Optional)
           </label>
           <textarea
-            className="w-full rounded-md border border-slate-200 bg-white p-3 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light"
+            className="w-full rounded-md border border-border-subtle bg-surface-1 p-3 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light"
             rows={3}
             value={form.note}
             onChange={(e) => handleInputChange('note', e.target.value)}
@@ -621,14 +621,14 @@ function DimensionListInput({ label, values = [], onChange, placeholder }) {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
+      <label className="block text-sm font-medium text-text-body mb-2">
         {label}
       </label>
       <div className="space-y-2">
         <div className="flex gap-2">
           <input
             type="text"
-            className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light"
+            className="flex-1 rounded-md border border-border-subtle bg-surface-1 px-3 py-2 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -648,13 +648,13 @@ function DimensionListInput({ label, values = [], onChange, placeholder }) {
             {values.map((value, index) => (
               <span
                 key={`${value}-${index}`}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 text-sm rounded-full"
+                className="inline-flex items-center gap-1 px-3 py-1 bg-surface-2 text-text-body text-sm rounded-full"
               >
                 <span className="font-mono text-xs">{value}</span>
                 <button
                   type="button"
                   onClick={() => handleRemove(value)}
-                  className="text-slate-500 hover:text-slate-700"
+                  className="text-text-muted hover:text-text-body"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

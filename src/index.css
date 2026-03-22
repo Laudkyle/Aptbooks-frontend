@@ -2,61 +2,108 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand colors - using rgb format for opacity modifiers */
+  /* Brand */
   --color-brand-deep: rgb(0 45 68);
   --color-brand-primary: rgb(0 136 195);
   --color-brand-light: rgb(0 163 224);
-  
-  /* Background colors */
+
+  /* Surfaces */
   --color-bg-main: rgb(248 250 252);
-  
-  /* Text colors */
-  --color-text-body: rgb(26 32 44);
-  
-  /* Border colors */
-  --color-border-subtle: rgba(15, 23, 42, 0.10);
-  
-  /* Surface colors */
   --color-surface-1: rgba(255, 255, 255, 0.92);
-  --color-surface-2: rgba(255, 255, 255, 0.70);
-  
-  /* Custom shadows */
+  --color-surface-2: rgba(255, 255, 255, 0.74);
+  --color-surface-3: rgba(241, 245, 249, 0.92);
+
+  /* Text */
+  --color-text-strong: rgb(15 23 42);
+  --color-text-body: rgb(51 65 85);
+  --color-text-muted: rgb(71 85 105);
+  --color-text-soft: rgb(148 163 184);
+  --color-text-inverse: rgb(248 250 252);
+
+  /* Borders */
+  --color-border-subtle: rgba(15, 23, 42, 0.10);
+
+  /* Elevation */
   --shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
   --shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16);
-  
-  /* Custom animations */
+
+  /* Motion */
   --animate-fadeIn: appFadeIn 180ms ease-out both;
   --animate-slideUp: appSlideUp 220ms ease-out both;
 }
 
-/* Project semantic helpers (uses @layer + @apply) */
 @import "./shared/styles/tailwind-helpers.css";
 
 :root {
-  /* Legacy CSS variable references (kept for any direct var() usage) */
   --color-brand-deep: #002D44;
   --color-brand-primary: #0088C3;
   --color-brand-light: #00A3E0;
+
   --color-bg-main: #F8FAFC;
-  --color-text-body: #1A202C;
-  
-  /* RGB triplets (for any legacy usage) */
+  --color-surface-1: rgba(255, 255, 255, 0.92);
+  --color-surface-2: rgba(255, 255, 255, 0.74);
+  --color-surface-3: rgba(241, 245, 249, 0.92);
+
+  --color-text-strong: #0F172A;
+  --color-text-body: #334155;
+  --color-text-muted: #475569;
+  --color-text-soft: #94A3B8;
+  --color-text-inverse: #F8FAFC;
+
   --brand-deep-rgb: 0 45 68;
   --brand-primary-rgb: 0 136 195;
   --brand-light-rgb: 0 163 224;
   --bg-main-rgb: 248 250 252;
-  --text-body-rgb: 26 32 44;
-  
-  /* Neutral UI tokens */
-  --app-surface: rgba(255, 255, 255, 0.92);
-  --app-surface-weak: rgba(255, 255, 255, 0.70);
-  --app-border: rgba(15, 23, 42, 0.10);
+
+  --app-surface: var(--color-surface-1);
+  --app-surface-weak: var(--color-surface-2);
+  --app-surface-subtle: var(--color-surface-3);
+  --app-border: var(--color-border-subtle);
+  --app-text-strong: var(--color-text-strong);
+  --app-text-body: var(--color-text-body);
+  --app-text-muted: var(--color-text-muted);
+  --app-text-soft: var(--color-text-soft);
+  --app-text-inverse: var(--color-text-inverse);
   --app-shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.06), 0 6px 16px rgba(2, 6, 23, 0.06);
   --app-shadow-lift: 0 1px 2px rgba(2, 6, 23, 0.10), 0 14px 40px rgba(2, 6, 23, 0.16);
 }
 
-html, body, #root {
+[data-theme="dark"] {
+  --color-brand-deep: rgb(186 230 253);
+  --color-brand-primary: rgb(56 189 248);
+  --color-brand-light: rgb(125 211 252);
+
+  --color-bg-main: rgb(2 6 23);
+  --color-surface-1: rgba(15, 23, 42, 0.88);
+  --color-surface-2: rgba(15, 23, 42, 0.74);
+  --color-surface-3: rgba(30, 41, 59, 0.88);
+
+  --color-text-strong: rgb(241 245 249);
+  --color-text-body: rgb(226 232 240);
+  --color-text-muted: rgb(148 163 184);
+  --color-text-soft: rgb(100 116 139);
+  --color-text-inverse: rgb(2 6 23);
+
+  --color-border-subtle: rgba(148, 163, 184, 0.20);
+
+  --app-surface: var(--color-surface-1);
+  --app-surface-weak: var(--color-surface-2);
+  --app-surface-subtle: var(--color-surface-3);
+  --app-border: var(--color-border-subtle);
+  --app-text-strong: var(--color-text-strong);
+  --app-text-body: var(--color-text-body);
+  --app-text-muted: var(--color-text-muted);
+  --app-text-soft: var(--color-text-soft);
+  --app-text-inverse: var(--color-text-inverse);
+  --app-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --app-shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.40), 0 16px 44px rgba(0, 0, 0, 0.34);
+}
+
+html,
+body,
+#root {
   height: 100%;
+  background: var(--color-bg-main);
 }
 
 body {
@@ -64,120 +111,111 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background: var(--color-bg-main);
   color: var(--color-text-body);
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
-/* Motion animations */
 @keyframes appFadeIn {
-  from { opacity: 0;transform: translateY(4px);}
-  to { opacity: 1;transform: translateY(0);}
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes appSlideUp {
-  from { opacity: 0;transform: translateY(10px);}
-  to { opacity: 1;transform: translateY(0);}
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 ::selection {
   background: rgba(0, 163, 224, 0.22);
 }
 
-/* Subtle scrollbar */
+[data-theme="dark"] ::selection {
+  background: rgba(56, 189, 248, 0.24);
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 45, 68, 0.28) transparent;
 }
 
-a { color: inherit;text-decoration: none;}
+[data-theme="dark"] * {
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
 
-/* Utility focus ring */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-brand-light);
   outline-offset: 2px;
 }
 
+/* Global neutral utility remapping so legacy pages inherit the active theme */
+:where(.bg-surface-1) { background-color: var(--color-surface-1) !important; }
+:where(.bg-surface-2) { background-color: var(--color-surface-2) !important; }
+:where(.bg-surface-3) { background-color: var(--color-surface-3) !important; }
+:where(.text-text-strong) { color: var(--color-text-strong) !important; }
+:where(.text-text-body) { color: var(--color-text-body) !important; }
+:where(.text-text-muted) { color: var(--color-text-muted) !important; }
+:where(.text-text-soft) { color: var(--color-text-soft) !important; }
+:where(.border-border-subtle) { border-color: var(--color-border-subtle) !important; }
+:where(.divide-border-subtle > :not([hidden]) ~ :not([hidden])) { border-color: var(--color-border-subtle) !important; }
 
-[data-theme="dark"] {
-  --color-brand-deep: rgb(186 230 253);
-  --color-brand-primary: rgb(56 189 248);
-  --color-brand-light: rgb(125 211 252);
-  --color-bg-main: rgb(2 6 23);
-  --color-text-body: rgb(226 232 240);
-  --color-border-subtle: rgba(148, 163, 184, 0.20);
-  --color-surface-1: rgba(15, 23, 42, 0.88);
-  --color-surface-2: rgba(15, 23, 42, 0.72);
+/* Legacy light utilities still present in some pages */
+:where(.bg-white, .bg-white\/60, .bg-white\/70, .bg-white\/80) { background-color: var(--color-surface-1) !important; }
+:where(.bg-slate-50, .bg-slate-50\/50, .bg-slate-100, .bg-gray-100, .bg-gray-50) { background-color: var(--color-surface-2) !important; }
+:where(.border-slate-100, .border-slate-200, .border-slate-300, .border-gray-100, .border-gray-200, .border-gray-300) { border-color: var(--color-border-subtle) !important; }
+:where(.divide-slate-100 > :not([hidden]) ~ :not([hidden]), .divide-slate-200 > :not([hidden]) ~ :not([hidden]), .divide-gray-100 > :not([hidden]) ~ :not([hidden]), .divide-gray-200 > :not([hidden]) ~ :not([hidden])) { border-color: var(--color-border-subtle) !important; }
+:where(.text-slate-900, .text-slate-800, .text-gray-900, .text-gray-800) { color: var(--color-text-strong) !important; }
+:where(.text-slate-700, .text-gray-700) { color: var(--color-text-body) !important; }
+:where(.text-slate-600, .text-slate-500, .text-gray-600, .text-gray-500) { color: var(--color-text-muted) !important; }
+:where(.text-slate-400, .text-gray-400, .text-gray-300) { color: var(--color-text-soft) !important; }
 
-  --app-surface: rgba(15, 23, 42, 0.88);
-  --app-surface-weak: rgba(15, 23, 42, 0.72);
-  --app-border: rgba(148, 163, 184, 0.20);
-  --app-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.28);
-  --app-shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.40), 0 16px 44px rgba(0, 0, 0, 0.34);
+:where(.shadow-sm, .shadow-soft) { box-shadow: var(--app-shadow-soft) !important; }
+:where(.shadow-md, .shadow-lg, .shadow-xl, .shadow-lift) { box-shadow: var(--app-shadow-lift) !important; }
+
+/* Form controls */
+input,
+select,
+textarea {
+  color: var(--color-text-body);
 }
 
-html, body, #root {
-  background: var(--color-bg-main);
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-soft);
 }
 
-body {
-  transition: background-color 160ms ease, color 160ms ease;
+/* Table chrome */
+table thead {
+  background-color: var(--color-surface-2);
 }
 
-[data-theme="dark"] ::selection {
-  background: rgba(56, 189, 248, 0.24);
+table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--color-surface-3) 72%, transparent);
 }
 
-[data-theme="dark"] .bg-white,
-[data-theme="dark"] .bg-white\/60,
-[data-theme="dark"] .bg-white\/70,
-[data-theme="dark"] .bg-white\/80,
-[data-theme="dark"] .bg-slate-50,
-[data-theme="dark"] .bg-slate-100,
-[data-theme="dark"] .bg-surface-1,
-[data-theme="dark"] .bg-surface-2 {
-  background-color: rgba(15, 23, 42, 0.88) !important;
+/* Contrast fills used by subtle buttons, pills, and hover states */
+[data-theme="dark"] .bg-slate-900\/5,
+[data-theme="dark"] .bg-slate-900\/10,
+[data-theme="dark"] .hover\:bg-slate-900\/5:hover,
+[data-theme="dark"] .hover\:bg-slate-900\/10:hover,
+[data-theme="dark"] .hover\:bg-surface-2:hover,
+[data-theme="dark"] .hover\:bg-slate-50:hover,
+[data-theme="dark"] .hover\:bg-white:hover {
+  background-color: rgba(148, 163, 184, 0.14) !important;
 }
 
-[data-theme="dark"] .border-slate-200,
-[data-theme="dark"] .border-slate-100,
-[data-theme="dark"] .border-border-subtle {
-  border-color: rgba(148, 163, 184, 0.20) !important;
+[data-theme="dark"] .supports-\[backdrop-filter\]\:bg-white\/60,
+[data-theme="dark"] .supports-\[backdrop-filter\]\:bg-white\/70,
+[data-theme="dark"] .supports-\[backdrop-filter\]\:bg-white\/80 {
+  background-color: rgba(15, 23, 42, 0.72) !important;
 }
 
-[data-theme="dark"] .text-slate-900,
-[data-theme="dark"] .text-slate-800,
-[data-theme="dark"] .text-slate-700,
-[data-theme="dark"] .text-slate-600,
-[data-theme="dark"] .text-slate-500 {
-  color: rgb(161, 193, 235) !important;
-}
-
-[data-theme="dark"] .text-slate-400 {
-  color: rgb(148 163 184) !important;
-}
-
-[data-theme="dark"] .text-brand-deep {
-  color: rgb(186 230 253) !important;
-}
-
-[data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
-  background-color: rgba(15, 23, 42, 0.88) !important;
-  color: rgb(226 232 240) !important;
-  border-color: rgba(148, 163, 184, 0.20) !important;
-}
-
-[data-theme="dark"] input::placeholder,
-[data-theme="dark"] textarea::placeholder {
-  color: rgb(148 163 184) !important;
-}
-
-[data-theme="dark"] table thead,
-[data-theme="dark"] table tbody tr:hover {
-  background-color: rgba(30, 41, 59, 0.65) !important;
-}
-
-[data-theme="dark"] .shadow-sm,
-[data-theme="dark"] .shadow-soft,
-[data-theme="dark"] .shadow-lift {
-  box-shadow: var(--app-shadow-soft) !important;
+[data-theme="dark"] .ring-slate-200,
+[data-theme="dark"] .ring-slate-300,
+[data-theme="dark"] .ring-gray-200,
+[data-theme="dark"] .ring-gray-300 {
+  --tw-ring-color: rgba(148, 163, 184, 0.20) !important;
 }

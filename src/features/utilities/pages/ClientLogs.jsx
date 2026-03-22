@@ -63,7 +63,7 @@ export default function ClientLogs() {
 
       <ContentCard title="Results">
         {q.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load logs.'}</div>
         ) : (
@@ -80,7 +80,7 @@ export default function ClientLogs() {
                   <TD className="font-mono text-xs">{r.correlation_id ?? r.correlationId ?? '—'}</TD>
                 </tr>
               ))}
-              {rows.length === 0 ? <tr><TD colSpan={4} className="text-slate-500">No rows.</TD></tr> : null}
+              {rows.length === 0 ? <tr><TD colSpan={4} className="text-text-muted">No rows.</TD></tr> : null}
             </TBody>
           </Table>
         )}
@@ -91,19 +91,19 @@ export default function ClientLogs() {
           <Input label="Message" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Required" />
           <Input label="Level (optional)" value={level} onChange={(e) => setLevel(e.target.value)} placeholder="info|warn|error" />
           <label className="block md:col-span-2">
-            <span className="mb-1 block text-sm font-medium text-slate-700">Context JSON (optional)</span>
+            <span className="mb-1 block text-sm font-medium text-text-body">Context JSON (optional)</span>
             <textarea
-              className="h-40 w-full rounded-md border border-slate-200 bg-white p-3 text-xs font-mono focus:border-brand-light focus:ring-2 focus:ring-brand-light"
+              className="h-40 w-full rounded-md border border-border-subtle bg-surface-1 p-3 text-xs font-mono focus:border-brand-light focus:ring-2 focus:ring-brand-light"
               value={context}
               onChange={(e) => setContext(e.target.value)}
             />
           </label>
-          <div className="md:col-span-2 text-xs text-slate-600">Idempotency-Key header is enforced;client sends one automatically.</div>
+          <div className="md:col-span-2 text-xs text-text-muted">Idempotency-Key header is enforced;client sends one automatically.</div>
         </div>
       </ContentCard>
 
-      <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <summary className="cursor-pointer text-sm font-medium text-slate-800">Raw response</summary>
+      <details className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+        <summary className="cursor-pointer text-sm font-medium text-text-strong">Raw response</summary>
         <pre className="mt-2 max-h-96 overflow-auto text-xs">{JSON.stringify(q.data, null, 2)}</pre>
       </details>
     </div>

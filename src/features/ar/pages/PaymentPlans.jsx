@@ -87,14 +87,14 @@ const toast = useToast();
               setModal('detail');
             }}
           >
-            <div className="text-sm font-semibold text-slate-900">#{r.id}</div>
-            <div className="mt-0.5 text-xs text-slate-500">{r.entity_type}:{String(r.entity_id)} • partner {r.partner_id}</div>
+            <div className="text-sm font-semibold text-text-strong">#{r.id}</div>
+            <div className="mt-0.5 text-xs text-text-muted">{r.entity_type}:{String(r.entity_id)} • partner {r.partner_id}</div>
           </button>
         )
       },
-      { header: 'Total', render: (r) => <span className="text-sm text-slate-900">{r.total_amount}</span> },
-      { header: 'Start', render: (r) => <span className="text-sm text-slate-700">{r.start_date}</span> },
-      { header: 'Frequency', render: (r) => <span className="text-sm text-slate-700">{r.frequency}</span> },
+      { header: 'Total', render: (r) => <span className="text-sm text-text-strong">{r.total_amount}</span> },
+      { header: 'Start', render: (r) => <span className="text-sm text-text-body">{r.start_date}</span> },
+      { header: 'Frequency', render: (r) => <span className="text-sm text-text-body">{r.frequency}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'active') === 'active' ? 'success' : 'muted'}>{r.status ?? 'active'}</Badge> },
       {
         header: '',
@@ -162,9 +162,9 @@ const toast = useToast();
       <Modal open={modal === 'detail'} onClose={() => setModal(null)} title={`Plan #${selectedId ?? ''}`}>
         <div className="space-y-4">
           <JsonPanel title="Plan detail" value={detail ?? {}} />
-          <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-            <div className="text-sm font-semibold text-slate-900">Mark installment paid</div>
-            <div className="mt-1 text-xs text-slate-500">Uses POST /modules/ar/payment-plans/:id/installments/:installmentId/mark-paid</div>
+          <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+            <div className="text-sm font-semibold text-text-strong">Mark installment paid</div>
+            <div className="mt-1 text-xs text-text-muted">Uses POST /modules/ar/payment-plans/:id/installments/:installmentId/mark-paid</div>
             <div className="mt-3">
               <JsonPanel
                 title="Payload"

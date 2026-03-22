@@ -227,7 +227,7 @@ export function JsonEditor({
       {(label || allowUpload || allowDownload || allowCopy || allowFormat || allowExpand) && (
         <div className="flex items-center justify-between">
           {label && (
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-text-body">
               {label}
             </label>
           )}
@@ -245,7 +245,7 @@ export function JsonEditor({
                 />
                 <label
                   htmlFor="json-upload"
-                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md cursor-pointer transition-colors"
+                  className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md cursor-pointer transition-colors"
                   title="Upload JSON file"
                 >
                   <Upload className="h-4 w-4" />
@@ -257,7 +257,7 @@ export function JsonEditor({
             {allowDownload && (
               <button
                 onClick={handleDownload}
-                className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md transition-colors"
                 title="Download as JSON file"
                 disabled={!textValue.trim()}
               >
@@ -269,7 +269,7 @@ export function JsonEditor({
             {allowCopy && (
               <button
                 onClick={handleCopy}
-                className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md transition-colors"
                 title="Copy to clipboard"
                 disabled={!textValue.trim()}
               >
@@ -282,7 +282,7 @@ export function JsonEditor({
               <>
                 <button
                   onClick={handleFormat}
-                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                  className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md transition-colors"
                   title="Format JSON"
                   disabled={!isValid || !textValue.trim()}
                 >
@@ -302,7 +302,7 @@ export function JsonEditor({
                 </button>
                 <button
                   onClick={handleMinify}
-                  className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                  className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md transition-colors"
                   title="Minify JSON"
                   disabled={!isValid || !textValue.trim()}
                 >
@@ -327,7 +327,7 @@ export function JsonEditor({
             {allowExpand && (
               <button
                 onClick={toggleExpand}
-                className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                className="p-1.5 text-text-muted hover:text-text-body hover:bg-surface-2 rounded-md transition-colors"
                 title={isExpanded ? 'Collapse' : 'Expand'}
               >
                 {isExpanded ? (
@@ -347,18 +347,18 @@ export function JsonEditor({
           hasError
             ? 'border-red-300 bg-red-50'
             : isValid
-            ? 'border-slate-300 bg-white'
-            : 'border-red-300 bg-white'
+            ? 'border-border-subtle bg-surface-1'
+            : 'border-red-300 bg-surface-1'
         }`}
         style={{ height: editorHeight }}
       >
         {/* Line numbers */}
         {showLineNumbers && (
           <div
-            className="absolute left-0 top-0 bottom-0 w-12 bg-slate-50 border-r border-slate-200 rounded-l-lg overflow-hidden"
+            className="absolute left-0 top-0 bottom-0 w-12 bg-surface-2 border-r border-border-subtle rounded-l-lg overflow-hidden"
             style={{ userSelect: 'none' }}
           >
-            <div className="py-3 px-2 text-right font-mono text-xs text-slate-400">
+            <div className="py-3 px-2 text-right font-mono text-xs text-text-soft">
               {Array.from({ length: lineCount }, (_, i) => (
                 <div key={i + 1} className="leading-5">
                   {i + 1}
@@ -384,7 +384,7 @@ export function JsonEditor({
             focus:ring-2 focus:ring-blue-500 focus:outline-none
             rounded-lg
             resize-none
-            ${readOnly ? 'text-slate-600' : 'text-slate-800'}
+            ${readOnly ? 'text-text-muted' : 'text-text-strong'}
             ${hasError ? 'placeholder-red-300' : 'placeholder-slate-400'}
           `}
           spellCheck={false}
@@ -416,7 +416,7 @@ export function JsonEditor({
 
       {/* Help text */}
       {helpText && !hasError && (
-        <p className="text-xs text-slate-500">{helpText}</p>
+        <p className="text-xs text-text-muted">{helpText}</p>
       )}
 
       {/* Expanded mode footer */}

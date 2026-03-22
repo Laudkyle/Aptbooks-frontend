@@ -132,19 +132,19 @@ export default function BankStatementDetailPage() {
   return (
     <div className="min-h-screen ">
       {/* QuickBooks-style Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-surface-1 border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => nav(ROUTES.bankingStatements)}
-                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                className="p-2 hover:bg-surface-2 rounded-md transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
+                <ArrowLeft className="h-5 w-5 text-text-muted" />
               </button>
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Bank Reconciliation</h1>
-                <p className="text-sm text-gray-600 mt-0.5">
+                <h1 className="text-2xl font-semibold text-text-strong">Bank Reconciliation</h1>
+                <p className="text-sm text-text-muted mt-0.5">
                   {bankAccount ? `${bankAccount.code} - ${bankAccount.name}` : 'Loading...'}
                   {statement?.statement_date && ` • ${statement.statement_date}`}
                 </p>
@@ -153,7 +153,7 @@ export default function BankStatementDetailPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCsvOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 transition-colors inline-flex items-center gap-2"
               >
                 <Upload className="h-4 w-4" />
                 Import CSV
@@ -171,23 +171,23 @@ export default function BankStatementDetailPage() {
       </div>
 
       {/* Stats Bar - QuickBooks Style */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-surface-1 border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Statement Balance</div>
-              <div className="text-2xl font-semibold text-gray-900 mt-1">
+              <div className="text-xs font-medium text-text-muted uppercase tracking-wide">Statement Balance</div>
+              <div className="text-2xl font-semibold text-text-strong mt-1">
                 ${lines.reduce((sum, l) => sum + (parseFloat(l.amount) || 0), 0).toFixed(2)}
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Matched Transactions</div>
+              <div className="text-xs font-medium text-text-muted uppercase tracking-wide">Matched Transactions</div>
               <div className="text-2xl font-semibold text-green-600 mt-1">
                 {matchedCount} of {totalCount}
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Remaining</div>
+              <div className="text-xs font-medium text-text-muted uppercase tracking-wide">Remaining</div>
               <div className="text-2xl font-semibold text-orange-600 mt-1">
                 {totalCount - matchedCount}
               </div>
@@ -199,11 +199,11 @@ export default function BankStatementDetailPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Filter:</span>
+              <Filter className="h-4 w-4 text-text-muted" />
+              <span className="text-sm font-medium text-text-body">Filter:</span>
             </div>
             <div className="flex gap-2">
               {['all', 'matched', 'unmatched'].map((filter) => (
@@ -213,7 +213,7 @@ export default function BankStatementDetailPage() {
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                     matchedFilter === filter
                       ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-white text-gray-600 border border-gray-300 hover:bg-slate-50'
+                      : 'bg-surface-1 text-text-muted border border-border-subtle hover:bg-surface-2'
                   }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -223,7 +223,7 @@ export default function BankStatementDetailPage() {
             <div className="ml-auto">
               <button
                 onClick={() => linesQuery.refetch()}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 transition-colors inline-flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
@@ -233,9 +233,9 @@ export default function BankStatementDetailPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
           {linesQuery.isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading transactions...</div>
+            <div className="p-8 text-center text-text-muted">Loading transactions...</div>
           ) : linesQuery.isError ? (
             <div className="p-8 text-center text-red-600">
               {linesQuery.error?.message ?? 'Failed to load transactions'}
@@ -243,31 +243,31 @@ export default function BankStatementDetailPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className=" border-b border-gray-200">
+                <thead className=" border-b border-border-subtle">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Reference</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-surface-1 divide-y divide-border-subtle">
                   {lines.map((line) => (
                     <tr 
                       key={line.id} 
-                      className={`hover:bg-slate-50 transition-colors ${
+                      className={`hover:bg-surface-2 transition-colors ${
                         String(selectedLineId) === String(line.id) ? 'bg-green-50' : ''
                       }`}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-strong">
                         {line.txn_date ?? '—'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-text-strong">
                         {line.description || '—'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted font-mono">
                         {line.reference || '—'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold">
@@ -297,7 +297,7 @@ export default function BankStatementDetailPage() {
                           className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                             String(selectedLineId) === String(line.id)
                               ? 'bg-green-600 text-white hover:bg-green-700'
-                              : 'bg-white text-green-600 border border-green-600 hover:bg-green-50'
+                              : 'bg-surface-1 text-green-600 border border-green-600 hover:bg-green-50'
                           }`}
                         >
                           Find Match
@@ -311,7 +311,7 @@ export default function BankStatementDetailPage() {
           )}
 
           {/* Pagination */}
-          <div className="px-6 py-4 border-t border-gray-200 ">
+          <div className="px-6 py-4 border-t border-border-subtle ">
             <Pagination
               limit={paging.limit}
               offset={paging.offset}
@@ -322,12 +322,12 @@ export default function BankStatementDetailPage() {
 
         {/* Matching Panel - Only show when line selected */}
         {selectedLineId && (
-          <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="mt-6 bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Find Matching Transaction</h2>
+              <h2 className="text-lg font-semibold text-text-strong">Find Matching Transaction</h2>
               <button
                 onClick={() => suggestionsQuery.refetch()}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 transition-colors inline-flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
@@ -341,27 +341,27 @@ export default function BankStatementDetailPage() {
             )}
 
             {suggestionsQuery.isLoading ? (
-              <div className="py-8 text-center text-gray-500">Loading suggestions...</div>
+              <div className="py-8 text-center text-text-muted">Loading suggestions...</div>
             ) : suggestionsQuery.isError ? (
               <div className="py-8 text-center text-red-600">Failed to load suggestions</div>
             ) : (
               <>
                 <div className="overflow-x-auto mb-6">
                   <table className="w-full">
-                    <thead className=" border-b border-gray-200">
+                    <thead className=" border-b border-border-subtle">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Match Score</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Journal Entry</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Memo</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Difference</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">Match Score</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">Journal Entry</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase">Memo</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase">Amount</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase">Difference</th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-text-muted uppercase">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-border-subtle">
                       {suggestions.map((sug) => (
-                        <tr key={sug.journal_entry_line_id} className="hover:bg-slate-50">
+                        <tr key={sug.journal_entry_line_id} className="hover:bg-surface-2">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <div className="w-12 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -370,18 +370,18 @@ export default function BankStatementDetailPage() {
                                   style={{ width: `${Math.min((sug.score || 0) * 100, 100)}%` }}
                                 />
                               </div>
-                              <span className="text-xs font-mono text-gray-600">
+                              <span className="text-xs font-mono text-text-muted">
                                 {((sug.score || 0) * 100).toFixed(0)}%
                               </span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{sug.entry_date ?? '—'}</td>
-                          <td className="px-4 py-3 text-sm font-mono text-gray-600">{sug.journal_entry_id}</td>
-                          <td className="px-4 py-3 text-sm text-gray-900">{sug.memo || '—'}</td>
-                          <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
+                          <td className="px-4 py-3 text-sm text-text-strong">{sug.entry_date ?? '—'}</td>
+                          <td className="px-4 py-3 text-sm font-mono text-text-muted">{sug.journal_entry_id}</td>
+                          <td className="px-4 py-3 text-sm text-text-strong">{sug.memo || '—'}</td>
+                          <td className="px-4 py-3 text-sm text-right font-semibold text-text-strong">
                             ${Math.abs(parseFloat(sug.signed_amount) || 0).toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-600">
+                          <td className="px-4 py-3 text-sm text-right text-text-muted">
                             {sug.amount_diff ? `$${Math.abs(parseFloat(sug.amount_diff)).toFixed(2)}` : '—'}
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -403,15 +403,15 @@ export default function BankStatementDetailPage() {
                 </div>
 
                 {/* Manual Match */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Manual Match</h3>
+                <div className="border-t border-border-subtle pt-6">
+                  <h3 className="text-sm font-semibold text-text-strong mb-3">Manual Match</h3>
                   <div className="flex gap-3">
                     <input
                       type="text"
                       placeholder="Enter Journal Entry ID"
                       value={manualJournalId}
                       onChange={(e) => setManualJournalId(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      className="flex-1 px-3 py-2 border border-border-subtle rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     />
                     <button
                       onClick={() => matchMutation.mutate({ 
@@ -424,7 +424,7 @@ export default function BankStatementDetailPage() {
                       Match Transaction
                     </button>
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-text-muted">
                     Enter a posted journal entry ID to manually match this transaction
                   </p>
                 </div>
@@ -444,7 +444,7 @@ export default function BankStatementDetailPage() {
             <button
               onClick={() => setJsonOpen(false)}
               disabled={importJsonMutation.isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:bg-surface-2 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
             </button>
@@ -465,7 +465,7 @@ export default function BankStatementDetailPage() {
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
         />
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-text-muted">
           POST /modules/banking/statements/:statementId/lines
         </p>
       </Modal>
@@ -479,7 +479,7 @@ export default function BankStatementDetailPage() {
             <button
               onClick={() => setCsvOpen(false)}
               disabled={importCsvMutation.isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:bg-surface-2 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
             </button>
@@ -502,7 +502,7 @@ export default function BankStatementDetailPage() {
             onChange={(e) => setCsvText(e.target.value)}
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Or Upload File</label>
+            <label className="block text-sm font-medium text-text-body mb-2">Or Upload File</label>
             <input
               type="file"
               accept=".csv,text/csv"
@@ -510,7 +510,7 @@ export default function BankStatementDetailPage() {
                 const f = e.target.files?.[0];
                 if (f) setCsvText(await f.text());
               }}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              className="block w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
             />
           </div>
          

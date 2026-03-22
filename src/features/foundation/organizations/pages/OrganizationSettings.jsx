@@ -142,7 +142,7 @@ export default function OrganizationSettings() {
 
       <ContentCard>
         {q.isLoading ? (
-          <div className="text-sm text-slate-600">Loading organization settings...</div>
+          <div className="text-sm text-text-muted">Loading organization settings...</div>
         ) : q.isError ? (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {q.error?.message ?? 'We could not load the organization settings.'}
@@ -151,8 +151,8 @@ export default function OrganizationSettings() {
           <div className="space-y-8">
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-900">Profile</h2>
+                <Building2 className="h-4 w-4 text-text-muted" />
+                <h2 className="text-base font-semibold text-text-strong">Profile</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -172,8 +172,8 @@ export default function OrganizationSettings() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-900">Contact details</h2>
+                <Mail className="h-4 w-4 text-text-muted" />
+                <h2 className="text-base font-semibold text-text-strong">Contact details</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -195,8 +195,8 @@ export default function OrganizationSettings() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-900">Address</h2>
+                <MapPin className="h-4 w-4 text-text-muted" />
+                <h2 className="text-base font-semibold text-text-strong">Address</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -237,8 +237,8 @@ export default function OrganizationSettings() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-900">Registration</h2>
+                <FileText className="h-4 w-4 text-text-muted" />
+                <h2 className="text-base font-semibold text-text-strong">Registration</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -257,8 +257,8 @@ export default function OrganizationSettings() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <Palette className="h-4 w-4 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-900">Branding</h2>
+                <Palette className="h-4 w-4 text-text-muted" />
+                <h2 className="text-base font-semibold text-text-strong">Branding</h2>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -283,8 +283,8 @@ export default function OrganizationSettings() {
       <ContentCard title="Logo">
         <div className="space-y-4">
           {logoUrl ? (
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="mb-3 text-sm font-medium text-slate-700">Current logo</div>
+            <div className="rounded-xl border border-border-subtle bg-surface-1 p-4">
+              <div className="mb-3 text-sm font-medium text-text-body">Current logo</div>
               <img
                 src={logoUrl}
                 alt="Organization logo"
@@ -293,8 +293,8 @@ export default function OrganizationSettings() {
             </div>
           ) : null}
 
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-700">
+          <div className="rounded-xl border border-dashed border-border-subtle bg-surface-2 p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-text-body">
               <ImagePlus className="h-4 w-4" />
               Upload new logo
             </div>
@@ -309,7 +309,7 @@ export default function OrganizationSettings() {
             />
 
             {upload.isPending ? (
-              <div className="mt-2 text-sm text-slate-600">Uploading logo...</div>
+              <div className="mt-2 text-sm text-text-muted">Uploading logo...</div>
             ) : null}
           </div>
         </div>

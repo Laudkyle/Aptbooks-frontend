@@ -229,7 +229,7 @@ export default function DocumentTypesPage() {
                 setActiveModal('level');
               }}
               variant="outline"
-              className="border-gray-300"
+              className="border-border-subtle"
               disabled={isLoading}
             >
               <Layers className="h-4 w-4 mr-2" />
@@ -256,8 +256,8 @@ export default function DocumentTypesPage() {
           <CardContent className="py-12">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load data</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-text-strong mb-2">Failed to load data</h3>
+              <p className="text-sm text-text-muted">
                 {typesError?.message || levelsError?.message || 'An error occurred while loading data'}
               </p>
               <Button
@@ -290,13 +290,13 @@ export default function DocumentTypesPage() {
               {isLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-lg" />
+                    <div key={i} className="h-20 bg-surface-2 animate-pulse rounded-lg" />
                   ))}
                 </div>
               ) : documentTypes.length === 0 ? (
                 <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500">No document types yet</p>
+                  <FileText className="h-12 w-12 text-text-soft mx-auto mb-3" />
+                  <p className="text-sm text-text-muted">No document types yet</p>
                   <Button
                     size="sm"
                     variant="outline"
@@ -312,20 +312,20 @@ export default function DocumentTypesPage() {
                   {documentTypes.map((type) => (
                     <div
                       key={type.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
+                      className="border border-border-subtle rounded-lg p-4 hover:border-border-subtle transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h3 className="font-medium text-gray-900">{type.name}</h3>
+                            <h3 className="font-medium text-text-strong">{type.name}</h3>
                             <Badge variant="outline" className="text-xs">
                               {type.code}
                             </Badge>
                           </div>
                           {type.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2">{type.description}</p>
+                            <p className="text-sm text-text-muted line-clamp-2">{type.description}</p>
                           )}
-                          <div className="mt-2 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
+                          <div className="mt-2 flex items-center gap-4 text-xs text-text-muted flex-wrap">
                             <span>Approval levels: {type.approval_levels?.length || 0}</span>
                             <span>Created: {type.created_at ? new Date(type.created_at).toLocaleDateString() : '—'}</span>
                           </div>
@@ -338,7 +338,7 @@ export default function DocumentTypesPage() {
                             setSelectedLevels(type.approval_levels?.map(l => l.id) || []);
                             setActiveModal('assign');
                           }}
-                          className="border-gray-300 ml-2 flex-shrink-0"
+                          className="border-border-subtle ml-2 flex-shrink-0"
                           disabled={approvalLevels.length === 0}
                         >
                           <Edit className="h-3 w-3 mr-1" />
@@ -367,13 +367,13 @@ export default function DocumentTypesPage() {
               {isLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-lg" />
+                    <div key={i} className="h-20 bg-surface-2 animate-pulse rounded-lg" />
                   ))}
                 </div>
               ) : approvalLevels.length === 0 ? (
                 <div className="text-center py-8">
-                  <Layers className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500">No approval levels yet</p>
+                  <Layers className="h-12 w-12 text-text-soft mx-auto mb-3" />
+                  <p className="text-sm text-text-muted">No approval levels yet</p>
                   <Button
                     size="sm"
                     variant="outline"
@@ -391,11 +391,11 @@ export default function DocumentTypesPage() {
                     .map((level) => (
                       <div
                         key={level.id}
-                        className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
+                        className="border border-border-subtle rounded-lg p-4 hover:border-border-subtle transition-colors"
                       >
                         <div>
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h3 className="font-medium text-gray-900">{level.name}</h3>
+                            <h3 className="font-medium text-text-strong">{level.name}</h3>
                             <Badge variant="outline" className="text-xs">
                               {level.code}
                             </Badge>
@@ -404,7 +404,7 @@ export default function DocumentTypesPage() {
                             </Badge>
                           </div>
                           {level.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2">{level.description}</p>
+                            <p className="text-sm text-text-muted line-clamp-2">{level.description}</p>
                           )}
                         </div>
                       </div>
@@ -426,11 +426,11 @@ export default function DocumentTypesPage() {
               {entityTypesLoading ? (
                 <div className="flex gap-2">
                   {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="h-8 w-24 bg-gray-100 animate-pulse rounded-full" />
+                    <div key={i} className="h-8 w-24 bg-surface-2 animate-pulse rounded-full" />
                   ))}
                 </div>
               ) : entityTypes.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">No entity types available</p>
+                <p className="text-sm text-text-muted text-center py-4">No entity types available</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {entityTypes.map((type) => (
@@ -483,7 +483,7 @@ export default function DocumentTypesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -494,7 +494,7 @@ export default function DocumentTypesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Code <span className="text-red-500">*</span>
             </label>
             <Input
@@ -502,11 +502,11 @@ export default function DocumentTypesPage() {
               onChange={(e) => setTypeForm(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
               placeholder="e.g., INV, CONT, RPT"
             />
-            <p className="text-xs text-gray-500 mt-1">Unique identifier, will be converted to uppercase</p>
+            <p className="text-xs text-text-muted mt-1">Unique identifier, will be converted to uppercase</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Description
             </label>
             <Textarea
@@ -528,7 +528,7 @@ export default function DocumentTypesPage() {
           <Button 
             variant="outline" 
             onClick={() => setActiveModal(null)}
-            className="border-gray-300"
+            className="border-border-subtle"
           >
             Cancel
           </Button>
@@ -550,7 +550,7 @@ export default function DocumentTypesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -561,7 +561,7 @@ export default function DocumentTypesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Code <span className="text-red-500">*</span>
             </label>
             <Input
@@ -569,11 +569,11 @@ export default function DocumentTypesPage() {
               onChange={(e) => setLevelForm(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
               placeholder="e.g., MGR, DIR"
             />
-            <p className="text-xs text-gray-500 mt-1">Unique identifier, will be converted to uppercase</p>
+            <p className="text-xs text-text-muted mt-1">Unique identifier, will be converted to uppercase</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Sequence <span className="text-red-500">*</span>
             </label>
             <Input
@@ -583,11 +583,11 @@ export default function DocumentTypesPage() {
               value={levelForm.sequence}
               onChange={(e) => setLevelForm(prev => ({ ...prev, sequence: parseInt(e.target.value) || 1 }))}
             />
-            <p className="text-xs text-gray-500 mt-1">Order in the approval chain (lower numbers go first)</p>
+            <p className="text-xs text-text-muted mt-1">Order in the approval chain (lower numbers go first)</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Description
             </label>
             <Textarea
@@ -603,7 +603,7 @@ export default function DocumentTypesPage() {
           <Button 
             variant="outline" 
             onClick={() => setActiveModal(null)}
-            className="border-gray-300"
+            className="border-border-subtle"
           >
             Cancel
           </Button>
@@ -629,17 +629,17 @@ export default function DocumentTypesPage() {
         size="lg"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-text-muted">
             Select and order the approval levels for this document type. Use the arrows to reorder.
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
             {/* Available Levels */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Available Levels</h4>
-              <div className="border border-gray-200 rounded-lg p-2 max-h-96 overflow-y-auto">
+              <h4 className="text-sm font-medium text-text-body mb-2">Available Levels</h4>
+              <div className="border border-border-subtle rounded-lg p-2 max-h-96 overflow-y-auto">
                 {approvalLevels.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">No approval levels available</p>
+                  <p className="text-sm text-text-muted text-center py-4">No approval levels available</p>
                 ) : (
                   approvalLevels
                     .filter(level => !selectedLevels.includes(level.id))
@@ -651,24 +651,24 @@ export default function DocumentTypesPage() {
                       >
                         <div>
                           <span className="text-sm font-medium">{level.name}</span>
-                          <span className="text-xs text-gray-500 ml-2">({level.code})</span>
+                          <span className="text-xs text-text-muted ml-2">({level.code})</span>
                         </div>
-                        <Plus className="h-4 w-4 text-gray-400" />
+                        <Plus className="h-4 w-4 text-text-soft" />
                       </div>
                     ))
                 )}
                 {approvalLevels.filter(level => !selectedLevels.includes(level.id)).length === 0 && approvalLevels.length > 0 && (
-                  <p className="text-sm text-gray-500 text-center py-4">No more levels available</p>
+                  <p className="text-sm text-text-muted text-center py-4">No more levels available</p>
                 )}
               </div>
             </div>
 
             {/* Selected Levels */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Levels (in order)</h4>
-              <div className="border border-gray-200 rounded-lg p-2 max-h-96 overflow-y-auto">
+              <h4 className="text-sm font-medium text-text-body mb-2">Selected Levels (in order)</h4>
+              <div className="border border-border-subtle rounded-lg p-2 max-h-96 overflow-y-auto">
                 {selectedLevels.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">
+                  <p className="text-sm text-text-muted text-center py-4">
                     No levels selected. Click on available levels to add them.
                   </p>
                 ) : (
@@ -685,7 +685,7 @@ export default function DocumentTypesPage() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <Badge className="bg-blue-600 text-white">#{index + 1}</Badge>
                             <span className="text-sm font-medium">{level.name}</span>
-                            <span className="text-xs text-gray-500">({level.code})</span>
+                            <span className="text-xs text-text-muted">({level.code})</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 ml-2">
@@ -736,7 +736,7 @@ export default function DocumentTypesPage() {
               setSelectedType(null);
               setSelectedLevels([]);
             }}
-            className="border-gray-300"
+            className="border-border-subtle"
           >
             Cancel
           </Button>

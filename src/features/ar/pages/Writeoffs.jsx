@@ -73,10 +73,10 @@ const toast = useToast();
 
   const columns = useMemo(
     () => [
-      { header: 'ID', render: (r) => <span className="text-sm font-semibold text-slate-900">#{r.id}</span> },
-      { header: 'Entity', render: (r) => <span className="text-sm text-slate-700">{r.entity_type}:{String(r.entity_id)}</span> },
-      { header: 'Partner', render: (r) => <span className="text-sm text-slate-700">{r.partner_id}</span> },
-      { header: 'Amount', render: (r) => <span className="text-sm text-slate-900">{r.amount}</span> },
+      { header: 'ID', render: (r) => <span className="text-sm font-semibold text-text-strong">#{r.id}</span> },
+      { header: 'Entity', render: (r) => <span className="text-sm text-text-body">{r.entity_type}:{String(r.entity_id)}</span> },
+      { header: 'Partner', render: (r) => <span className="text-sm text-text-body">{r.partner_id}</span> },
+      { header: 'Amount', render: (r) => <span className="text-sm text-text-strong">{r.amount}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'draft') === 'posted' ? 'success' : 'muted'}>{r.status ?? 'draft'}</Badge> }
     ],
     []
@@ -120,8 +120,8 @@ const toast = useToast();
               <ContentCard>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">Reason codes</div>
-                    <div className="mt-1 text-xs text-slate-500">Used when creating write-offs.</div>
+                    <div className="text-sm font-semibold text-text-strong">Reason codes</div>
+                    <div className="mt-1 text-xs text-text-muted">Used when creating write-offs.</div>
                   </div>
                   <Button
                     leftIcon={Plus}
@@ -137,11 +137,11 @@ const toast = useToast();
                 <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {reasons.length ? (
                     reasons.map((r) => (
-                      <div key={r.code} className="rounded-2xl border border-border-subtle bg-white/70 p-5">
+                      <div key={r.code} className="rounded-2xl border border-border-subtle bg-surface-2 p-5">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="text-sm font-semibold text-slate-900">{r.code}</div>
-                            <div className="mt-1 text-xs text-slate-500">{r.description ?? '—'}</div>
+                            <div className="text-sm font-semibold text-text-strong">{r.code}</div>
+                            <div className="mt-1 text-xs text-text-muted">{r.description ?? '—'}</div>
                           </div>
                           <Badge tone={r.is_active ? 'success' : 'muted'}>{r.is_active ? 'active' : 'inactive'}</Badge>
                         </div>
@@ -158,7 +158,7 @@ const toast = useToast();
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-border-subtle bg-white/60 p-8 text-center text-sm text-slate-600 md:col-span-2 lg:col-span-3">
+                    <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-8 text-center text-sm text-text-muted md:col-span-2 lg:col-span-3">
                       No reason codes.
                     </div>
                   )}
@@ -173,8 +173,8 @@ const toast = useToast();
               <ContentCard>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">Write-off settings</div>
-                    <div className="mt-1 text-xs text-slate-500">These ids are stored as-is by backend.</div>
+                    <div className="text-sm font-semibold text-text-strong">Write-off settings</div>
+                    <div className="mt-1 text-xs text-text-muted">These ids are stored as-is by backend.</div>
                   </div>
                   <Button leftIcon={Save} loading={saveSettings.isPending} onClick={() => saveSettings.mutate(settingsDraft)}>
                     Save

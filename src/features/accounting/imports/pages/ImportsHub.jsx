@@ -54,7 +54,7 @@ export default function ImportsHub() {
               { value: 'false', label: 'No (apply changes)' }
             ]}
           />
-          <div className="md:col-span-2 text-xs text-slate-600">
+          <div className="md:col-span-2 text-xs text-text-muted">
             Import endpoints accept raw text CSV (text/plain) or JSON with csvText. This UI posts raw text.
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function ImportsHub() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <ContentCard title="Import COA CSV" actions={<Button onClick={() => importCoa.mutate()} disabled={!coaText || importCoa.isLoading}>Run</Button>}>
           <ImportDropzone onText={setCoaText} />
-          <textarea className="mt-3 w-full rounded-md border border-slate-200 p-2 text-xs" rows={10} value={coaText} onChange={(e) => setCoaText(e.target.value)} placeholder="Paste CSV content here…" />
+          <textarea className="mt-3 w-full rounded-md border border-border-subtle p-2 text-xs" rows={10} value={coaText} onChange={(e) => setCoaText(e.target.value)} placeholder="Paste CSV content here…" />
         </ContentCard>
 
         <ContentCard
@@ -75,19 +75,19 @@ export default function ImportsHub() {
           }
         >
           <div className="mb-3">
-            <label className="mb-1 block text-xs font-medium text-slate-700">journalKeyField (optional)</label>
-            <input className="w-full rounded-md border border-slate-200 p-2 text-sm" value={journalKeyField} onChange={(e) => setJournalKeyField(e.target.value)} />
+            <label className="mb-1 block text-xs font-medium text-text-body">journalKeyField (optional)</label>
+            <input className="w-full rounded-md border border-border-subtle p-2 text-sm" value={journalKeyField} onChange={(e) => setJournalKeyField(e.target.value)} />
           </div>
           <ImportDropzone onText={setJournalsText} />
-          <textarea className="mt-3 w-full rounded-md border border-slate-200 p-2 text-xs" rows={10} value={journalsText} onChange={(e) => setJournalsText(e.target.value)} placeholder="Paste CSV content here…" />
+          <textarea className="mt-3 w-full rounded-md border border-border-subtle p-2 text-xs" rows={10} value={journalsText} onChange={(e) => setJournalsText(e.target.value)} placeholder="Paste CSV content here…" />
         </ContentCard>
       </div>
 
       <ContentCard title="Result">
         {result ? (
-          <pre className="max-h-96 overflow-auto rounded bg-slate-50 p-3 text-xs text-slate-800">{JSON.stringify(result, null, 2)}</pre>
+          <pre className="max-h-96 overflow-auto rounded bg-surface-2 p-3 text-xs text-text-strong">{JSON.stringify(result, null, 2)}</pre>
         ) : (
-          <div className="text-sm text-slate-700">Run an import to see the response.</div>
+          <div className="text-sm text-text-body">Run an import to see the response.</div>
         )}
       </ContentCard>
     </div>

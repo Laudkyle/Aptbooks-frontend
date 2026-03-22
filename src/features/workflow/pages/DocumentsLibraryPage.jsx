@@ -60,10 +60,10 @@ export default function DocumentsLibraryPage() {
       header: 'Title',
       render: (value, row) => (
         <div className="flex items-center gap-3">
-          <FileText className="h-4 w-4 text-gray-400" />
+          <FileText className="h-4 w-4 text-text-soft" />
           <div>
-            <div className="font-medium text-gray-900">{value}</div>
-            <div className="text-xs text-gray-500 mt-0.5">
+            <div className="font-medium text-text-strong">{value}</div>
+            <div className="text-xs text-text-muted mt-0.5">
               Type: {row.document_type?.name || '—'}
             </div>
           </div>
@@ -75,8 +75,8 @@ export default function DocumentsLibraryPage() {
       header: 'Entity',
       render: (value, row) => (
         <div>
-          <div className="text-sm text-gray-900">{row.entity_type}</div>
-          <div className="text-xs text-gray-500 mt-0.5">{value || '—'}</div>
+          <div className="text-sm text-text-strong">{row.entity_type}</div>
+          <div className="text-xs text-text-muted mt-0.5">{value || '—'}</div>
         </div>
       )
     },
@@ -86,7 +86,7 @@ export default function DocumentsLibraryPage() {
       render: (value) => {
         const Icon = statusIcons[value] || Clock;
         return (
-          <Badge variant="outline" className={`${statusColors[value] || 'bg-gray-100 text-gray-800'} gap-1.5`}>
+          <Badge variant="outline" className={`${statusColors[value] || 'bg-surface-2 text-text-strong'} gap-1.5`}>
             <Icon className="h-3 w-3" />
             {value}
           </Badge>
@@ -97,7 +97,7 @@ export default function DocumentsLibraryPage() {
       key: 'current_version_no',
       header: 'Version',
       render: (value) => (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-text-muted">
           {value ? `v${value}` : '—'}
         </span>
       )
@@ -106,7 +106,7 @@ export default function DocumentsLibraryPage() {
       key: 'created_at',
       header: 'Created',
       render: (value) => (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-text-muted">
           {new Date(value).toLocaleDateString()}
         </span>
       )
@@ -131,7 +131,7 @@ export default function DocumentsLibraryPage() {
         <CardContent className="pt-6">
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-text-body mb-1.5">
                 Entity Type
               </label>
               <Input
@@ -141,7 +141,7 @@ export default function DocumentsLibraryPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-text-body mb-1.5">
                 Entity ID
               </label>
               <Input
@@ -151,13 +151,13 @@ export default function DocumentsLibraryPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-text-body mb-1.5">
                 Status
               </label>
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               >
                 <option value="">All Statuses</option>
                 <option value="DRAFT">Draft</option>
@@ -171,7 +171,7 @@ export default function DocumentsLibraryPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setFilters({ entity_type: '', entity_id: '', status: '' })}
-                className="border-gray-300"
+                className="border-border-subtle"
               >
                 Clear Filters
               </Button>

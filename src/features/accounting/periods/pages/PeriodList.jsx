@@ -99,7 +99,7 @@ export default function PeriodList() {
 
       <ContentCard title="Periods">
         {q.isLoading ? (
-          <div className="text-sm text-slate-700">Loading…</div>
+          <div className="text-sm text-text-body">Loading…</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load periods.'}</div>
         ) : (
@@ -159,7 +159,7 @@ export default function PeriodList() {
           <Input label="Code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="2026-01" />
           <Input label="Start date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           <Input label="End date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          <div className="text-xs text-slate-600">
+          <div className="text-xs text-text-muted">
             Backend returns 409 if dates overlap an existing period.
           </div>
         </div>

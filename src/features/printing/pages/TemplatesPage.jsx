@@ -88,22 +88,22 @@ export default function TemplatesPage() {
       header: 'Template',
       render: (row) => (
         <div>
-          <div className="font-medium text-slate-900">{row.name ?? row.code ?? 'Untitled template'}</div>
-          <div className="text-xs text-slate-500">{row.code ?? row.template_code ?? 'No code'}</div>
+          <div className="font-medium text-text-strong">{row.name ?? row.code ?? 'Untitled template'}</div>
+          <div className="text-xs text-text-muted">{row.code ?? row.template_code ?? 'No code'}</div>
         </div>
       ),
     },
     {
       header: 'Design',
-      render: (row) => <span className="text-sm text-slate-700">{row.design_key ?? row.designKey ?? 'classic'}</span>,
+      render: (row) => <span className="text-sm text-text-body">{row.design_key ?? row.designKey ?? 'classic'}</span>,
     },
     {
       header: 'Paper',
-      render: (row) => <span className="text-sm text-slate-700">{row.paper_size ?? row.paperSize ?? 'A4'}</span>,
+      render: (row) => <span className="text-sm text-text-body">{row.paper_size ?? row.paperSize ?? 'A4'}</span>,
     },
     {
       header: 'Version',
-      render: (row) => <span className="text-sm text-slate-700">{row.version_no ?? row.versionNo ?? 1}</span>,
+      render: (row) => <span className="text-sm text-text-body">{row.version_no ?? row.versionNo ?? 1}</span>,
     },
     {
       header: 'Status',
@@ -144,8 +144,8 @@ export default function TemplatesPage() {
                 <Layers3 className="h-5 w-5" />
               </div>
               <div>
-                <div className="font-medium text-slate-900">{option.label}</div>
-                <div className="text-xs text-slate-500">Preset production design</div>
+                <div className="font-medium text-text-strong">{option.label}</div>
+                <div className="text-xs text-text-muted">Preset production design</div>
               </div>
             </div>
           </ContentCard>

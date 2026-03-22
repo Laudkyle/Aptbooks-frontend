@@ -73,12 +73,12 @@ export function Modal({ open, title, onClose, children, footer }) {
         <div
           ref={modalRef}
           tabIndex={-1}
-          className="relative w-full max-w-2xl rounded-2xl border border-border-subtle  bg-white shadow-lift outline-none"
+          className="relative w-full max-w-2xl rounded-2xl border border-border-subtle  bg-surface-1 shadow-lift outline-none"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
         >
-          <div className="flex items-start justify-between rounded-2xl gap-3 border-border-subtle bg-white/70 p-4 backdrop-blur">
+          <div className="flex items-start justify-between rounded-2xl gap-3 border-border-subtle bg-surface-2 p-4 backdrop-blur">
             <div>
               <div id="modal-title" className="text-sm font-semibold text-brand-deep">
                 {title}
@@ -94,7 +94,7 @@ export function Modal({ open, title, onClose, children, footer }) {
           </div>
           
           {footer && (
-            <div className=" border-border-subtle rounded-2xl bg-white/60 p-4 backdrop-blur">
+            <div className=" border-border-subtle rounded-2xl bg-surface-2 p-4 backdrop-blur">
               {footer}
             </div>
           )}

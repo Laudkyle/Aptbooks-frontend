@@ -31,13 +31,13 @@ function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
   const showToggle = hasChildren && isSection;
 
   const getTextStyle = () => {
-    if (isTotal) return 'font-semibold text-gray-900';
-    if (isSection) return 'text-base md:text-lg font-semibold text-gray-800';
-    return 'text-gray-600';
+    if (isTotal) return 'font-semibold text-text-strong';
+    if (isSection) return 'text-base md:text-lg font-semibold text-text-strong';
+    return 'text-text-muted';
   };
 
   const getBgStyle = () => {
-    if (isTotal) return 'border-t border-gray-300';
+    if (isTotal) return 'border-t border-border-subtle';
     return '';
   };
 
@@ -45,7 +45,7 @@ function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
     <>
       <div 
         className={`
-          flex items-center py-2 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4
+          flex items-center py-2 hover:bg-surface-2 transition-colors duration-150 px-2 md:px-4
           ${getBgStyle()}
         `}
         style={{ paddingLeft: `${paddingLeft + 8}px` }}
@@ -53,7 +53,7 @@ function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
         {showToggle && (
           <button 
             onClick={() => onToggle?.(line.id)}
-            className="mr-2 md:mr-3 text-gray-600 hover:text-gray-900 flex-shrink-0"
+            className="mr-2 md:mr-3 text-text-muted hover:text-text-strong flex-shrink-0"
           >
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
@@ -68,7 +68,7 @@ function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
         <span className={`flex-1 break-words pr-2 text-sm md:text-base ${getTextStyle()}`}>
           {line.label}
         </span>
-        <span className="text-gray-900 whitespace-nowrap text-sm md:text-base">
+        <span className="text-text-strong whitespace-nowrap text-sm md:text-base">
           {formatCurrency(line.amount)}
         </span>
       </div>
@@ -174,13 +174,13 @@ export default function BalanceSheet() {
 
   return (
     <div className="max-w-7xl mx-auto p-3 md:p-6 lg:p-8 max-h-[calc(100vh-100px)] overflow-y-scroll">
-      <div className="bg-white rounded-lg shadow-xl">
+      <div className="bg-surface-1 rounded-lg shadow-xl">
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Balance Sheet</h2>
-              <p className="text-sm md:text-md text-gray-600 mt-1">
+              <h2 className="text-2xl md:text-3xl font-bold text-text-strong">Balance Sheet</h2>
+              <p className="text-sm md:text-md text-text-muted mt-1">
                 As of {selectedDate}
               </p>
             </div>
@@ -188,7 +188,7 @@ export default function BalanceSheet() {
             <div className="flex flex-col md:flex-row gap-4">
               <input 
                 type="date" 
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700"
+                className="border border-border-subtle rounded-md px-3 py-2 text-sm text-text-body"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
@@ -196,7 +196,7 @@ export default function BalanceSheet() {
               <div className="flex gap-2 md:gap-4">
                 <button
                   onClick={handlePrint}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Printer className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                   <span className="hidden md:inline">Print</span>
@@ -204,7 +204,7 @@ export default function BalanceSheet() {
                 
                 <button
                   onClick={handleExport}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Download className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                   <span className="hidden md:inline">Export</span>
@@ -232,7 +232,7 @@ export default function BalanceSheet() {
           {/* Loading/Error States */}
           {q.isLoading && (
             <div className="text-center py-12">
-              <div className="text-sm text-slate-600">Loading balance sheet...</div>
+              <div className="text-sm text-text-muted">Loading balance sheet...</div>
             </div>
           )}
 
@@ -246,7 +246,7 @@ export default function BalanceSheet() {
 
           {!periodId && !q.isLoading && (
             <div className="text-center py-12  rounded-lg">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-text-muted">
                 Select a period to view the balance sheet.
               </p>
             </div>
@@ -257,7 +257,7 @@ export default function BalanceSheet() {
             <div>
               {/* Assets Section */}
               <div className="mb-6 md:mb-10">
-                <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4 px-2 md:px-4">
+                <h3 className="text-lg md:text-xl font-semibold text-text-strong mb-3 md:mb-4 px-2 md:px-4">
                   Assets
                 </h3>
                 <div className="overflow-x-auto">
@@ -271,22 +271,22 @@ export default function BalanceSheet() {
                   ))}
                   
                   {/* Total Assets */}
-                  <div className="flex items-center py-3 mt-3 border-t border-gray-300 px-2 md:px-4">
-                    <span className="flex-1 font-semibold text-gray-900 text-sm md:text-base">
+                  <div className="flex items-center py-3 mt-3 border-t border-border-subtle px-2 md:px-4">
+                    <span className="flex-1 font-semibold text-text-strong text-sm md:text-base">
                       Total Assets
                     </span>
-                    <span className="font-semibold text-gray-900 text-sm md:text-base">
+                    <span className="font-semibold text-text-strong text-sm md:text-base">
                       {formatCurrency(totalAssets)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 my-6 md:my-8"></div>
+              <div className="border-t border-border-subtle my-6 md:my-8"></div>
 
               {/* Liabilities & Equity Section */}
               <div>
-                <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4 px-2 md:px-4">
+                <h3 className="text-lg md:text-xl font-semibold text-text-strong mb-3 md:mb-4 px-2 md:px-4">
                   Liabilities & Equity
                 </h3>
                 <div className="overflow-x-auto">
@@ -301,11 +301,11 @@ export default function BalanceSheet() {
                   ))}
                   
                   {/* Total Liabilities */}
-                  <div className="flex items-center py-3 mt-3 border-t border-gray-300 px-2 md:px-4">
-                    <span className="flex-1 font-semibold text-gray-900 text-sm md:text-base">
+                  <div className="flex items-center py-3 mt-3 border-t border-border-subtle px-2 md:px-4">
+                    <span className="flex-1 font-semibold text-text-strong text-sm md:text-base">
                       Total Liabilities
                     </span>
-                    <span className="font-semibold text-gray-900 text-sm md:text-base">
+                    <span className="font-semibold text-text-strong text-sm md:text-base">
                       {formatCurrency(totalLiabilities)}
                     </span>
                   </div>
@@ -321,21 +321,21 @@ export default function BalanceSheet() {
                   ))}
 
                   {/* Total Equity */}
-                  <div className="flex items-center py-3 mt-3 border-t border-gray-300 px-2 md:px-4">
-                    <span className="flex-1 font-semibold text-gray-900 text-sm md:text-base">
+                  <div className="flex items-center py-3 mt-3 border-t border-border-subtle px-2 md:px-4">
+                    <span className="flex-1 font-semibold text-text-strong text-sm md:text-base">
                       Total Equity
                     </span>
-                    <span className="font-semibold text-gray-900 text-sm md:text-base">
+                    <span className="font-semibold text-text-strong text-sm md:text-base">
                       {formatCurrency(totalEquity)}
                     </span>
                   </div>
 
                   {/* Total Liabilities & Equity */}
-                  <div className="flex items-center py-4 mt-6 border-t-2 border-gray-300 px-2 md:px-4">
-                    <span className="flex-1 text-base md:text-lg font-semibold text-gray-900">
+                  <div className="flex items-center py-4 mt-6 border-t-2 border-border-subtle px-2 md:px-4">
+                    <span className="flex-1 text-base md:text-lg font-semibold text-text-strong">
                       Total Liabilities & Equity
                     </span>
-                    <span className="text-base md:text-lg font-semibold text-gray-900">
+                    <span className="text-base md:text-lg font-semibold text-text-strong">
                       {formatCurrency(totalLiabilitiesEquity)}
                     </span>
                   </div>

@@ -108,7 +108,7 @@ export default function CashbookPage() {
 
         <div className="mt-4">
           {cashbookQuery.isLoading ? (
-            <div className="text-sm text-slate-700">Loading...</div>
+            <div className="text-sm text-text-body">Loading...</div>
           ) : cashbookQuery.isError ? (
             <div className="text-sm text-red-700">{cashbookQuery.error?.message ?? 'Failed to load cashbook.'}</div>
           ) : (

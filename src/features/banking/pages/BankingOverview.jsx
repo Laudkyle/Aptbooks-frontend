@@ -9,14 +9,14 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 
 function Tile({ title, description, to, tag }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+    <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1">
-            <h3 className="text-base font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+            <h3 className="text-base font-semibold text-text-strong group-hover:text-green-600 transition-colors">
               {title}
             </h3>
-            <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
+            <p className="mt-1.5 text-sm text-text-muted leading-relaxed">
               {description}
             </p>
           </div>
@@ -28,7 +28,7 @@ function Tile({ title, description, to, tag }) {
               tag === 'Query' ? 'bg-cyan-100 text-cyan-800' :
               tag === 'Period-end' ? 'bg-indigo-100 text-indigo-800' :
               tag === 'Reporting' ? 'bg-green-100 text-green-800' :
-              'bg-gray-100 text-gray-800'
+              'bg-surface-2 text-text-strong'
             }`}>
               {tag}
             </span>
@@ -51,14 +51,14 @@ export default function BankingOverview() {
         {/* QuickBooks-style Header */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Banking</h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <h1 className="text-2xl font-semibold text-text-strong">Banking</h1>
+            <p className="mt-1 text-sm text-text-muted">
               Statements, matching, cashbook, and reconciliations
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to={ROUTES.bankingStatements}>
-              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md font-medium hover:bg-slate-50 transition-colors">
+              <button className="bg-surface-1 border border-border-subtle text-text-body px-4 py-2.5 rounded-md font-medium hover:bg-surface-2 transition-colors">
                 Import Statement
               </button>
             </Link>
@@ -117,10 +117,10 @@ export default function BankingOverview() {
         </div>
 
         {/* Workflow Tips Card */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          <div className="border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-blue-50 to-transparent">
-            <h2 className="text-lg font-semibold text-gray-900">Workflow Tips</h2>
-            <p className="mt-1 text-sm text-gray-600">
+        <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm overflow-hidden">
+          <div className="border-b border-border-subtle px-6 py-4 bg-gradient-to-r from-blue-50 to-transparent">
+            <h2 className="text-lg font-semibold text-text-strong">Workflow Tips</h2>
+            <p className="mt-1 text-sm text-text-muted">
               Keep statements current, match to posted journals, and close reconciliations per period
             </p>
           </div>
@@ -131,9 +131,9 @@ export default function BankingOverview() {
                   <div className="flex items-center justify-center w-7 h-7 bg-green-600 text-white rounded-full text-sm font-semibold">
                     1
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900">Import</h3>
+                  <h3 className="text-sm font-semibold text-text-strong">Import</h3>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-text-body leading-relaxed">
                   Create a statement and import lines via CSV for speed
                 </p>
               </div>
@@ -143,9 +143,9 @@ export default function BankingOverview() {
                   <div className="flex items-center justify-center w-7 h-7 bg-blue-600 text-white rounded-full text-sm font-semibold">
                     2
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900">Match</h3>
+                  <h3 className="text-sm font-semibold text-text-strong">Match</h3>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-text-body leading-relaxed">
                   Use suggestions to match lines against posted journal entries
                 </p>
               </div>
@@ -155,9 +155,9 @@ export default function BankingOverview() {
                   <div className="flex items-center justify-center w-7 h-7 bg-purple-600 text-white rounded-full text-sm font-semibold">
                     3
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900">Reconcile</h3>
+                  <h3 className="text-sm font-semibold text-text-strong">Reconcile</h3>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-text-body leading-relaxed">
                   Run reconciliation per bank account and open period, then close
                 </p>
               </div>

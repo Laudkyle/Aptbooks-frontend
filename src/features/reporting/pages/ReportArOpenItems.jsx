@@ -147,7 +147,7 @@ export default function ReportArOpenItems() {
           
           if (isDate && !isCurrency) {
             return (
-              <span className="text-sm text-slate-900">
+              <span className="text-sm text-text-strong">
                 {formatDate(value)}
               </span>
             );
@@ -155,7 +155,7 @@ export default function ReportArOpenItems() {
           
           if (isCurrency && isNumeric) {
             return (
-              <span className="text-sm font-medium text-slate-900 tabular-nums">
+              <span className="text-sm font-medium text-text-strong tabular-nums">
                 {formatCurrency(value)}
               </span>
             );
@@ -163,14 +163,14 @@ export default function ReportArOpenItems() {
           
           if (isNumeric) {
             return (
-              <span className="text-sm text-slate-900 tabular-nums">
+              <span className="text-sm text-text-strong tabular-nums">
                 {value}
               </span>
             );
           }
           
           return (
-            <span className="text-sm text-slate-900">
+            <span className="text-sm text-text-strong">
               {value || '—'}
             </span>
           );
@@ -238,28 +238,28 @@ export default function ReportArOpenItems() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-600">Open Items</p>
-              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <p className="text-xs font-medium text-text-muted">Open Items</p>
+              <svg className="w-5 h-5 text-text-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{summary.totalItems}</p>
+            <p className="text-2xl font-bold text-text-strong">{summary.totalItems}</p>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-600">Total Outstanding</p>
-              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <p className="text-xs font-medium text-text-muted">Total Outstanding</p>
+              <svg className="w-5 h-5 text-text-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{formatCurrency(summary.totalAmount)}</p>
+            <p className="text-2xl font-bold text-text-strong">{formatCurrency(summary.totalAmount)}</p>
           </div>
 
           {summary.pastDue > 0 && (
-            <div className="bg-white border border-red-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-red-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-red-700">Past Due</p>
                 <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -271,7 +271,7 @@ export default function ReportArOpenItems() {
           )}
 
           {summary.current > 0 && (
-            <div className="bg-white border border-green-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-green-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-green-700">Current</p>
                 <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -317,7 +317,7 @@ export default function ReportArOpenItems() {
       <ContentCard>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Search Criteria</h3>
+            <h3 className="text-sm font-semibold text-text-strong">Search Criteria</h3>
             {hasSearched && rows.length > 0 && (
               <Button
                 variant="secondary"
@@ -346,7 +346,7 @@ export default function ReportArOpenItems() {
                 options={customerOptions}
                 required
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Select the customer to view their open receivable items
               </p>
             </div>
@@ -386,16 +386,16 @@ export default function ReportArOpenItems() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Customer to Begin</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">Select Customer to Begin</h3>
+            <p className="text-sm text-text-muted mb-6">
               Enter a customer ID above and click "Run Report" to view their open receivable items
             </p>
           </div>
         ) : isLoading || isFetching ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Loading open items...</p>
+              <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-text-muted">Loading open items...</p>
             </div>
           </div>
         ) : rows.length === 0 ? (
@@ -403,8 +403,8 @@ export default function ReportArOpenItems() {
             <svg className="w-16 h-16 text-green-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">No Open Items Found</h3>
+            <p className="text-sm text-text-muted mb-6">
               Customer <span className="font-mono font-semibold">{customerId}</span> has no outstanding receivable items. All invoices are paid in full.
             </p>
             <Button
@@ -421,13 +421,13 @@ export default function ReportArOpenItems() {
           <>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Open Items Detail</h3>
-                <p className="text-xs text-slate-600 mt-0.5">
+                <h3 className="text-sm font-semibold text-text-strong">Open Items Detail</h3>
+                <p className="text-xs text-text-muted mt-0.5">
                   {rows.length} open item{rows.length !== 1 ? 's' : ''} for customer {customerId}
                 </p>
               </div>
             </div>
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <DataTable
                 columns={columns}
                 rows={rows}
@@ -445,19 +445,19 @@ export default function ReportArOpenItems() {
       {/* Help Section */}
       <ContentCard>
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-900">About Open Receivables</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+          <h3 className="text-sm font-semibold text-text-strong">About Open Receivables</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-text-body">
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">What are Open Items?</h4>
-              <p className="text-xs text-slate-600">
+              <h4 className="font-medium text-text-strong mb-2">What are Open Items?</h4>
+              <p className="text-xs text-text-muted">
                 Open receivable items are invoices that customers haven't paid yet. 
                 This report provides a detailed breakdown of all outstanding amounts owed by a specific customer, 
                 helping you track payment status and follow up on overdue accounts.
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
-              <ul className="text-xs text-slate-600 space-y-1">
+              <h4 className="font-medium text-text-strong mb-2">How to Use This Report</h4>
+              <ul className="text-xs text-text-muted space-y-1">
                 <li>• Enter the customer's ID to view their open items</li>
                 <li>• Identify past due invoices that need collection</li>
                 <li>• Review payment history and aging details</li>

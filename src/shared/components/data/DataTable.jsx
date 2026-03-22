@@ -33,7 +33,7 @@ export function DataTable({
       <div className="app-surface p-10 text-center">
         <div className="mx-auto max-w-md">
           <div className="text-base font-semibold text-brand-deep">{resolvedEmptyTitle}</div>
-          <div className="mt-1 text-sm text-slate-600">{resolvedEmptyDescription}</div>
+          <div className="mt-1 text-sm text-text-muted">{resolvedEmptyDescription}</div>
         </div>
       </div>
     );

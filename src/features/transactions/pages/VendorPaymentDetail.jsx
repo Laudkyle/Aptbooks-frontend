@@ -135,15 +135,15 @@ export default function VendorPaymentDetail() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <HandCoins className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">
+                <HandCoins className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">
                   {payment?.payment_no ?? (isLoading ? 'Loading...' : 'Payment')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Payment ID: {id}
               </p>
             </div>
@@ -151,7 +151,7 @@ export default function VendorPaymentDetail() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-gray-300"
+                className="border-border-subtle"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
@@ -167,73 +167,73 @@ export default function VendorPaymentDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Payment Summary */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Payment Summary</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-base font-semibold text-text-strong mb-5">Payment Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Vendor</span>
+                    <Building2 className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Vendor</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-text-strong">
                     {payment?.vendor_name ?? '—'}
                     {payment?.vendor_code && (
-                      <span className="text-xs text-gray-500 ml-2">({payment.vendor_code})</span>
+                      <span className="text-xs text-text-muted ml-2">({payment.vendor_code})</span>
                     )}
                   </div>
                   {payment?.vendor_address_label && (
-                    <div className="text-xs text-gray-500 mt-1">{payment.vendor_address_label}</div>
+                    <div className="text-xs text-text-muted mt-1">{payment.vendor_address_label}</div>
                   )}
                 </div>
 
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Payment Date</span>
+                    <Calendar className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Payment Date</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-text-strong">
                     {formatDate(payment?.payment_date) ?? '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Wallet className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Cash Account</span>
+                    <Wallet className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Cash Account</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900 font-mono ">
+                  <div className="text-sm font-semibold text-text-strong font-mono ">
                     {payment?.cash_account_name ? `${payment.cash_account_name.substring(0, 12)}...` : '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Total Amount</span>
+                    <DollarSign className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Total Amount</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-text-strong">
                     {formatCurrency(payment?.amount_total ?? 0)}
                   </div>
                 </div>
 
                 {/* Payment Method */}
                 {payment?.payment_method_name && (
-                  <div className=" rounded-lg border border-gray-200 p-4">
-                    <div className="text-xs font-medium text-gray-500 mb-2">Payment Method</div>
-                    <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
+                  <div className=" rounded-lg border border-border-subtle p-4">
+                    <div className="text-xs font-medium text-text-muted mb-2">Payment Method</div>
+                    <div className="text-sm font-semibold text-text-strong font-mono text-xs">
                       {payment.payment_method_name}
                     </div>
                   </div>
                 )}
 
                 {/* Currency and FX Rate */}
-                <div className=" rounded-lg border border-gray-200 p-4">
-                  <div className="text-xs font-medium text-gray-500 mb-2">Currency</div>
-                  <div className="text-sm font-semibold text-gray-900">
+                <div className=" rounded-lg border border-border-subtle p-4">
+                  <div className="text-xs font-medium text-text-muted mb-2">Currency</div>
+                  <div className="text-sm font-semibold text-text-strong">
                     {currencyCode}
                     {payment?.fx_rate && parseFloat(payment.fx_rate) !== 1 && (
-                      <span className="text-xs text-gray-500 ml-2">(FX: {parseFloat(payment.fx_rate).toFixed(6)})</span>
+                      <span className="text-xs text-text-muted ml-2">(FX: {parseFloat(payment.fx_rate).toFixed(6)})</span>
                     )}
                   </div>
                 </div>
@@ -242,41 +242,41 @@ export default function VendorPaymentDetail() {
 
             {/* Vendor Contact Information */}
             {(payment?.vendor_email || payment?.vendor_phone || payment?.vendor_address_line1) && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Vendor Contact Information</h3>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+                <h3 className="text-base font-semibold text-text-strong mb-4">Vendor Contact Information</h3>
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   {payment?.vendor_email && (
-                    <div className=" rounded-lg border border-gray-200 p-4">
+                    <div className=" rounded-lg border border-border-subtle p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Email</span>
+                        <Mail className="h-4 w-4 text-text-soft" />
+                        <span className="text-xs font-medium text-text-muted">Email</span>
                       </div>
-                      <div className="text-sm text-gray-900 break-all">
+                      <div className="text-sm text-text-strong break-all">
                         {payment.vendor_email}
                       </div>
                     </div>
                   )}
 
                   {payment?.vendor_phone && (
-                    <div className=" rounded-lg border border-gray-200 p-4">
+                    <div className=" rounded-lg border border-border-subtle p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Phone</span>
+                        <Phone className="h-4 w-4 text-text-soft" />
+                        <span className="text-xs font-medium text-text-muted">Phone</span>
                       </div>
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-text-strong">
                         {payment.vendor_phone}
                       </div>
                     </div>
                   )}
 
                   {payment?.vendor_address_line1 && (
-                    <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
+                    <div className="md:col-span-2  rounded-lg border border-border-subtle p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Address</span>
+                        <MapPin className="h-4 w-4 text-text-soft" />
+                        <span className="text-xs font-medium text-text-muted">Address</span>
                       </div>
-                      <div className="text-sm text-gray-900 space-y-1">
+                      <div className="text-sm text-text-strong space-y-1">
                         {payment.vendor_address_line1 && <div>{payment.vendor_address_line1}</div>}
                         {payment.vendor_address_line2 && <div>{payment.vendor_address_line2}</div>}
                         <div className="flex flex-wrap gap-2">
@@ -293,11 +293,11 @@ export default function VendorPaymentDetail() {
             )}
 
             {/* Allocations */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4  border-b border-gray-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
+              <div className="px-6 py-4  border-b border-border-subtle">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
-                  <span className="text-sm text-gray-600">
+                  <h3 className="text-base font-semibold text-text-strong">Invoice Allocations</h3>
+                  <span className="text-sm text-text-muted">
                     {allocations.length} allocation{allocations.length !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -306,40 +306,40 @@ export default function VendorPaymentDetail() {
               {allocations.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className=" border-b border-gray-200">
+                    <thead className=" border-b border-border-subtle">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                           Bill ID
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                           Bill Number
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                           Amount Applied
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
+                    <tbody className="bg-surface-1 divide-y divide-border-subtle">
                       {allocations.map((allocation, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50">
-                          <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
+                        <tr key={idx} className="hover:bg-surface-2">
+                          <td className="px-6 py-4 text-sm text-text-strong font-mono text-xs">
                             {allocation.bill_id ? `${allocation.bill_id.substring(0, 12)}...` : '—'}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">
+                          <td className="px-6 py-4 text-sm text-text-strong">
                             {allocation.bill_number ?? '—'}
                           </td>
-                          <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
+                          <td className="px-6 py-4 text-sm font-semibold text-text-strong text-right">
                             {formatCurrency(allocation.amount_applied ?? 0)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className=" border-t-2 border-gray-200">
+                    <tfoot className=" border-t-2 border-border-subtle">
                       <tr>
-                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-text-strong">
                           Total Allocated:
                         </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                        <td className="px-6 py-4 text-right text-sm font-bold text-text-strong">
                           {formatCurrency(allocatedTotal)}
                         </td>
                       </tr>
@@ -348,12 +348,12 @@ export default function VendorPaymentDetail() {
                 </div>
               ) : (
                 <div className="px-6 py-12 text-center">
-                  <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No Allocations Yet</h4>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <DollarSign className="h-12 w-12 text-text-soft mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-text-strong mb-2">No Allocations Yet</h4>
+                  <p className="text-sm text-text-muted mb-4">
                     This payment hasn't been applied to any bills yet.
                   </p>
-                  <p className="text-xs text-gray-500">Allocate this payment from the payables workspace after posting if needed.</p>
+                  <p className="text-xs text-text-muted">Allocate this payment from the payables workspace after posting if needed.</p>
                 </div>
               )}
             </div>
@@ -362,83 +362,83 @@ export default function VendorPaymentDetail() {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Payment Summary */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="h-5 w-5 text-green-600" />
-                <h3 className="text-base font-semibold text-gray-900">Payment Summary</h3>
+                <h3 className="text-base font-semibold text-text-strong">Payment Summary</h3>
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-gray-200">
+              <div className="space-y-3 pt-4 border-t border-border-subtle">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Currency</span>
-                  <span className="font-medium text-gray-900">{currencyCode}</span>
+                  <span className="text-text-muted">Currency</span>
+                  <span className="font-medium text-text-strong">{currencyCode}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Total Amount</span>
-                  <span className="font-bold text-gray-900">
+                  <span className="text-text-muted">Total Amount</span>
+                  <span className="font-bold text-text-strong">
                     {formatCurrency(payment?.amount_total ?? 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Discount Total</span>
-                  <span className="font-semibold text-gray-700">
+                  <span className="text-text-muted">Discount Total</span>
+                  <span className="font-semibold text-text-body">
                     {formatCurrency(payment?.discount_total ?? 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Settlement Total</span>
-                  <span className="font-semibold text-gray-700">
+                  <span className="text-text-muted">Settlement Total</span>
+                  <span className="font-semibold text-text-body">
                     {formatCurrency(payment?.settlement_total ?? 0)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
-                  <span className="text-gray-600">Allocated</span>
+                <div className="flex justify-between text-sm pt-2 border-t border-border-subtle">
+                  <span className="text-text-muted">Allocated</span>
                   <span className="font-semibold text-blue-700">
                     {formatCurrency(allocatedTotal)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Unallocated</span>
+                  <span className="text-text-muted">Unallocated</span>
                   <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : unallocated > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
                     {formatCurrency(unallocated)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-3 border-t border-gray-200">
-                  <span className="text-gray-600">Status</span>
+                <div className="flex justify-between text-sm pt-3 border-t border-border-subtle">
+                  <span className="text-text-muted">Status</span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Allocations</span>
-                  <span className="font-medium text-gray-900">{allocations.length}</span>
+                  <span className="text-text-muted">Allocations</span>
+                  <span className="font-medium text-text-strong">{allocations.length}</span>
                 </div>
               </div>
             </div>
 
             {/* Timeline / Audit Info */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Timeline</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-base font-semibold text-text-strong mb-4">Timeline</h3>
               
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">Created</div>
-                  <div className="text-sm text-gray-900">
+                  <div className="text-xs font-medium text-text-muted mb-1">Created</div>
+                  <div className="text-sm text-text-strong">
                     {formatDate(payment?.created_at, { includeTime: true })}
                   </div>
                 </div>
                 
                 <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">Last Updated</div>
-                  <div className="text-sm text-gray-900">
+                  <div className="text-xs font-medium text-text-muted mb-1">Last Updated</div>
+                  <div className="text-sm text-text-strong">
                     {formatDate(payment?.updated_at, { includeTime: true })}
                   </div>
                 </div>
                 
                 {payment?.posted_at && (
                   <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">Posted</div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-xs font-medium text-text-muted mb-1">Posted</div>
+                    <div className="text-sm text-text-strong">
                       {formatDate(payment.posted_at, { includeTime: true })}
                     </div>
                   </div>
@@ -446,12 +446,12 @@ export default function VendorPaymentDetail() {
                 
                 {payment?.voided_at && (
                   <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">Voided</div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-xs font-medium text-text-muted mb-1">Voided</div>
+                    <div className="text-sm text-text-strong">
                       {formatDate(payment.voided_at, { includeTime: true })}
                     </div>
                     {payment.void_reason && (
-                      <div className="text-sm text-gray-700 mt-1 italic">"{payment.void_reason}"</div>
+                      <div className="text-sm text-text-body mt-1 italic">"{payment.void_reason}"</div>
                     )}
                   </div>
                 )}
@@ -482,7 +482,7 @@ export default function VendorPaymentDetail() {
                 </div>
               ) : (
                 <>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Comment {action === 'reject' ? '(recommended)' : '(optional)'}
                   </label>
                   <Textarea
@@ -522,7 +522,7 @@ export default function VendorPaymentDetail() {
 
           {action === 'void' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 Reason <span className="text-red-500">*</span>
               </label>
               <Textarea
@@ -544,7 +544,7 @@ export default function VendorPaymentDetail() {
           <Button 
             variant="outline" 
             onClick={() => { setAction(null); setComment(''); setReason(''); }}
-            className="border-gray-300"
+            className="border-border-subtle"
           >
             Cancel
           </Button>

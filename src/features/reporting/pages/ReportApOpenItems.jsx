@@ -135,7 +135,7 @@ export default function ReportApOpenItems() {
           
           if (isDate && !isCurrency) {
             return (
-              <span className="text-sm text-slate-900">
+              <span className="text-sm text-text-strong">
                 {formatDate(value)}
               </span>
             );
@@ -143,7 +143,7 @@ export default function ReportApOpenItems() {
           
           if (isCurrency && isNumeric) {
             return (
-              <span className="text-sm font-medium text-slate-900 tabular-nums">
+              <span className="text-sm font-medium text-text-strong tabular-nums">
                 {formatCurrency(value)}
               </span>
             );
@@ -151,14 +151,14 @@ export default function ReportApOpenItems() {
           
           if (isNumeric) {
             return (
-              <span className="text-sm text-slate-900 tabular-nums">
+              <span className="text-sm text-text-strong tabular-nums">
                 {value}
               </span>
             );
           }
           
           return (
-            <span className="text-sm text-slate-900">
+            <span className="text-sm text-text-strong">
               {value || '—'}
             </span>
           );
@@ -226,28 +226,28 @@ export default function ReportApOpenItems() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-600">Open Items</p>
-              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <p className="text-xs font-medium text-text-muted">Open Items</p>
+              <svg className="w-5 h-5 text-text-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{summary.totalItems}</p>
+            <p className="text-2xl font-bold text-text-strong">{summary.totalItems}</p>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-slate-600">Total Outstanding</p>
-              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <p className="text-xs font-medium text-text-muted">Total Outstanding</p>
+              <svg className="w-5 h-5 text-text-soft" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{formatCurrency(summary.totalAmount)}</p>
+            <p className="text-2xl font-bold text-text-strong">{formatCurrency(summary.totalAmount)}</p>
           </div>
 
           {summary.oldestItem && (
-            <div className="bg-white border border-amber-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-amber-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-amber-700">Oldest Item</p>
                 <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -259,7 +259,7 @@ export default function ReportApOpenItems() {
           )}
 
           {summary.newestItem && (
-            <div className="bg-white border border-green-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-green-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-green-700">Newest Item</p>
                 <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -276,7 +276,7 @@ export default function ReportApOpenItems() {
       <ContentCard>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Search Criteria</h3>
+            <h3 className="text-sm font-semibold text-text-strong">Search Criteria</h3>
             {hasSearched && rows.length > 0 && (
               <Button
                 variant="secondary"
@@ -305,7 +305,7 @@ export default function ReportApOpenItems() {
                 options={vendorOptions}
                 required
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Select the vendor to view their open payable items
               </p>
             </div>
@@ -345,16 +345,16 @@ export default function ReportApOpenItems() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Vendor to Begin</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">Select Vendor to Begin</h3>
+            <p className="text-sm text-text-muted mb-6">
               Enter a vendor ID above and click "Run Report" to view their open payable items
             </p>
           </div>
         ) : isLoading || isFetching ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Loading open items...</p>
+              <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-text-muted">Loading open items...</p>
             </div>
           </div>
         ) : rows.length === 0 ? (
@@ -362,8 +362,8 @@ export default function ReportApOpenItems() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">No Open Items Found</h3>
+            <p className="text-sm text-text-muted mb-6">
               Vendor <span className="font-mono font-semibold">{vendorId}</span> has no outstanding payable items.
             </p>
             <Button
@@ -380,13 +380,13 @@ export default function ReportApOpenItems() {
           <>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Open Items Detail</h3>
-                <p className="text-xs text-slate-600 mt-0.5">
+                <h3 className="text-sm font-semibold text-text-strong">Open Items Detail</h3>
+                <p className="text-xs text-text-muted mt-0.5">
                   {rows.length} open item{rows.length !== 1 ? 's' : ''} for vendor {vendorId}
                 </p>
               </div>
             </div>
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <DataTable
                 columns={columns}
                 rows={rows}
@@ -404,18 +404,18 @@ export default function ReportApOpenItems() {
       {/* Help Section */}
       <ContentCard>
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-900">About Open Payables</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+          <h3 className="text-sm font-semibold text-text-strong">About Open Payables</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-text-body">
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">What are Open Items?</h4>
-              <p className="text-xs text-slate-600">
+              <h4 className="font-medium text-text-strong mb-2">What are Open Items?</h4>
+              <p className="text-xs text-text-muted">
                 Open payable items are invoices or bills from vendors that haven't been fully paid yet. 
                 This report provides a detailed breakdown of all outstanding amounts owed to a specific vendor.
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
-              <ul className="text-xs text-slate-600 space-y-1">
+              <h4 className="font-medium text-text-strong mb-2">How to Use This Report</h4>
+              <ul className="text-xs text-text-muted space-y-1">
                 <li>• Enter the vendor's ID to view their open items</li>
                 <li>• Review individual invoice details and amounts</li>
                 <li>• Identify which items need to be paid first</li>

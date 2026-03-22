@@ -204,7 +204,7 @@ const toast = useToast();
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading users...</div>
+            <div className="text-sm text-text-muted">Loading users...</div>
           </div>
         </ContentCard>
       </div>
@@ -228,8 +228,8 @@ const toast = useToast();
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load users</div>
-            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-text-strong">Failed to load users</div>
+            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
               Retry
             </Button>
@@ -258,8 +258,8 @@ const toast = useToast();
 
       <ContentCard>
         <div className="mb-4">
-          <div className="text-base font-semibold text-slate-900">User Directory</div>
-          <div className="mt-1 text-sm text-slate-500">
+          <div className="text-base font-semibold text-text-strong">User Directory</div>
+          <div className="mt-1 text-sm text-text-muted">
             {users.length} {users.length === 1 ? 'user' : 'users'} in this organization
           </div>
         </div>
@@ -267,8 +267,8 @@ const toast = useToast();
         {users.length === 0 ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <div className="text-sm font-medium text-slate-900 mb-1">No users yet</div>
-            <div className="text-sm text-slate-500 mb-4">Create your first user to get started</div>
+            <div className="text-sm font-medium text-text-strong mb-1">No users yet</div>
+            <div className="text-sm text-text-muted mb-4">Create your first user to get started</div>
             <Button 
               leftIcon={Plus} 
               onClick={handleOpenModal}
@@ -293,10 +293,10 @@ const toast = useToast();
                 const StatusIcon = statusConfig.icon;
                 
                 return (
-                  <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={user.id} className="hover:bg-surface-2 transition-colors">
                     <TD>
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-slate-400" />
+                        <Mail className="h-4 w-4 text-text-soft" />
                         <Link 
                           className="font-medium text-brand-deep hover:text-brand-deep/80 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-deep focus:ring-offset-1 rounded"
                           to={ROUTES.adminUserDetail(user.id)}
@@ -317,8 +317,8 @@ const toast = useToast();
                       </Badge>
                     </TD>
                     <TD>
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                      <div className="flex items-center gap-2 text-sm text-text-muted">
+                        <Clock className="h-3.5 w-3.5 text-text-soft" />
                         {formatDate(user.created_at ?? user.createdAt)}
                       </div>
                     </TD>
@@ -408,9 +408,9 @@ const toast = useToast();
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="text-xs font-medium text-slate-700 mb-2">Password Requirements</div>
-            <ul className="text-xs text-slate-600 space-y-1">
+          <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+            <div className="text-xs font-medium text-text-body mb-2">Password Requirements</div>
+            <ul className="text-xs text-text-muted space-y-1">
               <li className="flex items-center gap-2">
                 <div className={`h-1.5 w-1.5 rounded-full ${formData.password.length >= 10 ? 'bg-green-500' : 'bg-slate-300'}`} />
                 At least 10 characters long

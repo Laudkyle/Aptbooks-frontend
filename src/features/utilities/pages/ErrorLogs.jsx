@@ -49,11 +49,11 @@ export default function ErrorLogs() {
 
       <ContentCard title="Stats (summary)" actions={<Button variant="secondary" onClick={() => statsQ.refetch()}>Refresh</Button>}>
         {statsQ.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : statsQ.isError ? (
           <div className="text-sm text-red-700">{statsQ.error?.message ?? 'Failed to load stats.'}</div>
         ) : (
-          <pre className="max-h-64 overflow-auto rounded bg-slate-50 p-3 text-xs">{JSON.stringify(statsQ.data, null, 2)}</pre>
+          <pre className="max-h-64 overflow-auto rounded bg-surface-2 p-3 text-xs">{JSON.stringify(statsQ.data, null, 2)}</pre>
         )}
       </ContentCard>
 
@@ -69,7 +69,7 @@ export default function ErrorLogs() {
 
       <ContentCard title="Recent errors">
         {listQ.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : listQ.isError ? (
           <div className="text-sm text-red-700">{listQ.error?.message ?? 'Failed to load errors.'}</div>
         ) : (
@@ -91,7 +91,7 @@ export default function ErrorLogs() {
                   </TD>
                 </tr>
               ))}
-              {rows.length === 0 ? <tr><TD colSpan={7} className="text-slate-500">No rows.</TD></tr> : null}
+              {rows.length === 0 ? <tr><TD colSpan={7} className="text-text-muted">No rows.</TD></tr> : null}
             </TBody>
           </Table>
         )}
@@ -99,11 +99,11 @@ export default function ErrorLogs() {
 
       <Modal open={open} title={`Correlation: ${cid}`} onClose={() => setOpen(false)} footer={<Button variant="secondary" onClick={() => setOpen(false)}>Close</Button>}>
         {corrQ.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : corrQ.isError ? (
           <div className="text-sm text-red-700">{corrQ.error?.message ?? 'Failed to load correlation.'}</div>
         ) : (
-          <pre className="max-h-[28rem] overflow-auto rounded bg-slate-50 p-3 text-xs">{JSON.stringify(corrQ.data, null, 2)}</pre>
+          <pre className="max-h-[28rem] overflow-auto rounded bg-surface-2 p-3 text-xs">{JSON.stringify(corrQ.data, null, 2)}</pre>
         )}
       </Modal>
     </div>

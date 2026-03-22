@@ -232,7 +232,7 @@ const  toast = useToast();
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading rules...</div>
+            <div className="text-sm text-text-muted">Loading rules...</div>
           </div>
         </ContentCard>
       </div>
@@ -267,8 +267,8 @@ const  toast = useToast();
       {/* Filters */}
       <ContentCard>
         <div className="flex items-center gap-2 mb-4">
-          <Search className="h-4 w-4 text-slate-500" />
-          <span className="text-sm font-semibold text-slate-900">Search & Filter</span>
+          <Search className="h-4 w-4 text-text-muted" />
+          <span className="text-sm font-semibold text-text-strong">Search & Filter</span>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -290,7 +290,7 @@ const  toast = useToast();
             ]}
           />
           <div className="flex items-end">
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-text-muted">
               {filteredRules.length} of {rows.length} {rows.length === 1 ? 'rule' : 'rules'}
             </div>
           </div>
@@ -300,8 +300,8 @@ const  toast = useToast();
       {/* Rules Table */}
       <ContentCard>
         <div className="mb-4">
-          <div className="text-base font-semibold text-slate-900">Matching Rules</div>
-          <div className="mt-1 text-sm text-slate-500">
+          <div className="text-base font-semibold text-text-strong">Matching Rules</div>
+          <div className="mt-1 text-sm text-text-muted">
             Configure how transactions are automatically matched
           </div>
         </div>
@@ -309,8 +309,8 @@ const  toast = useToast();
         {isError ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load rules</div>
-            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-text-strong">Failed to load rules</div>
+            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">
               Retry
             </Button>
@@ -318,10 +318,10 @@ const  toast = useToast();
         ) : filteredRules.length === 0 ? (
           <div className="text-center py-12">
             <Sliders className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <div className="text-sm font-medium text-slate-900 mb-1">
+            <div className="text-sm font-medium text-text-strong mb-1">
               {searchQuery || statusFilter !== 'all' ? 'No rules match your filters' : 'No matching rules'}
             </div>
-            <div className="text-sm text-slate-500 mb-4">
+            <div className="text-sm text-text-muted mb-4">
               {searchQuery || statusFilter !== 'all'
                 ? 'Try adjusting your search or filters'
                 : 'Create a rule to automate transaction matching'
@@ -332,7 +332,7 @@ const  toast = useToast();
             </Button>
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 overflow-hidden">
+          <div className="rounded-xl border border-border-subtle overflow-hidden">
             <Table>
               <THead>
                 <tr>
@@ -351,12 +351,12 @@ const  toast = useToast();
                   return (
                     <tr
                       key={rule.id}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-surface-2 transition-colors"
                     >
                       <TD>
                         <div className="flex items-center gap-2">
-                          <Sliders className="h-4 w-4 text-slate-400" />
-                          <span className="font-medium text-slate-900">{rule.name}</span>
+                          <Sliders className="h-4 w-4 text-text-soft" />
+                          <span className="font-medium text-text-strong">{rule.name}</span>
                         </div>
                       </TD>
                       <TD>
@@ -370,32 +370,32 @@ const  toast = useToast();
                       </TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
+                          <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+                          <span className="font-mono text-sm text-text-body">
                             {rule.amount_tolerance ?? 0}
                           </span>
                         </div>
                       </TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
+                          <Calendar className="h-3.5 w-3.5 text-text-soft" />
+                          <span className="font-mono text-sm text-text-body">
                             {rule.date_window_days ?? 3} days
                           </span>
                         </div>
                       </TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Target className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
+                          <Target className="h-3.5 w-3.5 text-text-soft" />
+                          <span className="font-mono text-sm text-text-body">
                             {rule.description_similarity_min ?? 0.3}
                           </span>
                         </div>
                       </TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Zap className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
+                          <Zap className="h-3.5 w-3.5 text-text-soft" />
+                          <span className="font-mono text-sm text-text-body">
                             {rule.priority ?? 100}
                           </span>
                         </div>

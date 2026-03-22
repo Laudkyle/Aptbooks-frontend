@@ -16,11 +16,11 @@ export default function ReleaseInfo() {
       <PageHeader title="Release Info" subtitle="/utilities/release/info" />
       <ContentCard title="Data">
         {q.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load release info.'}</div>
         ) : (
-          <pre className="max-h-[32rem] overflow-auto rounded bg-slate-50 p-3 text-xs">{JSON.stringify(q.data, null, 2)}</pre>
+          <pre className="max-h-[32rem] overflow-auto rounded bg-surface-2 p-3 text-xs">{JSON.stringify(q.data, null, 2)}</pre>
         )}
       </ContentCard>
     </div>

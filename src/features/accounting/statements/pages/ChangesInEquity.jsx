@@ -32,13 +32,13 @@ function MovementRow({ label, amount, level = 0, isExpanded, onToggle, hasChildr
   
   return (
     <div 
-      className="flex items-center py-3 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4 border-b border-gray-100 last:border-0"
+      className="flex items-center py-3 hover:bg-surface-2 transition-colors duration-150 px-2 md:px-4 border-b border-border-subtle last:border-0"
       style={{ paddingLeft: `${paddingLeft + 8}px` }}
     >
       {hasChildren && (
         <button 
           onClick={onToggle}
-          className="mr-2 text-gray-600 hover:text-gray-900 flex-shrink-0"
+          className="mr-2 text-text-muted hover:text-text-strong flex-shrink-0"
         >
           {isExpanded ? (
             <ChevronDown className="w-4 h-4" />
@@ -50,10 +50,10 @@ function MovementRow({ label, amount, level = 0, isExpanded, onToggle, hasChildr
       {!hasChildren && level > 0 && (
         <div className="w-4 h-4 mr-2" />
       )}
-      <span className="flex-1 text-sm text-gray-600 break-words pr-2">
+      <span className="flex-1 text-sm text-text-muted break-words pr-2">
         {label}
       </span>
-      <span className="text-sm text-gray-900 whitespace-nowrap font-mono">
+      <span className="text-sm text-text-strong whitespace-nowrap font-mono">
         {formatCurrency(amount)}
       </span>
     </div>
@@ -133,7 +133,7 @@ function EquityStatementCard({ title, data, isCompare = false }) {
   }));
 
   return (
-    <div className={`flex-1 ${isCompare ? 'border-l border-gray-200 pl-4 md:pl-6' : ''}`}>
+    <div className={`flex-1 ${isCompare ? 'border-l border-border-subtle pl-4 md:pl-6' : ''}`}>
       {isCompare && (
         <div className="mb-4">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -145,12 +145,12 @@ function EquityStatementCard({ title, data, isCompare = false }) {
       {/* Period Info */}
       <div className="grid grid-cols-2 gap-4 mb-6 p-4  rounded-lg">
         <div>
-          <p className="text-xs text-gray-500">From</p>
-          <p className="text-sm font-medium text-gray-900">{formatDate(from)}</p>
+          <p className="text-xs text-text-muted">From</p>
+          <p className="text-sm font-medium text-text-strong">{formatDate(from)}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">To</p>
-          <p className="text-sm font-medium text-gray-900">{formatDate(to)}</p>
+          <p className="text-xs text-text-muted">To</p>
+          <p className="text-sm font-medium text-text-strong">{formatDate(to)}</p>
         </div>
       </div>
 
@@ -193,21 +193,21 @@ function EquityStatementCard({ title, data, isCompare = false }) {
           )}
 
           {/* Computed Closing Balance */}
-          <div className="flex items-center py-4 mt-2 border-t-2 border-gray-300 /50 px-2 md:px-4">
-            <span className="flex-1 text-sm font-semibold text-gray-900">
+          <div className="flex items-center py-4 mt-2 border-t-2 border-border-subtle /50 px-2 md:px-4">
+            <span className="flex-1 text-sm font-semibold text-text-strong">
               Computed Closing Balance
             </span>
-            <span className="text-sm font-semibold text-gray-900 font-mono">
+            <span className="text-sm font-semibold text-text-strong font-mono">
               {formatCurrency(computed_closing_balance)}
             </span>
           </div>
 
           {/* Reported Closing Balance */}
-          <div className="flex items-center py-4 border-t border-gray-200 px-2 md:px-4">
-            <span className="flex-1 text-sm font-medium text-gray-700">
+          <div className="flex items-center py-4 border-t border-border-subtle px-2 md:px-4">
+            <span className="flex-1 text-sm font-medium text-text-body">
               Reported Closing Balance
             </span>
-            <span className="text-sm font-medium text-gray-900 font-mono">
+            <span className="text-sm font-medium text-text-strong font-mono">
               {formatCurrency(reported_closing_balance)}
             </span>
           </div>
@@ -276,13 +276,13 @@ export default function ChangesInEquity() {
 
   return (
     <div className="max-w-7xl mx-auto p-3 md:p-6 lg:p-8 max-h-[calc(100vh-100px)] overflow-y-scroll">
-      <div className="bg-white rounded-lg shadow-xl">
+      <div className="bg-surface-1 rounded-lg shadow-xl">
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Statement of Changes in Equity</h2>
-              <p className="text-sm md:text-md text-gray-600 mt-1">
+              <h2 className="text-2xl md:text-3xl font-bold text-text-strong">Statement of Changes in Equity</h2>
+              <p className="text-sm md:text-md text-text-muted mt-1">
                 For the period ended {selectedDate}
               </p>
             </div>
@@ -290,7 +290,7 @@ export default function ChangesInEquity() {
             <div className="flex flex-col md:flex-row gap-4">
               <input 
                 type="date" 
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700"
+                className="border border-border-subtle rounded-md px-3 py-2 text-sm text-text-body"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
@@ -298,7 +298,7 @@ export default function ChangesInEquity() {
               <div className="flex gap-2 md:gap-4">
                 <button
                   onClick={handlePrint}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Printer className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                   <span className="hidden md:inline">Print</span>
@@ -306,7 +306,7 @@ export default function ChangesInEquity() {
                 
                 <button
                   onClick={handleExport}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Download className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
                   <span className="hidden md:inline">Export</span>
@@ -334,7 +334,7 @@ export default function ChangesInEquity() {
           {/* Loading/Error States */}
           {q.isLoading && (
             <div className="text-center py-12">
-              <div className="text-sm text-slate-600">Loading statement of changes in equity...</div>
+              <div className="text-sm text-text-muted">Loading statement of changes in equity...</div>
             </div>
           )}
 
@@ -348,7 +348,7 @@ export default function ChangesInEquity() {
 
           {!periodId && !q.isLoading && (
             <div className="text-center py-12  rounded-lg">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-text-muted">
                 Select a period to view the statement of changes in equity.
               </p>
             </div>

@@ -145,7 +145,7 @@ export default function JournalDetail() {
   if (q.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-slate-600">Loading journal...</div>
+        <div className="text-text-muted">Loading journal...</div>
       </div>
     );
   }
@@ -159,23 +159,23 @@ export default function JournalDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-surface-2">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-surface-1 border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button className="text-slate-600 hover:text-slate-900 transition-colors">
+              <button className="text-text-muted hover:text-text-strong transition-colors">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-semibold text-slate-900">
+                  <h1 className="text-2xl font-semibold text-text-strong">
                     Journal Entry #{j?.entry_no}
                   </h1>
                   {j && getStatusBadge(j.status)}
                 </div>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-text-muted mt-1">
                   Created {formatDate(j?.created_at, 'MMM DD, YYYY')}
                 </p>
               </div>
@@ -197,34 +197,34 @@ export default function JournalDetail() {
           {/* Main Content */}
           <div className="col-span-2 space-y-6">
             {/* Journal Info Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-900">Journal Information</h2>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+              <div className="px-6 py-4 border-b border-border-subtle">
+                <h2 className="text-lg font-semibold text-text-strong">Journal Information</h2>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Entry Date</label>
-                    <div className="mt-1 flex items-center gap-2 text-slate-900">
-                      <Calendar className="w-4 h-4 text-slate-400" />
+                    <label className="text-xs font-medium text-text-muted uppercase tracking-wide">Entry Date</label>
+                    <div className="mt-1 flex items-center gap-2 text-text-strong">
+                      <Calendar className="w-4 h-4 text-text-soft" />
                       {formatDate(j?.entry_date, 'MMM DD, YYYY')}
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Entry Number</label>
-                    <div className="mt-1 flex items-center gap-2 text-slate-900">
-                      <Hash className="w-4 h-4 text-slate-400" />
+                    <label className="text-xs font-medium text-text-muted uppercase tracking-wide">Entry Number</label>
+                    <div className="mt-1 flex items-center gap-2 text-text-strong">
+                      <Hash className="w-4 h-4 text-text-soft" />
                       {j?.entry_no}
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Currency</label>
-                    <div className="mt-1 text-slate-900">GHS (Ghanaian Cedi)</div>
+                    <label className="text-xs font-medium text-text-muted uppercase tracking-wide">Currency</label>
+                    <div className="mt-1 text-text-strong">GHS (Ghanaian Cedi)</div>
                   </div>
                   {j?.memo && (
                     <div className="col-span-2">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Memo</label>
-                      <p className="mt-1 text-slate-900">{j.memo}</p>
+                      <label className="text-xs font-medium text-text-muted uppercase tracking-wide">Memo</label>
+                      <p className="mt-1 text-text-strong">{j.memo}</p>
                     </div>
                   )}
                 </div>
@@ -232,71 +232,71 @@ export default function JournalDetail() {
             </div>
 
             {/* Line Items Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-900">Line Items</h2>
-                <p className="text-sm text-slate-600">{lines.length} lines • {formatMoney(totals.debit, 'GHS')} total</p>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+              <div className="px-6 py-4 border-b border-border-subtle">
+                <h2 className="text-lg font-semibold text-text-strong">Line Items</h2>
+                <p className="text-sm text-text-muted">{lines.length} lines • {formatMoney(totals.debit, 'GHS')} total</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                         #
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                         Account
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                         Description
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                         Debit
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-text-muted uppercase tracking-wider">
                         Credit
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-border-subtle">
                     {lines.map((line) => (
-                      <tr key={line.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-slate-900">
+                      <tr key={line.id} className="hover:bg-surface-2 transition-colors">
+                        <td className="px-6 py-4 text-sm text-text-strong">
                           {line.line_no}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-slate-900">
+                          <div className="text-sm font-medium text-text-strong">
                             {getAccountName(line.account_id)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-slate-600 max-w-xs truncate" title={line.description}>
+                          <div className="text-sm text-text-muted max-w-xs truncate" title={line.description}>
                             {line.description || '—'}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
+                        <td className="px-6 py-4 text-sm text-right text-text-strong font-medium">
                           {parseFloat(line.debit) > 0 ? formatMoney(line.debit, line.currency_code) : '—'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
+                        <td className="px-6 py-4 text-sm text-right text-text-strong font-medium">
                           {parseFloat(line.credit) > 0 ? formatMoney(line.credit, line.currency_code) : '—'}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                  <tfoot className="bg-surface-2 border-t-2 border-border-subtle">
                     <tr>
-                      <td colSpan="3" className="px-6 py-4 text-sm font-semibold text-slate-900">
+                      <td colSpan="3" className="px-6 py-4 text-sm font-semibold text-text-strong">
                         Total
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
+                      <td className="px-6 py-4 text-sm font-semibold text-right text-text-strong">
                         {formatMoney(totals.debit, 'GHS')}
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
+                      <td className="px-6 py-4 text-sm font-semibold text-right text-text-strong">
                         {formatMoney(totals.credit, 'GHS')}
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan="3" className="px-6 py-2 text-sm font-medium text-slate-700">
+                      <td colSpan="3" className="px-6 py-2 text-sm font-medium text-text-body">
                         Balance
                       </td>
                       <td colSpan="2" className="px-6 py-2">
@@ -313,37 +313,37 @@ export default function JournalDetail() {
             {/* Additional Info Cards */}
             <div className="grid grid-cols-2 gap-6">
               {/* Audit Trail */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-                <div className="px-6 py-4 border-b border-slate-200">
-                  <h2 className="text-lg font-semibold text-slate-900">Audit Trail</h2>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+                <div className="px-6 py-4 border-b border-border-subtle">
+                  <h2 className="text-lg font-semibold text-text-strong">Audit Trail</h2>
                 </div>
                 <div className="p-6 space-y-3">
                   {j?.created_by && (
                     <div className="text-sm">
-                      <span className="text-slate-600">Created by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.created_by.substring(0, 8)}...</span>
-                      <div className="text-xs text-slate-500">{formatDate(j.created_at, 'MMM DD, YYYY [at] h:mm A')}</div>
+                      <span className="text-text-muted">Created by:</span>{' '}
+                      <span className="font-medium text-text-strong">User {j.created_by.substring(0, 8)}...</span>
+                      <div className="text-xs text-text-muted">{formatDate(j.created_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.submitted_by && (
                     <div className="text-sm">
-                      <span className="text-slate-600">Submitted by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.submitted_by.substring(0, 8)}...</span>
-                      <div className="text-xs text-slate-500">{formatDate(j.submitted_at, 'MMM DD, YYYY [at] h:mm A')}</div>
+                      <span className="text-text-muted">Submitted by:</span>{' '}
+                      <span className="font-medium text-text-strong">User {j.submitted_by.substring(0, 8)}...</span>
+                      <div className="text-xs text-text-muted">{formatDate(j.submitted_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.approved_by && (
                     <div className="text-sm">
-                      <span className="text-slate-600">Approved by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.approved_by.substring(0, 8)}...</span>
-                      <div className="text-xs text-slate-500">{formatDate(j.approved_at, 'MMM DD, YYYY [at] h:mm A')}</div>
+                      <span className="text-text-muted">Approved by:</span>{' '}
+                      <span className="font-medium text-text-strong">User {j.approved_by.substring(0, 8)}...</span>
+                      <div className="text-xs text-text-muted">{formatDate(j.approved_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.rejected_by && (
                     <div className="text-sm">
-                      <span className="text-slate-600">Rejected by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.rejected_by.substring(0, 8)}...</span>
-                      <div className="text-xs text-slate-500">{formatDate(j.rejected_at, 'MMM DD, YYYY [at] h:mm A')}</div>
+                      <span className="text-text-muted">Rejected by:</span>{' '}
+                      <span className="font-medium text-text-strong">User {j.rejected_by.substring(0, 8)}...</span>
+                      <div className="text-xs text-text-muted">{formatDate(j.rejected_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                       {j.rejection_reason && (
                         <div className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded">Reason: {j.rejection_reason}</div>
                       )}
@@ -351,9 +351,9 @@ export default function JournalDetail() {
                   )}
                   {j?.voided_by && (
                     <div className="text-sm">
-                      <span className="text-slate-600">Voided by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.voided_by.substring(0, 8)}...</span>
-                      <div className="text-xs text-slate-500">{formatDate(j.voided_at, 'MMM DD, YYYY [at] h:mm A')}</div>
+                      <span className="text-text-muted">Voided by:</span>{' '}
+                      <span className="font-medium text-text-strong">User {j.voided_by.substring(0, 8)}...</span>
+                      <div className="text-xs text-text-muted">{formatDate(j.voided_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                       {j.void_reason && (
                         <div className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded">Reason: {j.void_reason}</div>
                       )}
@@ -363,26 +363,26 @@ export default function JournalDetail() {
               </div>
 
               {/* Technical Details */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-                <div className="px-6 py-4 border-b border-slate-200">
-                  <h2 className="text-lg font-semibold text-slate-900">Technical Details</h2>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+                <div className="px-6 py-4 border-b border-border-subtle">
+                  <h2 className="text-lg font-semibold text-text-strong">Technical Details</h2>
                 </div>
                 <div className="p-6 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Journal ID:</span>
-                    <code className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">{id?.substring(0, 12)}...</code>
+                    <span className="text-text-muted">Journal ID:</span>
+                    <code className="text-xs font-mono bg-surface-2 px-2 py-1 rounded">{id?.substring(0, 12)}...</code>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Organization:</span>
-                    <span className="font-medium text-slate-900">{j?.organization_id?.substring(0, 8)}...</span>
+                    <span className="text-text-muted">Organization:</span>
+                    <span className="font-medium text-text-strong">{j?.organization_id?.substring(0, 8)}...</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Period:</span>
-                    <span className="font-medium text-slate-900">{j?.period_id?.substring(0, 8)}...</span>
+                    <span className="text-text-muted">Period:</span>
+                    <span className="font-medium text-text-strong">{j?.period_id?.substring(0, 8)}...</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Type ID:</span>
-                    <span className="font-medium text-slate-900">{j?.journal_entry_type_id?.substring(0, 8)}...</span>
+                    <span className="text-text-muted">Type ID:</span>
+                    <span className="font-medium text-text-strong">{j?.journal_entry_type_id?.substring(0, 8)}...</span>
                   </div>
                 </div>
               </div>
@@ -392,9 +392,9 @@ export default function JournalDetail() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Status Timeline */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-900">Status Timeline</h2>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+              <div className="px-6 py-4 border-b border-border-subtle">
+                <h2 className="text-lg font-semibold text-text-strong">Status Timeline</h2>
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex items-start gap-3">
@@ -402,8 +402,8 @@ export default function JournalDetail() {
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">Created</div>
-                    <div className="text-xs text-slate-500">{formatDate(j?.created_at, 'MMM DD, h:mm A')}</div>
+                    <div className="text-sm font-medium text-text-strong">Created</div>
+                    <div className="text-xs text-text-muted">{formatDate(j?.created_at, 'MMM DD, h:mm A')}</div>
                   </div>
                 </div>
 
@@ -412,8 +412,8 @@ export default function JournalDetail() {
                     {j?.submitted_at ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">Submitted</div>
-                    <div className="text-xs text-slate-500">{formatDate(j?.submitted_at, 'MMM DD, h:mm A') || 'Pending'}</div>
+                    <div className="text-sm font-medium text-text-strong">Submitted</div>
+                    <div className="text-xs text-text-muted">{formatDate(j?.submitted_at, 'MMM DD, h:mm A') || 'Pending'}</div>
                   </div>
                 </div>
 
@@ -422,10 +422,10 @@ export default function JournalDetail() {
                     {j?.approved_at ? <CheckCircle2 className="w-5 h-5" /> : j?.rejected_at ? <XCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">
+                    <div className="text-sm font-medium text-text-strong">
                       {j?.approved_at ? 'Approved' : j?.rejected_at ? 'Rejected' : 'Approval'}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-text-muted">
                       {formatDate(j?.approved_at || j?.rejected_at, 'MMM DD, h:mm A') || 'Pending'}
                     </div>
                   </div>
@@ -436,19 +436,19 @@ export default function JournalDetail() {
                     {j?.posted_at ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">Posted</div>
-                    <div className="text-xs text-slate-500">{formatDate(j?.posted_at, 'MMM DD, h:mm A') || 'Pending'}</div>
+                    <div className="text-sm font-medium text-text-strong">Posted</div>
+                    <div className="text-xs text-text-muted">{formatDate(j?.posted_at, 'MMM DD, h:mm A') || 'Pending'}</div>
                   </div>
                 </div>
 
                 {j?.voided_at && (
-                  <div className="flex items-start gap-3 pt-2 border-t border-slate-200">
-                    <div className="mt-0.5 text-gray-600">
+                  <div className="flex items-start gap-3 pt-2 border-t border-border-subtle">
+                    <div className="mt-0.5 text-text-muted">
                       <XCircle className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-slate-900">Voided</div>
-                      <div className="text-xs text-slate-500">{formatDate(j.voided_at, 'MMM DD, h:mm A')}</div>
+                      <div className="text-sm font-medium text-text-strong">Voided</div>
+                      <div className="text-xs text-text-muted">{formatDate(j.voided_at, 'MMM DD, h:mm A')}</div>
                     </div>
                   </div>
                 )}
@@ -456,9 +456,9 @@ export default function JournalDetail() {
             </div>
 
             {/* Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-900">Additional Actions</h2>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+              <div className="px-6 py-4 border-b border-border-subtle">
+                <h2 className="text-lg font-semibold text-text-strong">Additional Actions</h2>
               </div>
               <div className="p-6 space-y-2">
                 <Button 
@@ -511,7 +511,7 @@ export default function JournalDetail() {
         }
       >
         <div className="space-y-4">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-text-muted">
             {action === 'reject' 
               ? 'Please provide a reason for rejecting this journal entry. The creator will be notified.'
               : 'Voiding this journal entry will mark it as invalid and cannot be undone. Please provide a reason.'}
@@ -524,7 +524,7 @@ export default function JournalDetail() {
             multiline
             rows={3}
           />
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-text-muted">
             {reason.length}/300 characters
           </div>
         </div>

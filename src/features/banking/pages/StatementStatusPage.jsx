@@ -51,7 +51,7 @@ export default function StatementStatusPage() {
           <Input label="To" placeholder="YYYY-MM-DD" value={params.to} onChange={(e) => setParams((p) => ({ ...p, to: e.target.value }))} />
           <Select label="Bank account" value={params.bankAccountId} onChange={(e) => setParams((p) => ({ ...p, bankAccountId: e.target.value }))} options={accountOptions} />
         </div>
-        <div className="mt-2 text-xs text-slate-500">
+        <div className="mt-2 text-xs text-text-muted">
           Set a date range to load results. Requires reporting.banking.read permission.
         </div>
       </ContentCard>
@@ -60,9 +60,9 @@ export default function StatementStatusPage() {
 
       <ContentCard title="Status" actions={<Badge variant="info">Result</Badge>}>
         {!params.from || !params.to ? (
-          <div className="text-sm text-slate-600">Provide From and To dates to load the widget.</div>
+          <div className="text-sm text-text-muted">Provide From and To dates to load the widget.</div>
         ) : statusQuery.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : statusQuery.isError ? (
           <div className="text-sm text-red-700">{statusQuery.error?.message ?? 'Failed to load status.'}</div>
         ) : (

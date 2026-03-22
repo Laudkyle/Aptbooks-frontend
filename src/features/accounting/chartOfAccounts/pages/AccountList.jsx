@@ -114,7 +114,7 @@ export default function AccountList() {
             />
           );
         }
-        return <span className="font-mono text-xs text-gray-700">{r.code ?? '—'}</span>;
+        return <span className="font-mono text-xs text-text-body">{r.code ?? '—'}</span>;
       }
     },
     {
@@ -151,7 +151,7 @@ export default function AccountList() {
           EXPENSE: 'bg-orange-100 text-orange-800 border-orange-200'
         };
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${typeColors[type] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${typeColors[type] || 'bg-surface-2 text-text-strong border-border-subtle'}`}>
             {type}
           </span>
         );
@@ -169,7 +169,7 @@ export default function AccountList() {
             />
           );
         }
-        return <span className="text-sm text-gray-700">{r.categoryName ?? r.category_name ?? '—'}</span>;
+        return <span className="text-sm text-text-body">{r.categoryName ?? r.category_name ?? '—'}</span>;
       }
     },
     {
@@ -180,7 +180,7 @@ export default function AccountList() {
             <select
               value={editForm.status}
               onChange={(e) => updateEditForm('status', e.target.value)}
-              className="px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+              className="px-2 py-1 border border-border-subtle rounded text-xs focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -189,7 +189,7 @@ export default function AccountList() {
         }
         const statusColors = {
           active: 'bg-green-100 text-green-800 border-green-200',
-          inactive: 'bg-gray-100 text-gray-800 border-gray-200'
+          inactive: 'bg-surface-2 text-text-strong border-border-subtle'
         };
         return (
           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[r.status] || statusColors.inactive}`}>
@@ -239,8 +239,8 @@ export default function AccountList() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Chart of Accounts</h1>
-              <p className="text-sm text-gray-600">
+              <h1 className="text-2xl font-bold text-text-strong mb-2">Chart of Accounts</h1>
+              <p className="text-sm text-text-muted">
                 Maintain your account master data
               </p>
             </div>
@@ -258,78 +258,78 @@ export default function AccountList() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
           <button
             onClick={() => setTypeFilter('')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === '' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === '' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
-            <div className="text-xl font-bold text-gray-900">{typeCounts.all}</div>
-            <div className="text-xs text-gray-600 mt-1">All</div>
+            <div className="text-xl font-bold text-text-strong">{typeCounts.all}</div>
+            <div className="text-xs text-text-muted mt-1">All</div>
           </button>
           <button
             onClick={() => setTypeFilter('ASSET')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'ASSET' ? 'border-blue-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === 'ASSET' ? 'border-blue-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-xl font-bold text-blue-600">{typeCounts.ASSET}</div>
-            <div className="text-xs text-gray-600 mt-1">Assets</div>
+            <div className="text-xs text-text-muted mt-1">Assets</div>
           </button>
           <button
             onClick={() => setTypeFilter('LIABILITY')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'LIABILITY' ? 'border-red-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === 'LIABILITY' ? 'border-red-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-xl font-bold text-red-600">{typeCounts.LIABILITY}</div>
-            <div className="text-xs text-gray-600 mt-1">Liabilities</div>
+            <div className="text-xs text-text-muted mt-1">Liabilities</div>
           </button>
           <button
             onClick={() => setTypeFilter('EQUITY')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'EQUITY' ? 'border-purple-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === 'EQUITY' ? 'border-purple-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-xl font-bold text-purple-600">{typeCounts.EQUITY}</div>
-            <div className="text-xs text-gray-600 mt-1">Equity</div>
+            <div className="text-xs text-text-muted mt-1">Equity</div>
           </button>
           <button
             onClick={() => setTypeFilter('REVENUE')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'REVENUE' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === 'REVENUE' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-xl font-bold text-green-600">{typeCounts.REVENUE}</div>
-            <div className="text-xs text-gray-600 mt-1">Revenue</div>
+            <div className="text-xs text-text-muted mt-1">Revenue</div>
           </button>
           <button
             onClick={() => setTypeFilter('EXPENSE')}
-            className={`bg-white rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'EXPENSE' ? 'border-orange-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
+              typeFilter === 'EXPENSE' ? 'border-orange-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-xl font-bold text-orange-600">{typeCounts.EXPENSE}</div>
-            <div className="text-xs text-gray-600 mt-1">Expenses</div>
+            <div className="text-xs text-text-muted mt-1">Expenses</div>
           </button>
         </div>
 
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex-1 relative min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-soft" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search code, name, or category..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               />
             </div>
             <div className="w-48">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full px-3 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               >
                 <option value="active">Active only</option>
                 <option value="inactive">Inactive only</option>
@@ -339,16 +339,16 @@ export default function AccountList() {
           </div>
           
           {searchTerm && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{filteredAccounts.length}</span> of <span className="font-semibold text-gray-900">{accounts.length}</span> accounts
+            <div className="mt-3 pt-3 border-t border-border-subtle">
+              <p className="text-sm text-text-muted">
+                Showing <span className="font-semibold text-text-strong">{filteredAccounts.length}</span> of <span className="font-semibold text-text-strong">{accounts.length}</span> accounts
               </p>
             </div>
           )}
         </div>
 
         {/* Data Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
           {query.isError ? (
             <div className="p-12 text-center">
               <div className="bg-red-50 rounded-lg p-6 max-w-md mx-auto">

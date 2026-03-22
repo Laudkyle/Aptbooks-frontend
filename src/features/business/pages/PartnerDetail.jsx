@@ -26,8 +26,8 @@ function SectionTitle({ icon: Icon, title, subtitle }) {
         <Icon className="h-5 w-5 text-brand-deep" />
       </div>
       <div>
-        <div className="text-sm font-semibold text-slate-900">{title}</div>
-        {subtitle ? <div className="text-xs text-slate-500">{subtitle}</div> : null}
+        <div className="text-sm font-semibold text-text-strong">{title}</div>
+        {subtitle ? <div className="text-xs text-text-muted">{subtitle}</div> : null}
       </div>
     </div>
   );
@@ -187,28 +187,28 @@ const toast = useToast();
           </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Code</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.code ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Code</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{partner?.partner?.code ?? '—'}</div>
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Type</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.type ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Type</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{partner?.partner?.type ?? '—'}</div>
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Email</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.email ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Email</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{partner?.partner?.email ?? '—'}</div>
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Phone</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{partner?.partner?.phone ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Phone</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{partner?.partner?.phone ?? '—'}</div>
             </div>
           </div>
 
           <div className="mt-4">
-            <div className="text-xs font-medium text-slate-600">Notes</div>
-            <div className="mt-2 rounded-2xl border border-border-subtle bg-white/70 p-4 text-sm text-slate-700">
-              {partner?.notes ? partner.notes : <span className="text-slate-400">No notes recorded.</span>}
+            <div className="text-xs font-medium text-text-muted">Notes</div>
+            <div className="mt-2 rounded-2xl border border-border-subtle bg-surface-2 p-4 text-sm text-text-body">
+              {partner?.notes ? partner.notes : <span className="text-text-soft">No notes recorded.</span>}
             </div>
           </div>
         </ContentCard>
@@ -222,19 +222,19 @@ const toast = useToast();
           </div>
 
           <div className="mt-4 space-y-3">
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Credit limit</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.credit_limit ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Credit limit</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{creditPolicy?.credit_limit ?? '—'}</div>
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Credit days</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.credit_days ?? '—'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Credit days</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{creditPolicy?.credit_days ?? '—'}</div>
             </div>
-            <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
-              <div className="text-xs text-slate-500">Hold if over</div>
-              <div className="mt-1 text-sm font-semibold text-slate-900">{creditPolicy?.hold_if_over ? 'Yes' : 'No'}</div>
+            <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+              <div className="text-xs text-text-muted">Hold if over</div>
+              <div className="mt-1 text-sm font-semibold text-text-strong">{creditPolicy?.hold_if_over ? 'Yes' : 'No'}</div>
             </div>
-            <div className="text-xs text-slate-500">{creditPolicy?.notes ?? ''}</div>
+            <div className="text-xs text-text-muted">{creditPolicy?.notes ?? ''}</div>
           </div>
         </ContentCard>
       </div>
@@ -256,11 +256,11 @@ const toast = useToast();
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {contacts.length ? (
                     contacts.map((c) => (
-                      <div key={c.id ?? c.email ?? c.name} className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <div key={c.id ?? c.email ?? c.name} className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="text-sm font-semibold text-slate-900">{c.name}</div>
-                            <div className="mt-1 text-xs text-slate-500">{c.role ?? '—'}</div>
+                            <div className="text-sm font-semibold text-text-strong">{c.name}</div>
+                            <div className="mt-1 text-xs text-text-muted">{c.role ?? '—'}</div>
                           </div>
                           <div className="flex items-center gap-2">
                             {c.isPrimary ? <Badge tone="brand">Primary</Badge> : null}
@@ -283,14 +283,14 @@ const toast = useToast();
                             </Button>
                           </div>
                         </div>
-                        <div className="mt-3 space-y-1 text-sm text-slate-700">
-                          <div>{c.email ?? <span className="text-slate-400">No email</span>}</div>
-                          <div>{c.phone ?? <span className="text-slate-400">No phone</span>}</div>
+                        <div className="mt-3 space-y-1 text-sm text-text-body">
+                          <div>{c.email ?? <span className="text-text-soft">No email</span>}</div>
+                          <div>{c.phone ?? <span className="text-text-soft">No phone</span>}</div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-border-subtle bg-white/60 p-8 text-center text-sm text-slate-600 md:col-span-2">
+                    <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-8 text-center text-sm text-text-muted md:col-span-2">
                       No contacts yet. Add a primary billing contact to speed up approvals and collections.
                     </div>
                   )}
@@ -313,11 +313,11 @@ const toast = useToast();
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {addresses.length ? (
                     addresses.map((a) => (
-                      <div key={a.id ?? a.line1} className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <div key={a.id ?? a.line1} className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="text-sm font-semibold text-slate-900">{a.label ?? 'Address'}</div>
-                            <div className="mt-1 text-xs text-slate-500">{[a.city, a.region, a.country].filter(Boolean).join(', ')}</div>
+                            <div className="text-sm font-semibold text-text-strong">{a.label ?? 'Address'}</div>
+                            <div className="mt-1 text-xs text-text-muted">{[a.city, a.region, a.country].filter(Boolean).join(', ')}</div>
                           </div>
                           <div className="flex items-center gap-2">
                             {a.isPrimary ? <Badge tone="brand">Primary</Badge> : null}
@@ -343,15 +343,15 @@ const toast = useToast();
                             </Button>
                           </div>
                         </div>
-                        <div className="mt-3 text-sm text-slate-700">
+                        <div className="mt-3 text-sm text-text-body">
                           <div>{a.line1}</div>
                           {a.line2 ? <div>{a.line2}</div> : null}
-                          {a.postalCode ? <div className="text-xs text-slate-500">Postal: {a.postalCode}</div> : null}
+                          {a.postalCode ? <div className="text-xs text-text-muted">Postal: {a.postalCode}</div> : null}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-border-subtle bg-white/60 p-8 text-center text-sm text-slate-600 md:col-span-2">
+                    <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-8 text-center text-sm text-text-muted md:col-span-2">
                       No addresses yet. Capture billing and delivery addresses for statements and shipping.
                     </div>
                   )}
@@ -407,7 +407,7 @@ const toast = useToast();
             onChange={(e) => setCp((s) => ({ ...s, creditDays: e.target.value }))}
             placeholder="e.g., 30"
           />
-          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-white/70 p-3 text-sm text-slate-700 md:col-span-2">
+          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 p-3 text-sm text-text-body md:col-span-2">
             <input
               type="checkbox"
               checked={cp.holdIfOver}
@@ -435,7 +435,7 @@ const toast = useToast();
           <Input label="Role" value={contact.role} onChange={(e) => setContact((s) => ({ ...s, role: e.target.value }))} />
           <Input label="Email" value={contact.email} onChange={(e) => setContact((s) => ({ ...s, email: e.target.value }))} />
           <Input label="Phone" value={contact.phone} onChange={(e) => setContact((s) => ({ ...s, phone: e.target.value }))} />
-          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-white/70 p-3 text-sm text-slate-700 md:col-span-2">
+          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 p-3 text-sm text-text-body md:col-span-2">
             <input
               type="checkbox"
               checked={contact.isPrimary}
@@ -468,7 +468,7 @@ const toast = useToast();
           <Input label="Role" value={contactEdit.role} onChange={(e) => setContactEdit((s) => ({ ...s, role: e.target.value }))} />
           <Input label="Email" value={contactEdit.email} onChange={(e) => setContactEdit((s) => ({ ...s, email: e.target.value }))} />
           <Input label="Phone" value={contactEdit.phone} onChange={(e) => setContactEdit((s) => ({ ...s, phone: e.target.value }))} />
-          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-white/70 p-3 text-sm text-slate-700 md:col-span-2">
+          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 p-3 text-sm text-text-body md:col-span-2">
             <input
               type="checkbox"
               checked={contactEdit.isPrimary}
@@ -516,7 +516,7 @@ const toast = useToast();
           <Input label="Region" value={address.region} onChange={(e) => setAddress((s) => ({ ...s, region: e.target.value }))} />
           <Input label="Postal code" value={address.postalCode} onChange={(e) => setAddress((s) => ({ ...s, postalCode: e.target.value }))} />
           <Input label="Country" value={address.country} onChange={(e) => setAddress((s) => ({ ...s, country: e.target.value }))} />
-          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-white/70 p-3 text-sm text-slate-700 md:col-span-2">
+          <label className="flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 p-3 text-sm text-text-body md:col-span-2">
             <input
               type="checkbox"
               checked={address.isPrimary}

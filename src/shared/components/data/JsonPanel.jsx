@@ -48,11 +48,11 @@ export function JsonPanel({ title = 'Payload', value, onSubmit, submitLabel = 'S
   }
 
   return (
-    <div className="rounded-2xl border border-border-subtle bg-white/80 shadow-sm">
+    <div className="rounded-2xl border border-border-subtle bg-surface-2 shadow-sm">
       <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
         <div>
-          <div className="text-sm font-semibold text-slate-900">{title}</div>
-          {hint ? <div className="mt-0.5 text-xs text-slate-500">{hint}</div> : null}
+          <div className="text-sm font-semibold text-text-strong">{title}</div>
+          {hint ? <div className="mt-0.5 text-xs text-text-muted">{hint}</div> : null}
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={handleFormat} leftIcon={Wand2}>

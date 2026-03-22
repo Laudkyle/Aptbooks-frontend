@@ -141,9 +141,9 @@ export default function PnL() {
       <React.Fragment key={line.id}>
         <tr className={`
           ${isFormula ? 'bg-slate-800 text-white font-bold border-t-4 border-slate-900' : ''}
-          ${isSection && !isOtherSection ? 'bg-slate-100 hover:bg-slate-200 font-semibold border-t-2 border-slate-300' : ''}
+          ${isSection && !isOtherSection ? 'bg-surface-2 hover:bg-slate-200 font-semibold border-t-2 border-border-subtle' : ''}
           ${isOtherSection ? 'bg-blue-50 hover:bg-blue-100 font-semibold border-t-2 border-blue-300' : ''}
-          ${isAccount ? 'hover:bg-slate-50' : ''}
+          ${isAccount ? 'hover:bg-surface-2' : ''}
           ${isOtherIncome ? 'text-green-700 hover:bg-green-50' : ''}
           ${isOtherExpense ? 'text-red-700 hover:bg-red-50' : ''}
           transition-colors
@@ -153,14 +153,14 @@ export default function PnL() {
               {isSection && hasChildren && !isFormula && (
                 <button 
                   onClick={() => toggleSection(sectionKey)}
-                  className={`${isOtherSection ? 'text-blue-600 hover:text-blue-900' : 'text-slate-600 hover:text-slate-900'}`}
+                  className={`${isOtherSection ? 'text-blue-600 hover:text-blue-900' : 'text-text-muted hover:text-text-strong'}`}
                 >
                   {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </button>
               )}
               <div className={`text-sm 
                 ${isSection ? 'font-semibold uppercase tracking-wide' : ''}
-                ${isOtherSection ? 'text-blue-900' : isFormula ? 'font-bold text-white uppercase' : 'text-slate-700'}
+                ${isOtherSection ? 'text-blue-900' : isFormula ? 'font-bold text-white uppercase' : 'text-text-body'}
                 ${isOtherIncome ? 'text-green-900' : ''}
                 ${isOtherExpense ? 'text-red-900' : ''}
               `}>
@@ -168,7 +168,7 @@ export default function PnL() {
               </div>
             </div>
             {line.section_code && !isFormula && (
-              <div className={`text-xs ml-6 ${isOtherSection ? 'text-blue-600' : 'text-slate-500'}`}>
+              <div className={`text-xs ml-6 ${isOtherSection ? 'text-blue-600' : 'text-text-muted'}`}>
                 {line.section_code}
               </div>
             )}
@@ -180,7 +180,7 @@ export default function PnL() {
               ${isSection || isFormula ? 'font-bold' : ''}
               ${isOtherIncome ? 'text-green-600 font-medium' : ''}
               ${isOtherExpense ? 'text-red-600 font-medium' : ''}
-              ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-slate-700' : ''}
+              ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-text-body' : ''}
             `}>
               {formatMoney(amount, 'GHS')}
             </div>
@@ -194,7 +194,7 @@ export default function PnL() {
                   ${isSection || isFormula ? 'font-bold' : ''}
                   ${isOtherIncome ? 'text-green-600 font-medium' : ''}
                   ${isOtherExpense ? 'text-red-600 font-medium' : ''}
-                  ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-slate-700' : ''}
+                  ${!isOtherIncome && !isOtherExpense && !isFormula ? 'text-text-body' : ''}
                 `}>
                   {formatMoney(compareAmount, 'GHS')}
                 </div>
@@ -292,7 +292,7 @@ export default function PnL() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-surface-2">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -324,14 +324,14 @@ export default function PnL() {
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="space-y-6">
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-            <div className="px-6 py-4 border-b border-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900">Report Parameters</h2>
+          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+            <div className="px-6 py-4 border-b border-border-subtle">
+              <h2 className="text-lg font-semibold text-text-strong">Report Parameters</h2>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     <Calendar className="w-4 h-4 inline mr-1" />
                     Period *
                   </label>
@@ -343,7 +343,7 @@ export default function PnL() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Compare With Period
                   </label>
                   <Select 
@@ -357,7 +357,7 @@ export default function PnL() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Display Mode
                   </label>
                   <Input 
@@ -373,32 +373,32 @@ export default function PnL() {
           {/* Key Metrics Cards */}
           {periodId && !q.isLoading && !q.isError && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Revenue</div>
-                <div className="text-2xl font-bold text-slate-900">{formatMoney(revenueAmount, 'GHS')}</div>
-                <div className="text-xs text-slate-600 mt-1">Gross sales</div>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+                <div className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">Revenue</div>
+                <div className="text-2xl font-bold text-text-strong">{formatMoney(revenueAmount, 'GHS')}</div>
+                <div className="text-xs text-text-muted mt-1">Gross sales</div>
               </div>
               
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Gross Profit</div>
-                <div className="text-2xl font-bold text-slate-900">{formatMoney(grossProfit, 'GHS')}</div>
-                <div className="text-xs text-slate-600 mt-1">Margin: {grossMargin.toFixed(1)}%</div>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+                <div className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">Gross Profit</div>
+                <div className="text-2xl font-bold text-text-strong">{formatMoney(grossProfit, 'GHS')}</div>
+                <div className="text-xs text-text-muted mt-1">Margin: {grossMargin.toFixed(1)}%</div>
               </div>
               
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Operating Profit</div>
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+                <div className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">Operating Profit</div>
                 <div className={`text-2xl font-bold ${operatingProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatMoney(operatingProfit, 'GHS')}
                 </div>
-                <div className="text-xs text-slate-600 mt-1">Margin: {operatingMargin.toFixed(1)}%</div>
+                <div className="text-xs text-text-muted mt-1">Margin: {operatingMargin.toFixed(1)}%</div>
               </div>
               
-              <div className={`bg-white rounded-lg shadow-sm border-2 p-6 ${netIncomeAmount >= 0 ? 'border-green-500' : 'border-red-500'}`}>
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Net Income</div>
+              <div className={`bg-surface-1 rounded-lg shadow-sm border-2 p-6 ${netIncomeAmount >= 0 ? 'border-green-500' : 'border-red-500'}`}>
+                <div className="text-xs font-medium text-text-muted uppercase tracking-wide mb-2">Net Income</div>
                 <div className={`text-2xl font-bold ${netIncomeAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatMoney(netIncomeAmount, 'GHS')}
                 </div>
-                <div className="text-xs text-slate-600 mt-1">
+                <div className="text-xs text-text-muted mt-1">
                   Margin: {netMargin.toFixed(1)}%
                   {totalOtherIncome !== 0 && (
                     <span className="block mt-1">
@@ -412,21 +412,21 @@ export default function PnL() {
 
           {/* Statement Content */}
           {!periodId ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
-                <Calendar className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">Select a Period</h3>
-                <p className="text-sm text-slate-600">Choose a period above to generate the income statement</p>
+                <Calendar className="w-16 h-16 text-text-soft mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-text-strong mb-2">Select a Period</h3>
+                <p className="text-sm text-text-muted">Choose a period above to generate the income statement</p>
               </div>
             </div>
           ) : q.isLoading ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
-                <div className="animate-pulse text-slate-600">Loading statement...</div>
+                <div className="animate-pulse text-text-muted">Loading statement...</div>
               </div>
             </div>
           ) : q.isError ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
                 <div className="text-red-600">{q.error?.message ?? 'Failed to load statement.'}</div>
               </div>
@@ -434,17 +434,17 @@ export default function PnL() {
           ) : (
             <>
               {/* Statement Table */}
-              <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-6 text-center border-b border-slate-200 bg-slate-50">
-                  <h2 className="text-xl font-bold text-slate-900">Income Statement</h2>
-                  <p className="text-sm text-slate-600 mt-1">
+              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
+                <div className="p-6 text-center border-b border-border-subtle bg-surface-2">
+                  <h2 className="text-xl font-bold text-text-strong">Income Statement</h2>
+                  <p className="text-sm text-text-muted mt-1">
                     {selectedPeriod?.name || selectedPeriod?.code || 'Selected Period'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-text-muted mt-1">
                     {formatPeriodDisplay(selectedPeriod)}
                   </p>
                   {hasComparison && comparePeriod && (
-                    <p className="text-xs text-slate-500 mt-2">
+                    <p className="text-xs text-text-muted mt-2">
                       Compared with: {comparePeriod.name || comparePeriod.code}
                       {comparePeriod.start_date && comparePeriod.end_date && (
                         <span className="ml-2">
@@ -457,23 +457,23 @@ export default function PnL() {
 
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-slate-100 border-b-2 border-slate-300">
+                    <thead className="bg-surface-2 border-b-2 border-border-subtle">
                       <tr>
-                        <th className="py-4 px-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-4 text-left text-xs font-bold text-text-body uppercase tracking-wider">
                           Account
                         </th>
-                        <th className="py-4 px-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-40">
+                        <th className="py-4 px-4 text-right text-xs font-bold text-text-body uppercase tracking-wider w-40">
                           {selectedPeriod?.code || 'Current'}
                         </th>
                         {hasComparison && (
                           <>
-                            <th className="py-4 px-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-40">
+                            <th className="py-4 px-4 text-right text-xs font-bold text-text-body uppercase tracking-wider w-40">
                               {comparePeriod?.code || 'Previous'}
                             </th>
-                            <th className="py-4 px-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-36">
+                            <th className="py-4 px-4 text-right text-xs font-bold text-text-body uppercase tracking-wider w-36">
                               Variance
                             </th>
-                            <th className="py-4 px-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-24">
+                            <th className="py-4 px-4 text-right text-xs font-bold text-text-body uppercase tracking-wider w-24">
                               Change %
                             </th>
                           </>
@@ -485,7 +485,7 @@ export default function PnL() {
                         lines.map(line => renderLine(line, 0, compareLines))
                       ) : (
                         <tr>
-                          <td colSpan={hasComparison ? 5 : 2} className="py-12 text-center text-slate-500">
+                          <td colSpan={hasComparison ? 5 : 2} className="py-12 text-center text-text-muted">
                             No data available for this period
                           </td>
                         </tr>

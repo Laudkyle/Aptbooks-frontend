@@ -177,7 +177,7 @@ export default function ReportApVendorStatement() {
       <ContentCard>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Statement Parameters</h3>
+            <h3 className="text-sm font-semibold text-text-strong">Statement Parameters</h3>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
@@ -195,7 +195,7 @@ export default function ReportApVendorStatement() {
                 error={errors.vendorId}
                 required
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Vendor selection (required)
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function ReportApVendorStatement() {
                 error={errors.from}
                 placeholder="YYYY-MM-DD"
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Statement period start (optional)
               </p>
             </div>
@@ -233,7 +233,7 @@ export default function ReportApVendorStatement() {
                 error={errors.to}
                 placeholder="YYYY-MM-DD"
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Statement period end (optional)
               </p>
             </div>
@@ -260,8 +260,8 @@ export default function ReportApVendorStatement() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Generate Vendor Statement</h3>
-            <p className="text-sm text-slate-600">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">Generate Vendor Statement</h3>
+            <p className="text-sm text-text-muted">
               Enter vendor details above and click "Generate Statement" to create a detailed account statement
             </p>
           </div>
@@ -270,8 +270,8 @@ export default function ReportApVendorStatement() {
         <ContentCard>
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Generating statement...</p>
+              <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-text-muted">Generating statement...</p>
             </div>
           </div>
         </ContentCard>
@@ -281,8 +281,8 @@ export default function ReportApVendorStatement() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Statement Data</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">No Statement Data</h3>
+            <p className="text-sm text-text-muted mb-6">
               No statement data available for vendor ID <span className="font-mono font-semibold">{vendorId}</span> in the specified period.
             </p>
             <Button
@@ -305,7 +305,7 @@ export default function ReportApVendorStatement() {
             <div className="print:p-8">
               {/* Actions Bar - Hidden on Print */}
               <div className="mb-6 flex items-center justify-between print:hidden">
-                <h3 className="text-sm font-semibold text-slate-900">Vendor Statement</h3>
+                <h3 className="text-sm font-semibold text-text-strong">Vendor Statement</h3>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="secondary"
@@ -330,37 +330,37 @@ export default function ReportApVendorStatement() {
 
               {/* Statement Header */}
               <div className="border-b-2 border-slate-900 pb-6 mb-6">
-                <h1 className="text-2xl font-bold text-slate-900 mb-4">VENDOR STATEMENT</h1>
+                <h1 className="text-2xl font-bold text-text-strong mb-4">VENDOR STATEMENT</h1>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-xs font-semibold text-slate-600 uppercase mb-2">Vendor Information</h3>
+                    <h3 className="text-xs font-semibold text-text-muted uppercase mb-2">Vendor Information</h3>
                     <div className="space-y-1">
                       {statement.vendor.name && (
-                        <p className="text-sm font-semibold text-slate-900">{statement.vendor.name}</p>
+                        <p className="text-sm font-semibold text-text-strong">{statement.vendor.name}</p>
                       )}
-                      <p className="text-sm text-slate-700">
+                      <p className="text-sm text-text-body">
                         Vendor ID: <span className="font-mono">{statement.vendor.id || vendorId}</span>
                       </p>
                       {statement.vendor.address && (
-                        <p className="text-sm text-slate-600">{statement.vendor.address}</p>
+                        <p className="text-sm text-text-muted">{statement.vendor.address}</p>
                       )}
                       {statement.vendor.email && (
-                        <p className="text-sm text-slate-600">{statement.vendor.email}</p>
+                        <p className="text-sm text-text-muted">{statement.vendor.email}</p>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-xs font-semibold text-slate-600 uppercase mb-2">Statement Period</h3>
+                    <h3 className="text-xs font-semibold text-text-muted uppercase mb-2">Statement Period</h3>
                     <div className="space-y-1">
-                      <p className="text-sm text-slate-900">
+                      <p className="text-sm text-text-strong">
                         <span className="font-medium">From:</span> {from ? formatDate(from) : 'Beginning'}
                       </p>
-                      <p className="text-sm text-slate-900">
+                      <p className="text-sm text-text-strong">
                         <span className="font-medium">To:</span> {to ? formatDate(to) : 'Current'}
                       </p>
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-text-muted">
                         Generated: {new Date().toLocaleString()}
                       </p>
                     </div>
@@ -369,18 +369,18 @@ export default function ReportApVendorStatement() {
               </div>
 
               {/* Summary Section */}
-              <div className="bg-slate-50 rounded-lg p-6 mb-6">
-                <h3 className="text-sm font-semibold text-slate-900 mb-4">Account Summary</h3>
+              <div className="bg-surface-2 rounded-lg p-6 mb-6">
+                <h3 className="text-sm font-semibold text-text-strong mb-4">Account Summary</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-700">Beginning Balance:</span>
-                      <span className="text-sm font-medium text-slate-900 tabular-nums">
+                      <span className="text-sm text-text-body">Beginning Balance:</span>
+                      <span className="text-sm font-medium text-text-strong tabular-nums">
                         {formatCurrency(statement.summary.beginningBalance)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-700">Total Charges:</span>
+                      <span className="text-sm text-text-body">Total Charges:</span>
                       <span className="text-sm font-medium text-red-700 tabular-nums">
                         {formatCurrency(statement.summary.totalCharges)}
                       </span>
@@ -388,14 +388,14 @@ export default function ReportApVendorStatement() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-700">Total Payments:</span>
+                      <span className="text-sm text-text-body">Total Payments:</span>
                       <span className="text-sm font-medium text-green-700 tabular-nums">
                         {formatCurrency(statement.summary.totalPayments)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center pt-3 border-t-2 border-slate-300">
-                      <span className="text-sm font-semibold text-slate-900">Ending Balance:</span>
-                      <span className="text-lg font-bold text-slate-900 tabular-nums">
+                    <div className="flex justify-between items-center pt-3 border-t-2 border-border-subtle">
+                      <span className="text-sm font-semibold text-text-strong">Ending Balance:</span>
+                      <span className="text-lg font-bold text-text-strong tabular-nums">
                         {formatCurrency(statement.summary.endingBalance)}
                       </span>
                     </div>
@@ -406,28 +406,28 @@ export default function ReportApVendorStatement() {
               {/* Transactions Table */}
               {statement.transactions && statement.transactions.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Transaction Details</h3>
-                  <div className="border border-slate-200 rounded-lg overflow-hidden">
-                    <table className="min-w-full divide-y divide-slate-200">
-                      <thead className="bg-slate-50">
+                  <h3 className="text-sm font-semibold text-text-strong mb-3">Transaction Details</h3>
+                  <div className="border border-border-subtle rounded-lg overflow-hidden">
+                    <table className="min-w-full divide-y divide-border-subtle">
+                      <thead className="bg-surface-2">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Date</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Type</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Description</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase">Amount</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase">Balance</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase">Date</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase">Type</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase">Description</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase">Amount</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase">Balance</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200 bg-white">
+                      <tbody className="divide-y divide-border-subtle bg-surface-1">
                         {statement.transactions.map((tx, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50">
-                            <td className="px-4 py-3 text-sm text-slate-900">
+                          <tr key={idx} className="hover:bg-surface-2">
+                            <td className="px-4 py-3 text-sm text-text-strong">
                               {formatDate(tx.date || tx.transaction_date || tx.created_at)}
                             </td>
-                            <td className="px-4 py-3 text-sm text-slate-700">
+                            <td className="px-4 py-3 text-sm text-text-body">
                               {tx.type || tx.transaction_type || '—'}
                             </td>
-                            <td className="px-4 py-3 text-sm text-slate-700">
+                            <td className="px-4 py-3 text-sm text-text-body">
                               {tx.description || tx.memo || tx.reference || '—'}
                             </td>
                             <td className="px-4 py-3 text-sm font-medium text-right tabular-nums">
@@ -435,7 +435,7 @@ export default function ReportApVendorStatement() {
                                 {formatCurrency(Math.abs(tx.amount))}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-sm font-medium text-slate-900 text-right tabular-nums">
+                            <td className="px-4 py-3 text-sm font-medium text-text-strong text-right tabular-nums">
                               {formatCurrency(tx.balance || tx.running_balance)}
                             </td>
                           </tr>
@@ -447,7 +447,7 @@ export default function ReportApVendorStatement() {
               )}
 
               {/* Footer Notes */}
-              <div className="mt-8 pt-6 border-t border-slate-200 text-xs text-slate-600">
+              <div className="mt-8 pt-6 border-t border-border-subtle text-xs text-text-muted">
                 <p>
                   This statement reflects all transactions recorded in our system for the specified period. 
                   Please review and contact us if you have any questions or discrepancies.
@@ -461,18 +461,18 @@ export default function ReportApVendorStatement() {
       {/* Help Section */}
       <ContentCard className="print:hidden">
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-900">About Vendor Statements</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+          <h3 className="text-sm font-semibold text-text-strong">About Vendor Statements</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-text-body">
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">What is a Vendor Statement?</h4>
-              <p className="text-xs text-slate-600">
+              <h4 className="font-medium text-text-strong mb-2">What is a Vendor Statement?</h4>
+              <p className="text-xs text-text-muted">
                 A vendor statement is a comprehensive record of all financial transactions between your company and a specific vendor. 
                 It shows invoices, payments, credits, and the running balance over a specified period.
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
-              <ul className="text-xs text-slate-600 space-y-1">
+              <h4 className="font-medium text-text-strong mb-2">How to Use This Report</h4>
+              <ul className="text-xs text-text-muted space-y-1">
                 <li>• Use for vendor reconciliation and account verification</li>
                 <li>• Print or export for your records or to share with vendors</li>
                 <li>• Review transaction details to identify discrepancies</li>

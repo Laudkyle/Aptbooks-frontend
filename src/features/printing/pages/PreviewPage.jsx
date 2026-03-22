@@ -90,7 +90,7 @@ export default function PreviewPage() {
             }}
             options={[{ value: '', label: resolvedTemplateName ? `Assigned template · ${resolvedTemplateName}` : 'Use assigned template' }, ...templates.map((x) => ({ value: String(x.id), label: x.name ?? x.code ?? x.id }))]}
           />
-          <div className="text-sm text-slate-500">
+          <div className="text-sm text-text-muted">
             Use the assigned default or temporarily preview another approved design before printing.
           </div>
         </div>
@@ -98,16 +98,16 @@ export default function PreviewPage() {
 
       <ContentCard className="p-0 overflow-hidden">
         {previewQ.isLoading ? (
-          <div className="p-10 text-sm text-slate-500">Loading preview…</div>
+          <div className="p-10 text-sm text-text-muted">Loading preview…</div>
         ) : html ? (
           <iframe
             ref={iframeRef}
             title="Document preview"
-            className="min-h-[calc(100vh-16rem)] w-full bg-white"
+            className="min-h-[calc(100vh-16rem)] w-full bg-surface-1"
             srcDoc={html}
           />
         ) : (
-          <div className="p-10 text-sm text-slate-500">No preview available for this document yet.</div>
+          <div className="p-10 text-sm text-text-muted">No preview available for this document yet.</div>
         )}
       </ContentCard>
     </div>

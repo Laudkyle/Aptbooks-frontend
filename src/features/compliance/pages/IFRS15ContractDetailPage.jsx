@@ -382,7 +382,7 @@ export default function IFRS15ContractDetailPage() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading contract details...</div>
+            <div className="text-sm text-text-muted">Loading contract details...</div>
           </div>
         </ContentCard>
       </div>
@@ -405,8 +405,8 @@ export default function IFRS15ContractDetailPage() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load contract</div>
-            <div className="text-sm text-slate-500">{contractQuery.error?.response?.data?.message ?? "Unknown error"}</div>
+            <div className="text-sm font-medium text-text-strong">Failed to load contract</div>
+            <div className="text-sm text-text-muted">{contractQuery.error?.response?.data?.message ?? "Unknown error"}</div>
             <Button variant="outline" onClick={() => contractQuery.refetch()} className="mt-2">
               Retry
             </Button>
@@ -495,8 +495,8 @@ export default function IFRS15ContractDetailPage() {
               </Badge>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Status</p>
-              <p className="text-sm font-medium text-slate-900 capitalize">{status}</p>
+              <p className="text-xs text-text-muted">Status</p>
+              <p className="text-sm font-medium text-text-strong capitalize">{status}</p>
             </div>
           </div>
         </ContentCard>
@@ -507,8 +507,8 @@ export default function IFRS15ContractDetailPage() {
               <Tag className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">Obligations</p>
-              <p className="text-sm font-medium text-slate-900">{obligations.length}</p>
+              <p className="text-xs text-text-muted">Obligations</p>
+              <p className="text-sm font-medium text-text-strong">{obligations.length}</p>
             </div>
           </div>
         </ContentCard>
@@ -519,8 +519,8 @@ export default function IFRS15ContractDetailPage() {
               <Layers className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">Schedule Lines</p>
-              <p className="text-sm font-medium text-slate-900">{scheduleLines.length}</p>
+              <p className="text-xs text-text-muted">Schedule Lines</p>
+              <p className="text-sm font-medium text-text-strong">{scheduleLines.length}</p>
             </div>
           </div>
         </ContentCard>
@@ -531,8 +531,8 @@ export default function IFRS15ContractDetailPage() {
               <Receipt className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-xs text-slate-500">Costs</p>
-              <p className="text-sm font-medium text-slate-900">{costs.length}</p>
+              <p className="text-xs text-text-muted">Costs</p>
+              <p className="text-sm font-medium text-text-strong">{costs.length}</p>
             </div>
           </div>
         </ContentCard>
@@ -553,8 +553,8 @@ export default function IFRS15ContractDetailPage() {
                 <Plus className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Add Obligation</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="font-medium text-text-strong">Add Obligation</h3>
+                <p className="text-xs text-text-muted mt-1">
                   Add performance obligations
                 </p>
               </div>
@@ -580,8 +580,8 @@ export default function IFRS15ContractDetailPage() {
                 <RefreshCw className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Generate Schedule</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="font-medium text-text-strong">Generate Schedule</h3>
+                <p className="text-xs text-text-muted mt-1">
                   Create recognition schedule
                 </p>
               </div>
@@ -602,8 +602,8 @@ export default function IFRS15ContractDetailPage() {
                 <DollarSign className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Post Revenue</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="font-medium text-text-strong">Post Revenue</h3>
+                <p className="text-xs text-text-muted mt-1">
                   Recognize revenue for period
                 </p>
               </div>
@@ -624,8 +624,8 @@ export default function IFRS15ContractDetailPage() {
                 <Receipt className="h-5 w-5 text-amber-600" />
               </div>
               <div>
-                <h3 className="font-medium text-slate-900">Add Cost</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="font-medium text-text-strong">Add Cost</h3>
+                <p className="text-xs text-text-muted mt-1">
                   Track contract costs
                 </p>
               </div>
@@ -635,13 +635,13 @@ export default function IFRS15ContractDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200">
+      <div className="border-b border-border-subtle">
         <div className="flex gap-6">
           <button
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "overview"
                 ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                : "border-transparent text-text-muted hover:text-text-body"
             }`}
             onClick={() => setActiveTab("overview")}
           >
@@ -654,7 +654,7 @@ export default function IFRS15ContractDetailPage() {
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "obligations"
                 ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                : "border-transparent text-text-muted hover:text-text-body"
             }`}
             onClick={() => setActiveTab("obligations")}
           >
@@ -667,7 +667,7 @@ export default function IFRS15ContractDetailPage() {
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "schedule"
                 ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                : "border-transparent text-text-muted hover:text-text-body"
             }`}
             onClick={() => setActiveTab("schedule")}
           >
@@ -680,7 +680,7 @@ export default function IFRS15ContractDetailPage() {
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "costs"
                 ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                : "border-transparent text-text-muted hover:text-text-body"
             }`}
             onClick={() => setActiveTab("costs")}
           >
@@ -699,27 +699,27 @@ export default function IFRS15ContractDetailPage() {
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Contract Details</h3>
+                <h3 className="text-sm font-semibold text-text-strong mb-3">Contract Details</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Customer/Partner</span>
-                    <span className="font-medium text-slate-900">
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">Customer/Partner</span>
+                    <span className="font-medium text-text-strong">
                       {contract?.business_partner_name ?? contract?.customer_name ?? "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Currency</span>
-                    <span className="font-medium text-slate-900">{contract?.currency_code ?? "—"}</span>
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">Currency</span>
+                    <span className="font-medium text-text-strong">{contract?.currency_code ?? "—"}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Start Date</span>
-                    <span className="font-medium text-slate-900">
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">Start Date</span>
+                    <span className="font-medium text-text-strong">
                       {contract?.start_date ? formatDate(contract.start_date) : "—"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">End Date</span>
-                    <span className="font-medium text-slate-900">
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">End Date</span>
+                    <span className="font-medium text-text-strong">
                       {contract?.end_date ? formatDate(contract.end_date) : "—"}
                     </span>
                   </div>
@@ -727,15 +727,15 @@ export default function IFRS15ContractDetailPage() {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 mb-3">Obligations Summary</h3>
+                <h3 className="text-sm font-semibold text-text-strong mb-3">Obligations Summary</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Count</span>
-                    <span className="font-medium text-slate-900">{obligations.length}</span>
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">Count</span>
+                    <span className="font-medium text-text-strong">{obligations.length}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-500">Total SSP</span>
-                    <span className="font-medium text-slate-900">
+                  <div className="flex justify-between py-2 border-b border-border-subtle">
+                    <span className="text-text-muted">Total SSP</span>
+                    <span className="font-medium text-text-strong">
                       {formatMoney(
                         obligations.reduce((sum, o) => sum + Number(o?.standalone_selling_price ?? 0), 0)
                       )}
@@ -774,8 +774,8 @@ export default function IFRS15ContractDetailPage() {
             {obligations.length === 0 ? (
               <div className="text-center py-12">
                 <Tag className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <div className="text-sm font-medium text-slate-900 mb-1">No obligations</div>
-                <div className="text-sm text-slate-500 mb-4">
+                <div className="text-sm font-medium text-text-strong mb-1">No obligations</div>
+                <div className="text-sm text-text-muted mb-4">
                   Add performance obligations to allocate revenue
                 </div>
                 {canAddObligation && (
@@ -792,25 +792,25 @@ export default function IFRS15ContractDetailPage() {
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
+              <div className="rounded-xl border border-border-subtle overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Code</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Type</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">SSP</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Timing</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Code</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Type</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">SSP</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Timing</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-border-subtle">
                     {obligations.map((obligation) => (
-                      <tr key={obligation.id ?? obligation.code} className="hover:bg-slate-50 transition-colors">
+                      <tr key={obligation.id ?? obligation.code} className="hover:bg-surface-2 transition-colors">
                         <td className="px-6 py-4">
-                          <span className="text-sm font-medium text-slate-900">{obligation.code ?? "—"}</span>
+                          <span className="text-sm font-medium text-text-strong">{obligation.code ?? "—"}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-slate-700">{obligation.description ?? "—"}</span>
+                          <span className="text-sm text-text-body">{obligation.description ?? "—"}</span>
                         </td>
                         <td className="px-6 py-4">
                           <Badge tone="muted" className="text-xs">
@@ -819,8 +819,8 @@ export default function IFRS15ContractDetailPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="font-mono text-sm text-slate-700">
+                            <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+                            <span className="font-mono text-sm text-text-body">
                               {obligation.standalone_selling_price != null 
                                 ? formatMoney(obligation.standalone_selling_price) 
                                 : "—"}
@@ -828,7 +828,7 @@ export default function IFRS15ContractDetailPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-slate-700">
+                          <span className="text-sm text-text-body">
                             {obligation.satisfaction_type === "POINT_IN_TIME" && obligation.satisfaction_date
                               ? `On ${formatDate(obligation.satisfaction_date)}`
                               : obligation.start_date || obligation.end_date
@@ -879,13 +879,13 @@ export default function IFRS15ContractDetailPage() {
 
             {scheduleQuery.isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="text-sm text-slate-500">Loading schedule...</div>
+                <div className="text-sm text-text-muted">Loading schedule...</div>
               </div>
             ) : scheduleLines.length === 0 ? (
               <div className="text-center py-12">
                 <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <div className="text-sm font-medium text-slate-900 mb-1">No schedule generated</div>
-                <div className="text-sm text-slate-500 mb-4">
+                <div className="text-sm font-medium text-text-strong mb-1">No schedule generated</div>
+                <div className="text-sm text-text-muted mb-4">
                   Activate the contract and generate schedule
                 </div>
                 {canGenerateSchedule && (
@@ -902,34 +902,34 @@ export default function IFRS15ContractDetailPage() {
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
+              <div className="rounded-xl border border-border-subtle overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Recognition Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Period</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Recognition Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Period</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-border-subtle">
                     {scheduleLines.map((line, idx) => (
-                      <tr key={line.id ?? idx} className="hover:bg-slate-50 transition-colors">
+                      <tr key={line.id ?? idx} className="hover:bg-surface-2 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            <span className="text-sm text-slate-700">
+                            <Calendar className="h-4 w-4 text-text-soft" />
+                            <span className="text-sm text-text-body">
                               {line.recognition_date ? formatDate(line.recognition_date) : "—"}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-slate-700">{line.period_id ?? "—"}</span>
+                          <span className="text-sm text-text-body">{line.period_id ?? "—"}</span>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="font-mono text-sm text-slate-700">
+                            <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+                            <span className="font-mono text-sm text-text-body">
                               {line.amount != null ? formatMoney(line.amount) : "—"}
                             </span>
                           </div>
@@ -972,13 +972,13 @@ export default function IFRS15ContractDetailPage() {
 
             {costsQuery.isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="text-sm text-slate-500">Loading costs...</div>
+                <div className="text-sm text-text-muted">Loading costs...</div>
               </div>
             ) : costs.length === 0 ? (
               <div className="text-center py-12">
                 <Receipt className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <div className="text-sm font-medium text-slate-900 mb-1">No costs</div>
-                <div className="text-sm text-slate-500 mb-4">
+                <div className="text-sm font-medium text-text-strong mb-1">No costs</div>
+                <div className="text-sm text-text-muted mb-4">
                   Track contract costs
                 </div>
                 {canManageCosts && (
@@ -995,35 +995,35 @@ export default function IFRS15ContractDetailPage() {
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-slate-200 overflow-hidden">
+              <div className="rounded-xl border border-border-subtle overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Description</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Amort Period</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Description</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Amort Period</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-border-subtle">
                     {costs.map((cost) => (
-                      <tr key={cost.id} className="hover:bg-slate-50 transition-colors">
+                      <tr key={cost.id} className="hover:bg-surface-2 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <Receipt className="h-4 w-4 text-slate-400" />
-                            <span className="text-sm font-medium text-slate-900">{cost.description ?? "—"}</span>
+                            <Receipt className="h-4 w-4 text-text-soft" />
+                            <span className="text-sm font-medium text-text-strong">{cost.description ?? "—"}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="font-mono text-sm text-slate-700">
+                            <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+                            <span className="font-mono text-sm text-text-body">
                               {cost.amount != null ? formatMoney(cost.amount) : "—"}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-slate-700">
+                          <span className="text-sm text-text-body">
                             {cost.amort_start_date && cost.amort_end_date
                               ? `${formatDate(cost.amort_start_date)} → ${formatDate(cost.amort_end_date)}`
                               : "—"}
@@ -1235,7 +1235,7 @@ export default function IFRS15ContractDetailPage() {
                 type="radio"
                 checked={scheduleForm.mode === "FROM_DATE"}
                 onChange={() => setScheduleForm((s) => ({ ...s, mode: "FROM_DATE" }))}
-                className="rounded border-slate-300"
+                className="rounded border-border-subtle"
               />
               Rebuild from date (recommended)
             </label>
@@ -1245,7 +1245,7 @@ export default function IFRS15ContractDetailPage() {
                 type="radio"
                 checked={scheduleForm.mode === "REPLACE_ALL"}
                 onChange={() => setScheduleForm((s) => ({ ...s, mode: "REPLACE_ALL" }))}
-                className="rounded border-slate-300"
+                className="rounded border-border-subtle"
               />
               Replace all (danger)
             </label>
@@ -1270,7 +1270,7 @@ export default function IFRS15ContractDetailPage() {
                   type="checkbox"
                   checked={scheduleForm.replace_confirm}
                   onChange={(e) => setScheduleForm((s) => ({ ...s, replace_confirm: e.target.checked }))}
-                  className="rounded border-slate-300"
+                  className="rounded border-border-subtle"
                 />
                 I understand and want to replace all schedule lines
               </label>
@@ -1385,7 +1385,7 @@ export default function IFRS15ContractDetailPage() {
               error={formErrors.amount}
               leftIcon={DollarSign}
             />
-            <div className="text-xs text-slate-500 flex items-end pb-2">
+            <div className="text-xs text-text-muted flex items-end pb-2">
               Leave account fields blank to use defaults (if configured in settings)
             </div>
           </div>

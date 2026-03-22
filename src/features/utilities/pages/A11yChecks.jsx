@@ -19,13 +19,13 @@ export default function A11yChecks() {
       <PageHeader title="Accessibility" subtitle="/utilities/a11y/status" />
       <ContentCard title="Status">
         {q.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load a11y status.'}</div>
         ) : (
           <div className="space-y-3">
-            <div className="text-sm text-slate-700">Standard: <span className="font-medium text-slate-900">{data?.standard ?? '—'}</span></div>
-            <div className="text-sm text-slate-700">Last run: <span className="font-mono text-xs">{String(data?.last_run_at ?? 'null')}</span></div>
+            <div className="text-sm text-text-body">Standard: <span className="font-medium text-text-strong">{data?.standard ?? '—'}</span></div>
+            <div className="text-sm text-text-body">Last run: <span className="font-mono text-xs">{String(data?.last_run_at ?? 'null')}</span></div>
             <Table>
               <THead>
                 <tr><TH>Key</TH><TH>Description</TH><TH>Status</TH></tr>
@@ -38,7 +38,7 @@ export default function A11yChecks() {
                     <TD><Badge variant={c.status === 'pass' ? 'success' : 'warning'}>{c.status}</Badge></TD>
                   </tr>
                 ))}
-                {checks.length === 0 ? <tr><TD colSpan={3} className="text-slate-500">No checks.</TD></tr> : null}
+                {checks.length === 0 ? <tr><TD colSpan={3} className="text-text-muted">No checks.</TD></tr> : null}
               </TBody>
             </Table>
           </div>

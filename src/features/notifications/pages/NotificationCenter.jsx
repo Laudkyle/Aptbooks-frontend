@@ -75,21 +75,21 @@ export default function NotificationCenter() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Bell className="h-7 w-7 text-gray-700" />
-            <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+            <Bell className="h-7 w-7 text-text-body" />
+            <h1 className="text-2xl font-bold text-text-strong">Notifications</h1>
             {unreadCount > 0 && (
               <Badge variant="destructive" className="text-xs">
                 {unreadCount} new
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-text-muted">
             Stay updated with important messages and alerts
           </p>
         </div>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button
@@ -108,7 +108,7 @@ export default function NotificationCenter() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelected(new Set())}
-                  className="text-gray-600"
+                  className="text-text-muted"
                 >
                   Clear selection
                 </Button>
@@ -119,7 +119,7 @@ export default function NotificationCenter() {
               variant="outline"
               size="sm"
               onClick={() => qc.invalidateQueries({ queryKey: ['notifications'] })}
-              className="border-gray-300"
+              className="border-border-subtle"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
@@ -128,11 +128,11 @@ export default function NotificationCenter() {
         </div>
 
         {/* Notifications List */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
           {listQuery.isLoading ? (
             <div className="p-12 text-center">
               <div className="animate-spin h-8 w-8 border-3 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600">Loading notifications...</p>
+              <p className="text-sm text-text-muted">Loading notifications...</p>
             </div>
           ) : listQuery.isError ? (
             <div className="p-12 text-center">
@@ -152,42 +152,42 @@ export default function NotificationCenter() {
             </div>
           ) : rows.length === 0 ? (
             <div className="p-12 text-center">
-              <Bell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">All caught up!</h3>
-              <p className="text-sm text-gray-500">You don't have any notifications</p>
+              <Bell className="h-12 w-12 text-text-soft mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-text-strong mb-2">All caught up!</h3>
+              <p className="text-sm text-text-muted">You don't have any notifications</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className=" border-b border-gray-200">
+                  <thead className=" border-b border-border-subtle">
                     <tr>
                       <th className="px-6 py-3 text-left">
                         <input
                           type="checkbox"
                           checked={selected.size === rows.length && rows.length > 0}
                           onChange={toggleAll}
-                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                          className="rounded border-border-subtle text-green-600 focus:ring-green-500"
                         />
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Message
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         ID
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-100">
+                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
                     {rows.map((n) => {
                       const id = n.id ?? n.notification_id ?? n.uuid ?? 'unknown';
                       const isSelected = selected.has(id);
@@ -197,7 +197,7 @@ export default function NotificationCenter() {
                       return (
                         <tr 
                           key={id}
-                          className={`hover:bg-slate-50 transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}
+                          className={`hover:bg-surface-2 transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}
                         >
                           <td className="px-6 py-4">
                             <input
@@ -211,7 +211,7 @@ export default function NotificationCenter() {
                                   return next;
                                 });
                               }}
-                              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                              className="rounded border-border-subtle text-green-600 focus:ring-green-500"
                             />
                           </td>
                           <td className="px-6 py-4">
@@ -219,9 +219,9 @@ export default function NotificationCenter() {
                               {isUnread ? (
                                 <Circle className="h-4 w-4 text-blue-600 fill-blue-600" />
                               ) : (
-                                <CheckCircle className="h-4 w-4 text-gray-400" />
+                                <CheckCircle className="h-4 w-4 text-text-soft" />
                               )}
-                              <span className={`text-xs font-medium ${isUnread ? 'text-blue-700' : 'text-gray-500'}`}>
+                              <span className={`text-xs font-medium ${isUnread ? 'text-blue-700' : 'text-text-muted'}`}>
                                 {isUnread ? 'New' : 'Read'}
                               </span>
                             </div>
@@ -232,16 +232,16 @@ export default function NotificationCenter() {
                                 {n.type}
                               </span>
                             ) : (
-                              <span className="text-gray-400 text-sm">—</span>
+                              <span className="text-text-soft text-sm">—</span>
                             )}
                           </td>
                           <td className="px-6 py-4">
-                            <div className={`text-sm ${isUnread ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                            <div className={`text-sm ${isUnread ? 'font-semibold text-text-strong' : 'text-text-body'}`}>
                               {n.title ?? n.message ?? n.subject ?? 'No message'}
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="font-mono text-xs text-gray-500">
+                            <span className="font-mono text-xs text-text-muted">
                               {id.length > 12 ? `${id.substring(0, 12)}...` : id}
                             </span>
                           </td>
@@ -265,7 +265,7 @@ export default function NotificationCenter() {
               </div>
 
               {/* Pagination */}
-              <div className=" px-6 py-4 border-t border-gray-200">
+              <div className=" px-6 py-4 border-t border-border-subtle">
                 <Pagination
                   limit={paging?.limit ?? limit}
                   offset={paging?.offset ?? offset}
@@ -278,14 +278,14 @@ export default function NotificationCenter() {
               </div>
 
               {/* Raw Payload Debug */}
-              <details className="border-t border-gray-200">
-                <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-slate-50 flex items-center justify-between">
+              <details className="border-t border-border-subtle">
+                <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-text-body hover:bg-surface-2 flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <ChevronDown className="h-4 w-4" />
                     Developer: View Raw Payload
                   </span>
                 </summary>
-                <div className="px-6 py-4 bg-gray-900 border-t border-gray-200">
+                <div className="px-6 py-4 bg-gray-900 border-t border-border-subtle">
                   <pre className="text-xs text-green-400 overflow-auto max-h-96 font-mono">
                     {JSON.stringify(listQuery.data, null, 2)}
                   </pre>

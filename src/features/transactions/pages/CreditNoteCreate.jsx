@@ -261,10 +261,10 @@ export default function CreditNoteCreate() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <FileMinus2 className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New Credit Note</h1>
+                <FileMinus2 className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">Create New Credit Note</h1>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Create a customer credit for AR adjustments and invoice applications
               </p>
             </div>
@@ -273,7 +273,7 @@ export default function CreditNoteCreate() {
                 variant="outline"
                 onClick={handleBack}
                 disabled={create.isPending}
-                className="border-gray-300"
+                className="border-border-subtle"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
@@ -293,69 +293,69 @@ export default function CreditNoteCreate() {
           {/* Left Sidebar - Summary */}
           <div className="lg:col-span-1 space-y-6">
             {/* Summary Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Credit Note Summary</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-sm font-semibold text-text-strong mb-4">Credit Note Summary</h3>
               
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <User className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <User className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Customer</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                    <div className="text-xs text-text-muted">Customer</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
                       {selectedCustomer ? (
                         <div>
                           <div>{selectedCustomer.name || selectedCustomer.business_name || 'Unknown'}</div>
                           {selectedCustomer.email && (
-                            <div className="text-xs text-gray-500 mt-0.5">{selectedCustomer.email}</div>
+                            <div className="text-xs text-text-muted mt-0.5">{selectedCustomer.email}</div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-gray-400">Not selected</span>
+                        <span className="text-text-soft">Not selected</span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Credit Note Date</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {payload.creditNoteDate || <span className="text-gray-400">Not set</span>}
+                    <div className="text-xs text-text-muted">Credit Note Date</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
+                      {payload.creditNoteDate || <span className="text-text-soft">Not set</span>}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <FileText className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Line Items</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                    <div className="text-xs text-text-muted">Line Items</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
                       {payload.lines.length}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-gray-200 space-y-2">
+                <div className="pt-3 border-t border-border-subtle space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-text-muted">Subtotal</span>
+                    <span className="font-medium text-text-strong">
                       ${subtotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-text-muted">Tax</span>
+                    <span className="font-medium text-text-strong">
                       ${totalTax.toFixed(2)}
                     </span>
                   </div>
-                  <div className="pt-2 border-t border-gray-200">
+                  <div className="pt-2 border-t border-border-subtle">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5 text-green-600" />
-                        <span className="text-sm font-semibold text-gray-700">Total Credit</span>
+                        <span className="text-sm font-semibold text-text-body">Total Credit</span>
                       </div>
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-lg font-bold text-text-strong">
                         ${total.toFixed(2)}
                       </span>
                     </div>
@@ -365,34 +365,34 @@ export default function CreditNoteCreate() {
             </div>
 
             {/* Next Steps Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Next Steps</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-sm font-semibold text-text-strong mb-4">Next Steps</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 text-xs">
                   <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 bg-green-100 text-green-600 font-semibold">
                     1
                   </div>
                   <div>
-                    <div className="font-medium text-gray-700">Create credit note</div>
-                    <div className="text-gray-500 mt-0.5">Fill in the form and save as draft</div>
+                    <div className="font-medium text-text-body">Create credit note</div>
+                    <div className="text-text-muted mt-0.5">Fill in the form and save as draft</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 text-xs">
-                  <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400 font-semibold">
+                  <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 bg-surface-2 text-text-soft font-semibold">
                     2
                   </div>
                   <div>
-                    <div className="font-medium text-gray-700">Issue the note</div>
-                    <div className="text-gray-500 mt-0.5">Make it available for use</div>
+                    <div className="font-medium text-text-body">Issue the note</div>
+                    <div className="text-text-muted mt-0.5">Make it available for use</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 text-xs">
-                  <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400 font-semibold">
+                  <div className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 bg-surface-2 text-text-soft font-semibold">
                     3
                   </div>
                   <div>
-                    <div className="font-medium text-gray-700">Apply to invoice</div>
-                    <div className="text-gray-500 mt-0.5">Reduce customer invoice balance</div>
+                    <div className="font-medium text-text-body">Apply to invoice</div>
+                    <div className="text-text-muted mt-0.5">Reduce customer invoice balance</div>
                   </div>
                 </div>
               </div>
@@ -402,21 +402,21 @@ export default function CreditNoteCreate() {
           {/* Main Content - Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Information */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-base font-semibold text-text-strong mb-5">Basic Information</h3>
               
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Customer <span className="text-red-500">*</span>
                   </label>
                   {partnersQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading customers...</div>
+                    <div className="text-sm text-text-muted">Loading customers...</div>
                   ) : (
                     <select
                       value={payload.customerId}
                       onChange={(e) => updateField('customerId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                       required
                     >
                       <option value="">Select a customer</option>
@@ -431,7 +431,7 @@ export default function CreditNoteCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Credit Note Date <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -443,7 +443,7 @@ export default function CreditNoteCreate() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Memo
                   </label>
                   <Input
@@ -456,9 +456,9 @@ export default function CreditNoteCreate() {
             </div>
 
             {/* Line Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
+                <h3 className="text-base font-semibold text-text-strong">Line Items</h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -472,9 +472,9 @@ export default function CreditNoteCreate() {
 
               <div className="space-y-4">
                 {payload.lines.map((line, index) => (
-                  <div key={index} className=" rounded-lg border border-gray-200 p-4">
+                  <div key={index} className=" rounded-lg border border-border-subtle p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-semibold text-gray-700">Item #{index + 1}</span>
+                      <span className="text-sm font-semibold text-text-body">Item #{index + 1}</span>
                       {payload.lines.length > 1 && (
                         <button
                           onClick={() => removeLine(index)}
@@ -488,7 +488,7 @@ export default function CreditNoteCreate() {
 
                     <div className="grid gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                        <label className="block text-xs font-medium text-text-body mb-1.5">
                           Description <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -501,16 +501,16 @@ export default function CreditNoteCreate() {
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Revenue Account <span className="text-red-500">*</span>
                           </label>
                           {coaQuery.isLoading ? (
-                            <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
+                            <div className="text-xs text-text-muted py-2">Loading accounts...</div>
                           ) : (
                             <select
                               value={line.revenueAccountId}
                               onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                              className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                               required
                             >
                               <option value="">Select revenue account</option>
@@ -524,17 +524,17 @@ export default function CreditNoteCreate() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Tax Code (Optional)
                           </label>
                           {taxCodesQuery.isLoading ? (
-                            <div className="text-xs text-gray-500 py-2">Loading tax codes...</div>
+                            <div className="text-xs text-text-muted py-2">Loading tax codes...</div>
                           ) : (
                             <div className="relative">
                               <select
                                 value={line.taxCodeId}
                                 onChange={(e) => updateLine(index, 'taxCodeId', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm pr-10"
+                                className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm pr-10"
                               >
                                 <option value="">No tax</option>
                                 {activeTaxCodes.map((tax) => {
@@ -552,7 +552,7 @@ export default function CreditNoteCreate() {
                                 })}
                               </select>
                               {line.taxCodeId && (
-                                <Percent className="h-4 w-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                                <Percent className="h-4 w-4 text-text-soft absolute right-3 top-1/2 -translate-y-1/2" />
                               )}
                             </div>
                           )}
@@ -561,7 +561,7 @@ export default function CreditNoteCreate() {
 
                       <div className="grid gap-4 md:grid-cols-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Quantity <span className="text-red-500">*</span>
                           </label>
                           <Input
@@ -575,11 +575,11 @@ export default function CreditNoteCreate() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Unit Price <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
                             <Input
                               type="number"
                               min="0"
@@ -593,11 +593,11 @@ export default function CreditNoteCreate() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Tax Amount
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
                             <Input
                               type="number"
                               min="0"
@@ -609,7 +609,7 @@ export default function CreditNoteCreate() {
                             />
                           </div>
                           {line.taxCodeId && (
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-text-muted mt-1">
                               Auto-calculated based on tax code
                             </div>
                           )}
@@ -617,16 +617,16 @@ export default function CreditNoteCreate() {
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-gray-300 flex justify-between items-center">
+                    <div className="mt-3 pt-3 border-t border-border-subtle flex justify-between items-center">
                       <div className="flex flex-col">
-                        <span className="text-xs text-gray-600">Line Total</span>
+                        <span className="text-xs text-text-muted">Line Total</span>
                         {line.taxCodeId && (
-                          <span className="text-xs text-gray-500 mt-0.5">
+                          <span className="text-xs text-text-muted mt-0.5">
                             Includes tax: ${(parseFloat(line.taxAmount) || 0).toFixed(2)}
                           </span>
                         )}
                       </div>
-                      <span className="text-sm font-bold text-gray-900">
+                      <span className="text-sm font-bold text-text-strong">
                         ${((line.quantity * line.unitPrice) + (parseFloat(line.taxAmount) || 0)).toFixed(2)}
                       </span>
                     </div>
@@ -635,20 +635,20 @@ export default function CreditNoteCreate() {
               </div>
 
               {/* Totals Summary */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-6 border-t border-border-subtle">
                 <div className="flex justify-end">
                   <div className="w-full md:w-80 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+                      <span className="text-text-muted">Subtotal</span>
+                      <span className="font-medium text-text-strong">${subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Total Tax</span>
-                      <span className="font-medium text-gray-900">${totalTax.toFixed(2)}</span>
+                      <span className="text-text-muted">Total Tax</span>
+                      <span className="font-medium text-text-strong">${totalTax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200">
-                      <span className="text-gray-900">Total Credit</span>
-                      <span className="text-gray-900">${total.toFixed(2)}</span>
+                    <div className="flex justify-between text-base font-semibold pt-2 border-t border-border-subtle">
+                      <span className="text-text-strong">Total Credit</span>
+                      <span className="text-text-strong">${total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

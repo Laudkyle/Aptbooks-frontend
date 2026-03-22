@@ -217,7 +217,7 @@ export default function DebitNoteDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading debit note details...</div>
+            <div className="text-sm text-text-muted">Loading debit note details...</div>
           </div>
         </ContentCard>
       </div>
@@ -241,8 +241,8 @@ export default function DebitNoteDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load debit note</div>
-            <div className="text-sm text-slate-500">{error?.message ?? 'Debit note not found'}</div>
+            <div className="text-sm font-medium text-text-strong">Failed to load debit note</div>
+            <div className="text-sm text-text-muted">{error?.message ?? 'Debit note not found'}</div>
             <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
               Retry
             </Button>
@@ -289,8 +289,8 @@ export default function DebitNoteDetail() {
           <ContentCard>
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <div className="text-base font-semibold text-slate-900">Debit Note Summary</div>
-                <div className="mt-1 text-sm text-slate-500">Vendor credit and transaction details</div>
+                <div className="text-base font-semibold text-text-strong">Debit Note Summary</div>
+                <div className="mt-1 text-sm text-text-muted">Vendor credit and transaction details</div>
               </div>
               <Badge tone={statusConfig.tone}>
                 <statusConfig.icon className="h-3.5 w-3.5 mr-1.5" />
@@ -300,47 +300,47 @@ export default function DebitNoteDetail() {
 
             <div className="grid gap-4 md:grid-cols-2">
               {/* Vendor */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                   <Building2 className="h-3.5 w-3.5" />
                   Vendor
                 </div>
-                <div className="text-sm font-semibold text-slate-900">{vendorName}</div>
+                <div className="text-sm font-semibold text-text-strong">{vendorName}</div>
                 {note.vendor_code && (
-                  <div className="text-xs text-slate-500 mt-1">Code: {note.vendor_code}</div>
+                  <div className="text-xs text-text-muted mt-1">Code: {note.vendor_code}</div>
                 )}
               </div>
 
               {/* Date */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                   <Calendar className="h-3.5 w-3.5" />
                   Debit Note Date
                 </div>
-                <div className="text-sm font-semibold text-slate-900">{formatDate(debitNoteDate)}</div>
+                <div className="text-sm font-semibold text-text-strong">{formatDate(debitNoteDate)}</div>
               </div>
 
               {/* Total Amount */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                   <DollarSign className="h-3.5 w-3.5" />
                   Total Amount
                 </div>
-                <div className="text-lg font-bold text-slate-900 tabular-nums">
+                <div className="text-lg font-bold text-text-strong tabular-nums">
                   {formatCurrency(totalAmount, currencyCode)}
                 </div>
                 {currencyCode && currencyCode !== 'USD' && (
-                  <div className="text-xs text-slate-500 mt-1">Currency: {currencyCode}</div>
+                  <div className="text-xs text-text-muted mt-1">Currency: {currencyCode}</div>
                 )}
               </div>
 
               {/* Debit Note Number */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                   <FileMinus2 className="h-3.5 w-3.5" />
                   Reference Number
                 </div>
-                <div className="text-sm font-semibold text-slate-900 font-mono">
+                <div className="text-sm font-semibold text-text-strong font-mono">
                   {debitNoteNumber}
                 </div>
               </div>
@@ -348,9 +348,9 @@ export default function DebitNoteDetail() {
 
             {/* Memo */}
             {memo && (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Memo</div>
-                <div className="text-sm text-slate-700 whitespace-pre-wrap">{memo}</div>
+              <div className="mt-4 rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="text-xs font-medium text-text-muted mb-2">Memo</div>
+                <div className="text-sm text-text-body whitespace-pre-wrap">{memo}</div>
               </div>
             )}
           </ContentCard>
@@ -358,27 +358,27 @@ export default function DebitNoteDetail() {
           {/* Vendor Contact Information */}
           {(note.vendor_email || note.vendor_phone) && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Vendor Contact Information</div>
+              <div className="text-base font-semibold text-text-strong mb-4">Vendor Contact Information</div>
               <div className="grid gap-4 md:grid-cols-2">
                 {note.vendor_email && (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+                  <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                    <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                       <Mail className="h-3.5 w-3.5" />
                       Email
                     </div>
-                    <div className="text-sm text-slate-900 break-all">
+                    <div className="text-sm text-text-strong break-all">
                       {note.vendor_email}
                     </div>
                   </div>
                 )}
 
                 {note.vendor_phone && (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-2">
+                  <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                    <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-2">
                       <Phone className="h-3.5 w-3.5" />
                       Phone
                     </div>
-                    <div className="text-sm text-slate-900">
+                    <div className="text-sm text-text-strong">
                       {note.vendor_phone}
                     </div>
                   </div>
@@ -390,66 +390,66 @@ export default function DebitNoteDetail() {
           {/* Line Items */}
           {lines.length > 0 && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Line Items</div>
+              <div className="text-base font-semibold text-text-strong mb-4">Line Items</div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Description
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Quantity
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Unit Price
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Tax Amount
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Line Total
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-100">
+                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
                     {lines.map((line, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-sm text-slate-900">
+                      <tr key={idx} className="hover:bg-surface-2">
+                        <td className="px-4 py-3 text-sm text-text-strong">
                           {line.description || '—'}
                         </td>
-                        <td className="px-4 py-3 text-sm text-slate-700">
+                        <td className="px-4 py-3 text-sm text-text-body">
                           {parseFloat(line.quantity || 0).toFixed(4)}
                         </td>
-                        <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
+                        <td className="px-4 py-3 text-sm font-semibold text-text-strong text-right">
                           {formatCurrency(line.unit_price, currencyCode)}
                         </td>
-                        <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
+                        <td className="px-4 py-3 text-sm font-semibold text-text-strong text-right">
                           {formatCurrency(line.tax_amount, currencyCode)}
                         </td>
-                        <td className="px-4 py-3 text-sm font-bold text-slate-900 text-right">
+                        <td className="px-4 py-3 text-sm font-bold text-text-strong text-right">
                           {formatCurrency(line.line_total, currencyCode)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-slate-50 border-t-2 border-slate-200">
+                  <tfoot className="bg-surface-2 border-t-2 border-border-subtle">
                     <tr>
-                      <td colSpan={3} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td colSpan={3} className="px-4 py-3 text-right text-sm font-semibold text-text-strong">
                         Subtotal:
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td className="px-4 py-3 text-right text-sm font-semibold text-text-strong">
                         Tax:
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-bold text-slate-900">
+                      <td className="px-4 py-3 text-right text-sm font-bold text-text-strong">
                         {formatCurrency(subtotal, currencyCode)}
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td colSpan={4} className="px-4 py-3 text-right text-sm font-semibold text-text-strong">
                         Total:
                       </td>
-                      <td className="px-4 py-3 text-right text-lg font-bold text-slate-900">
+                      <td className="px-4 py-3 text-right text-lg font-bold text-text-strong">
                         {formatCurrency(totalAmount, currencyCode)}
                       </td>
                     </tr>
@@ -462,43 +462,43 @@ export default function DebitNoteDetail() {
           {/* Applications */}
           {applications.length > 0 && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Bill Applications</div>
+              <div className="text-base font-semibold text-text-strong mb-4">Bill Applications</div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-surface-2 border-b border-border-subtle">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Bill ID
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Amount Applied
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Applied Date
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-slate-100">
+                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
                     {applications.map((application, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-sm text-slate-900 font-mono text-xs">
+                      <tr key={idx} className="hover:bg-surface-2">
+                        <td className="px-4 py-3 text-sm text-text-strong font-mono text-xs">
                           {application.bill_id ? `${application.bill_id.substring(0, 12)}...` : '—'}
                         </td>
-                        <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
+                        <td className="px-4 py-3 text-sm font-semibold text-text-strong text-right">
                           {formatCurrency(application.amount_applied, currencyCode)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-slate-700">
+                        <td className="px-4 py-3 text-sm text-text-body">
                           {formatDate(application.applied_at ?? application.created_at)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-slate-50 border-t-2 border-slate-200">
+                  <tfoot className="bg-surface-2 border-t-2 border-border-subtle">
                     <tr>
-                      <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td className="px-4 py-3 text-right text-sm font-semibold text-text-strong">
                         Total Applied:
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-bold text-slate-900">
+                      <td className="px-4 py-3 text-right text-sm font-bold text-text-strong">
                         {formatCurrency(totalApplied, currencyCode)}
                       </td>
                       <td></td>
@@ -511,32 +511,32 @@ export default function DebitNoteDetail() {
 
           {/* Balance Summary */}
           <ContentCard>
-            <div className="text-base font-semibold text-slate-900 mb-4">Balance Summary</div>
+            <div className="text-base font-semibold text-text-strong mb-4">Balance Summary</div>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Total Amount</div>
-                <div className="text-lg font-bold text-slate-900 tabular-nums">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="text-xs font-medium text-text-muted mb-2">Total Amount</div>
+                <div className="text-lg font-bold text-text-strong tabular-nums">
                   {formatCurrency(totalAmount, currencyCode)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-xs text-text-muted mt-1">
                   {lines.length} line{lines.length !== 1 ? 's' : ''}
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Applied Amount</div>
-                <div className="text-lg font-bold text-slate-900 tabular-nums">
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="text-xs font-medium text-text-muted mb-2">Applied Amount</div>
+                <div className="text-lg font-bold text-text-strong tabular-nums">
                   {formatCurrency(totalApplied, currencyCode)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-xs text-text-muted mt-1">
                   {applications.length} application{applications.length !== 1 ? 's' : ''}
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Remaining Balance</div>
+              <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="text-xs font-medium text-text-muted mb-2">Remaining Balance</div>
                 <div className={`text-lg font-bold tabular-nums ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
                   {formatCurrency(remainingAmount, currencyCode)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-xs text-text-muted mt-1">
                   {remainingAmount > 0 ? 'Available for application' : 'Fully applied'}
                 </div>
               </div>
@@ -548,39 +548,39 @@ export default function DebitNoteDetail() {
         <div className="space-y-6">
           {/* Actions Guide */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Quick Actions</div>
+            <div className="text-sm font-semibold text-text-strong mb-3">Quick Actions</div>
             <div className="space-y-3">
               <div className="flex items-start gap-3 text-xs">
                 <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canIssue ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
+                  canIssue ? 'bg-blue-100 text-blue-600' : 'bg-surface-2 text-text-soft'
                 }`}>
                   1
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Issue debit note</div>
-                  <div className="text-slate-500 mt-0.5">Make the credit available for use</div>
+                  <div className="font-medium text-text-body">Issue debit note</div>
+                  <div className="text-text-muted mt-0.5">Make the credit available for use</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-xs">
                 <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canApply ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
+                  canApply ? 'bg-blue-100 text-blue-600' : 'bg-surface-2 text-text-soft'
                 }`}>
                   2
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Apply to bill</div>
-                  <div className="text-slate-500 mt-0.5">Reduce vendor bill balance</div>
+                  <div className="font-medium text-text-body">Apply to bill</div>
+                  <div className="text-text-muted mt-0.5">Reduce vendor bill balance</div>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-xs">
                 <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canVoid ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-400'
+                  canVoid ? 'bg-red-100 text-red-600' : 'bg-surface-2 text-text-soft'
                 }`}>
                   3
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Void if needed</div>
-                  <div className="text-slate-500 mt-0.5">Cancel the debit note</div>
+                  <div className="font-medium text-text-body">Void if needed</div>
+                  <div className="text-text-muted mt-0.5">Cancel the debit note</div>
                 </div>
               </div>
             </div>
@@ -588,42 +588,42 @@ export default function DebitNoteDetail() {
 
           {/* Status Info */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Status Information</div>
+            <div className="text-sm font-semibold text-text-strong mb-3">Status Information</div>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-slate-600">Current Status</span>
-                <span className="font-medium text-slate-900 capitalize">{statusConfig.label}</span>
+                <span className="text-text-muted">Current Status</span>
+                <span className="font-medium text-text-strong capitalize">{statusConfig.label}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Currency</span>
-                <span className="font-medium text-slate-900">{currencyCode}</span>
+                <span className="text-text-muted">Currency</span>
+                <span className="font-medium text-text-strong">{currencyCode}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">FX Rate</span>
-                <span className="font-medium text-slate-900">{parseFloat(note?.fx_rate || 1).toFixed(6)}</span>
+                <span className="text-text-muted">FX Rate</span>
+                <span className="font-medium text-text-strong">{parseFloat(note?.fx_rate || 1).toFixed(6)}</span>
               </div>
               {note?.created_at && (
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Created Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.created_at, { includeTime: true })}</span>
+                  <span className="text-text-muted">Created Date</span>
+                  <span className="font-medium text-text-strong">{formatDate(note.created_at, { includeTime: true })}</span>
                 </div>
               )}
               {note?.issued_at && (
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Issued Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.issued_at, { includeTime: true })}</span>
+                  <span className="text-text-muted">Issued Date</span>
+                  <span className="font-medium text-text-strong">{formatDate(note.issued_at, { includeTime: true })}</span>
                 </div>
               )}
               {note?.voided_at && (
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Voided Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.voided_at, { includeTime: true })}</span>
+                  <span className="text-text-muted">Voided Date</span>
+                  <span className="font-medium text-text-strong">{formatDate(note.voided_at, { includeTime: true })}</span>
                 </div>
               )}
               {note?.void_reason && (
-                <div className="pt-2 border-t border-slate-200">
-                  <div className="text-slate-600 mb-1">Void Reason</div>
-                  <div className="text-slate-700 italic">"{note.void_reason}"</div>
+                <div className="pt-2 border-t border-border-subtle">
+                  <div className="text-text-muted mb-1">Void Reason</div>
+                  <div className="text-text-body italic">"{note.void_reason}"</div>
                 </div>
               )}
             </div>
@@ -631,30 +631,30 @@ export default function DebitNoteDetail() {
 
           {/* Quick Stats */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Quick Stats</div>
+            <div className="text-sm font-semibold text-text-strong mb-3">Quick Stats</div>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between">
-                <span className="text-slate-600">Line Items</span>
-                <span className="font-medium text-slate-900">{lines.length}</span>
+                <span className="text-text-muted">Line Items</span>
+                <span className="font-medium text-text-strong">{lines.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Applications</span>
-                <span className="font-medium text-slate-900">{applications.length}</span>
+                <span className="text-text-muted">Applications</span>
+                <span className="font-medium text-text-strong">{applications.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Subtotal</span>
-                <span className="font-medium text-slate-900">
+                <span className="text-text-muted">Subtotal</span>
+                <span className="font-medium text-text-strong">
                   {formatCurrency(subtotal, currencyCode)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Tax Total</span>
-                <span className="font-medium text-slate-900">
+                <span className="text-text-muted">Tax Total</span>
+                <span className="font-medium text-text-strong">
                   {formatCurrency(taxTotal, currencyCode)}
                 </span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-slate-200">
-                <span className="text-slate-600 font-medium">Remaining Balance</span>
+              <div className="flex justify-between pt-2 border-t border-border-subtle">
+                <span className="text-text-muted font-medium">Remaining Balance</span>
                 <span className={`font-bold ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
                   {formatCurrency(remainingAmount, currencyCode)}
                 </span>
@@ -678,7 +678,7 @@ export default function DebitNoteDetail() {
         <div className="space-y-4">
           {action === 'approve' || action === 'reject' ? (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 Comment {action === 'reject' ? '(recommended)' : '(optional)'}
               </label>
               <Textarea
@@ -723,22 +723,22 @@ export default function DebitNoteDetail() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
             <div className="grid gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600">Debit Note Number</span>
+                <span className="text-text-muted">Debit Note Number</span>
                 <span className="font-medium font-mono">{debitNoteNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Total Amount</span>
+                <span className="text-text-muted">Total Amount</span>
                 <span className="font-semibold tabular-nums">{formatCurrency(totalAmount, currencyCode)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Vendor</span>
+                <span className="text-text-muted">Vendor</span>
                 <span className="font-medium">{vendorName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Currency</span>
+                <span className="text-text-muted">Currency</span>
                 <span className="font-medium">{currencyCode}</span>
               </div>
             </div>
@@ -836,7 +836,7 @@ export default function DebitNoteDetail() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Reason for Voiding (Optional)
             </label>
             <Textarea
@@ -848,30 +848,30 @@ export default function DebitNoteDetail() {
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
             <div className="grid gap-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600">Debit Note Number</span>
+                <span className="text-text-muted">Debit Note Number</span>
                 <span className="font-medium font-mono">{debitNoteNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Total Amount</span>
+                <span className="text-text-muted">Total Amount</span>
                 <span className="font-semibold tabular-nums">{formatCurrency(totalAmount, currencyCode)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Applied Amount</span>
+                <span className="text-text-muted">Applied Amount</span>
                 <span className="font-medium tabular-nums">
                   {formatCurrency(totalApplied, currencyCode)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Remaining Balance</span>
+                <span className="text-text-muted">Remaining Balance</span>
                 <span className={`font-medium tabular-nums ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
                   {formatCurrency(remainingAmount, currencyCode)}
                 </span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-slate-200">
-                <span className="text-slate-600 font-medium">Status</span>
+              <div className="flex justify-between pt-2 border-t border-border-subtle">
+                <span className="text-text-muted font-medium">Status</span>
                 <Badge tone={statusConfig.tone}>{statusConfig.label}</Badge>
               </div>
             </div></div>

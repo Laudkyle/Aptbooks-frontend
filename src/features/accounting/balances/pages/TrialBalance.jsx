@@ -66,7 +66,7 @@ export default function TrialBalance() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-surface-2">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-800 to-blue-700 text-white">
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -98,14 +98,14 @@ export default function TrialBalance() {
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="space-y-6">
           {/* Filters and Controls */}
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-            <div className="px-6 py-4 border-b border-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900">Report Parameters</h2>
+          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
+            <div className="px-6 py-4 border-b border-border-subtle">
+              <h2 className="text-lg font-semibold text-text-strong">Report Parameters</h2>
             </div>
             <div className="p-6">
               <div className="flex items-end gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     <Calendar className="w-4 h-4 inline mr-1" />
                     Period *
                   </label>
@@ -117,7 +117,7 @@ export default function TrialBalance() {
                 </div>
                 
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Display Mode
                   </label>
                   <div className="flex gap-2">
@@ -166,10 +166,10 @@ export default function TrialBalance() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Debit</div>
-                  <div className="text-xl font-bold text-slate-900">{formatMoney(totals.debit, 'GHS')}</div>
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mt-2">Total Credit</div>
-                  <div className="text-xl font-bold text-slate-900">{formatMoney(totals.credit, 'GHS')}</div>
+                  <div className="text-xs font-medium text-text-muted uppercase tracking-wide">Total Debit</div>
+                  <div className="text-xl font-bold text-text-strong">{formatMoney(totals.debit, 'GHS')}</div>
+                  <div className="text-xs font-medium text-text-muted uppercase tracking-wide mt-2">Total Credit</div>
+                  <div className="text-xl font-bold text-text-strong">{formatMoney(totals.credit, 'GHS')}</div>
                 </div>
               </div>
             </div>
@@ -177,34 +177,34 @@ export default function TrialBalance() {
 
           {/* Trial Balance Content */}
           {!periodId ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
-                <Calendar className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">Select a Period</h3>
-                <p className="text-sm text-slate-600">Choose a period above to view the trial balance</p>
+                <Calendar className="w-16 h-16 text-text-soft mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-text-strong mb-2">Select a Period</h3>
+                <p className="text-sm text-text-muted">Choose a period above to view the trial balance</p>
               </div>
             </div>
           ) : tbQ.isLoading ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
-                <div className="text-slate-600">Loading trial balance...</div>
+                <div className="text-text-muted">Loading trial balance...</div>
               </div>
             </div>
           ) : tbQ.isError ? (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle">
               <div className="p-12 text-center">
                 <div className="text-red-600">{tbQ.error?.message ?? 'Failed to load trial balance.'}</div>
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-              <div className="p-6 text-center border-b border-slate-200 bg-slate-50">
-                <h2 className="text-xl font-bold text-slate-900">Trial Balance</h2>
-                <p className="text-sm text-slate-600 mt-1">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
+              <div className="p-6 text-center border-b border-border-subtle bg-surface-2">
+                <h2 className="text-xl font-bold text-text-strong">Trial Balance</h2>
+                <p className="text-sm text-text-muted mt-1">
                   {selectedPeriod?.name || selectedPeriod?.code}
                 </p>
                 {selectedPeriod?.start_date && selectedPeriod?.end_date && (
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-text-muted mt-1">
                     {formatDate(selectedPeriod.start_date, 'MMM DD, YYYY')} - {formatDate(selectedPeriod.end_date, 'MMM DD, YYYY')}
                   </p>
                 )}
@@ -214,26 +214,26 @@ export default function TrialBalance() {
                 {viewMode === 'debit-credit' ? (
                   // Debit/Credit View
                   <table className="w-full">
-                    <thead className="bg-slate-100 border-b-2 border-slate-300">
+                    <thead className="bg-surface-2 border-b-2 border-border-subtle">
                       <tr>
-                        <th className="py-4 px-6 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-6 text-left text-xs font-bold text-text-body uppercase tracking-wider">
                           Code
                         </th>
-                        <th className="py-4 px-6 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-6 text-left text-xs font-bold text-text-body uppercase tracking-wider">
                           Account Name
                         </th>
-                        <th className="py-4 px-6 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-48">
+                        <th className="py-4 px-6 text-right text-xs font-bold text-text-body uppercase tracking-wider w-48">
                           Debit
                         </th>
-                        <th className="py-4 px-6 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-48">
+                        <th className="py-4 px-6 text-right text-xs font-bold text-text-body uppercase tracking-wider w-48">
                           Credit
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-border-subtle">
                       {rows.length === 0 ? (
                         <tr>
-                          <td colSpan="4" className="py-12 text-center text-slate-500">
+                          <td colSpan="4" className="py-12 text-center text-text-muted">
                             No accounts found for this period
                           </td>
                         </tr>
@@ -242,24 +242,24 @@ export default function TrialBalance() {
                           const debit = parseFloat(row.debit ?? row.debit_total ?? 0);
                           const credit = parseFloat(row.credit ?? row.credit_total ?? 0);
                           return (
-                            <tr key={row.accountId ?? row.account_id ?? idx} className="hover:bg-slate-50 transition-colors">
+                            <tr key={row.accountId ?? row.account_id ?? idx} className="hover:bg-surface-2 transition-colors">
                               <td className="py-3 px-6">
-                                <div className="text-sm font-medium text-slate-900">
+                                <div className="text-sm font-medium text-text-strong">
                                   {row.code ?? row.account_code ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6">
-                                <div className="text-sm text-slate-700">
+                                <div className="text-sm text-text-body">
                                   {row.name ?? row.account_name ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6 text-right">
-                                <div className={`text-sm font-medium ${debit > 0 ? 'text-green-700' : 'text-slate-400'}`}>
+                                <div className={`text-sm font-medium ${debit > 0 ? 'text-green-700' : 'text-text-soft'}`}>
                                   {debit > 0 ? formatMoney(debit, 'GHS') : '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6 text-right">
-                                <div className={`text-sm font-medium ${credit > 0 ? 'text-red-700' : 'text-slate-400'}`}>
+                                <div className={`text-sm font-medium ${credit > 0 ? 'text-red-700' : 'text-text-soft'}`}>
                                   {credit > 0 ? formatMoney(credit, 'GHS') : '—'}
                                 </div>
                               </td>
@@ -268,9 +268,9 @@ export default function TrialBalance() {
                         })
                       )}
                     </tbody>
-                    <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                    <tfoot className="bg-surface-2 border-t-2 border-border-subtle">
                       <tr>
-                        <td colSpan="2" className="py-4 px-6 text-right text-sm font-bold text-slate-900 uppercase">
+                        <td colSpan="2" className="py-4 px-6 text-right text-sm font-bold text-text-strong uppercase">
                           Total
                         </td>
                         <td className="py-4 px-6 text-right">
@@ -284,8 +284,8 @@ export default function TrialBalance() {
                           </div>
                         </td>
                       </tr>
-                      <tr className="bg-slate-100">
-                        <td colSpan="2" className="py-3 px-6 text-right text-sm font-semibold text-slate-700">
+                      <tr className="bg-surface-2">
+                        <td colSpan="2" className="py-3 px-6 text-right text-sm font-semibold text-text-body">
                           Difference
                         </td>
                         <td colSpan="2" className="py-3 px-6 text-right">
@@ -299,23 +299,23 @@ export default function TrialBalance() {
                 ) : (
                   // Net Balance View - Shows single net amount per account
                   <table className="w-full">
-                    <thead className="bg-slate-100 border-b-2 border-slate-300">
+                    <thead className="bg-surface-2 border-b-2 border-border-subtle">
                       <tr>
-                        <th className="py-4 px-6 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-6 text-left text-xs font-bold text-text-body uppercase tracking-wider">
                           Code
                         </th>
-                        <th className="py-4 px-6 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <th className="py-4 px-6 text-left text-xs font-bold text-text-body uppercase tracking-wider">
                           Account Name
                         </th>
-                        <th className="py-4 px-6 text-right text-xs font-bold text-slate-700 uppercase tracking-wider w-64">
+                        <th className="py-4 px-6 text-right text-xs font-bold text-text-body uppercase tracking-wider w-64">
                           Net Balance
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-border-subtle">
                       {rows.length === 0 ? (
                         <tr>
-                          <td colSpan="3" className="py-12 text-center text-slate-500">
+                          <td colSpan="3" className="py-12 text-center text-text-muted">
                             No accounts found for this period
                           </td>
                         </tr>
@@ -323,20 +323,20 @@ export default function TrialBalance() {
                         rows.map((row, idx) => {
                           const netBalance = getNetBalance(row);
                           return (
-                            <tr key={row.accountId ?? row.account_id ?? idx} className="hover:bg-slate-50 transition-colors">
+                            <tr key={row.accountId ?? row.account_id ?? idx} className="hover:bg-surface-2 transition-colors">
                               <td className="py-3 px-6">
-                                <div className="text-sm font-medium text-slate-900">
+                                <div className="text-sm font-medium text-text-strong">
                                   {row.code ?? row.accountCode ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6">
-                                <div className="text-sm text-slate-700">
+                                <div className="text-sm text-text-body">
                                   {row.name ?? row.accountName ?? '—'}
                                 </div>
                               </td>
                               <td className="py-3 px-6 text-right">
                                 <div className="flex items-center justify-end gap-2">
-                                  <span className={`text-sm font-medium ${netBalance.amount > 0 ? (netBalance.type === 'debit' ? 'text-green-700' : 'text-red-700') : 'text-slate-400'}`}>
+                                  <span className={`text-sm font-medium ${netBalance.amount > 0 ? (netBalance.type === 'debit' ? 'text-green-700' : 'text-red-700') : 'text-text-soft'}`}>
                                     {netBalance.amount > 0 ? formatMoney(netBalance.amount, 'GHS') : '—'}
                                   </span>
                                   {netBalance.amount > 0 && (
@@ -351,26 +351,26 @@ export default function TrialBalance() {
                         })
                       )}
                     </tbody>
-                    <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                    <tfoot className="bg-surface-2 border-t-2 border-border-subtle">
                       <tr>
-                        <td colSpan="2" className="py-4 px-6 text-right text-sm font-bold text-slate-900 uppercase">
+                        <td colSpan="2" className="py-4 px-6 text-right text-sm font-bold text-text-strong uppercase">
                           Net Totals
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="space-y-1">
                             <div className="flex items-center justify-end gap-2">
-                              <span className="text-sm text-slate-600">Debit:</span>
+                              <span className="text-sm text-text-muted">Debit:</span>
                               <span className="text-base font-bold text-green-700">{formatMoney(totals.debit, 'GHS')}</span>
                             </div>
                             <div className="flex items-center justify-end gap-2">
-                              <span className="text-sm text-slate-600">Credit:</span>
+                              <span className="text-sm text-text-muted">Credit:</span>
                               <span className="text-base font-bold text-red-700">{formatMoney(totals.credit, 'GHS')}</span>
                             </div>
                           </div>
                         </td>
                       </tr>
-                      <tr className="bg-slate-100">
-                        <td colSpan="2" className="py-3 px-6 text-right text-sm font-semibold text-slate-700">
+                      <tr className="bg-surface-2">
+                        <td colSpan="2" className="py-3 px-6 text-right text-sm font-semibold text-text-body">
                           Balance Check
                         </td>
                         <td className="py-3 px-6 text-right">

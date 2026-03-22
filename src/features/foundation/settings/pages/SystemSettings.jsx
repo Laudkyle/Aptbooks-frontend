@@ -135,7 +135,7 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
           ) : rules.length === 0 ? (
             <EmptyState message="No workflow rules configured yet. Click + Add Rule to create your first rule." />
           ) : (
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <Table>
                 <THead>
                   <tr>
@@ -149,7 +149,7 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
                 </THead>
                 <TBody>
                   {rules.map((rule) => (
-                    <tr key={rule.id} className="hover:bg-slate-50">
+                    <tr key={rule.id} className="hover:bg-surface-2">
                       <TD><WorkflowRuleScope rule={rule} typeName={typeName} /></TD>
                       <TD>
                         <div className="flex flex-col gap-1">
@@ -206,7 +206,7 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
       {deletingRule && (
         <Modal open onClose={() => setDeletingRule(null)} title="Delete Workflow Rule">
           <div className="space-y-5">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-text-muted">
               Are you sure you want to delete the rule for{" "}
               <strong><WorkflowRuleScopeText rule={deletingRule} typeName={typeName} /></strong>?{" "}
               This cannot be undone.
@@ -289,37 +289,37 @@ function WorkflowRuleModal({ mode, rule, docTypes, onClose, settingsApi, qc, toa
 
         {/* Scope */}
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Scope</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Scope</p>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Document Type <span className="text-slate-400 font-normal">(optional)</span>
+              <label className="block text-sm font-medium text-text-body mb-1">
+                Document Type <span className="text-text-soft font-normal">(optional)</span>
               </label>
               <Select value={form.document_type_id} onChange={(e) => setField("document_type_id", e.target.value)}>
                 <option value="">— All document types —</option>
                 {docTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </Select>
-              <p className="mt-1 text-xs text-slate-500">Leave blank for org-wide default</p>
+              <p className="mt-1 text-xs text-text-muted">Leave blank for org-wide default</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Entity Type <span className="text-slate-400 font-normal">(optional)</span>
+              <label className="block text-sm font-medium text-text-body mb-1">
+                Entity Type <span className="text-text-soft font-normal">(optional)</span>
               </label>
               <Input
                 value={form.entity_type}
                 onChange={(e) => setField("entity_type", e.target.value)}
                 placeholder="e.g. invoice, bill"
               />
-              <p className="mt-1 text-xs text-slate-500">Leave blank to apply to all entity types</p>
+              <p className="mt-1 text-xs text-text-muted">Leave blank to apply to all entity types</p>
             </div>
           </div>
         </div>
 
-        <hr className="border-slate-200" />
+        <hr className="border-border-subtle" />
 
         {/* Creator permissions */}
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Creator Permissions</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Creator Permissions</p>
           <div className="space-y-3">
             <ToggleRow
               label="Creator can approve"
@@ -336,11 +336,11 @@ function WorkflowRuleModal({ mode, rule, docTypes, onClose, settingsApi, qc, toa
           </div>
         </div>
 
-        <hr className="border-slate-200" />
+        <hr className="border-border-subtle" />
 
         {/* Approval behaviour */}
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Approval Behaviour</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Approval Behaviour</p>
           <div className="space-y-3">
             <ToggleRow
               label="Allow self-approval"
@@ -357,11 +357,11 @@ function WorkflowRuleModal({ mode, rule, docTypes, onClose, settingsApi, qc, toa
           </div>
         </div>
 
-        <hr className="border-slate-200" />
+        <hr className="border-border-subtle" />
 
         {/* Notifications */}
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Creator Notifications</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Creator Notifications</p>
           <div className="space-y-3">
             <ToggleRow
               label="Notify creator on approval"
@@ -409,10 +409,10 @@ function WorkflowRuleScope({ rule, typeName }) {
   return (
     <div className="flex flex-col gap-1">
       {rule.document_type_id && (
-        <span className="text-sm font-medium text-slate-900">{typeName(rule.document_type_id)}</span>
+        <span className="text-sm font-medium text-text-strong">{typeName(rule.document_type_id)}</span>
       )}
       {rule.entity_type && (
-        <code className="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit">
+        <code className="text-xs font-mono text-text-muted bg-surface-2 px-1.5 py-0.5 rounded w-fit">
           {rule.entity_type}
         </code>
       )}
@@ -422,7 +422,7 @@ function WorkflowRuleScope({ rule, typeName }) {
 
 function RuleFlag({ on, label }) {
   return (
-    <span className={`inline-flex items-center gap-1 text-xs ${on ? "text-green-700" : "text-slate-400"}`}>
+    <span className={`inline-flex items-center gap-1 text-xs ${on ? "text-green-700" : "text-text-soft"}`}>
       {on ? (
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -443,11 +443,11 @@ function ToggleRow({ label, description, checked, onChange }) {
       <div className="relative mt-0.5 flex-shrink-0">
         <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
         <div className="w-9 h-5 bg-slate-200 peer-checked:bg-brand-500 rounded-full transition-colors" />
-        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-surface-1 rounded-full shadow transition-transform peer-checked:translate-x-4" />
       </div>
       <div>
-        <p className="text-sm font-medium text-slate-700 group-hover:text-slate-900">{label}</p>
-        {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
+        <p className="text-sm font-medium text-text-body group-hover:text-text-strong">{label}</p>
+        {description && <p className="text-xs text-text-muted mt-0.5">{description}</p>}
       </div>
     </label>
   );
@@ -494,7 +494,7 @@ function ApproversPanel({ documentsApi, qc, toast }) {
           ) : levels.length === 0 ? (
             <EmptyState message="No approval levels configured yet. Create levels in the Approval Levels tab first." />
           ) : (
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <Table>
                 <THead>
                   <tr>
@@ -532,7 +532,7 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-surface-2 p-1 rounded-lg w-fit">
         {[
           { value: "levels",    label: "Approval Levels"  },
           { value: "types",     label: "Document Types"   },
@@ -543,7 +543,7 @@ function ApprovalsTab({ documentsApi, qc, toast }) {
             key={t.value}
             onClick={() => setSubTab(t.value)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              subTab === t.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+              subTab === t.value ? "bg-surface-1 text-text-strong shadow-sm" : "text-text-muted hover:text-text-strong"
             }`}
           >
             {t.label}
@@ -590,20 +590,20 @@ function ApprovalLevelsPanel({ documentsApi, qc, toast, showModal, setShowModal 
           ) : levelsQ.isLoading ? (
             <LoadingRows cols={4} />
           ) : (
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <Table>
                 <THead>
                   <tr><TH>Sequence</TH><TH>Code</TH><TH>Name</TH><TH>Status</TH></tr>
                 </THead>
                 <TBody>
                   {levels.length === 0 ? (
-                    <tr><TD colSpan={4} className="text-center text-slate-500 py-10">No approval levels configured yet. Click <strong>+ Add Level</strong> to get started.</TD></tr>
+                    <tr><TD colSpan={4} className="text-center text-text-muted py-10">No approval levels configured yet. Click <strong>+ Add Level</strong> to get started.</TD></tr>
                   ) : (
                     [...levels].sort((a, b) => a.sequence - b.sequence).map((level) => (
-                      <tr key={level.id} className="hover:bg-slate-50">
-                        <TD><span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">{level.sequence}</span></TD>
-                        <TD><code className="px-2 py-0.5 bg-slate-100 rounded text-xs font-mono text-slate-700">{level.code}</code></TD>
-                        <TD className="font-medium text-slate-900">{level.name}</TD>
+                      <tr key={level.id} className="hover:bg-surface-2">
+                        <TD><span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-2 text-text-body text-xs font-semibold">{level.sequence}</span></TD>
+                        <TD><code className="px-2 py-0.5 bg-surface-2 rounded text-xs font-mono text-text-body">{level.code}</code></TD>
+                        <TD className="font-medium text-text-strong">{level.name}</TD>
                         <TD><StatusBadge active={level.is_active} /></TD>
                       </tr>
                     ))
@@ -625,19 +625,19 @@ function ApproverLevelRow({ level, documentsApi, onEdit }) {
   const assignees = usersQ.data ?? [];
 
   return (
-    <tr className="hover:bg-slate-50">
+    <tr className="hover:bg-surface-2">
       <TD>
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex-shrink-0">{level.sequence}</span>
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-2 text-text-body text-xs font-semibold flex-shrink-0">{level.sequence}</span>
           <div>
-            <div className="font-medium text-slate-900">{level.name}</div>
-            <code className="text-xs font-mono text-slate-400">{level.code}</code>
+            <div className="font-medium text-text-strong">{level.name}</div>
+            <code className="text-xs font-mono text-text-soft">{level.code}</code>
           </div>
         </div>
       </TD>
       <TD>
         {usersQ.isLoading ? (
-          <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
+          <div className="h-4 w-32 bg-surface-2 rounded animate-pulse" />
         ) : assignees.length === 0 ? (
           <span className="inline-flex items-center gap-1.5 text-sm text-amber-600">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -646,7 +646,7 @@ function ApproverLevelRow({ level, documentsApi, onEdit }) {
         ) : (
           <div className="flex items-center gap-2 flex-wrap">
             {assignees.slice(0, 4).map((u) => <UserChip key={u.id} user={u} />)}
-            {assignees.length > 4 && <span className="text-xs text-slate-500">+{assignees.length - 4} more</span>}
+            {assignees.length > 4 && <span className="text-xs text-text-muted">+{assignees.length - 4} more</span>}
           </div>
         )}
       </TD>
@@ -691,14 +691,14 @@ function AssignApproversModal({ level, onClose, documentsApi, qc, toast }) {
   return (
     <Modal open onClose={onClose} title={`Assign Approvers — ${level.name}`}>
       <div className="space-y-5">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-text-muted">
           Select the users who can approve documents at the <strong>{level.name}</strong> level.
           Any one of them can act to advance the workflow.
         </p>
 
         {isLoading ? (
-          <div className="flex items-center gap-3 py-6 text-sm text-slate-500">
-            <div className="w-4 h-4 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin flex-shrink-0" />
+          <div className="flex items-center gap-3 py-6 text-sm text-text-muted">
+            <div className="w-4 h-4 border-2 border-border-subtle border-t-brand-500 rounded-full animate-spin flex-shrink-0" />
             Loading users...
           </div>
         ) : orgUsersQ.isError ? (
@@ -707,18 +707,18 @@ function AssignApproversModal({ level, onClose, documentsApi, qc, toast }) {
           <>
             {selectedUsers.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Assigned ({selectedUsers.length})</p>
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Assigned ({selectedUsers.length})</p>
                 <div className="border border-brand-200 bg-brand-50 rounded-lg overflow-hidden">
                   {selectedUsers.map((u) => (
                     <div key={u.id} className="flex items-center justify-between px-4 py-3 border-b border-brand-100 last:border-b-0">
                       <div className="flex items-center gap-3">
                         <UserAvatar user={u} size="sm" />
                         <div>
-                          <div className="text-sm font-medium text-slate-900">{u.first_name} {u.last_name}</div>
-                          <div className="text-xs text-slate-500">{u.email}</div>
+                          <div className="text-sm font-medium text-text-strong">{u.first_name} {u.last_name}</div>
+                          <div className="text-xs text-text-muted">{u.email}</div>
                         </div>
                       </div>
-                      <button onClick={() => toggle(u.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors" title="Remove">
+                      <button onClick={() => toggle(u.id)} className="p-1 text-text-soft hover:text-red-500 transition-colors" title="Remove">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                     </div>
@@ -727,21 +727,21 @@ function AssignApproversModal({ level, onClose, documentsApi, qc, toast }) {
               </div>
             )}
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                 {selectedUsers.length > 0 ? "Add More Users" : "Select Users"}
               </p>
               <Input placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="mb-2" />
-              <div className="border border-slate-200 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+              <div className="border border-border-subtle rounded-lg overflow-hidden max-h-64 overflow-y-auto">
                 {unselectedUsers.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-slate-400">{search ? "No users match your search" : "All users are assigned"}</div>
+                  <div className="p-4 text-center text-sm text-text-soft">{search ? "No users match your search" : "All users are assigned"}</div>
                 ) : (
                   unselectedUsers.map((u) => (
-                    <button key={u.id} onClick={() => toggle(u.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0 group transition-colors">
+                    <button key={u.id} onClick={() => toggle(u.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-surface-2 border-b border-border-subtle last:border-b-0 group transition-colors">
                       <div className="flex items-center gap-3">
                         <UserAvatar user={u} size="sm" />
                         <div>
-                          <div className="text-sm font-medium text-slate-900">{u.first_name} {u.last_name}</div>
-                          <div className="text-xs text-slate-500">{u.email}</div>
+                          <div className="text-sm font-medium text-text-strong">{u.first_name} {u.last_name}</div>
+                          <div className="text-xs text-text-muted">{u.email}</div>
                         </div>
                       </div>
                       <svg className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
@@ -764,7 +764,7 @@ function AssignApproversModal({ level, onClose, documentsApi, qc, toast }) {
         )}
 
         <div className="flex justify-between items-center pt-2 border-t">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-muted">
             {selectedIds.length === 0 ? "Open level — no restriction on approver" : `${selectedIds.length} user${selectedIds.length > 1 ? "s" : ""} assigned`}
           </p>
           <div className="flex gap-3">
@@ -789,7 +789,7 @@ function UserChip({ user }) {
   const initials = [user.first_name?.[0], user.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
   const label    = user.first_name ? `${user.first_name} ${user.last_name}` : user.email;
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 text-text-body text-xs font-medium">
       <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-brand-200 text-brand-800 text-[10px] font-bold">{initials}</span>
       {label}
     </span>
@@ -826,18 +826,18 @@ function CreateApprovalLevelModal({ onClose, documentsApi, qc, toast, existingLe
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Input label="Code" value={form.code} onChange={(e) => set("code", e.target.value.toUpperCase())} placeholder="TEAM_LEAD" error={errors.code} required />
-            <p className="mt-1 text-xs text-slate-500">Unique identifier. Uppercase, no spaces.</p>
+            <p className="mt-1 text-xs text-text-muted">Unique identifier. Uppercase, no spaces.</p>
           </div>
           <div>
             <Input label="Sequence" type="number" min={1} value={form.sequence} onChange={(e) => set("sequence", e.target.value)} error={errors.sequence} required />
-            <p className="mt-1 text-xs text-slate-500">Lower numbers are approved first.</p>
+            <p className="mt-1 text-xs text-text-muted">Lower numbers are approved first.</p>
           </div>
         </div>
         <Input label="Display Name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Team Lead" error={errors.name} required />
         <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="w-4 h-4 rounded border-slate-300 text-brand-600" />
-          <span className="text-sm font-medium text-slate-700">Active</span>
-          <span className="text-xs text-slate-500">(inactive levels are excluded from new document ladders)</span>
+          <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="w-4 h-4 rounded border-border-subtle text-brand-600" />
+          <span className="text-sm font-medium text-text-body">Active</span>
+          <span className="text-xs text-text-muted">(inactive levels are excluded from new document ladders)</span>
         </label>
         <div className="flex justify-end gap-3 pt-2 border-t">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
@@ -868,18 +868,18 @@ function DocumentTypesPanel({ documentsApi, qc, toast, showModal, setShowModal }
           ) : typesQ.isLoading ? (
             <LoadingRows cols={4} />
           ) : (
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <Table>
                 <THead><tr><TH>Code</TH><TH>Name</TH><TH>Description</TH><TH>Status</TH></tr></THead>
                 <TBody>
                   {types.length === 0 ? (
-                    <tr><TD colSpan={4} className="text-center text-slate-500 py-10">No document types configured yet. Click <strong>+ Add Type</strong> to get started.</TD></tr>
+                    <tr><TD colSpan={4} className="text-center text-text-muted py-10">No document types configured yet. Click <strong>+ Add Type</strong> to get started.</TD></tr>
                   ) : (
                     types.map((t) => (
-                      <tr key={t.id} className="hover:bg-slate-50">
-                        <TD><code className="px-2 py-0.5 bg-slate-100 rounded text-xs font-mono text-slate-700">{t.code}</code></TD>
-                        <TD className="font-medium text-slate-900">{t.name}</TD>
-                        <TD className="text-slate-500 text-sm">{t.description || "—"}</TD>
+                      <tr key={t.id} className="hover:bg-surface-2">
+                        <TD><code className="px-2 py-0.5 bg-surface-2 rounded text-xs font-mono text-text-body">{t.code}</code></TD>
+                        <TD className="font-medium text-text-strong">{t.name}</TD>
+                        <TD className="text-text-muted text-sm">{t.description || "—"}</TD>
                         <TD><StatusBadge active={t.is_active} /></TD>
                       </tr>
                     ))
@@ -922,19 +922,19 @@ function CreateDocumentTypeModal({ onClose, documentsApi, qc, toast }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Input label="Code" value={form.code} onChange={(e) => set("code", e.target.value.toUpperCase())} placeholder="PURCHASE_ORDER" error={errors.code} required />
-            <p className="mt-1 text-xs text-slate-500">Unique identifier used by the system.</p>
+            <p className="mt-1 text-xs text-text-muted">Unique identifier used by the system.</p>
           </div>
           <div>
             <Input label="Display Name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Purchase Order" error={errors.name} required />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Description <span className="text-slate-400 font-normal">(optional)</span></label>
-          <textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe when this document type is used..." rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none" />
+          <label className="block text-sm font-medium text-text-body mb-1">Description <span className="text-text-soft font-normal">(optional)</span></label>
+          <textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe when this document type is used..." rows={3} className="w-full px-3 py-2 border border-border-subtle rounded-md text-sm text-text-strong placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none" />
         </div>
         <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="w-4 h-4 rounded border-slate-300 text-brand-600" />
-          <span className="text-sm font-medium text-slate-700">Active</span>
+          <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="w-4 h-4 rounded border-border-subtle text-brand-600" />
+          <span className="text-sm font-medium text-text-body">Active</span>
         </label>
         <div className="flex justify-end gap-3 pt-2 border-t">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
@@ -971,17 +971,17 @@ function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditin
             : types.length === 0 ? <EmptyState message="No document types found. Create document types first, then come back here to assign their approval ladders." />
             : activeLevels.length === 0 ? <EmptyState message="No active approval levels found. Create and activate approval levels first." />
             : (
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <div className="border border-border-subtle rounded-lg overflow-hidden">
                 <Table>
                   <THead><tr><TH>Document Type</TH><TH>Approval Chain</TH><TH className="text-right">Actions</TH></tr></THead>
                   <TBody>
                     {types.map((docType) => (
-                      <tr key={docType.id} className="hover:bg-slate-50">
+                      <tr key={docType.id} className="hover:bg-surface-2">
                         <TD>
-                          <div className="font-medium text-slate-900">{docType.name}</div>
-                          <code className="text-xs font-mono text-slate-500">{docType.code}</code>
+                          <div className="font-medium text-text-strong">{docType.name}</div>
+                          <code className="text-xs font-mono text-text-muted">{docType.code}</code>
                         </TD>
-                        <TD><span className="text-sm text-slate-400 italic">Click Configure to view or update the approval chain</span></TD>
+                        <TD><span className="text-sm text-text-soft italic">Click Configure to view or update the approval chain</span></TD>
                         <TD className="text-right"><Button onClick={() => setEditingTypeId(docType.id)}>Configure</Button></TD>
                       </tr>
                     ))}
@@ -1019,11 +1019,11 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
   return (
     <Modal open onClose={onClose} title={`Configure Approval Ladder — ${docType.name}`}>
       <div className="space-y-5">
-        <p className="text-sm text-slate-600">Select the approval levels required for this document type and arrange them in the order approvals must occur.</p>
+        <p className="text-sm text-text-muted">Select the approval levels required for this document type and arrange them in the order approvals must occur.</p>
 
         {ladderQ.isLoading && (
-          <div className="flex items-center gap-3 py-4 text-sm text-slate-500">
-            <div className="w-4 h-4 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin flex-shrink-0" />
+          <div className="flex items-center gap-3 py-4 text-sm text-text-muted">
+            <div className="w-4 h-4 border-2 border-border-subtle border-t-brand-500 rounded-full animate-spin flex-shrink-0" />
             Loading current ladder...
           </div>
         )}
@@ -1035,15 +1035,15 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Available Levels</p>
-            <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Available Levels</p>
+            <div className="border border-border-subtle rounded-lg overflow-hidden min-h-[120px]">
               {unselectedLevels.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-400">All levels assigned</div>
+                <div className="p-4 text-center text-sm text-text-soft">All levels assigned</div>
               ) : unselectedLevels.map((level) => (
-                <button key={level.id} onClick={() => toggleLevel(level.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-brand-50 border-b border-slate-100 last:border-b-0 group transition-colors">
+                <button key={level.id} onClick={() => toggleLevel(level.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-brand-50 border-b border-border-subtle last:border-b-0 group transition-colors">
                   <div>
-                    <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                    <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
+                    <span className="text-sm font-medium text-text-strong">{level.name}</span>
+                    <span className="ml-2 text-xs text-text-soft">seq {level.sequence}</span>
                   </div>
                   <svg className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -1051,27 +1051,27 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Approval Chain <span className="text-slate-400 font-normal normal-case">(in order)</span>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
+              Approval Chain <span className="text-text-soft font-normal normal-case">(in order)</span>
             </p>
-            <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
+            <div className="border border-border-subtle rounded-lg overflow-hidden min-h-[120px]">
               {ladderQ.isLoading ? (
-                <div className="p-4 text-center text-sm text-slate-400">Loading...</div>
+                <div className="p-4 text-center text-sm text-text-soft">Loading...</div>
               ) : selectedLevels.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-400">← Select levels to build the chain</div>
+                <div className="p-4 text-center text-sm text-text-soft">← Select levels to build the chain</div>
               ) : selectedLevels.map((level, idx) => (
-                <div key={level.id} className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 last:border-b-0">
+                <div key={level.id} className="flex items-center justify-between px-4 py-3 bg-surface-1 border-b border-border-subtle last:border-b-0">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex-shrink-0">{idx + 1}</span>
                     <div>
-                      <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                      <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
+                      <span className="text-sm font-medium text-text-strong">{level.name}</span>
+                      <span className="ml-2 text-xs text-text-soft">seq {level.sequence}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => moveUp(idx)}   disabled={idx === 0}                      className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move up">  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>
-                    <button onClick={() => moveDown(idx)} disabled={idx === selectedLevels.length - 1} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move down"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>
-                    <button onClick={() => toggleLevel(level.id)} className="p-1 text-slate-400 hover:text-red-500 ml-1" title="Remove"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                    <button onClick={() => moveUp(idx)}   disabled={idx === 0}                      className="p-1 text-text-soft hover:text-text-body disabled:opacity-30 disabled:cursor-not-allowed" title="Move up">  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>
+                    <button onClick={() => moveDown(idx)} disabled={idx === selectedLevels.length - 1} className="p-1 text-text-soft hover:text-text-body disabled:opacity-30 disabled:cursor-not-allowed" title="Move down"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>
+                    <button onClick={() => toggleLevel(level.id)} className="p-1 text-text-soft hover:text-red-500 ml-1" title="Remove"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                   </div>
                 </div>
               ))}
@@ -1080,24 +1080,24 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
         </div>
 
         {selectedLevels.length > 0 && (
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Workflow Preview</p>
+          <div className="bg-surface-2 border border-border-subtle rounded-lg p-4">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Workflow Preview</p>
             <div className="flex items-center flex-wrap gap-2">
               <span className="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-medium">Submitted</span>
               {selectedLevels.map((level) => (
                 <React.Fragment key={level.id}>
-                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  <svg className="w-4 h-4 text-text-soft flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">{level.name}</span>
                 </React.Fragment>
               ))}
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              <svg className="w-4 h-4 text-text-soft flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               <span className="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">Approved</span>
             </div>
           </div>
         )}
 
         <div className="flex justify-between items-center pt-2 border-t">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-muted">
             {selectedLevels.length === 0 ? "No levels selected — documents of this type will skip the approval workflow." : `${selectedLevels.length} level${selectedLevels.length > 1 ? "s" : ""} in chain`}
           </p>
           <div className="flex gap-3">
@@ -1130,14 +1130,14 @@ function GeneralSettingsTab({ settingsApi, qc, toast }) {
           <div className="space-y-4">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Cost Method</label>
+                <label className="block text-sm font-medium text-text-body mb-2">Cost Method</label>
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-md text-sm font-medium text-slate-900">
+                  <div className="flex-1 px-4 py-2.5 bg-surface-2 border border-border-subtle rounded-md text-sm font-medium text-text-strong">
                     {currentMethod === "WEIGHTED_AVERAGE" ? "Weighted Average" : "First In, First Out (FIFO)"}
                   </div>
                   <Button variant="secondary" onClick={() => setEditModal({ type: "inventory", key: "inventoryCostMethod", currentValue: currentMethod })}>Change</Button>
                 </div>
-                <p className="mt-2 text-xs text-slate-600">This determines how inventory costs are calculated across all products</p>
+                <p className="mt-2 text-xs text-text-muted">This determines how inventory costs are calculated across all products</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-blue-900 mb-2">About Cost Methods</h4>
@@ -1161,19 +1161,19 @@ function GeneralSettingsTab({ settingsApi, qc, toast }) {
             {listQ.isError ? (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800">Failed to load settings. Please try again.</div>
             ) : (
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
+              <div className="border border-border-subtle rounded-lg overflow-hidden">
                 <Table>
                   <THead><tr><TH>Setting Name</TH><TH>Current Value</TH><TH className="text-right">Actions</TH></tr></THead>
                   <TBody>
                     {filteredSettings.map((s) => (
-                      <tr key={s.key} className="hover:bg-slate-50">
-                        <TD className="font-medium text-slate-900">{formatSettingName(s.key)}</TD>
-                        <TD className="text-slate-600 text-sm">{formatSettingValue(s)}</TD>
+                      <tr key={s.key} className="hover:bg-surface-2">
+                        <TD className="font-medium text-text-strong">{formatSettingName(s.key)}</TD>
+                        <TD className="text-text-muted text-sm">{formatSettingValue(s)}</TD>
                         <TD className="text-right"><Button size="sm" variant="ghost" onClick={() => setEditModal({ type: "custom", key: s.key, currentValue: s.value_json })}>Edit</Button></TD>
                       </tr>
                     ))}
                     {filteredSettings.length === 0 && (
-                      <tr><TD colSpan={3} className="text-center text-slate-500 py-8">{searchTerm ? "No settings match your search" : "No settings configured"}</TD></tr>
+                      <tr><TD colSpan={3} className="text-center text-text-muted py-8">{searchTerm ? "No settings match your search" : "No settings configured"}</TD></tr>
                     )}
                   </TBody>
                 </Table>
@@ -1221,7 +1221,7 @@ function EditSettingModal({ modal, onClose, settingsApi, qc, toast }) {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Select Cost Method</label>
+              <label className="block text-sm font-medium text-text-body mb-2">Select Cost Method</label>
               <Select value={value} onChange={(e) => { setValue(e.target.value); setErrors({}); }} error={errors.method}>
                 <option value="WEIGHTED_AVERAGE">Weighted Average</option>
                 <option value="FIFO">First In, First Out (FIFO)</option>
@@ -1229,19 +1229,19 @@ function EditSettingModal({ modal, onClose, settingsApi, qc, toast }) {
               {errors.method && <p className="mt-1 text-sm text-red-600">{errors.method}</p>}
             </div>
             <div className="space-y-3">
-              <div className="border-l-4 border-slate-300 pl-4">
-                <h5 className="text-sm font-medium text-slate-900 mb-1">Weighted Average</h5>
-                <p className="text-sm text-slate-600">Calculates a new average cost each time inventory is purchased.</p>
+              <div className="border-l-4 border-border-subtle pl-4">
+                <h5 className="text-sm font-medium text-text-strong mb-1">Weighted Average</h5>
+                <p className="text-sm text-text-muted">Calculates a new average cost each time inventory is purchased.</p>
               </div>
-              <div className="border-l-4 border-slate-300 pl-4">
-                <h5 className="text-sm font-medium text-slate-900 mb-1">FIFO</h5>
-                <p className="text-sm text-slate-600">Assumes the oldest inventory items are sold first.</p>
+              <div className="border-l-4 border-border-subtle pl-4">
+                <h5 className="text-sm font-medium text-text-strong mb-1">FIFO</h5>
+                <p className="text-sm text-text-muted">Assumes the oldest inventory items are sold first.</p>
               </div>
             </div>
           </>
         ) : (
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <p className="text-sm text-slate-600">Advanced setting editing is restricted. Please contact your system administrator.</p>
+          <div className="bg-surface-2 border border-border-subtle rounded-lg p-4">
+            <p className="text-sm text-text-muted">Advanced setting editing is restricted. Please contact your system administrator.</p>
           </div>
         )}
         <div className="flex justify-end gap-3 pt-4 border-t">
@@ -1279,20 +1279,20 @@ function AppearanceSettingsTab({ toast }) {
               <button
                 type="button"
                 onClick={() => applyTheme('light')}
-                className={`rounded-2xl border p-4 text-left transition ${!isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-white' : 'border-slate-200 bg-white/80 hover:border-slate-300'}`}
+                className={`rounded-2xl border p-4 text-left transition ${!isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-surface-1' : 'border-border-subtle bg-surface-2 hover:border-border-subtle'}`}
               >
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-slate-900">Light</span>
+                  <span className="text-sm font-semibold text-text-strong">Light</span>
                   {!isDark ? <span className="rounded-full bg-brand-primary/10 px-2 py-1 text-xs font-medium text-brand-deep">Active</span> : null}
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="rounded-xl border border-border-subtle bg-surface-2 p-3">
                   <div className="mb-2 h-2 w-20 rounded bg-slate-800/80" />
                   <div className="space-y-2">
-                    <div className="h-8 rounded bg-white shadow-sm" />
+                    <div className="h-8 rounded bg-surface-1 shadow-sm" />
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="h-12 rounded bg-white shadow-sm" />
-                      <div className="h-12 rounded bg-white shadow-sm" />
-                      <div className="h-12 rounded bg-white shadow-sm" />
+                      <div className="h-12 rounded bg-surface-1 shadow-sm" />
+                      <div className="h-12 rounded bg-surface-1 shadow-sm" />
+                      <div className="h-12 rounded bg-surface-1 shadow-sm" />
                     </div>
                   </div>
                 </div>
@@ -1301,14 +1301,14 @@ function AppearanceSettingsTab({ toast }) {
               <button
                 type="button"
                 onClick={() => applyTheme('dark')}
-                className={`rounded-2xl border p-4 text-left transition ${isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-slate-950/90' : 'border-slate-200 bg-slate-950/80 hover:border-slate-500'}`}
+                className={`rounded-2xl border p-4 text-left transition ${isDark ? 'border-brand-primary ring-2 ring-brand-primary/20 bg-slate-950/90' : 'border-border-subtle bg-slate-950/80 hover:border-slate-500'}`}
               >
                 <div className="mb-3 flex items-center justify-between">
                   <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-100'}`}>Dark</span>
                   {isDark ? <span className="rounded-full bg-brand-primary/20 px-2 py-1 text-xs font-medium text-sky-200">Active</span> : null}
                 </div>
                 <div className="rounded-xl border border-slate-700 bg-slate-900 p-3">
-                  <div className="mb-2 h-2 w-20 rounded bg-slate-100/80" />
+                  <div className="mb-2 h-2 w-20 rounded bg-surface-2/80" />
                   <div className="space-y-2">
                     <div className="h-8 rounded bg-slate-800 shadow-sm" />
                     <div className="grid grid-cols-3 gap-2">
@@ -1323,8 +1323,8 @@ function AppearanceSettingsTab({ toast }) {
           </div>
 
           <div className="rounded-2xl border border-border-subtle bg-surface-2 p-5">
-            <h3 className="text-sm font-semibold text-slate-900">Where users can change it</h3>
-            <ul className="mt-3 space-y-2 text-sm text-slate-600">
+            <h3 className="text-sm font-semibold text-text-strong">Where users can change it</h3>
+            <ul className="mt-3 space-y-2 text-sm text-text-muted">
               <li>• In Settings → Appearance</li>
               <li>• From the top bar theme toggle</li>
               <li>• Preference is remembered on the current device</li>
@@ -1387,8 +1387,8 @@ function EmailSettingsTab({ notifApi, qc, toast }) {
     <ContentCard>
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-slate-600">Loading email settings...</p>
+          <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-text-muted">Loading email settings...</p>
         </div>
       </div>
     </ContentCard>
@@ -1418,23 +1418,23 @@ function EmailSettingsTab({ notifApi, qc, toast }) {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <Input label="SMTP Host" value={form.host} onChange={(e) => handleInputChange("host", e.target.value)} placeholder="smtp.gmail.com" error={errors.host} required />
-            <p className="mt-1.5 text-xs text-slate-600">Your email provider's SMTP server address</p>
+            <p className="mt-1.5 text-xs text-text-muted">Your email provider's SMTP server address</p>
           </div>
           <div>
             <Input label="Port" type="number" min={1} max={65535} value={form.port} onChange={(e) => handleInputChange("port", e.target.value)} error={errors.port} required />
-            <p className="mt-1.5 text-xs text-slate-600">Common ports: 587 (TLS), 465 (SSL), 25 (Unsecured)</p>
+            <p className="mt-1.5 text-xs text-text-muted">Common ports: 587 (TLS), 465 (SSL), 25 (Unsecured)</p>
           </div>
           <div>
             <Input label="From Email Address" type="email" value={form.from} onChange={(e) => handleInputChange("from", e.target.value)} placeholder="notifications@yourcompany.com" error={errors.from} required />
-            <p className="mt-1.5 text-xs text-slate-600">Email address that will appear as the sender</p>
+            <p className="mt-1.5 text-xs text-text-muted">Email address that will appear as the sender</p>
           </div>
           <div>
             <Input label="Username" value={form.username} onChange={(e) => handleInputChange("username", e.target.value)} placeholder="your.email@gmail.com" error={errors.username} required />
-            <p className="mt-1.5 text-xs text-slate-600">Your email account username or email address</p>
+            <p className="mt-1.5 text-xs text-text-muted">Your email account username or email address</p>
           </div>
           <div className="md:col-span-2 relative">
             <Input label="App Password" type={showPassword ? "text" : "password"} value={form.appPassword} onChange={(e) => handleInputChange("appPassword", e.target.value)} placeholder="Enter app-specific password" error={errors.appPassword} required />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9 text-slate-400 hover:text-slate-600">
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9 text-text-soft hover:text-text-muted">
               {showPassword ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
               ) : (
@@ -1444,7 +1444,7 @@ function EmailSettingsTab({ notifApi, qc, toast }) {
                 </svg>
               )}
             </button>
-            <p className="mt-1.5 text-xs text-slate-600">
+            <p className="mt-1.5 text-xs text-text-muted">
               Use an app-specific password for better security.{" "}
               <a href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 underline">Learn how</a>
             </p>
@@ -1481,7 +1481,7 @@ function StatusBadge({ active }) {
       <span className="w-1.5 h-1.5 rounded-full bg-green-500" />Active
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 text-text-muted">
       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Inactive
     </span>
   );
@@ -1498,24 +1498,24 @@ function ErrorBanner({ message, onRetry }) {
 
 function EmptyState({ message }) {
   return (
-    <div className="border border-dashed border-slate-300 rounded-lg p-10 text-center">
+    <div className="border border-dashed border-border-subtle rounded-lg p-10 text-center">
       <svg className="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <p className="text-sm text-slate-500 max-w-sm mx-auto">{message}</p>
+      <p className="text-sm text-text-muted max-w-sm mx-auto">{message}</p>
     </div>
   );
 }
 
 function LoadingRows({ cols = 3 }) {
   return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden">
+    <div className="border border-border-subtle rounded-lg overflow-hidden">
       <Table>
         <TBody>
           {[1, 2, 3].map((i) => (
             <tr key={i}>
               {Array.from({ length: cols }).map((_, j) => (
-                <TD key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" style={{ width: j === 0 ? "40%" : j === cols - 1 ? "20%" : "60%" }} /></TD>
+                <TD key={j}><div className="h-4 bg-surface-2 rounded animate-pulse" style={{ width: j === 0 ? "40%" : j === cols - 1 ? "20%" : "60%" }} /></TD>
               ))}
             </tr>
           ))}

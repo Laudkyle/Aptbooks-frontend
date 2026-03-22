@@ -9,7 +9,7 @@
   }
   
   .app-card-header {
-    @apply flex items-start justify-between gap-4 border-b border-border-subtle bg-white/70 px-5 py-4 backdrop-blur;
+    @apply flex items-start justify-between gap-4 border-b border-border-subtle bg-surface-2 px-5 py-4 backdrop-blur;
   }
   
   .app-card-title {
@@ -17,7 +17,7 @@
   }
   
   .app-card-subtitle {
-    @apply mt-1 text-xs text-slate-600;
+    @apply mt-1 text-xs text-text-muted;
   }
   
   .app-card-body {
@@ -33,7 +33,7 @@
   }
   
   .app-kpi-label {
-    @apply text-xs font-medium text-slate-600;
+    @apply text-xs font-medium text-text-muted;
   }
   
   .app-kpi-value {
@@ -41,7 +41,7 @@
   }
   
   .app-muted {
-    @apply text-sm text-slate-600;
+    @apply text-sm text-text-muted;
   }
   
   .app-divider {
@@ -49,6 +49,6 @@
   }
   
   .app-chip {
-    @apply inline-flex items-center gap-1 rounded-full border border-border-subtle bg-white/70 px-2.5 py-1 text-xs font-medium text-slate-700;
+    @apply inline-flex items-center gap-1 rounded-full border border-border-subtle bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-body;
   }
 }

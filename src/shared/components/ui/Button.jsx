@@ -6,9 +6,9 @@ const variants = {
   primary:
     'bg-brand-primary text-white hover:bg-brand-light shadow-sm shadow-brand-primary/20 ring-1 ring-brand-primary/20',
   outline:
-    'border border-border-subtle bg-white/70 text-slate-900 hover:bg-slate-900/5 shadow-sm',
-  ghost: 'bg-transparent text-slate-900 hover:bg-slate-900/5',
-  subtle: 'bg-slate-900/5 text-slate-900 hover:bg-slate-900/10',
+    'border border-border-subtle bg-surface-2 text-text-strong hover:bg-slate-900/5 shadow-sm',
+  ghost: 'bg-transparent text-text-strong hover:bg-slate-900/5',
+  subtle: 'bg-slate-900/5 text-text-strong hover:bg-slate-900/10',
   danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm shadow-red-500/20 ring-1 ring-red-500/20'
 };
 

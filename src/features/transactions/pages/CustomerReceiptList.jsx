@@ -60,14 +60,14 @@ console.log(rows)
             >
               {r.receipt_no ?? r.code ?? r.id}
             </Link>
-            {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
+            {r.memo && <div className="text-xs text-text-muted mt-0.5">{r.memo}</div>}
           </div>
         )
       },
       { 
         header: 'Customer', 
         render: (r) => (
-          <span className="text-sm text-gray-900 font-medium">
+          <span className="text-sm text-text-strong font-medium">
             {r.customer_name ?? r.customerId ?? '—'}
           </span>
         ) 
@@ -75,7 +75,7 @@ console.log(rows)
       { 
         header: 'Receipt Date', 
         render: (r) => (
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-text-body">
             {formatDate(r.receipt_date) ?? '—'}
           </span>
         ) 
@@ -83,7 +83,7 @@ console.log(rows)
       {
         header: 'Amount',
         render: (r) => (
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-text-strong">
             {(r.amount_total ?? r.amount) 
               ? `$${Number(r.amount_total ?? r.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
               : '—'}
@@ -117,10 +117,10 @@ console.log(rows)
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <HandCoins className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Customer Receipts</h1>
+                <HandCoins className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">Customer Receipts</h1>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Capture collections, allocate to invoices, and post to the ledger
               </p>
             </div>
@@ -138,49 +138,49 @@ console.log(rows)
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'all' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'all' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
-            <div className="text-2xl font-bold text-gray-900">{statusCounts.all}</div>
-            <div className="text-xs text-gray-600 mt-1">All Receipts</div>
+            <div className="text-2xl font-bold text-text-strong">{statusCounts.all}</div>
+            <div className="text-xs text-text-muted mt-1">All Receipts</div>
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'draft' ? 'border-amber-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'draft' ? 'border-amber-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-2xl font-bold text-amber-600">{statusCounts.draft}</div>
-            <div className="text-xs text-gray-600 mt-1">Draft</div>
+            <div className="text-xs text-text-muted mt-1">Draft</div>
           </button>
           <button
             onClick={() => setStatusFilter('posted')}
-            className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === 'posted' ? 'border-green-500 shadow-sm' : 'border-gray-200'
+            className={`bg-surface-1 rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+              statusFilter === 'posted' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
             }`}
           >
             <div className="text-2xl font-bold text-green-600">{statusCounts.posted}</div>
-            <div className="text-xs text-gray-600 mt-1">Posted</div>
+            <div className="text-xs text-text-muted mt-1">Posted</div>
           </button>
         </div>
 
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-soft" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search receipts by number, customer, or memo..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               />
             </div>
             <Button
               variant="outline"
-              className="border-gray-300"
+              className="border-border-subtle"
             >
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -188,16 +188,16 @@ console.log(rows)
           </div>
           
           {searchTerm && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{filteredRows.length}</span> of <span className="font-semibold text-gray-900">{rows.length}</span> receipts
+            <div className="mt-3 pt-3 border-t border-border-subtle">
+              <p className="text-sm text-text-muted">
+                Showing <span className="font-semibold text-text-strong">{filteredRows.length}</span> of <span className="font-semibold text-text-strong">{rows.length}</span> receipts
               </p>
             </div>
           )}
         </div>
 
         {/* Data Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
           {error ? (
             <div className="p-12 text-center">
               <div className="bg-red-50 rounded-lg p-6 max-w-md mx-auto">

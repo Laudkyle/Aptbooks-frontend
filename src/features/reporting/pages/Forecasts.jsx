@@ -245,9 +245,9 @@ export default function Forecasts() {
               to={`/planning/forecasts/${row.id}`}
               className="group inline-flex items-center gap-2 font-medium text-brand-deep hover:text-brand-deep/80 transition-colors"
             >
-              <CloudSun className="h-4 w-4 text-slate-400" />
+              <CloudSun className="h-4 w-4 text-text-soft" />
               <span>{row.name ?? row.id}</span>
-              <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              <ChevronRight className="h-4 w-4 text-text-soft opacity-0 transition-opacity group-hover:opacity-100" />
             </Link>
           );
         },
@@ -256,8 +256,8 @@ export default function Forecasts() {
         header: "Fiscal Year",
         accessor: "fiscal_year",
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-slate-700">
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+          <div className="flex items-center gap-2 text-sm text-text-body">
+            <Calendar className="h-3.5 w-3.5 text-text-soft" />
             {formatFiscalYear(row.fiscal_year ?? row.fiscalYear)}
           </div>
         ),
@@ -266,8 +266,8 @@ export default function Forecasts() {
         header: "Currency",
         accessor: "currency_code",
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-slate-700">
-            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+          <div className="flex items-center gap-2 text-sm text-text-body">
+            <DollarSign className="h-3.5 w-3.5 text-text-soft" />
             <span className="font-mono">
               {row.currency_code ?? row.currencyCode ?? "—"}
             </span>
@@ -513,7 +513,7 @@ export default function Forecasts() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading forecasts...</div>
+            <div className="text-sm text-text-muted">Loading forecasts...</div>
           </div>
         </ContentCard>
       </div>
@@ -546,10 +546,10 @@ export default function Forecasts() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">
+            <div className="text-sm font-medium text-text-strong">
               Failed to load forecasts
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-text-muted">
               {error?.message ?? "An error occurred"}
             </div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">
@@ -602,10 +602,10 @@ export default function Forecasts() {
         </div>
 
         <div className="mb-4">
-          <div className="text-base font-semibold text-slate-900">
+          <div className="text-base font-semibold text-text-strong">
             Forecast List
           </div>
-          <div className="mt-1 text-sm text-slate-500">
+          <div className="mt-1 text-sm text-text-muted">
             {rows.length} {rows.length === 1 ? "forecast" : "forecasts"} configured
           </div>
         </div>
@@ -629,11 +629,11 @@ export default function Forecasts() {
         title="Create New Forecast"
         onClose={() => (createMutation.isPending ? null : handleCloseModal())}
         footer={
-          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-border-subtle">
             <Button
               onClick={handleCloseModal}
               disabled={createMutation.isPending}
-              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 border border-border-subtle text-text-body rounded-md font-medium hover:bg-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>
@@ -657,7 +657,7 @@ export default function Forecasts() {
             <button
               type="button"
               onClick={() => setShowTopInfo(!showTopInfo)}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
             >
               <Info className="h-4 w-4" />
               <span>Forecast creation info</span>
@@ -747,7 +747,7 @@ export default function Forecasts() {
             <button
               type="button"
               onClick={() => setShowSetupInfo(!showSetupInfo)}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
             >
               <Info className="h-4 w-4" />
               <span>Forecast setup details</span>
@@ -755,11 +755,11 @@ export default function Forecasts() {
             </button>
             
             {showSetupInfo && (
-              <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs font-medium text-slate-700 mb-2">
+              <div className="mt-2 rounded-xl border border-border-subtle bg-surface-2 p-4">
+                <div className="text-xs font-medium text-text-body mb-2">
                   Forecast Setup
                 </div>
-                <ul className="text-xs text-slate-600 space-y-2">
+                <ul className="text-xs text-text-muted space-y-2">
                   <li className="flex items-start gap-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-slate-400 mt-1.5 flex-shrink-0" />
                     <span>
@@ -805,11 +805,11 @@ export default function Forecasts() {
           title={actionContent.title}
           onClose={actionContent.isPending ? null : handleCloseActionModal}
           footer={
-            <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
+            <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-border-subtle">
               <Button
                 onClick={handleCloseActionModal}
                 disabled={actionContent.isPending}
-                className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 border border-border-subtle text-text-body rounded-md font-medium hover:bg-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </Button>
@@ -835,10 +835,10 @@ export default function Forecasts() {
                 <PlayCircle className="h-6 w-6 text-green-600 flex-shrink-0" />
               )}
               <div>
-                <p className="text-sm text-slate-600 mb-2">
+                <p className="text-sm text-text-muted mb-2">
                   {actionContent.description}
                 </p>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm font-medium text-text-strong">
                   {actionContent.warning}
                 </p>
               </div>

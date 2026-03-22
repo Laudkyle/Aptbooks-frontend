@@ -15,7 +15,7 @@ export function ConfirmDialog({ open, title = 'Confirm', message, confirmText = 
         </div>
       }
     >
-      <div className="text-sm text-slate-700">{message}</div>
+      <div className="text-sm text-text-body">{message}</div>
     </Modal>
   );
 }

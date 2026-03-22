@@ -47,11 +47,11 @@ const rows = Array.isArray(data) ? data : data?.data ?? [];
             <Link to={ROUTES.businessPartnerDetail(r.id)} className="font-medium text-brand-deep hover:underline">
               {r.name ?? '—'}
             </Link>
-            <div className="text-xs text-slate-500">{r.email ?? r.phone ?? ''}</div>
+            <div className="text-xs text-text-muted">{r.email ?? r.phone ?? ''}</div>
           </div>
         )
       },
-      { header: 'Code', render: (r) => <span className="text-sm text-slate-700">{r.code ?? '—'}</span> },
+      { header: 'Code', render: (r) => <span className="text-sm text-text-body">{r.code ?? '—'}</span> },
       {
         header: 'Status',
         render: (r) => <Badge tone={(r.status ?? 'active') === 'active' ? 'success' : 'muted'}>{r.status ?? 'active'}</Badge>
@@ -96,7 +96,7 @@ const rows = Array.isArray(data) ? data : data?.data ?? [];
             </div>
           }
           right={
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-text-muted">
               {error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}
             </div>
           }

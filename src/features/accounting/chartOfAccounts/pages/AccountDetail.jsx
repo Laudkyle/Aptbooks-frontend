@@ -82,7 +82,7 @@ export default function AccountDetail() {
 
       <ContentCard title="Details">
         {q.isLoading ? (
-          <div className="text-sm text-slate-700">Loading…</div>
+          <div className="text-sm text-text-body">Loading…</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load account.'}</div>
         ) : (

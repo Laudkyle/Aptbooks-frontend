@@ -49,11 +49,11 @@ export default function PeriodClose() {
 
       <ContentCard title="Close preview">
         {preview.isLoading ? (
-          <div className="text-sm text-slate-700">Loading preview…</div>
+          <div className="text-sm text-text-body">Loading preview…</div>
         ) : preview.isError ? (
           <div className="text-sm text-red-700">{preview.error?.message ?? 'Failed to load preview.'}</div>
         ) : (
-          <pre className="max-h-96 overflow-auto rounded bg-slate-50 p-3 text-xs text-slate-800">
+          <pre className="max-h-96 overflow-auto rounded bg-surface-2 p-3 text-xs text-text-strong">
             {JSON.stringify(preview.data, null, 2)}
           </pre>
         )}

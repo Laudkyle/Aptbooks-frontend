@@ -51,21 +51,21 @@ export function Table({ className, children, columns, rows, keyField = 'id', onR
 
 export function THead({ children }) {
   return (
-    <thead className="sticky top-0 z-10 bg-white/80 text-slate-700 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <thead className="sticky top-0 z-10 bg-surface-2 text-text-body backdrop-blur supports-[backdrop-filter]:bg-surface-2">
       {children}
     </thead>
   );
 }
 
 export function TBody({ children }) {
-  return <tbody className="divide-y divide-slate-100">{children}</tbody>;
+  return <tbody className="divide-y divide-border-subtle">{children}</tbody>;
 }
 
 export function TH({ className, children, ...props }) {
   return (
     <th
       className={clsx(
-        'px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500',
+        'px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted',
         className
       )}
       {...props}
@@ -77,7 +77,7 @@ export function TH({ className, children, ...props }) {
 
 export function TD({ className, children, ...props }) {
   return (
-    <td className={clsx('px-4 py-3 align-top text-slate-800', className)} {...props}>
+    <td className={clsx('px-4 py-3 align-top text-text-strong', className)} {...props}>
       {children}
     </td>
   );

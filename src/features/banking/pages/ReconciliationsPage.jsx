@@ -142,14 +142,14 @@ export default function ReconciliationsPage() {
             }}
             options={periodOptions}
           />
-          <div className="text-xs text-slate-500 md:self-end">
+          <div className="text-xs text-text-muted md:self-end">
             Run/close/unlock uses idempotency keys.
           </div>
         </div>
 
         <div className="mt-4">
           {recsQuery.isLoading ? (
-            <div className="text-sm text-slate-700">Loading...</div>
+            <div className="text-sm text-text-body">Loading...</div>
           ) : recsQuery.isError ? (
             <div className="text-sm text-red-700">{recsQuery.error?.message ?? 'Failed to load reconciliations.'}</div>
           ) : (
@@ -164,7 +164,7 @@ export default function ReconciliationsPage() {
                       return a ? (
                         <div>
                           <div className="text-sm font-medium">{a.code}</div>
-                          <div className="text-xs text-slate-500">{a.name}</div>
+                          <div className="text-xs text-text-muted">{a.name}</div>
                         </div>
                       ) : (
                         <span className="font-mono text-xs">{String(r.bank_account_id ?? '—')}</span>
@@ -260,7 +260,7 @@ export default function ReconciliationsPage() {
               periods.map((p) => ({ value: String(p.id), label: `${p.code ?? p.period_code ?? ''} — ${p.name ?? p.period_name ?? ''}`.trim() }))
             )}
           />
-          <div className="md:col-span-2 text-xs text-slate-500">
+          <div className="md:col-span-2 text-xs text-text-muted">
             Backend will compute ledger and statement balances and return a reconciliation row.
           </div>
         </div>

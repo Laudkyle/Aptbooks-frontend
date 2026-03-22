@@ -575,7 +575,7 @@ const ManagementReports = lazy(() =>
 );
 
 function Loader() {
-  return <div className="p-4 text-sm text-slate-600">Loading…</div>;
+  return <div className="p-4 text-sm text-text-muted">Loading…</div>;
 }
 
 function Lazy({ children }) {

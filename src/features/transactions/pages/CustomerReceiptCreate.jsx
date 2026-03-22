@@ -138,10 +138,10 @@ export default function CustomerReceiptCreate() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <HandCoins className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New Customer Receipt</h1>
+                <HandCoins className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">Create New Customer Receipt</h1>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Record a payment received from a customer
               </p>
             </div>
@@ -149,7 +149,7 @@ export default function CustomerReceiptCreate() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-gray-300"
+                className="border-border-subtle"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
@@ -169,66 +169,66 @@ export default function CustomerReceiptCreate() {
           {/* Left Sidebar - Summary */}
           <div className="lg:col-span-1 space-y-6">
             {/* Summary Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Receipt Summary</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-sm font-semibold text-text-strong mb-4">Receipt Summary</h3>
               
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <User className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <User className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Customer</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                    <div className="text-xs text-text-muted">Customer</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
                       {selectedCustomer ? (
                         <div>
                           <div>{selectedCustomer.name || selectedCustomer.businessName || 'Unknown'}</div>
                           {selectedCustomer.email && (
-                            <div className="text-xs text-gray-500 mt-0.5">{selectedCustomer.email}</div>
+                            <div className="text-xs text-text-muted mt-0.5">{selectedCustomer.email}</div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-gray-400">Not selected</span>
+                        <span className="text-text-soft">Not selected</span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Receipt Date</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {payload.receiptDate || <span className="text-gray-400">Not set</span>}
+                    <div className="text-xs text-text-muted">Receipt Date</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
+                      {payload.receiptDate || <span className="text-text-soft">Not set</span>}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <FileText className="h-4 w-4 text-text-soft mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500">Allocations</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                    <div className="text-xs text-text-muted">Allocations</div>
+                    <div className="text-sm font-medium text-text-strong mt-0.5">
                       {payload.allocations.length}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-gray-200 space-y-2">
+                <div className="pt-3 border-t border-border-subtle space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-600">Total Amount</span>
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-xs text-text-muted">Total Amount</span>
+                    <span className="text-sm font-bold text-text-strong">
                       ${(payload.amountTotal || 0).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-600">Allocated</span>
+                    <span className="text-xs text-text-muted">Allocated</span>
                     <span className="text-sm font-semibold text-blue-700">
                       ${allocatedTotal.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <div className="flex items-center justify-between pt-2 border-t border-border-subtle">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-green-600" />
-                      <span className="text-xs font-semibold text-gray-700">Unallocated</span>
+                      <span className="text-xs font-semibold text-text-body">Unallocated</span>
                     </div>
                     <span className={`text-sm font-bold ${unallocated < 0 ? 'text-red-600' : 'text-green-600'}`}>
                       ${unallocated.toFixed(2)}
@@ -250,21 +250,21 @@ export default function CustomerReceiptCreate() {
           {/* Main Content - Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Information */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Receipt Information</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-base font-semibold text-text-strong mb-5">Receipt Information</h3>
               
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Customer <span className="text-red-500">*</span>
                   </label>
                   {partnersQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading customers...</div>
+                    <div className="text-sm text-text-muted">Loading customers...</div>
                   ) : (
                     <select
                       value={payload.customerId}
                       onChange={(e) => updateField('customerId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select a customer</option>
                       {customers.map((customer) => (
@@ -277,7 +277,7 @@ export default function CustomerReceiptCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Receipt Date <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -288,16 +288,16 @@ export default function CustomerReceiptCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Cash Account <span className="text-red-500">*</span>
                   </label>
                   {coaQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading accounts...</div>
+                    <div className="text-sm text-text-muted">Loading accounts...</div>
                   ) : (
                     <select
                       value={payload.cashAccountId}
                       onChange={(e) => updateField('cashAccountId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select cash/bank account</option>
                       {cashAccounts.map((account) => (
@@ -307,20 +307,20 @@ export default function CustomerReceiptCreate() {
                       ))}
                     </select>
                   )}
-                  <p className="text-xs text-gray-500 mt-1.5">Account where payment was deposited</p>
+                  <p className="text-xs text-text-muted mt-1.5">Account where payment was deposited</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Payment Method
                   </label>
                   {paymentMethodsQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading payment methods...</div>
+                    <div className="text-sm text-text-muted">Loading payment methods...</div>
                   ) : (
                     <select
                       value={payload.paymentMethodId}
                       onChange={(e) => updateField('paymentMethodId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select method (optional)</option>
                       {paymentMethods.map((method) => (
@@ -333,11 +333,11 @@ export default function CustomerReceiptCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Total Amount <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
                     <Input
                       type="number"
                       min="0"
@@ -350,7 +350,7 @@ export default function CustomerReceiptCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-text-body mb-2">
                     Memo
                   </label>
                   <Input
@@ -363,11 +363,11 @@ export default function CustomerReceiptCreate() {
             </div>
 
             {/* Allocations */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
-                  <p className="text-xs text-gray-500 mt-1">Optional: Allocate this payment to specific invoices</p>
+                  <h3 className="text-base font-semibold text-text-strong">Invoice Allocations</h3>
+                  <p className="text-xs text-text-muted mt-1">Optional: Allocate this payment to specific invoices</p>
                 </div>
                 <Button
                   variant="outline"
@@ -388,17 +388,17 @@ export default function CustomerReceiptCreate() {
               )}
 
               {payload.customerId && payload.allocations.length === 0 && (
-                <div className=" rounded-lg border border-gray-200 p-8 text-center">
-                  <p className="text-sm text-gray-600">No allocations yet. Click "Add Allocation" to assign this payment to invoices.</p>
+                <div className=" rounded-lg border border-border-subtle p-8 text-center">
+                  <p className="text-sm text-text-muted">No allocations yet. Click "Add Allocation" to assign this payment to invoices.</p>
                 </div>
               )}
 
               {payload.allocations.length > 0 && (
                 <div className="space-y-4">
                   {payload.allocations.map((allocation, index) => (
-                    <div key={index} className=" rounded-lg border border-gray-200 p-4">
+                    <div key={index} className=" rounded-lg border border-border-subtle p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-semibold text-gray-700">Allocation #{index + 1}</span>
+                        <span className="text-sm font-semibold text-text-body">Allocation #{index + 1}</span>
                         <button
                           onClick={() => removeAllocation(index)}
                           className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
@@ -409,16 +409,16 @@ export default function CustomerReceiptCreate() {
 
                       <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Invoice <span className="text-red-500">*</span>
                           </label>
                           {invoicesQuery.isLoading ? (
-                            <div className="text-xs text-gray-500 py-2">Loading invoices...</div>
+                            <div className="text-xs text-text-muted py-2">Loading invoices...</div>
                           ) : (
                             <select
                               value={allocation.invoiceId}
                               onChange={(e) => updateAllocation(index, 'invoiceId', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                              className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                             >
                               <option value="">Select invoice</option>
                               {customerInvoices.map((invoice) => (
@@ -432,11 +432,11 @@ export default function CustomerReceiptCreate() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                          <label className="block text-xs font-medium text-text-body mb-1.5">
                             Amount <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
                             <Input
                               type="number"
                               min="0"

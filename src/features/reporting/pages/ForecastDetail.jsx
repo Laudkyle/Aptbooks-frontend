@@ -933,15 +933,15 @@ export default function ForecastDetail() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleVersionExpand(row.id)}
-            className="p-1 hover:bg-slate-100 rounded"
+            className="p-1 hover:bg-surface-2 rounded"
           >
             {expandedVersions.has(row.id) ? (
-              <ChevronDown className="h-4 w-4 text-slate-400" />
+              <ChevronDown className="h-4 w-4 text-text-soft" />
             ) : (
-              <ChevronRight className="h-4 w-4 text-slate-400" />
+              <ChevronRight className="h-4 w-4 text-text-soft" />
             )}
           </button>
-          <GitBranch className="h-4 w-4 text-slate-400" />
+          <GitBranch className="h-4 w-4 text-text-soft" />
           <span className="font-medium">
             v{row.version_no || row.versionNo}
           </span>
@@ -1087,7 +1087,7 @@ export default function ForecastDetail() {
       accessor: "code",
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-slate-400" />
+          <Tag className="h-4 w-4 text-text-soft" />
           <span className="font-mono font-medium">{row.code}</span>
           {row.is_default && (
             <Badge tone="brand" size="sm">
@@ -1197,7 +1197,7 @@ export default function ForecastDetail() {
             <span className="font-medium">
               {account.name || account.accountName}
             </span>
-            <span className="text-xs text-slate-500">{account.code}</span>
+            <span className="text-xs text-text-muted">{account.code}</span>
           </div>
         ) : (
           row.accountId || row.account_id
@@ -1246,7 +1246,7 @@ export default function ForecastDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-slate-500">Loading forecast details...</div>
+            <div className="text-text-muted">Loading forecast details...</div>
           </div>
         </ContentCard>
       </div>
@@ -1272,10 +1272,10 @@ export default function ForecastDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-lg font-medium text-slate-900">
+            <div className="text-lg font-medium text-text-strong">
               Failed to load forecast
             </div>
-            <div className="text-slate-500">{forecastError.message}</div>
+            <div className="text-text-muted">{forecastError.message}</div>
             <Button onClick={() => refetchForecast()}>Retry</Button>
           </div>
         </ContentCard>
@@ -1300,7 +1300,7 @@ export default function ForecastDetail() {
           }
         />
         <ContentCard>
-          <div className="py-12 text-center text-slate-500">
+          <div className="py-12 text-center text-text-muted">
             The requested forecast could not be found.
           </div>
         </ContentCard>
@@ -1381,24 +1381,24 @@ export default function ForecastDetail() {
           <div className="lg:col-span-1 space-y-6">
             {/* Forecast Info */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-text-strong mb-4">
                 Forecast Information
               </h3>
               <div className="space-y-3">
                 <div>
-                  <div className="text-xs text-slate-500">Name</div>
+                  <div className="text-xs text-text-muted">Name</div>
                   <div className="text-sm font-medium">
                     {forecast.name || "—"}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-500">Currency</div>
+                  <div className="text-xs text-text-muted">Currency</div>
                   <div className="text-sm font-medium">
                     {forecast.currency_code || "USD"}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-500">Status</div>
+                  <div className="text-xs text-text-muted">Status</div>
                   <Badge
                     tone={forecast.status === "active" ? "success" : "muted"}
                     size="sm"
@@ -1407,7 +1407,7 @@ export default function ForecastDetail() {
                   </Badge>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-500">Created</div>
+                  <div className="text-xs text-text-muted">Created</div>
                   <div className="text-sm">
                     {formatDate(forecast.created_at)}
                   </div>
@@ -1417,16 +1417,16 @@ export default function ForecastDetail() {
 
             {/* Quick Stats */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <h3 className="text-sm font-semibold text-text-strong mb-4">
                 Statistics
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Versions</span>
+                  <span className="text-sm text-text-muted">Total Versions</span>
                   <Badge tone="brand">{versions.length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Lines</span>
+                  <span className="text-sm text-text-muted">Total Lines</span>
                   <Badge tone="info">
                     {versions.reduce(
                       (sum, v) => sum + (v.lines?.length || 0),
@@ -1435,7 +1435,7 @@ export default function ForecastDetail() {
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Draft Versions</span>
+                  <span className="text-sm text-text-muted">Draft Versions</span>
                   <Badge tone="muted">
                     {
                       versions.filter(
@@ -1446,7 +1446,7 @@ export default function ForecastDetail() {
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">In Review</span>
+                  <span className="text-sm text-text-muted">In Review</span>
                   <Badge tone="info">
                     {
                       versions.filter(
@@ -1456,7 +1456,7 @@ export default function ForecastDetail() {
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Approved</span>
+                  <span className="text-sm text-text-muted">Approved</span>
                   <Badge tone="success">
                     {
                       versions.filter((v) => v.workflow_status === "approved")
@@ -1465,7 +1465,7 @@ export default function ForecastDetail() {
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Finalized</span>
+                  <span className="text-sm text-text-muted">Finalized</span>
                   <Badge tone="success">
                     {versions.filter((v) => v.status === "finalized").length}
                   </Badge>
@@ -1476,7 +1476,7 @@ export default function ForecastDetail() {
             {/* Scenarios Summary */}
             <ContentCard>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-text-strong">
                   Scenarios
                 </h3>
                 <Button
@@ -1496,7 +1496,7 @@ export default function ForecastDetail() {
                 {scenarios.slice(0, 3).map((scenario) => (
                   <div key={scenario.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Tag className="h-3 w-3 text-slate-400" />
+                      <Tag className="h-3 w-3 text-text-soft" />
                       <span className="text-sm">{scenario.name}</span>
                       {scenario.is_default && (
                         <Star className="h-3 w-3 text-amber-400" />
@@ -1520,10 +1520,10 @@ export default function ForecastDetail() {
 
             {/* Help */}
             <ContentCard>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
+              <h3 className="text-sm font-semibold text-text-strong mb-3">
                 Quick Tips
               </h3>
-              <div className="space-y-2 text-xs text-slate-600">
+              <div className="space-y-2 text-xs text-text-muted">
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
                   <span>Create scenarios like Base, Optimistic, Pessimistic</span>
@@ -1549,10 +1549,10 @@ export default function ForecastDetail() {
             <ContentCard>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-base font-semibold text-slate-900">
+                  <h3 className="text-base font-semibold text-text-strong">
                     Forecast Versions
                   </h3>
-                  <p className="text-sm text-slate-500 mt-1">
+                  <p className="text-sm text-text-muted mt-1">
                     {versions.length} version{versions.length !== 1 ? "s" : ""}{" "}
                     • Click to expand and view lines
                   </p>
@@ -1587,11 +1587,11 @@ export default function ForecastDetail() {
 
               {versions.length === 0 ? (
                 <div className="py-12 text-center">
-                  <Layers className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                  <h3 className="text-sm font-medium text-slate-900 mb-1">
+                  <Layers className="h-12 w-12 text-text-soft mx-auto mb-3" />
+                  <h3 className="text-sm font-medium text-text-strong mb-1">
                     No versions yet
                   </h3>
-                  <p className="text-sm text-slate-500 mb-4">
+                  <p className="text-sm text-text-muted mb-4">
                     Create your first version to start building the forecast
                   </p>
                   <Button
@@ -1622,13 +1622,13 @@ export default function ForecastDetail() {
                         className={`border rounded-lg overflow-hidden ${
                           isSelected
                             ? "border-blue-300 ring-1 ring-blue-200"
-                            : "border-slate-200"
+                            : "border-border-subtle"
                         }`}
                       >
                         {/* Version Header */}
                         <div
                           className={`flex items-center justify-between p-4 cursor-pointer ${
-                            isSelected ? "bg-blue-50/50" : "hover:bg-slate-50"
+                            isSelected ? "bg-blue-50/50" : "hover:bg-surface-2"
                           }`}
                           onClick={() => {
                             setSelectedVersionId(version.id);
@@ -1646,24 +1646,24 @@ export default function ForecastDetail() {
                               className="p-1 hover:bg-slate-200 rounded"
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-slate-500" />
+                                <ChevronDown className="h-4 w-4 text-text-muted" />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-slate-500" />
+                                <ChevronRight className="h-4 w-4 text-text-muted" />
                               )}
                             </button>
                             <GitBranch
-                              className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-slate-400"}`}
+                              className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-text-soft"}`}
                             />
                             <div>
                               <div className="flex items-center gap-2">
                                 <span
-                                  className={`font-semibold ${isSelected ? "text-blue-900" : "text-slate-900"}`}
+                                  className={`font-semibold ${isSelected ? "text-blue-900" : "text-text-strong"}`}
                                 >
                                   Version{" "}
                                   {version.version_no || version.versionNo}
                                 </span>
                                 {version.name && (
-                                  <span className="text-sm text-slate-600">
+                                  <span className="text-sm text-text-muted">
                                     • {version.name}
                                   </span>
                                 )}
@@ -1673,7 +1673,7 @@ export default function ForecastDetail() {
                                   </Badge>
                                 )}
                               </div>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                              <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
                                 <Badge tone={badge.tone} size="sm">
                                   {badge.label}
                                 </Badge>
@@ -1694,7 +1694,7 @@ export default function ForecastDetail() {
 
                               {/* Workflow metadata */}
                               {version.submitted_at && (
-                                <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                                <div className="flex items-center gap-2 mt-1 text-xs text-text-soft">
                                   <Clock className="h-3 w-3" />
                                   <span>
                                     Submitted{" "}
@@ -1847,10 +1847,10 @@ export default function ForecastDetail() {
 
                         {/* Expanded Lines */}
                         {isExpanded && (
-                          <div className="border-t border-slate-200 bg-slate-50/50 p-4">
+                          <div className="border-t border-border-subtle bg-surface-2 p-4">
                             {versionLines.length === 0 ? (
                               <div className="text-center py-6">
-                                <p className="text-sm text-slate-500 mb-3">
+                                <p className="text-sm text-text-muted mb-3">
                                   No forecast lines in this version
                                 </p>
                                 {actions.canAddLines && (
@@ -1880,7 +1880,7 @@ export default function ForecastDetail() {
                             ) : (
                               <div>
                                 <div className="flex items-center justify-between mb-3">
-                                  <h4 className="text-sm font-medium text-slate-700">
+                                  <h4 className="text-sm font-medium text-text-body">
                                     Forecast Lines
                                   </h4>
                                   <div className="flex items-center gap-2">
@@ -1915,9 +1915,9 @@ export default function ForecastDetail() {
 
                                 {/* Filters */}
                                 {showFilters && (
-                                  <div className="mb-4 p-3 bg-white rounded-lg border border-slate-200">
+                                  <div className="mb-4 p-3 bg-surface-1 rounded-lg border border-border-subtle">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-xs font-medium text-slate-700">
+                                      <span className="text-xs font-medium text-text-body">
                                         Filters
                                       </span>
                                       <button
@@ -2080,24 +2080,24 @@ export default function ForecastDetail() {
                                         return (
                                           <div
                                             key={idx}
-                                            className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+                                            className="bg-surface-1 border border-border-subtle rounded-lg p-3 hover:shadow-sm transition-shadow"
                                           >
                                             <div className="flex items-start justify-between mb-2">
                                               <Badge tone="info" size="sm">
                                                 {account?.code || "—"}
                                               </Badge>
-                                              <span className="text-xs text-slate-500">
+                                              <span className="text-xs text-text-muted">
                                                 {period?.name ||
                                                   period?.code ||
                                                   "—"}
                                               </span>
                                             </div>
-                                            <div className="font-medium text-sm text-slate-900 mb-1">
+                                            <div className="font-medium text-sm text-text-strong mb-1">
                                               {account?.name ||
                                                 account?.accountName ||
                                                 "—"}
                                             </div>
-                                            <div className="text-base font-semibold text-slate-900">
+                                            <div className="text-base font-semibold text-text-strong">
                                               {formatCurrency(line.amount)}
                                             </div>
                                           </div>
@@ -2209,46 +2209,46 @@ export default function ForecastDetail() {
 
             {/* Comparison Results */}
             {compareResults && (
-              <div className="mt-6 border-t border-slate-200 pt-6">
-                <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              <div className="mt-6 border-t border-border-subtle pt-6">
+                <h3 className="text-sm font-semibold text-text-strong mb-4">
                   Comparison Results
                 </h3>
 
                 {/* Summary Cards */}
                 <div className="grid gap-4 md:grid-cols-4 mb-6">
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">
+                  <div className="bg-surface-2 rounded-lg p-4">
+                    <div className="text-xs text-text-muted mb-1">
                       Base Version
                     </div>
-                    <div className="text-sm font-medium text-slate-900">
+                    <div className="text-sm font-medium text-text-strong">
                       {versions.find(
                         (v) => v.id === compareResults.baseVersionId,
                       )?.version_no || "N/A"}
                     </div>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">
+                  <div className="bg-surface-2 rounded-lg p-4">
+                    <div className="text-xs text-text-muted mb-1">
                       Compare Version
                     </div>
-                    <div className="text-sm font-medium text-slate-900">
+                    <div className="text-sm font-medium text-text-strong">
                       {versions.find(
                         (v) => v.id === compareResults.compareVersionId,
                       )?.version_no || "N/A"}
                     </div>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">Period</div>
-                    <div className="text-sm font-medium text-slate-900">
+                  <div className="bg-surface-2 rounded-lg p-4">
+                    <div className="text-xs text-text-muted mb-1">Period</div>
+                    <div className="text-sm font-medium text-text-strong">
                       {periodsMap.get(compareResults.periodId)?.name ||
                         compareResults.periodId ||
                         "All Periods"}
                     </div>
                   </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="text-xs text-slate-500 mb-1">
+                  <div className="bg-surface-2 rounded-lg p-4">
+                    <div className="text-xs text-text-muted mb-1">
                       Total Accounts
                     </div>
-                    <div className="text-sm font-medium text-slate-900">
+                    <div className="text-sm font-medium text-text-strong">
                       {compareResults.lines?.length || 0}
                     </div>
                   </div>
@@ -2258,11 +2258,11 @@ export default function ForecastDetail() {
                 {compareResults.lines && compareResults.lines.length > 0 && (
                   <>
                     <div className="grid gap-4 md:grid-cols-3 mb-6">
-                      <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-xs text-slate-500 mb-1">
+                      <div className="bg-surface-2 rounded-lg p-4">
+                        <div className="text-xs text-text-muted mb-1">
                           Total Base Amount
                         </div>
-                        <div className="text-lg font-semibold text-slate-900">
+                        <div className="text-lg font-semibold text-text-strong">
                           {formatCurrency(
                             compareResults.lines.reduce(
                               (sum, line) =>
@@ -2272,11 +2272,11 @@ export default function ForecastDetail() {
                           )}
                         </div>
                       </div>
-                      <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-xs text-slate-500 mb-1">
+                      <div className="bg-surface-2 rounded-lg p-4">
+                        <div className="text-xs text-text-muted mb-1">
                           Total Compare Amount
                         </div>
-                        <div className="text-lg font-semibold text-slate-900">
+                        <div className="text-lg font-semibold text-text-strong">
                           {formatCurrency(
                             compareResults.lines.reduce(
                               (sum, line) =>
@@ -2286,8 +2286,8 @@ export default function ForecastDetail() {
                           )}
                         </div>
                       </div>
-                      <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="text-xs text-slate-500 mb-1">
+                      <div className="bg-surface-2 rounded-lg p-4">
+                        <div className="text-xs text-text-muted mb-1">
                           Net Variance
                         </div>
                         <div
@@ -2366,7 +2366,7 @@ export default function ForecastDetail() {
                                     ? "text-green-600"
                                     : delta < 0
                                       ? "text-red-600"
-                                      : "text-slate-900"
+                                      : "text-text-strong"
                                 }`}
                               >
                                 {formatCurrency(delta)}
@@ -2396,7 +2396,7 @@ export default function ForecastDetail() {
                                     ? "text-green-600"
                                     : percent < 0
                                       ? "text-red-600"
-                                      : "text-slate-900"
+                                      : "text-text-strong"
                                 }`}
                               >
                                 {percent > 0 ? "+" : ""}
@@ -2415,9 +2415,9 @@ export default function ForecastDetail() {
                     />
 
                     {/* Summary Row */}
-                    <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="mt-4 p-3 bg-surface-2 rounded-lg border border-border-subtle">
                       <div className="flex justify-between items-center text-sm">
-                        <span className="font-medium text-slate-700">
+                        <span className="font-medium text-text-body">
                           Total Variance:
                         </span>
                         <span
@@ -2482,13 +2482,13 @@ export default function ForecastDetail() {
 
             {scenariosLoading ? (
               <div className="text-center py-12">
-                <div className="text-slate-500">Loading scenarios...</div>
+                <div className="text-text-muted">Loading scenarios...</div>
               </div>
             ) : scenarios.length === 0 ? (
               <div className="text-center py-12">
-                <Target className="h-12 w-12 text-slate-400 mx-auto mb-3" />
-                <p className="text-sm text-slate-500">No scenarios defined yet</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <Target className="h-12 w-12 text-text-soft mx-auto mb-3" />
+                <p className="text-sm text-text-muted">No scenarios defined yet</p>
+                <p className="text-xs text-text-soft mt-1">
                   Create your first scenario to start scenario planning
                 </p>
               </div>
@@ -2525,11 +2525,11 @@ export default function ForecastDetail() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">
+              <div className="bg-surface-2 rounded-lg p-4">
+                <div className="text-xs text-text-muted mb-1">
                   Total Forecast Value
                 </div>
-                <div className="text-xl font-semibold text-slate-900">
+                <div className="text-xl font-semibold text-text-strong">
                   {formatCurrency(
                     versions.reduce((sum, v) => {
                       if (
@@ -2548,20 +2548,20 @@ export default function ForecastDetail() {
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">
+              <div className="bg-surface-2 rounded-lg p-4">
+                <div className="text-xs text-text-muted mb-1">
                   Total Scenarios
                 </div>
-                <div className="text-xl font-semibold text-slate-900">
+                <div className="text-xl font-semibold text-text-strong">
                   {scenarios.length}
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">
+              <div className="bg-surface-2 rounded-lg p-4">
+                <div className="text-xs text-text-muted mb-1">
                   Weighted Forecast
                 </div>
-                <div className="text-xl font-semibold text-slate-900">
+                <div className="text-xl font-semibold text-text-strong">
                   {formatCurrency(
                     versions.reduce((sum, v) => {
                       const weight = v.probability_weight || 0;
@@ -2573,9 +2573,9 @@ export default function ForecastDetail() {
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-1">Approval Rate</div>
-                <div className="text-xl font-semibold text-slate-900">
+              <div className="bg-surface-2 rounded-lg p-4">
+                <div className="text-xs text-text-muted mb-1">Approval Rate</div>
+                <div className="text-xl font-semibold text-text-strong">
                   {versions.length > 0
                     ? Math.round(
                         (versions.filter(
@@ -2592,15 +2592,15 @@ export default function ForecastDetail() {
 
             <div className="grid gap-6 md:grid-cols-2">
               {/* Version Distribution */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
+              <div className="border border-border-subtle rounded-lg p-4">
+                <h4 className="text-sm font-medium text-text-strong mb-3">
                   Version Distribution
                 </h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-20 text-sm text-slate-600">Draft:</div>
+                    <div className="w-20 text-sm text-text-muted">Draft:</div>
                     <div className="flex-1">
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-slate-400 rounded-full"
                           style={{
@@ -2617,9 +2617,9 @@ export default function ForecastDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-20 text-sm text-slate-600">In Review:</div>
+                    <div className="w-20 text-sm text-text-muted">In Review:</div>
                     <div className="flex-1">
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-400 rounded-full"
                           style={{
@@ -2636,9 +2636,9 @@ export default function ForecastDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-20 text-sm text-slate-600">Approved:</div>
+                    <div className="w-20 text-sm text-text-muted">Approved:</div>
                     <div className="flex-1">
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-green-400 rounded-full"
                           style={{
@@ -2658,19 +2658,19 @@ export default function ForecastDetail() {
               </div>
 
               {/* Scenario Distribution */}
-              <div className="border border-slate-200 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
+              <div className="border border-border-subtle rounded-lg p-4">
+                <h4 className="text-sm font-medium text-text-strong mb-3">
                   Scenario Usage
                 </h4>
                 <div className="space-y-2">
                   {scenariosStats && scenariosStats.length > 0 ? (
                     scenariosStats.slice(0, 5).map((scenario) => (
                       <div key={scenario.id} className="flex items-center gap-2">
-                        <div className="w-24 text-sm text-slate-600 truncate">
+                        <div className="w-24 text-sm text-text-muted truncate">
                           {scenario.name}:
                         </div>
                         <div className="flex-1">
-                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 scenario.is_default ? "bg-amber-400" : "bg-purple-400"
@@ -2687,7 +2687,7 @@ export default function ForecastDetail() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-500 text-center py-4">
+                    <p className="text-sm text-text-muted text-center py-4">
                       No scenarios with versions yet
                     </p>
                   )}
@@ -2753,11 +2753,11 @@ export default function ForecastDetail() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Description
             </label>
             <textarea
-              className="w-full h-24 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full h-24 px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               value={scenarioForm.description}
               onChange={(e) =>
                 setScenarioForm((f) => ({ ...f, description: e.target.value }))
@@ -2775,9 +2775,9 @@ export default function ForecastDetail() {
                 onChange={(e) =>
                   setScenarioForm((f) => ({ ...f, isDefault: e.target.checked }))
                 }
-                className="h-4 w-4 text-purple-600 rounded border-slate-300"
+                className="h-4 w-4 text-purple-600 rounded border-border-subtle"
               />
-              <label htmlFor="isDefault" className="text-sm text-slate-700">
+              <label htmlFor="isDefault" className="text-sm text-text-body">
                 Set as default scenario
               </label>
             </div>
@@ -2790,9 +2790,9 @@ export default function ForecastDetail() {
                 onChange={(e) =>
                   setScenarioForm((f) => ({ ...f, isActive: e.target.checked }))
                 }
-                className="h-4 w-4 text-purple-600 rounded border-slate-300"
+                className="h-4 w-4 text-purple-600 rounded border-border-subtle"
               />
-              <label htmlFor="isActive" className="text-sm text-slate-700">
+              <label htmlFor="isActive" className="text-sm text-text-body">
                 Active (available for use)
               </label>
             </div>
@@ -2892,13 +2892,13 @@ export default function ForecastDetail() {
               id="forceDelete"
               checked={forceDelete}
               onChange={(e) => setForceDelete(e.target.checked)}
-              className="h-4 w-4 text-red-600 rounded border-slate-300"
+              className="h-4 w-4 text-red-600 rounded border-border-subtle"
             />
-            <label htmlFor="forceDelete" className="text-sm text-slate-700">
+            <label htmlFor="forceDelete" className="text-sm text-text-body">
               Force delete (bypass soft delete)
             </label>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-muted">
             Force delete will permanently remove the scenario from the database.
             Only use if you're sure you want to completely remove it.
           </p>
@@ -3156,7 +3156,7 @@ export default function ForecastDetail() {
             )}
 
           {/* Version Metadata */}
-          <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
+          <div className="bg-surface-2 rounded-lg p-3 text-xs text-text-muted">
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="font-medium">Created:</span>{" "}
@@ -3372,10 +3372,10 @@ export default function ForecastDetail() {
               {addLinesForm.lines.map((line, index) => (
                 <div
                   key={index}
-                  className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                  className="bg-surface-2 rounded-lg p-4 border border-border-subtle"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-text-body">
                       Line {index + 1}
                     </span>
                     {addLinesForm.lines.length > 1 && (
@@ -3555,11 +3555,11 @@ export default function ForecastDetail() {
 
           {csvForm.versionId && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 CSV Data
               </label>
               <textarea
-                className="w-full h-48 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-48 px-3 py-2 border border-border-subtle rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={csvForm.data}
                 onChange={(e) =>
                   setCsvForm((f) => ({ ...f, data: e.target.value }))
@@ -3619,11 +3619,11 @@ export default function ForecastDetail() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-text-body mb-2">
               Rejection Reason <span className="text-red-500">*</span>
             </label>
             <textarea
-              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-32 px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Please provide a reason for rejection..."

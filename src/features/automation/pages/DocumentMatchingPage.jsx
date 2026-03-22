@@ -26,7 +26,7 @@ export default function DocumentMatchingPage() {
 
   const columns = [
     { header: 'Type', render: (m) => m.match_type ?? m.matchType ?? '—' },
-    { header: 'Source', render: (m) => <span className="font-medium text-slate-900">{m.source_code ?? m.sourceCode ?? m.source_id ?? '—'}</span> },
+    { header: 'Source', render: (m) => <span className="font-medium text-text-strong">{m.source_code ?? m.sourceCode ?? m.source_id ?? '—'}</span> },
     { header: 'Target', render: (m) => m.target_code ?? m.targetCode ?? m.target_id ?? '—' },
     { header: 'Score', render: (m) => m.score ?? '—' },
     { header: 'Status', render: (m) => <Badge tone={m.status === 'matched' ? 'success' : 'warning'}>{m.status ?? 'suggested'}</Badge> }
@@ -36,7 +36,7 @@ export default function DocumentMatchingPage() {
     <div className="space-y-4">
       <PageHeader title="Intelligent Document Matching" subtitle="Review document-to-settlement suggestions and trigger matching cycles when fresh data arrives." actions={<Button onClick={()=>run.mutate(params)}>Run matching</Button>} />
       <ContentCard>
-        <FilterBar left={<div className="grid gap-3 md:grid-cols-3"><Select label="Document type" value={params.documentType} onChange={(e)=>setParams((s)=>({...s, documentType:e.target.value}))} options={[{value:'',label:'All document types'},{value:'invoice_receipt',label:'Invoices ↔ Receipts'},{value:'bill_payment',label:'Bills ↔ Vendor Payments'}]} /><Input label="Minimum score" type="number" step="0.01" value={params.minScore} onChange={(e)=>setParams((s)=>({...s, minScore:e.target.value}))} /><div className="flex items-end"><Button variant="outline" leftIcon={RefreshCw} onClick={()=>matchesQ.refetch()}>Refresh results</Button></div></div>} right={<div className="text-xs text-slate-500">{rows.length} suggestions</div>} />
+        <FilterBar left={<div className="grid gap-3 md:grid-cols-3"><Select label="Document type" value={params.documentType} onChange={(e)=>setParams((s)=>({...s, documentType:e.target.value}))} options={[{value:'',label:'All document types'},{value:'invoice_receipt',label:'Invoices ↔ Receipts'},{value:'bill_payment',label:'Bills ↔ Vendor Payments'}]} /><Input label="Minimum score" type="number" step="0.01" value={params.minScore} onChange={(e)=>setParams((s)=>({...s, minScore:e.target.value}))} /><div className="flex items-end"><Button variant="outline" leftIcon={RefreshCw} onClick={()=>matchesQ.refetch()}>Refresh results</Button></div></div>} right={<div className="text-xs text-text-muted">{rows.length} suggestions</div>} />
       </ContentCard>
       <ContentCard>
         <DataTable columns={columns} rows={rows} isLoading={matchesQ.isLoading} empty={{ title: 'No matching suggestions', description: 'Run a match cycle or lower your minimum score threshold.' }} />

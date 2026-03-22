@@ -30,7 +30,7 @@ export default function TestConsole() {
 
       <ContentCard title="Available tests">
         {listQ.isLoading ? (
-          <div className="text-sm text-slate-700">Loading...</div>
+          <div className="text-sm text-text-body">Loading...</div>
         ) : listQ.isError ? (
           <div className="text-sm text-red-700">{listQ.error?.message ?? 'Failed to load test list.'}</div>
         ) : (
@@ -38,13 +38,13 @@ export default function TestConsole() {
             {files.map((f) => (
               <button
                 key={f}
-                className={`rounded-md border px-3 py-2 text-sm ${testFile === f ? 'border-brand-primary bg-brand-primary text-white' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}`}
+                className={`rounded-md border px-3 py-2 text-sm ${testFile === f ? 'border-brand-primary bg-brand-primary text-white' : 'border-border-subtle bg-surface-1 text-text-body hover:bg-surface-2'}`}
                 onClick={() => setTestFile(f)}
               >
                 {f}
               </button>
             ))}
-            {files.length === 0 ? <div className="text-sm text-slate-500">No files.</div> : null}
+            {files.length === 0 ? <div className="text-sm text-text-muted">No files.</div> : null}
           </div>
         )}
       </ContentCard>
@@ -54,18 +54,18 @@ export default function TestConsole() {
           <Input label="testFile (optional)" value={testFile} onChange={(e) => setTestFile(e.target.value)} placeholder="" />
           <Input label="pattern (optional)" value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="" />
         </div>
-        <div className="mt-2 text-xs text-slate-600">Idempotency-Key header is enforced by backend;client sends one automatically.</div>
+        <div className="mt-2 text-xs text-text-muted">Idempotency-Key header is enforced by backend;client sends one automatically.</div>
       </ContentCard>
 
       <ContentCard title="Output">
         {run.isIdle ? (
-          <div className="text-sm text-slate-700">Run a test to see output.</div>
+          <div className="text-sm text-text-body">Run a test to see output.</div>
         ) : run.isLoading ? (
-          <div className="text-sm text-slate-700">Running...</div>
+          <div className="text-sm text-text-body">Running...</div>
         ) : run.isError ? (
           <div className="text-sm text-red-700">{run.error?.message ?? 'Run failed.'}</div>
         ) : (
-          <pre className="max-h-[32rem] overflow-auto rounded bg-slate-50 p-3 text-xs">{JSON.stringify(run.data, null, 2)}</pre>
+          <pre className="max-h-[32rem] overflow-auto rounded bg-surface-2 p-3 text-xs">{JSON.stringify(run.data, null, 2)}</pre>
         )}
       </ContentCard>
     </div>

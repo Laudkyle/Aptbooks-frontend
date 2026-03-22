@@ -112,20 +112,20 @@ export default function ReportArAging() {
           const value = row[key];
           if (isCurrency && isNumeric) {
             return (
-              <span className="text-sm font-medium text-slate-900 tabular-nums">
+              <span className="text-sm font-medium text-text-strong tabular-nums">
                 {formatCurrency(value)}
               </span>
             );
           }
           if (isNumeric) {
             return (
-              <span className="text-sm text-slate-900 tabular-nums">
+              <span className="text-sm text-text-strong tabular-nums">
                 {value}
               </span>
             );
           }
           return (
-            <span className="text-sm text-slate-900">
+            <span className="text-sm text-text-strong">
               {value || '—'}
             </span>
           );
@@ -188,34 +188,34 @@ export default function ReportArAging() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
-            <p className="text-xs font-medium text-slate-600 mb-1">Total Customers</p>
-            <p className="text-2xl font-bold text-slate-900">{summary.totalCustomers}</p>
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
+            <p className="text-xs font-medium text-text-muted mb-1">Total Customers</p>
+            <p className="text-2xl font-bold text-text-strong">{summary.totalCustomers}</p>
           </div>
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
-            <p className="text-xs font-medium text-slate-600 mb-1">Total Outstanding</p>
-            <p className="text-2xl font-bold text-slate-900">{formatCurrency(summary.totalOutstanding)}</p>
+          <div className="bg-surface-1 border border-border-subtle rounded-lg p-4">
+            <p className="text-xs font-medium text-text-muted mb-1">Total Outstanding</p>
+            <p className="text-2xl font-bold text-text-strong">{formatCurrency(summary.totalOutstanding)}</p>
           </div>
           {summary.current > 0 && (
-            <div className="bg-white border border-green-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-green-200 rounded-lg p-4">
               <p className="text-xs font-medium text-green-700 mb-1">Current</p>
               <p className="text-2xl font-bold text-green-700">{formatCurrency(summary.current)}</p>
             </div>
           )}
           {summary.days30 > 0 && (
-            <div className="bg-white border border-yellow-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-yellow-200 rounded-lg p-4">
               <p className="text-xs font-medium text-yellow-700 mb-1">1-30 Days</p>
               <p className="text-2xl font-bold text-yellow-700">{formatCurrency(summary.days30)}</p>
             </div>
           )}
           {summary.days60 > 0 && (
-            <div className="bg-white border border-orange-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-orange-200 rounded-lg p-4">
               <p className="text-xs font-medium text-orange-700 mb-1">31-60 Days</p>
               <p className="text-2xl font-bold text-orange-700">{formatCurrency(summary.days60)}</p>
             </div>
           )}
           {(summary.days90 > 0 || summary.days90Plus > 0) && (
-            <div className="bg-white border border-red-200 rounded-lg p-4">
+            <div className="bg-surface-1 border border-red-200 rounded-lg p-4">
               <p className="text-xs font-medium text-red-700 mb-1">Over 60 Days</p>
               <p className="text-2xl font-bold text-red-700">
                 {formatCurrency(summary.days90 + summary.days90Plus)}
@@ -273,7 +273,7 @@ export default function ReportArAging() {
       <ContentCard>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">Report Filters</h3>
+            <h3 className="text-sm font-semibold text-text-strong">Report Filters</h3>
             <div className="flex items-center gap-2">
               <Button
                 variant="secondary"
@@ -313,7 +313,7 @@ export default function ReportArAging() {
                 error={errors.asOfDate}
                 placeholder="YYYY-MM-DD"
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 View receivables as of a specific date (leave blank for current date)
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function ReportArAging() {
                 onChange={(e) => setBucketSetId(e.target.value)}
                 placeholder="Enter bucket set ID"
               />
-              <p className="mt-1.5 text-xs text-slate-600">
+              <p className="mt-1.5 text-xs text-text-muted">
                 Use a custom aging bucket configuration
               </p>
             </div>
@@ -353,8 +353,8 @@ export default function ReportArAging() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-slate-600">Loading aging report...</p>
+              <div className="w-8 h-8 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-text-muted">Loading aging report...</p>
             </div>
           </div>
         ) : rows.length === 0 ? (
@@ -362,8 +362,8 @@ export default function ReportArAging() {
             <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Data Available</h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <h3 className="text-lg font-semibold text-text-strong mb-2">No Data Available</h3>
+            <p className="text-sm text-text-muted mb-6">
               No receivables found for the selected criteria. Try adjusting your filters or date range.
             </p>
           </div>
@@ -371,13 +371,13 @@ export default function ReportArAging() {
           <>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Customer Details</h3>
-                <p className="text-xs text-slate-600 mt-0.5">
+                <h3 className="text-sm font-semibold text-text-strong">Customer Details</h3>
+                <p className="text-xs text-text-muted mt-0.5">
                   {rows.length} customer{rows.length !== 1 ? 's' : ''} with outstanding balances
                 </p>
               </div>
             </div>
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <div className="border border-border-subtle rounded-lg overflow-hidden">
               <DataTable
                 columns={columns}
                 rows={rows}
@@ -395,18 +395,18 @@ export default function ReportArAging() {
       {/* Help Section */}
       <ContentCard>
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-900">About AR Aging</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+          <h3 className="text-sm font-semibold text-text-strong">About AR Aging</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-text-body">
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">What is AR Aging?</h4>
-              <p className="text-xs text-slate-600">
+              <h4 className="font-medium text-text-strong mb-2">What is AR Aging?</h4>
+              <p className="text-xs text-text-muted">
                 The Accounts Receivable Aging report shows how long customer invoices have been outstanding. 
                 This helps you monitor cash flow, identify collection issues, and maintain healthy customer relationships.
               </p>
             </div>
             <div>
-              <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
-              <ul className="text-xs text-slate-600 space-y-1">
+              <h4 className="font-medium text-text-strong mb-2">How to Use This Report</h4>
+              <ul className="text-xs text-text-muted space-y-1">
                 <li>• Identify customers with overdue balances (61+ days)</li>
                 <li>• Prioritize collection efforts based on aging buckets</li>
                 <li>• Monitor trends by comparing different time periods</li>

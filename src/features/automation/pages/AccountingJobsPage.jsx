@@ -25,7 +25,7 @@ export default function AccountingJobsPage() {
   const jobs = rowsOf(jobsQ.data);
   const runs = rowsOf(runsQ.data);
   const columns = [
-    { header: 'Code', render: (j) => <span className="font-medium text-slate-900">{j.code}</span> },
+    { header: 'Code', render: (j) => <span className="font-medium text-text-strong">{j.code}</span> },
     { header: 'Name', render: (j) => j.name ?? '—' },
     { header: 'Status', render: (j) => <Badge tone={(j.is_enabled ?? j.isEnabled) ? 'success' : 'muted'}>{(j.is_enabled ?? j.isEnabled) ? 'enabled' : 'disabled'}</Badge> },
     { header: 'Schedule', render: (j) => j.cron_expression ?? j.cronExpression ?? j.schedule ?? '—' },
@@ -41,8 +41,8 @@ export default function AccountingJobsPage() {
         </ContentCard>
         <ContentCard className="xl:col-span-2" title={`Recent runs${jobCode ? ` · ${jobCode}` : ''}`} actions={<Button variant="outline" leftIcon={RefreshCw} onClick={()=>runsQ.refetch()}>Refresh</Button>}>
           <div className="space-y-3">
-            {runs.map((r)=><div key={r.id} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between gap-3"><div className="font-medium text-slate-900">{r.job_code ?? r.jobCode ?? jobCode }</div><Badge tone={r.status === 'success' ? 'success' : r.status === 'failed' ? 'danger' : 'warning'}>{r.status ?? 'pending'}</Badge></div><div className="mt-2 text-xs text-slate-500">{String(r.created_at ?? r.started_at ?? r.createdAt ?? '').replace('T',' ').slice(0,19) || '—'}</div></div>)}
-            {!runs.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">No job runs available.</div>}
+            {runs.map((r)=><div key={r.id} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between gap-3"><div className="font-medium text-text-strong">{r.job_code ?? r.jobCode ?? jobCode }</div><Badge tone={r.status === 'success' ? 'success' : r.status === 'failed' ? 'danger' : 'warning'}>{r.status ?? 'pending'}</Badge></div><div className="mt-2 text-xs text-text-muted">{String(r.created_at ?? r.started_at ?? r.createdAt ?? '').replace('T',' ').slice(0,19) || '—'}</div></div>)}
+            {!runs.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">No job runs available.</div>}
           </div>
         </ContentCard>
       </div>

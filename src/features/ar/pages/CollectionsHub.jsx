@@ -174,7 +174,7 @@ export default function CollectionsHub() {
 
   const queueColumns = useMemo(
     () => [
-      { header: 'Partner', render: (r) => <span className="font-medium text-slate-900">{r.partner_name ?? r.partnerName ?? r.partner_id ?? '—'}</span> },
+      { header: 'Partner', render: (r) => <span className="font-medium text-text-strong">{r.partner_name ?? r.partnerName ?? r.partner_id ?? '—'}</span> },
       { header: 'Open amount', render: (r) => <span>{formatMoneyLike(r.open_amount ?? r.openAmount)}</span> },
       { header: 'Days past due', render: (r) => <span>{r.days_past_due ?? r.daysPastDue ?? '—'}</span> },
       { header: 'Open invoices', render: (r) => <span>{r.open_invoice_count ?? r.openInvoiceCount ?? '—'}</span> },
@@ -185,7 +185,7 @@ export default function CollectionsHub() {
 
   const caseColumns = useMemo(
     () => [
-      { header: 'Case', render: (r) => <span className="font-medium text-slate-900">#{r.id}</span> },
+      { header: 'Case', render: (r) => <span className="font-medium text-text-strong">#{r.id}</span> },
       { header: 'Partner', render: (r) => <span>{r.partner_name ?? r.partnerName ?? r.partner_id ?? '—'}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'open') === 'open' ? 'brand' : 'muted'}>{r.status ?? 'open'}</Badge> },
       { header: 'Assigned to', render: (r) => <span>{r.assigned_to_user_name ?? r.assignedToUserName ?? r.assigned_to_user_id ?? '—'}</span> },
@@ -206,10 +206,10 @@ export default function CollectionsHub() {
       <PageHeader title="AR Collections" subtitle="Manage collections risk, dunning strategy, and recovery activity." icon={Users} />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <ContentCard title="Outstanding queue"><div className="text-2xl font-semibold text-brand-deep">{formatMoneyLike(summary.openAmount)}</div><p className="mt-1 text-sm text-slate-600">Open partner exposure in the current queue.</p></ContentCard>
-        <ContentCard title="Partners in queue"><div className="text-2xl font-semibold text-brand-deep">{summary.partnerCount}</div><p className="mt-1 text-sm text-slate-600">Partners currently overdue for follow-up.</p></ContentCard>
-        <ContentCard title="Open cases"><div className="text-2xl font-semibold text-brand-deep">{summary.openCases}</div><p className="mt-1 text-sm text-slate-600">Collections cases still being worked.</p></ContentCard>
-        <ContentCard title="Active rules"><div className="text-2xl font-semibold text-brand-deep">{summary.activeRules}</div><p className="mt-1 text-sm text-slate-600">Dunning rules currently enabled.</p></ContentCard>
+        <ContentCard title="Outstanding queue"><div className="text-2xl font-semibold text-brand-deep">{formatMoneyLike(summary.openAmount)}</div><p className="mt-1 text-sm text-text-muted">Open partner exposure in the current queue.</p></ContentCard>
+        <ContentCard title="Partners in queue"><div className="text-2xl font-semibold text-brand-deep">{summary.partnerCount}</div><p className="mt-1 text-sm text-text-muted">Partners currently overdue for follow-up.</p></ContentCard>
+        <ContentCard title="Open cases"><div className="text-2xl font-semibold text-brand-deep">{summary.openCases}</div><p className="mt-1 text-sm text-text-muted">Collections cases still being worked.</p></ContentCard>
+        <ContentCard title="Active rules"><div className="text-2xl font-semibold text-brand-deep">{summary.activeRules}</div><p className="mt-1 text-sm text-text-muted">Dunning rules currently enabled.</p></ContentCard>
       </div>
 
       <Tabs
@@ -222,7 +222,7 @@ export default function CollectionsHub() {
               <ContentCard>
                 <FilterBar
                   left={<div className="grid gap-3 md:grid-cols-3"><Input type="date" label="As of date" value={asOfDate} onChange={(e) => setAsOfDate(e.target.value)} /><Input type="number" min="0" label="Minimum days past due" value={minDaysPastDue} onChange={(e) => setMinDaysPastDue(e.target.value)} /><Select label="Include disputed" value={includeDisputed} onChange={(e) => setIncludeDisputed(e.target.value)} options={YES_NO_OPTIONS} /></div>}
-                  right={<div className="flex items-center gap-2 text-xs text-slate-500"><Search className="h-4 w-4" /><span>{queueRows.length} results</span></div>}
+                  right={<div className="flex items-center gap-2 text-xs text-text-muted"><Search className="h-4 w-4" /><span>{queueRows.length} results</span></div>}
                 />
                 <div className="mt-3">
                   <DataTable columns={queueColumns} rows={queueRows} isLoading={queueQ.isLoading} empty={{ title: 'No partners in queue', description: 'There are no overdue balances for the current filter set.' }} />
@@ -253,13 +253,13 @@ export default function CollectionsHub() {
                       <div key={t.id ?? t.name} className="rounded-2xl border border-border-subtle p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <div className="font-medium text-slate-900">{t.name}</div>
-                            <div className="mt-1 text-xs text-slate-500">{t.channel ?? 'email'}{t.subject ? ` · ${t.subject}` : ''}</div>
+                            <div className="font-medium text-text-strong">{t.name}</div>
+                            <div className="mt-1 text-xs text-text-muted">{t.channel ?? 'email'}{t.subject ? ` · ${t.subject}` : ''}</div>
                           </div>
                           <Badge tone={t.is_active ? 'success' : 'muted'}>{t.is_active ? 'active' : 'inactive'}</Badge>
                         </div>
                       </div>
-                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">{templatesQ.isLoading ? 'Loading templates…' : 'No templates configured yet.'}</div>}
+                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">{templatesQ.isLoading ? 'Loading templates…' : 'No templates configured yet.'}</div>}
                   </div>
                 </ContentCard>
                 <ContentCard title="Rules" actions={<Button size="sm" leftIcon={AlarmClock} onClick={() => { resetRuleForm(); setModal('rule'); }}>New</Button>}>
@@ -268,14 +268,14 @@ export default function CollectionsHub() {
                       <div key={r.id ?? r.name} className="rounded-2xl border border-border-subtle p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <div className="font-medium text-slate-900">{r.name}</div>
-                            <div className="mt-1 text-xs text-slate-500">Starts at {r.start_days_past_due ?? 1} days, every {r.cadence_days ?? 7} days, max {r.max_reminders ?? 6}</div>
-                            <div className="mt-1 text-xs text-slate-500">Severity: {r.severity ?? 'soft'}</div>
+                            <div className="font-medium text-text-strong">{r.name}</div>
+                            <div className="mt-1 text-xs text-text-muted">Starts at {r.start_days_past_due ?? 1} days, every {r.cadence_days ?? 7} days, max {r.max_reminders ?? 6}</div>
+                            <div className="mt-1 text-xs text-text-muted">Severity: {r.severity ?? 'soft'}</div>
                           </div>
                           <Badge tone={r.is_active ? 'success' : 'muted'}>{r.is_active ? 'active' : 'inactive'}</Badge>
                         </div>
                       </div>
-                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">{rulesQ.isLoading ? 'Loading rules…' : 'No rules configured yet.'}</div>}
+                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">{rulesQ.isLoading ? 'Loading rules…' : 'No rules configured yet.'}</div>}
                   </div>
                 </ContentCard>
                 <ContentCard title="Runs" actions={<Button size="sm" leftIcon={PlayCircle} onClick={() => { resetRunForm(); setModal('run'); }} disabled={!rules.length}>Run</Button>}>
@@ -284,13 +284,13 @@ export default function CollectionsHub() {
                       <div key={r.id ?? `${r.created_at}-${r.status}`} className="rounded-2xl border border-border-subtle p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <div className="font-medium text-slate-900">Run #{r.id ?? '—'}</div>
-                            <div className="mt-1 text-xs text-slate-500">{String(r.created_at ?? '').slice(0, 19).replace('T', ' ') || '—'}</div>
+                            <div className="font-medium text-text-strong">Run #{r.id ?? '—'}</div>
+                            <div className="mt-1 text-xs text-text-muted">{String(r.created_at ?? '').slice(0, 19).replace('T', ' ') || '—'}</div>
                           </div>
                           <Badge tone={r.status === 'completed' || r.status === 'success' ? 'success' : r.status === 'failed' ? 'danger' : 'warning'}>{r.status ?? 'pending'}</Badge>
                         </div>
                       </div>
-                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">{runsQ.isLoading ? 'Loading runs…' : 'No dunning runs yet.'}</div>}
+                    )) : <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">{runsQ.isLoading ? 'Loading runs…' : 'No dunning runs yet.'}</div>}
                   </div>
                 </ContentCard>
               </div>

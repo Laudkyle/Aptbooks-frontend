@@ -67,7 +67,7 @@ export default function ExportsHub() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <ContentCard title="Trial Balance">
-          <div className="text-sm text-slate-600">Exports /core/accounting/exports/trial-balance</div>
+          <div className="text-sm text-text-muted">Exports /core/accounting/exports/trial-balance</div>
           <div className="mt-3">
             <ExportButton onClick={() => tb.mutate()} disabled={!periodId || tb.isLoading}>
               Export trial balance
@@ -76,7 +76,7 @@ export default function ExportsHub() {
         </ContentCard>
 
         <ContentCard title="General Ledger">
-          <div className="text-sm text-slate-600">Exports /core/accounting/exports/general-ledger</div>
+          <div className="text-sm text-text-muted">Exports /core/accounting/exports/general-ledger</div>
           <div className="mt-3">
             <ExportButton onClick={() => gl.mutate()} disabled={!periodId || gl.isLoading}>
               Export general ledger
@@ -97,7 +97,7 @@ export default function ExportsHub() {
           <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         </FilterBar>
-        <div className="mt-3 text-xs text-slate-600">
+        <div className="mt-3 text-xs text-text-muted">
           Backend expects accountId, fromDate, toDate. Format defaults to json if omitted.
         </div>
       </ContentCard>

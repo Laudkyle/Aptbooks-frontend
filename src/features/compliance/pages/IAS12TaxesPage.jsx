@@ -198,9 +198,9 @@ export default function IAS12TaxesPage() {
 
   const authorityColumns = useMemo(
     () => [
-      { header: 'Name', render: (r) => <div className="font-medium text-slate-900">{r.name ?? '—'}</div> },
-      { header: 'Code', render: (r) => <span className="text-sm text-slate-700">{r.code ?? '—'}</span> },
-      { header: 'Country', render: (r) => <span className="text-sm text-slate-700">{r.country ?? '—'}</span> },
+      { header: 'Name', render: (r) => <div className="font-medium text-text-strong">{r.name ?? '—'}</div> },
+      { header: 'Code', render: (r) => <span className="text-sm text-text-body">{r.code ?? '—'}</span> },
+      { header: 'Country', render: (r) => <span className="text-sm text-text-body">{r.country ?? '—'}</span> },
       {
         header: '',
         render: (r) => (
@@ -217,20 +217,20 @@ export default function IAS12TaxesPage() {
 
   const tdColumns = useMemo(
     () => [
-      { header: 'Description', render: (r) => <div className="font-medium text-slate-900">{r.description ?? '—'}</div> },
-      { header: 'Category', render: (r) => <span className="text-sm text-slate-700">{r.category_name ?? r.category_id ?? '—'}</span> },
-      { header: 'Carrying', render: (r) => <span className="text-sm text-slate-700">{formatMoney(r.carrying_amount)}</span> },
-      { header: 'Tax base', render: (r) => <span className="text-sm text-slate-700">{formatMoney(r.tax_base)}</span> }
+      { header: 'Description', render: (r) => <div className="font-medium text-text-strong">{r.description ?? '—'}</div> },
+      { header: 'Category', render: (r) => <span className="text-sm text-text-body">{r.category_name ?? r.category_id ?? '—'}</span> },
+      { header: 'Carrying', render: (r) => <span className="text-sm text-text-body">{formatMoney(r.carrying_amount)}</span> },
+      { header: 'Tax base', render: (r) => <span className="text-sm text-text-body">{formatMoney(r.tax_base)}</span> }
     ],
     []
   );
 
   const runColumns = useMemo(
     () => [
-      { header: 'Period', render: (r) => <span className="text-sm text-slate-700">{r.period_code ?? r.period_id ?? '—'}</span> },
-      { header: 'Authority', render: (r) => <span className="text-sm text-slate-700">{r.authority_name ?? r.authority_id ?? '—'}</span> },
-      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status ?? '—'}</span> },
-      { header: 'Computed at', render: (r) => <span className="text-sm text-slate-700">{formatDate(r.created_at ?? r.computed_at)}</span> }
+      { header: 'Period', render: (r) => <span className="text-sm text-text-body">{r.period_code ?? r.period_id ?? '—'}</span> },
+      { header: 'Authority', render: (r) => <span className="text-sm text-text-body">{r.authority_name ?? r.authority_id ?? '—'}</span> },
+      { header: 'Status', render: (r) => <span className="text-sm text-text-body">{r.status ?? '—'}</span> },
+      { header: 'Computed at', render: (r) => <span className="text-sm text-text-body">{formatDate(r.created_at ?? r.computed_at)}</span> }
     ],
     []
   );
@@ -307,7 +307,7 @@ export default function IAS12TaxesPage() {
       content: (
         <ContentCard>
           <FilterBar
-            left={<div className="text-sm font-medium text-slate-900">Authorities</div>}
+            left={<div className="text-sm font-medium text-text-strong">Authorities</div>}
             right={
               <div className="flex gap-2">
                 <Button variant="secondary" onClick={() => qc.invalidateQueries({ queryKey: qk.ias12Authorities })} leftIcon={RefreshCw}>
@@ -329,7 +329,7 @@ export default function IAS12TaxesPage() {
 
           <div className="mt-6 rounded-xl border border-border-subtle p-4">
             <div className="text-sm font-semibold text-brand-deep">Rate sets & categories</div>
-            <div className="mt-1 text-xs text-slate-500">
+            <div className="mt-1 text-xs text-text-muted">
               The backend supports detailed rate lines (valid-from / valid-to) and category mapping. This UI provides the core scaffolding; you can expand it
               with inline line editing and additional validations as you finalize your exact IAS12 validators.
             </div>

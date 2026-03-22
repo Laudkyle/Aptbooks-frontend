@@ -104,15 +104,15 @@ export default function InvoiceDetail() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <FileText className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">
+                <FileText className="h-7 w-7 text-text-body" />
+                <h1 className="text-2xl font-bold text-text-strong">
                   {invoice?.invoice.invoiceNumber ?? invoice?.invoice.code ?? (isLoading ? 'Loading...' : 'Invoice')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-muted">
                 Invoice ID: {id}
               </p>
             </div>
@@ -120,7 +120,7 @@ export default function InvoiceDetail() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-gray-300"
+                className="border-border-subtle"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
@@ -136,81 +136,81 @@ export default function InvoiceDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Invoice Summary */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Invoice Summary</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+              <h3 className="text-base font-semibold text-text-strong mb-5">Invoice Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <User className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Customer</span>
+                    <User className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Customer</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-text-strong">
                     {invoice?.invoice.customer_name ?? '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-border-subtle p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Dates</span>
+                    <Calendar className="h-4 w-4 text-text-soft" />
+                    <span className="text-xs font-medium text-text-muted">Dates</span>
                   </div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-text-strong">
                     {formatDate(invoice?.invoice.invoice_date)} → {formatDate(invoice?.invoice.due_date)}
                   </div>
                 </div>
 
                 {invoice?.invoice.memo && (
-                  <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
-                    <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
-                    <div className="text-sm text-gray-700">{invoice.invoice.memo}</div>
+                  <div className="md:col-span-2  rounded-lg border border-border-subtle p-4">
+                    <div className="text-xs font-medium text-text-muted mb-2">Memo</div>
+                    <div className="text-sm text-text-body">{invoice.invoice.memo}</div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Line Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4  border-b border-gray-200">
-                <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
+              <div className="px-6 py-4  border-b border-border-subtle">
+                <h3 className="text-base font-semibold text-text-strong">Line Items</h3>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className=" border-b border-gray-200">
+                  <thead className=" border-b border-border-subtle">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Description
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Qty
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Unit Price
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
                         Revenue Account
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
                         Total
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-100">
+                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
                     {(invoice?.lines ?? []).map((l, idx) => {
                       const lineTotal = (l.quantity ?? 1) * (l.unit_price ?? 0);
                       
                       return (
                         <tr key={idx} className="hover:">
-                          <td className="px-6 py-4 text-sm text-gray-900">{l.description}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{l.quantity ?? 1}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">
+                          <td className="px-6 py-4 text-sm text-text-strong">{l.description}</td>
+                          <td className="px-6 py-4 text-sm text-text-body">{l.quantity ?? 1}</td>
+                          <td className="px-6 py-4 text-sm text-text-body">
                             {formatCurrency(l.unit_price ?? 0)}
                           </td>
-                          <td className="px-6 py-4 text-gray-500 font-mono text-xs">
+                          <td className="px-6 py-4 text-text-muted font-mono text-xs">
                             {l.revenue_account_id ? `${l.revenue_account_id.substring(0, 8)}...` : '—'}
                           </td>
-                          <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
+                          <td className="px-6 py-4 text-sm font-semibold text-text-strong text-right">
                             {formatCurrency(lineTotal)}
                           </td>
                         </tr>
@@ -218,19 +218,19 @@ export default function InvoiceDetail() {
                     })}
                     {!(invoice?.lines ?? []).length ? (
                       <tr>
-                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={5}>
+                        <td className="px-6 py-12 text-center text-sm text-text-muted" colSpan={5}>
                           No line items
                         </td>
                       </tr>
                     ) : null}
                   </tbody>
                   {(invoice?.lines ?? []).length > 0 && (
-                    <tfoot className=" border-t-2 border-gray-200">
+                    <tfoot className=" border-t-2 border-border-subtle">
                       <tr>
-                        <td colSpan={4} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td colSpan={4} className="px-6 py-4 text-right text-sm font-semibold text-text-strong">
                           Total:
                         </td>
-                        <td className="px-6 py-4 text-right text-lg font-bold text-gray-900">
+                        <td className="px-6 py-4 text-right text-lg font-bold text-text-strong">
                           {formatCurrency(total)}
                         </td>
                       </tr>
@@ -243,40 +243,40 @@ export default function InvoiceDetail() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="h-5 w-5 text-green-600" />
-                <h3 className="text-base font-semibold text-gray-900">Invoice Total</h3>
+                <h3 className="text-base font-semibold text-text-strong">Invoice Total</h3>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-6">
+              <div className="text-3xl font-bold text-text-strong mb-6">
                 {formatCurrency(total)}
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-gray-200">
+              <div className="space-y-3 pt-4 border-t border-border-subtle">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Status</span>
+                  <span className="text-text-muted">Status</span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Currency</span>
-                  <span className="font-medium text-gray-900">{currency}</span>
+                  <span className="text-text-muted">Currency</span>
+                  <span className="font-medium text-text-strong">{currency}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Line Items</span>
-                  <span className="font-medium text-gray-900">{(invoice?.lines ?? []).length}</span>
+                  <span className="text-text-muted">Line Items</span>
+                  <span className="font-medium text-text-strong">{(invoice?.lines ?? []).length}</span>
                 </div>
                 {invoice?.invoice.invoice_date && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Invoice Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(invoice?.invoice.invoice_date)}</span>
+                    <span className="text-text-muted">Invoice Date</span>
+                    <span className="font-medium text-text-strong">{formatDate(invoice?.invoice.invoice_date)}</span>
                   </div>
                 )}
                 {invoice?.invoice.due_date && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Due Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(invoice?.invoice.due_date)}</span>
+                    <span className="text-text-muted">Due Date</span>
+                    <span className="font-medium text-text-strong">{formatDate(invoice?.invoice.due_date)}</span>
                   </div>
                 )}
               </div>
@@ -306,7 +306,7 @@ export default function InvoiceDetail() {
         <div className="space-y-4">
           {action === 'approve' || action === 'reject' ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 Comment {action === 'reject' ? '(recommended)' : '(optional)'}
               </label>
               <Textarea 
@@ -320,7 +320,7 @@ export default function InvoiceDetail() {
           
           {action === 'void' ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-body mb-2">
                 Reason <span className="text-red-500">*</span>
               </label>
               <Textarea 
@@ -343,7 +343,7 @@ export default function InvoiceDetail() {
           <Button 
             variant="outline" 
             onClick={() => setAction(null)}
-            className="border-gray-300"
+            className="border-border-subtle"
           >
             Cancel
           </Button>

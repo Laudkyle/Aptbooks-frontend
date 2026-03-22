@@ -42,22 +42,22 @@ export default function Dashboard() {
         <div className="app-kpi">
           <div className="app-kpi-label">Accounting period</div>
           <div className="app-kpi-value">Current</div>
-          <div className="mt-2 text-xs text-slate-600">Select and close periods from Accounting → Periods.</div>
+          <div className="mt-2 text-xs text-text-muted">Select and close periods from Accounting → Periods.</div>
         </div>
         <div className="app-kpi">
           <div className="app-kpi-label">Journals workflow</div>
           <div className="app-kpi-value">Draft → Post</div>
-          <div className="mt-2 text-xs text-slate-600">Submit, approve, and post with guarded actions.</div>
+          <div className="mt-2 text-xs text-text-muted">Submit, approve, and post with guarded actions.</div>
         </div>
         <div className="app-kpi">
           <div className="app-kpi-label">Statements</div>
           <div className="app-kpi-value">Ready</div>
-          <div className="mt-2 text-xs text-slate-600">P&L, balance sheet, cash flow, changes in equity.</div>
+          <div className="mt-2 text-xs text-text-muted">P&L, balance sheet, cash flow, changes in equity.</div>
         </div>
         <div className="app-kpi">
           <div className="app-kpi-label">Ops</div>
           <div className="app-kpi-value">Healthy</div>
-          <div className="mt-2 text-xs text-slate-600">Utilities expose health, errors, scheduler and logs.</div>
+          <div className="mt-2 text-xs text-text-muted">Utilities expose health, errors, scheduler and logs.</div>
         </div>
       </div>
 
@@ -67,61 +67,61 @@ export default function Dashboard() {
           actions={<Link to={ROUTES.accountingCoa}><Button variant="ghost" size="sm">Open</Button></Link>}
         >
           <div className="grid gap-2">
-            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-white/60 px-4 py-3 shadow-sm transition hover:bg-white" to={ROUTES.accountingCoa}>
+            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-surface-2 px-4 py-3 shadow-sm transition hover:bg-surface-1" to={ROUTES.accountingCoa}>
               <span className="flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-deep">
                   <BookOpen className="h-4 w-4" />
                 </span>
                 <span>
                   <span className="block text-sm font-semibold text-brand-deep">Chart of Accounts</span>
-                  <span className="block text-xs text-slate-600">Create, edit, archive accounts</span>
+                  <span className="block text-xs text-text-muted">Create, edit, archive accounts</span>
                 </span>
               </span>
-              <span className="text-xs text-slate-500 group-hover:text-slate-700">→</span>
+              <span className="text-xs text-text-muted group-hover:text-text-body">→</span>
             </Link>
 
-            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-white/60 px-4 py-3 shadow-sm transition hover:bg-white" to={ROUTES.accountingJournals}>
+            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-surface-2 px-4 py-3 shadow-sm transition hover:bg-surface-1" to={ROUTES.accountingJournals}>
               <span className="flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-deep">
                   <FileText className="h-4 w-4" />
                 </span>
                 <span>
                   <span className="block text-sm font-semibold text-brand-deep">Journals</span>
-                  <span className="block text-xs text-slate-600">Draft, submit, approve, post, void</span>
+                  <span className="block text-xs text-text-muted">Draft, submit, approve, post, void</span>
                 </span>
               </span>
-              <span className="text-xs text-slate-500 group-hover:text-slate-700">→</span>
+              <span className="text-xs text-text-muted group-hover:text-text-body">→</span>
             </Link>
 
-            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-white/60 px-4 py-3 shadow-sm transition hover:bg-white" to={ROUTES.accountingTrialBalance}>
+            <Link className="group flex items-center justify-between rounded-xl border border-border-subtle bg-surface-2 px-4 py-3 shadow-sm transition hover:bg-surface-1" to={ROUTES.accountingTrialBalance}>
               <span className="flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-deep">
                   <Scale className="h-4 w-4" />
                 </span>
                 <span>
                   <span className="block text-sm font-semibold text-brand-deep">Trial Balance</span>
-                  <span className="block text-xs text-slate-600">Balances and activity for periods</span>
+                  <span className="block text-xs text-text-muted">Balances and activity for periods</span>
                 </span>
               </span>
-              <span className="text-xs text-slate-500 group-hover:text-slate-700">→</span>
+              <span className="text-xs text-text-muted group-hover:text-text-body">→</span>
             </Link>
           </div>
         </ContentCard>
 
         <ContentCard title="Reports" actions={<Link to={ROUTES.accountingPnL}><Button variant="ghost" size="sm">View</Button></Link>}>
           <div className="grid gap-2">
-            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-white" to={ROUTES.accountingPnL}>
-              <BarChart3 className="h-4 w-4 text-slate-600" />
+            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-surface-1" to={ROUTES.accountingPnL}>
+              <BarChart3 className="h-4 w-4 text-text-muted" />
               <div>
                 <div className="text-sm font-semibold text-brand-deep">Statements</div>
-                <div className="text-xs text-slate-600">P&L, balance sheet, cash flow and equity</div>
+                <div className="text-xs text-text-muted">P&L, balance sheet, cash flow and equity</div>
               </div>
             </Link>
-            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-white" to={ROUTES.accountingFx}>
-              <ArrowLeftRight className="h-4 w-4 text-slate-600" />
+            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-surface-1" to={ROUTES.accountingFx}>
+              <ArrowLeftRight className="h-4 w-4 text-text-muted" />
               <div>
                 <div className="text-sm font-semibold text-brand-deep">FX</div>
-                <div className="text-xs text-slate-600">Rate types, rates, effective lookups</div>
+                <div className="text-xs text-text-muted">Rate types, rates, effective lookups</div>
               </div>
             </Link>
           </div>
@@ -129,18 +129,18 @@ export default function Dashboard() {
 
         <ContentCard title="Work queue" actions={<Link to={ROUTES.notifications}><Button variant="ghost" size="sm">Open</Button></Link>}>
           <div className="grid gap-2">
-            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-white" to={ROUTES.notifications}>
-              <Bell className="h-4 w-4 text-slate-600" />
+            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-surface-1" to={ROUTES.notifications}>
+              <Bell className="h-4 w-4 text-text-muted" />
               <div>
                 <div className="text-sm font-semibold text-brand-deep">Notifications</div>
-                <div className="text-xs text-slate-600">Track system and workflow events</div>
+                <div className="text-xs text-text-muted">Track system and workflow events</div>
               </div>
             </Link>
-            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-white" to={ROUTES.approvalsInbox}>
-              <Shield className="h-4 w-4 text-slate-600" />
+            <Link className="app-surface flex items-center gap-3 p-4 hover:bg-surface-1" to={ROUTES.approvalsInbox}>
+              <Shield className="h-4 w-4 text-text-muted" />
               <div>
                 <div className="text-sm font-semibold text-brand-deep">Approvals</div>
-                <div className="text-xs text-slate-600">Review and act on pending items</div>
+                <div className="text-xs text-text-muted">Review and act on pending items</div>
               </div>
             </Link>
           </div>

@@ -31,7 +31,7 @@ export default function SmartNotificationsPage() {
   const events = rowsOf(eventsQ.data);
 
   const ruleColumns = [
-    { header: 'Code', render: (r) => <span className="font-medium text-slate-900">{r.code}</span> },
+    { header: 'Code', render: (r) => <span className="font-medium text-text-strong">{r.code}</span> },
     { header: 'Name', render: (r) => r.name ?? '—' },
     { header: 'Channel', render: (r) => r.channel ?? 'in_app' },
     { header: 'Event', render: (r) => r.event_type ?? r.eventType ?? '—' }
@@ -43,7 +43,7 @@ export default function SmartNotificationsPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <ContentCard title="Notification rules"><DataTable columns={ruleColumns} rows={rules} isLoading={rulesQ.isLoading} empty={{ title: 'No smart notification rules', description: 'Create a rule to notify users when important accounting events occur.' }} /></ContentCard>
         <ContentCard title="Recent events" actions={<Button variant="outline" leftIcon={RefreshCw} onClick={()=>eventsQ.refetch()}>Refresh</Button>}>
-          <div className="space-y-3">{events.map((e)=><div key={e.id || `${e.created_at}-${e.code}`} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between gap-3"><div className="font-medium text-slate-900">{e.title ?? e.code ?? e.event_type ?? 'Event'}</div><Badge tone={e.status === 'sent' ? 'success' : e.status === 'failed' ? 'danger' : 'warning'}>{e.status ?? 'queued'}</Badge></div><div className="mt-2 text-sm text-slate-600">{e.message ?? e.summary ?? '—'}</div></div>)}{!events.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">No notification events yet.</div>}</div>
+          <div className="space-y-3">{events.map((e)=><div key={e.id || `${e.created_at}-${e.code}`} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between gap-3"><div className="font-medium text-text-strong">{e.title ?? e.code ?? e.event_type ?? 'Event'}</div><Badge tone={e.status === 'sent' ? 'success' : e.status === 'failed' ? 'danger' : 'warning'}>{e.status ?? 'queued'}</Badge></div><div className="mt-2 text-sm text-text-muted">{e.message ?? e.summary ?? '—'}</div></div>)}{!events.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">No notification events yet.</div>}</div>
         </ContentCard>
       </div>
       <Modal open={open} title="Create smart notification rule" onClose={()=>setOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="ghost" onClick={()=>setOpen(false)}>Cancel</Button><Button loading={create.isPending} onClick={()=>create.mutate(rule)}>Create rule</Button></div>}>
