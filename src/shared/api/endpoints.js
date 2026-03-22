@@ -452,7 +452,7 @@ export const endpoints = {
       },
       render: {
         document: (documentType, documentId, qs) =>
-          `/modules/printing/templates/render/${documentType}/${documentId}?${new URLSearchParams(qs ?? {}).toString()}`,
+          `/modules/printing/render/${documentType}/${documentId}?${new URLSearchParams(qs ?? {}).toString()}`,
       },
     },
     ar: {
