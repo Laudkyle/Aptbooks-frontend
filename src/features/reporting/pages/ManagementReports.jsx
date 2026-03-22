@@ -71,8 +71,8 @@ export default function ManagementReports() {
       <ContentCard>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-2">
-            <button className={`rounded-xl px-3 py-2 text-sm ${mode === 'departmental-pnl' ? 'bg-slate-900 text-white' : 'bg-surface-2 text-text-strong'}`} onClick={() => setMode('departmental-pnl')}>Departmental P&L</button>
-            <button className={`rounded-xl px-3 py-2 text-sm ${mode === 'cost-center-summary' ? 'bg-slate-900 text-white' : 'bg-surface-2 text-text-strong'}`} onClick={() => setMode('cost-center-summary')}>Cost Center Summary</button>
+            <Button variant={mode === 'departmental-pnl' ? 'primary' : 'outline'} onClick={() => setMode('departmental-pnl')}>Departmental P&L</Button>
+            <Button variant={mode === 'cost-center-summary' ? 'primary' : 'outline'} onClick={() => setMode('cost-center-summary')}>Cost Center Summary</Button>
           </div>
           <div className="flex items-center gap-2"><Button onClick={() => refetch()} disabled={!periodId} loading={isFetching}>Run</Button></div>
         </div>

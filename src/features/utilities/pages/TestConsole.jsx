@@ -36,13 +36,14 @@ export default function TestConsole() {
         ) : (
           <div className="flex flex-wrap gap-2">
             {files.map((f) => (
-              <button
+              <Button
                 key={f}
-                className={`rounded-md border px-3 py-2 text-sm ${testFile === f ? 'border-brand-primary bg-brand-primary text-white' : 'border-border-subtle bg-surface-1 text-text-body hover:bg-surface-2'}`}
+                variant={testFile === f ? 'primary' : 'outline'}
+                responsiveText={false}
                 onClick={() => setTestFile(f)}
               >
                 {f}
-              </button>
+              </Button>
             ))}
             {files.length === 0 ? <div className="text-sm text-text-muted">No files.</div> : null}
           </div>

@@ -73,12 +73,12 @@ export default function AccrualsHub() {
             <h1 className="text-2xl font-semibold text-text-strong">Accruals</h1>
             <p className="mt-1 text-sm text-text-muted">Manage accrual rules and run accrual processes</p>
           </div>
-          <button
+          <Button
             onClick={() => navigate(ROUTES.accountingAccrualNew)}
-            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-md font-medium transition-colors shadow-sm"
+            className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
           >
             New Rule
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-6">

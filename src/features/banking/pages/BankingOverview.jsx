@@ -34,11 +34,7 @@ function Tile({ title, description, to, tag }) {
             </span>
           ) : null}
         </div>
-        <Link to={to}>
-          <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-medium transition-colors">
-            Open
-          </button>
-        </Link>
+        <Link to={to}><Button className="w-full bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20">Open</Button></Link>
       </div>
     </div>
   );
@@ -57,16 +53,8 @@ export default function BankingOverview() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to={ROUTES.bankingStatements}>
-              <button className="bg-surface-1 border border-border-subtle text-text-body px-4 py-2.5 rounded-md font-medium hover:bg-surface-2 transition-colors">
-                Import Statement
-              </button>
-            </Link>
-            <Link to={ROUTES.bankingReconciliations}>
-              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-medium transition-colors shadow-sm">
-                Run Reconciliation
-              </button>
-            </Link>
+            <Link to={ROUTES.bankingStatements}><Button variant="outline">Import Statement</Button></Link>
+            <Link to={ROUTES.bankingReconciliations}><Button className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20">Run Reconciliation</Button></Link>
           </div>
         </div>
 

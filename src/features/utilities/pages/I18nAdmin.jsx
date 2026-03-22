@@ -4,6 +4,7 @@ import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeUtilitiesApi } from '../api/utilities.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 
 export default function I18nAdmin() {
@@ -26,13 +27,13 @@ export default function I18nAdmin() {
         ) : (
           <div className="flex flex-wrap gap-2">
             {locales.map((l) => (
-              <button
+              <Button
                 key={l}
-                className={`rounded-md border px-3 py-2 text-sm ${locale === l ? 'border-brand-primary bg-brand-primary text-white' : 'border-border-subtle bg-surface-1 text-text-body hover:bg-surface-2'}`}
+                variant={locale === l ? 'primary' : 'outline'}
                 onClick={() => setLocale(l)}
               >
                 {l}
-              </button>
+              </Button>
             ))}
             {locales.length === 0 ? <div className="text-sm text-text-muted">No locales.</div> : null}
           </div>

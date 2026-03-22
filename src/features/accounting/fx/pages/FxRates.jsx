@@ -114,36 +114,27 @@ export default function FxRates() {
           {/* Tabs */}
           <div className="bg-surface-1 rounded-lg shadow-soft border border-border-subtle p-1">
             <div className="flex gap-2">
-              <button
+              <Button
+                variant={tab === 'types' ? 'primary' : 'ghost'}
+                className="flex-1"
                 onClick={() => setTab('types')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'types'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
               >
                 Rate Types
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={tab === 'rates' ? 'primary' : 'ghost'}
+                className="flex-1"
                 onClick={() => setTab('rates')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'rates'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
               >
                 Exchange Rates
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={tab === 'effective' ? 'primary' : 'ghost'}
+                className="flex-1"
                 onClick={() => setTab('effective')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'effective'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
               >
                 Rate Lookup
-              </button>
+              </Button>
             </div>
           </div>
 

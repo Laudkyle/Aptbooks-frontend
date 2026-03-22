@@ -63,9 +63,7 @@ console.log({ state, availableActions });
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <button onClick={() => navigate(config.routeList)} className="mb-3 inline-flex items-center text-sm text-text-muted hover:text-text-strong">
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back to {config.title}
-            </button>
+            <Button variant="ghost" size="sm" onClick={() => navigate(config.routeList)} leftIcon={ArrowLeft} className="mb-3 px-0">Back to {config.title}</Button>
             <h1 className="text-2xl font-bold text-text-strong">{config.singular} {header.document_no ?? ''}</h1>
             <p className="text-sm text-text-muted">View document details, workflow state, and posting outcome.</p>
           </div>

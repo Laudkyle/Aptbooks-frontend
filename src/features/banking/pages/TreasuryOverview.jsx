@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from '../../../shared/components/ui/Button.jsx';
 import { ROUTES } from '../../../app/constants/routes.js';
 
 function Tile({ title, description, to, tag }) {
@@ -13,7 +14,7 @@ function Tile({ title, description, to, tag }) {
           </div>
           {tag ? <span className="inline-flex px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">{tag}</span> : null}
         </div>
-        <Link to={to}><button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-medium transition-colors">Open</button></Link>
+        <Link to={to}><Button className="w-full bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20">Open</Button></Link>
       </div>
     </div>
   );
@@ -29,8 +30,8 @@ export default function TreasuryOverview() {
             <p className="mt-1 text-sm text-text-muted">Payment execution, liquidity visibility, transfers, cheques, and approval batches.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to={ROUTES.treasuryDashboard}><button className="bg-surface-1 border border-border-subtle text-text-body px-4 py-2.5 rounded-md font-medium hover:bg-surface-2 transition-colors">Dashboard</button></Link>
-            <Link to={ROUTES.cashForecast}><button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-medium transition-colors shadow-sm">Forecast Cash</button></Link>
+            <Link to={ROUTES.treasuryDashboard}><Button variant="outline">Dashboard</Button></Link>
+            <Link to={ROUTES.cashForecast}><Button className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20">Forecast Cash</Button></Link>
           </div>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 mb-6">

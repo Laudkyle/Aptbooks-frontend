@@ -136,17 +136,14 @@ export default function TaxAdmin() {
                   { value: 'juris', label: 'Jurisdictions' },
                   { value: 'settings', label: 'Settings' }
                 ].map((tabItem) => (
-                  <button
+                  <Button
                     key={tabItem.value}
+                    variant={tab === tabItem.value ? 'primary' : 'ghost'}
                     onClick={() => setTab(tabItem.value)}
-                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
-                      tab === tabItem.value
-                        ? 'border-green-600 text-green-600'
-                        : 'border-transparent text-text-muted hover:text-text-strong hover:border-border-subtle'
-                    }`}
+                    className="rounded-none border-b-2 border-transparent px-6 py-4 shadow-none ring-0"
                   >
                     {tabItem.label}
-                  </button>
+                  </Button>
                 ))}
               </nav>
             </div>

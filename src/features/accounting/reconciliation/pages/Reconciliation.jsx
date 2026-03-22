@@ -5,6 +5,7 @@ import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeReconciliationApi } from '../api/reconciliation.api.js';
 import { makePeriodsApi } from '../../periods/api/periods.api.js';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 
 export default function Reconciliation() {
@@ -99,30 +100,31 @@ export default function Reconciliation() {
             </div>
             <div className="flex items-center gap-2">
               {mismatchCount > 0 && (
-                <button
+                <Button
                   onClick={() => setShowAutoCorrectModal(true)}
                   disabled={!periodId}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                  className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
+                  leftIcon={Sparkles}
                 >
-                  <Sparkles className="h-4 w-4" />
                   Auto-Correct
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 onClick={() => q.refetch()}
                 disabled={!periodId || q.isLoading}
-                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                variant="outline"
+                leftIcon={RefreshCw}
+                loading={q.isLoading}
               >
-                <RefreshCw className={`h-4 w-4 ${q.isLoading ? 'animate-spin' : ''}`} />
                 Refresh
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={!periodId}
-                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                variant="outline"
+                leftIcon={Download}
               >
-                <Download className="h-4 w-4" />
                 Export
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -600,31 +602,31 @@ export default function Reconciliation() {
             </div>
 
             <div className="px-6 py-4  border-t border-border-subtle flex items-center justify-end gap-2">
-              <button
+              <Button
                 onClick={() => setShowAutoCorrectModal(false)}
                 disabled={autoCorrectMutation.isLoading}
-                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => autoCorrectMutation.mutate({ dryRun: true })}
                 disabled={autoCorrectMutation.isLoading || !autoCorrectThreshold}
-                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="outline"
               >
                 Preview
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   if (confirm(`Are you sure you want to correct ${autoCorrectPreview?.summary?.correctableAccounts || 0} accounts?`)) {
                     autoCorrectMutation.mutate({ dryRun: false });
                   }
                 }}
                 disabled={autoCorrectMutation.isLoading || !autoCorrectThreshold || !autoCorrectPreview}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
               >
                 {autoCorrectMutation.isLoading ? 'Applying...' : 'Apply Corrections'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

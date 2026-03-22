@@ -224,12 +224,13 @@ export default function VendorPaymentCreate() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={() => navigate(-1)}
-                className="p-2 hover:bg-surface-2 rounded-md transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-text-muted" />
-              </button>
+                variant="ghost"
+                iconOnly
+                aria-label="Go back"
+                leftIcon={ArrowLeft}
+              />
               <div>
                 <h1 className="text-2xl font-semibold text-text-strong">New Vendor Payment</h1>
                 <p className="text-sm text-text-muted mt-0.5">
@@ -238,20 +239,20 @@ export default function VendorPaymentCreate() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => navigate(-1)}
-                className="px-4 py-2 text-sm font-medium text-text-body bg-surface-1 border border-border-subtle rounded-md hover:bg-surface-2 transition-colors"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => create.mutate()}
                 disabled={create.isPending || !isValid || isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
+                leftIcon={Save}
               >
-                <Save className="h-4 w-4" />
                 {create.isPending ? 'Creating...' : 'Save Payment'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -389,14 +390,15 @@ export default function VendorPaymentCreate() {
                     <DollarSign className="h-5 w-5 text-text-muted" />
                     <h2 className="text-lg font-semibold text-text-strong">Apply to Bills</h2>
                   </div>
-                  <button
+                  <Button
                     onClick={addAllocation}
                     disabled={!formData.vendorId || billsLoading}
-                    className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-300 rounded-md hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
+                    variant="outline"
+                    leftIcon={Plus}
+                    className="border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
                   >
-                    <Plus className="h-4 w-4" />
                     Add Bill
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="p-6">
@@ -421,13 +423,13 @@ export default function VendorPaymentCreate() {
                           : 'No outstanding bills found for this vendor'}
                       </p>
                       {bills.length > 0 && (
-                        <button
+                        <Button
                           onClick={addAllocation}
-                          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+                          className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
+                          leftIcon={Plus}
                         >
-                          <Plus className="h-4 w-4" />
                           Apply to Bill
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ) : (

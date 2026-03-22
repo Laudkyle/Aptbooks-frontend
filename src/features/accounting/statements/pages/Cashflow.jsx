@@ -4,6 +4,7 @@ import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeStatementsApi } from '../api/statements.api.js';
 import { makePeriodsApi } from '../../periods/api/periods.api.js';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Printer, Download, ChevronDown, ChevronRight, ArrowUpCircle, ArrowDownCircle, MinusCircle } from 'lucide-react';
 
 function formatCurrency(amount, currency = 'GHS') {
@@ -370,21 +371,23 @@ export default function Cashflow() {
               />
               
               <div className="flex gap-2 md:gap-4">
-                <button
+                <Button
                   onClick={handlePrint}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  variant="outline"
+                  leftIcon={Printer}
+                  className="flex-1 md:flex-none"
                 >
-                  <Printer className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-                  <span className="hidden md:inline">Print</span>
-                </button>
+                  Print
+                </Button>
                 
-                <button
+                <Button
                   onClick={handleExport}
-                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-surface-2 text-xs md:text-sm font-medium text-text-body border border-border-subtle rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  variant="outline"
+                  leftIcon={Download}
+                  className="flex-1 md:flex-none"
                 >
-                  <Download className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-                  <span className="hidden md:inline">Export</span>
-                </button>
+                  Export
+                </Button>
               </div>
             </div>
           </div>
