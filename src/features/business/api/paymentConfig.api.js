@@ -9,6 +9,8 @@ export function makePaymentConfigApi(http) {
     deletePaymentTerm: async (id) => (await http.delete(endpoints.modules.business.paymentConfig.paymentTerm(id))).data,
 
     listPaymentMethods: async () => (await http.get(endpoints.modules.business.paymentConfig.paymentMethods)).data,
+    updatePaymentMethod: async (id, body) =>
+      (await http.patch(endpoints.modules.business.paymentConfig.paymentMethods(id), body)).data,
 
     getPaymentSettings: async () => (await http.get(endpoints.modules.business.paymentConfig.paymentSettings)).data,
     setPaymentSettings: async (body) => (await http.put(endpoints.modules.business.paymentConfig.paymentSettings, body)).data

@@ -1,3 +1,5 @@
+import { i } from "framer-motion/client";
+
 export const endpoints = {
   auth: {
     login: "/auth/login",
@@ -244,7 +246,7 @@ export const endpoints = {
         paymentTerms: "/modules/business/payment-config/payment-terms",
         paymentTerm: (id) =>
           `/modules/business/payment-config/payment-terms/${id}`,
-        paymentMethods: "/modules/business/payment-config/payment-methods",
+        paymentMethods: (id) => `/modules/business/payment-config/payment-methods/${id}`,
         paymentSettings: "/modules/business/payment-config/payment-settings",
       },
     },
