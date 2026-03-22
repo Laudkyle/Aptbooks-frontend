@@ -1,20 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Edit2, Save, X } from 'lucide-react';
+import { Search, Plus, Edit2, Save, X, Filter, AlertCircle } from 'lucide-react';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeCoaApi } from '../api/coa.api.js';
 import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
-import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
-import { DataTable } from '../../../../shared/components/data/DataTable.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
-
 
 const ACCOUNT_TYPES = [
   { value: '', label: 'All types' },
@@ -24,6 +20,20 @@ const ACCOUNT_TYPES = [
   { value: 'REVENUE', label: 'Revenue' },
   { value: 'EXPENSE', label: 'Expense' }
 ];
+
+const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active only' },
+  { value: 'inactive', label: 'Inactive only' },
+  { value: 'all', label: 'All statuses' }
+];
+
+const TYPE_COLORS = {
+  ASSET: 'bg-blue-100 text-blue-800 border-blue-200',
+  LIABILITY: 'bg-red-100 text-red-800 border-red-200',
+  EQUITY: 'bg-purple-100 text-purple-800 border-purple-200',
+  REVENUE: 'bg-green-100 text-green-800 border-green-200',
+  EXPENSE: 'bg-orange-100 text-orange-800 border-orange-200'
+};
 
 export default function AccountList() {
   const navigate = useNavigate();
@@ -143,17 +153,13 @@ export default function AccountList() {
       header: 'Type',
       render: (r) => {
         const type = r.accountTypeCode ?? r.account_type_code ?? '—';
-        const typeColors = {
-          ASSET: 'bg-blue-100 text-blue-800 border-blue-200',
-          LIABILITY: 'bg-red-100 text-red-800 border-red-200',
-          EQUITY: 'bg-purple-100 text-purple-800 border-purple-200',
-          REVENUE: 'bg-green-100 text-green-800 border-green-200',
-          EXPENSE: 'bg-orange-100 text-orange-800 border-orange-200'
-        };
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${typeColors[type] || 'bg-surface-2 text-text-strong border-border-subtle'}`}>
+          <Badge 
+            tone="subtle"
+            className={`${TYPE_COLORS[type] || 'bg-surface-2 text-text-strong border-border-subtle'}`}
+          >
             {type}
-          </span>
+          </Badge>
         );
       }
     },
@@ -187,14 +193,10 @@ export default function AccountList() {
             </select>
           );
         }
-        const statusColors = {
-          active: 'bg-green-100 text-green-800 border-green-200',
-          inactive: 'bg-surface-2 text-text-strong border-border-subtle'
-        };
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[r.status] || statusColors.inactive}`}>
+          <Badge tone={r.status === 'active' ? 'success' : 'muted'}>
             {r.status ?? 'inactive'}
-          </span>
+          </Badge>
         );
       }
     },
@@ -203,183 +205,233 @@ export default function AccountList() {
       render: (r) => {
         if (editingId === r.id) {
           return (
-            <div className="flex items-center gap-2">
-              <button
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={() => saveEdit(r.id)}
-                disabled={updateMutation.isPending}
-                className="text-green-600 hover:text-green-700 p-1 rounded hover:bg-green-50"
-              >
-                <Save className="h-4 w-4" />
-              </button>
-              <button
+                loading={updateMutation.isPending}
+                leftIcon={Save}
+                iconOnly
+                title="Save changes"
+                className="text-green-600 hover:text-green-700"
+              />
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={cancelEdit}
-                className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
-              >
-                <X className="h-4 w-4" />
-              </button>
+                leftIcon={X}
+                iconOnly
+                title="Cancel editing"
+                className="text-red-600 hover:text-red-700"
+              />
             </div>
           );
         }
         return (
-          <button
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => startEdit(r)}
-            className="text-blue-600 hover:text-blue-700 p-1 rounded hover:bg-blue-50"
-          >
-            <Edit2 className="h-4 w-4" />
-          </button>
+            leftIcon={Edit2}
+            iconOnly
+            title="Edit account"
+            className="text-blue-600 hover:text-blue-700"
+          />
         );
       }
     }
   ], [editingId, editForm, updateMutation.isPending]);
 
+  // Type card component
+  const TypeCard = ({ type, label, color, count }) => (
+    <button
+      onClick={() => setTypeFilter(type)}
+      className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+        typeFilter === type ? `border-${color}-500 shadow-sm` : 'border-slate-200'
+      }`}
+    >
+      <div className={`text-2xl font-bold text-${color}-600`}>{count}</div>
+      <div className="text-xs text-slate-500 mt-1">{label}</div>
+    </button>
+  );
+
   return (
-    <div className="min-h-screen ">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-text-strong mb-2">Chart of Accounts</h1>
-              <p className="text-sm text-text-muted">
-                Maintain your account master data
-              </p>
-            </div>
-            <Button 
-              onClick={() => navigate(ROUTES.accountingCoaNew)}
-              className="bg-green-600 hover:bg-green-700 text-white"
+    <div className="space-y-6">
+      <PageHeader
+        title="Chart of Accounts"
+        subtitle="Maintain your account master data"
+        icon={null}
+        actions={
+          <Button 
+            onClick={() => navigate(ROUTES.accountingCoaNew)}
+            leftIcon={Plus}
+          >
+            New Account
+          </Button>
+        }
+      />
+
+      {/* Type Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <button
+          onClick={() => setTypeFilter('')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === '' ? 'border-green-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-slate-900">{typeCounts.all}</div>
+          <div className="text-xs text-slate-500 mt-1">All</div>
+        </button>
+        <button
+          onClick={() => setTypeFilter('ASSET')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === 'ASSET' ? 'border-blue-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-blue-600">{typeCounts.ASSET}</div>
+          <div className="text-xs text-slate-500 mt-1">Assets</div>
+        </button>
+        <button
+          onClick={() => setTypeFilter('LIABILITY')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === 'LIABILITY' ? 'border-red-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-red-600">{typeCounts.LIABILITY}</div>
+          <div className="text-xs text-slate-500 mt-1">Liabilities</div>
+        </button>
+        <button
+          onClick={() => setTypeFilter('EQUITY')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === 'EQUITY' ? 'border-purple-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-purple-600">{typeCounts.EQUITY}</div>
+          <div className="text-xs text-slate-500 mt-1">Equity</div>
+        </button>
+        <button
+          onClick={() => setTypeFilter('REVENUE')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === 'REVENUE' ? 'border-green-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-green-600">{typeCounts.REVENUE}</div>
+          <div className="text-xs text-slate-500 mt-1">Revenue</div>
+        </button>
+        <button
+          onClick={() => setTypeFilter('EXPENSE')}
+          className={`bg-white rounded-lg border-2 p-4 text-left transition-all hover:shadow-md ${
+            typeFilter === 'EXPENSE' ? 'border-orange-500 shadow-sm' : 'border-slate-200'
+          }`}
+        >
+          <div className="text-2xl font-bold text-orange-600">{typeCounts.EXPENSE}</div>
+          <div className="text-xs text-slate-500 mt-1">Expenses</div>
+        </button>
+      </div>
+
+      {/* Search and Filter Bar */}
+      <ContentCard>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1 w-full">
+            <Input 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search code, name, or category..."
+              leftIcon={Search}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              New Account
-            </Button>
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        {searchTerm && (
+          <div className="mt-4 pt-4 border-t border-slate-200">
+            <p className="text-sm text-slate-600">
+              Showing <span className="font-semibold text-slate-900">{filteredAccounts.length}</span> of{' '}
+              <span className="font-semibold text-slate-900">{accounts.length}</span> accounts
+            </p>
+          </div>
+        )}
+      </ContentCard>
+
+      {/* Data Table */}
+      <ContentCard>
+        <div className="mb-4">
+          <div className="text-base font-semibold text-slate-900">Account List</div>
+          <div className="mt-1 text-sm text-slate-500">
+            View and manage your chart of accounts
           </div>
         </div>
 
-        {/* Type Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
-          <button
-            onClick={() => setTypeFilter('')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === '' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-text-strong">{typeCounts.all}</div>
-            <div className="text-xs text-text-muted mt-1">All</div>
-          </button>
-          <button
-            onClick={() => setTypeFilter('ASSET')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'ASSET' ? 'border-blue-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-blue-600">{typeCounts.ASSET}</div>
-            <div className="text-xs text-text-muted mt-1">Assets</div>
-          </button>
-          <button
-            onClick={() => setTypeFilter('LIABILITY')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'LIABILITY' ? 'border-red-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-red-600">{typeCounts.LIABILITY}</div>
-            <div className="text-xs text-text-muted mt-1">Liabilities</div>
-          </button>
-          <button
-            onClick={() => setTypeFilter('EQUITY')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'EQUITY' ? 'border-purple-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-purple-600">{typeCounts.EQUITY}</div>
-            <div className="text-xs text-text-muted mt-1">Equity</div>
-          </button>
-          <button
-            onClick={() => setTypeFilter('REVENUE')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'REVENUE' ? 'border-green-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-green-600">{typeCounts.REVENUE}</div>
-            <div className="text-xs text-text-muted mt-1">Revenue</div>
-          </button>
-          <button
-            onClick={() => setTypeFilter('EXPENSE')}
-            className={`bg-surface-1 rounded-lg border-2 p-3 text-left transition-all hover:shadow-md ${
-              typeFilter === 'EXPENSE' ? 'border-orange-500 shadow-sm' : 'border-border-subtle'
-            }`}
-          >
-            <div className="text-xl font-bold text-orange-600">{typeCounts.EXPENSE}</div>
-            <div className="text-xs text-text-muted mt-1">Expenses</div>
-          </button>
-        </div>
-
-        {/* Search and Filter Bar */}
-        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex-1 relative min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-soft" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search code, name, or category..."
-                className="w-full pl-10 pr-4 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-              />
-            </div>
-            <div className="w-48">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-              >
-                <option value="active">Active only</option>
-                <option value="inactive">Inactive only</option>
-                <option value="all">All statuses</option>
-              </select>
-            </div>
-          </div>
-          
-          {searchTerm && (
-            <div className="mt-3 pt-3 border-t border-border-subtle">
-              <p className="text-sm text-text-muted">
-                Showing <span className="font-semibold text-text-strong">{filteredAccounts.length}</span> of <span className="font-semibold text-text-strong">{accounts.length}</span> accounts
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Data Table */}
-        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-          {query.isError ? (
-            <div className="p-12 text-center">
-              <div className="bg-red-50 rounded-lg p-6 max-w-md mx-auto">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-600" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-red-800 mb-1">Failed to load accounts</h3>
-                    <p className="text-sm text-red-700">{query.error?.message ?? 'An error occurred'}</p>
-                  </div>
-                </div>
+        {query.isError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-8">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <div>
+                <div className="text-sm font-medium text-red-800">Failed to load accounts</div>
+                <div className="text-sm text-red-700 mt-1">{query.error?.message ?? 'An error occurred'}</div>
               </div>
             </div>
-          ) : (
-            <DataTable
-              columns={columns}
-              rows={filteredAccounts}
-              isLoading={query.isLoading}
-              empty={{ 
-                title: 'No accounts found', 
-                description: typeFilter 
-                  ? `No ${typeFilter.toLowerCase()} accounts to display` 
-                  : 'Create an account or adjust your filters'
-              }}
-            />
-          )}
-        </div>
-      </div>
+          </div>
+        ) : query.isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-sm text-slate-500">Loading accounts...</div>
+          </div>
+        ) : filteredAccounts.length === 0 ? (
+          <div className="text-center py-12">
+            <Filter className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+            <div className="text-sm font-medium text-slate-900 mb-1">No accounts found</div>
+            <div className="text-sm text-slate-500 mb-4">
+              {typeFilter 
+                ? `No ${typeFilter.toLowerCase()} accounts to display` 
+                : 'Create an account or adjust your filters'}
+            </div>
+            {!typeFilter && (
+              <Button 
+                onClick={() => navigate(ROUTES.accountingCoaNew)}
+                leftIcon={Plus}
+              >
+                Create Account
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  {columns.map((col, idx) => (
+                    <th key={idx} className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      {col.header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-100">
+                {filteredAccounts.map((account, idx) => (
+                  <tr key={account.id} className="hover:bg-slate-50 transition-colors">
+                    {columns.map((col, colIdx) => (
+                      <td key={colIdx} className="px-4 py-3 whitespace-nowrap">
+                        {col.render(account)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </ContentCard>
     </div>
   );
 }
