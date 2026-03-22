@@ -118,7 +118,7 @@ export default function TaxAdmin() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* QuickBooks-style Header */}
         <div className="mb-6">
@@ -221,7 +221,7 @@ export default function TaxAdmin() {
                     <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                          <thead className="">
                             <tr>
                               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
@@ -239,7 +239,7 @@ export default function TaxAdmin() {
                               </tr>
                             ) : (
                               taxCodes.map((c) => (
-                                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={c.id} className="hover:bg-slate-50 transition-colors">
                                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{c.code}</td>
                                   <td className="px-6 py-4 text-sm text-gray-700">{c.name}</td>
                                   <td className="px-6 py-4 text-sm text-gray-700">{c.tax_type}</td>
@@ -304,7 +304,7 @@ export default function TaxAdmin() {
                     <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                          <thead className="">
                             <tr>
                               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
@@ -320,7 +320,7 @@ export default function TaxAdmin() {
                               </tr>
                             ) : (
                               jurisdictions.map((j) => (
-                                <tr key={j.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={j.id} className="hover:bg-slate-50 transition-colors">
                                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{j.code}</td>
                                   <td className="px-6 py-4 text-sm text-gray-700">{j.name}</td>
                                   <td className="px-6 py-4 text-sm text-gray-700">{j.country_code || '—'}</td>
@@ -375,7 +375,7 @@ export default function TaxAdmin() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className=" border border-gray-200 rounded-lg p-4">
                     <p className="text-xs text-gray-600">
                       <span className="font-semibold">API Endpoint:</span> PUT /core/accounting/tax/settings
                     </p>

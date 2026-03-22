@@ -85,7 +85,7 @@ export default function BankAccountsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* QuickBooks-style Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -106,7 +106,7 @@ export default function BankAccountsPage() {
         {/* Main Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {/* Filters Section */}
-          <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+          <div className="border-b border-gray-200 px-6 py-4 ">
             <div className="grid gap-3 md:grid-cols-4">
               <Input
                 label="Search"
@@ -127,7 +127,7 @@ export default function BankAccountsPage() {
               <div className="flex items-end">
                 <Button
                   onClick={() => accountsQuery.refetch()}
-                  className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md font-medium hover:bg-gray-50 transition-colors"
+                  className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md font-medium hover:bg-slate-50 transition-colors"
                 >
                   Refresh
                 </Button>
@@ -149,7 +149,7 @@ export default function BankAccountsPage() {
             ) : (
               <>
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Code
@@ -181,7 +181,7 @@ export default function BankAccountsPage() {
                       filtered.map((r) => {
                         const active = r.is_active ?? r.isActive;
                         return (
-                          <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{r.code ?? '—'}</td>
                             <td className="px-6 py-4 text-sm text-gray-900">{r.name ?? '—'}</td>
                             <td className="px-6 py-4 text-sm text-gray-700">
@@ -219,11 +219,11 @@ export default function BankAccountsPage() {
         title="Create Bank Account"
         onClose={() => (createMutation.isLoading ? null : setCreateOpen(false))}
         footer={
-          <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
             <Button
               onClick={() => setCreateOpen(false)}
               disabled={createMutation.isLoading}
-              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>

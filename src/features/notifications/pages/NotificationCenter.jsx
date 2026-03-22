@@ -70,7 +70,7 @@ export default function NotificationCenter() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -160,7 +160,7 @@ export default function NotificationCenter() {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className=" border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left">
                         <input
@@ -197,7 +197,7 @@ export default function NotificationCenter() {
                       return (
                         <tr 
                           key={id}
-                          className={`hover:bg-gray-50 transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}
+                          className={`hover:bg-slate-50 transition-colors ${isUnread ? 'bg-blue-50/30' : ''}`}
                         >
                           <td className="px-6 py-4">
                             <input
@@ -265,7 +265,7 @@ export default function NotificationCenter() {
               </div>
 
               {/* Pagination */}
-              <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div className=" px-6 py-4 border-t border-gray-200">
                 <Pagination
                   limit={paging?.limit ?? limit}
                   offset={paging?.offset ?? offset}
@@ -279,7 +279,7 @@ export default function NotificationCenter() {
 
               {/* Raw Payload Debug */}
               <details className="border-t border-gray-200">
-                <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-between">
+                <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-700 hover:bg-slate-50 flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <ChevronDown className="h-4 w-4" />
                     Developer: View Raw Payload

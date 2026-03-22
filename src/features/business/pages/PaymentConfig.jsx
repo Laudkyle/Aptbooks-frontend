@@ -256,7 +256,7 @@ export default function PaymentConfig() {
   const isLoading = termsLoading || methodsLoading || settingsLoading;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* QuickBooks Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -326,7 +326,7 @@ export default function PaymentConfig() {
             {/* Payment Terms Tab */}
             {activeTab === 'terms' && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <h2 className="text-lg font-semibold text-gray-900">Payment Terms</h2>
                   <p className="text-sm text-gray-600 mt-0.5">
                     Define standard payment terms for invoices and bills
@@ -351,7 +351,7 @@ export default function PaymentConfig() {
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
+                        <thead className=" border-b border-gray-200">
                           <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Term Name
@@ -375,7 +375,7 @@ export default function PaymentConfig() {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {termsRows.map((t) => (
-                            <tr key={t.id ?? t.name} className="hover:bg-gray-50 transition-colors">
+                            <tr key={t.id ?? t.name} className="hover:bg-slate-50 transition-colors">
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
                                   <div className="text-sm font-semibold text-gray-900">{t.name}</div>
@@ -454,7 +454,7 @@ export default function PaymentConfig() {
             {/* Payment Methods Tab */}
             {activeTab === 'methods' && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <h2 className="text-lg font-semibold text-gray-900">Payment Methods</h2>
                   <p className="text-sm text-gray-600 mt-0.5">
                     Configure available payment methods for transactions
@@ -510,7 +510,7 @@ export default function PaymentConfig() {
                                 setMethodEditOpen(true);
                               }}
                               disabled={!m.id}
-                              className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+                              className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
                             >
                               <Edit className="h-4 w-4" />
                               Edit
@@ -538,7 +538,7 @@ export default function PaymentConfig() {
             {/* Account Settings Tab */}
             {activeTab === 'settings' && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div className="px-6 py-4 border-b border-gray-200  flex items-center justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">Account Mappings</h2>
                     <p className="text-sm text-gray-600 mt-0.5">
@@ -564,7 +564,7 @@ export default function PaymentConfig() {
                         <h3 className="text-sm font-semibold text-gray-900">Accounts Receivable</h3>
                       </div>
                       
-                      <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Unapplied Receipts Account
                         </label>
@@ -595,7 +595,7 @@ export default function PaymentConfig() {
                         )}
                       </div>
 
-                      <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Early Payment Discount Account
                         </label>
@@ -634,7 +634,7 @@ export default function PaymentConfig() {
                         <h3 className="text-sm font-semibold text-gray-900">Accounts Payable</h3>
                       </div>
                       
-                      <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Prepayments Account
                         </label>
@@ -665,7 +665,7 @@ export default function PaymentConfig() {
                         )}
                       </div>
 
-                      <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className=" p-4 rounded-lg">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Discount Income Account
                         </label>
@@ -705,7 +705,7 @@ export default function PaymentConfig() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className=" p-4 rounded-lg">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Online Cash Account
                           </label>
@@ -736,7 +736,7 @@ export default function PaymentConfig() {
                           )}
                         </div>
 
-                        <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className=" p-4 rounded-lg">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Default Online Payment Method
                           </label>
@@ -772,7 +772,7 @@ export default function PaymentConfig() {
                     {/* Summary Section */}
                     <div className="md:col-span-2 mt-6 pt-6 border-t border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900 mb-4">Current Configuration Summary</h3>
-                      <div className="bg-gray-50 rounded-lg p-4">
+                      <div className=" rounded-lg p-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* AR Summary */}
                           <div className="space-y-2">
@@ -893,7 +893,7 @@ export default function PaymentConfig() {
             onChange={(e) => setTerm((s) => ({ ...s, discount_rate: e.target.value === '' ? null : Number(e.target.value) }))}
           />
 
-          <label className="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+          <label className="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-slate-50">
             <input 
               type="checkbox" 
               checked={term.isDefault} 
@@ -907,7 +907,7 @@ export default function PaymentConfig() {
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={() => setTermOpen(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>
@@ -960,7 +960,7 @@ export default function PaymentConfig() {
             onChange={(e) => setTermEdit((s) => ({ ...s, discount_rate: e.target.value === '' ? null : Number(e.target.value) }))}
           />
 
-          <label className="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
+          <label className="flex items-center gap-2 p-3 border border-gray-200 rounded-md cursor-pointer hover:bg-slate-50">
             <input
               type="checkbox"
               checked={termEdit.isDefault}
@@ -989,7 +989,7 @@ export default function PaymentConfig() {
               setTermEditOpen(false);
               setEditingTermId(null);
             }}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>
@@ -1067,7 +1067,7 @@ export default function PaymentConfig() {
               setMethodEditOpen(false);
               setEditingMethodId(null);
             }}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>

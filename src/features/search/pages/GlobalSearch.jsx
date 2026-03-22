@@ -34,12 +34,12 @@ function Group({ title, items }) {
   if (!items?.length) return null;
   
   const Icon = categoryIcons[title] || FileText;
-  const bgColor = categoryColors[title] || 'bg-gray-50 border-gray-200';
+  const bgColor = categoryColors[title] || ' border-gray-200';
   const iconColor = iconColors[title] || 'text-gray-600';
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-      <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
+      <div className=" border-b border-gray-200 px-4 py-3 flex items-center gap-2">
         <Icon className={`h-5 w-5 ${iconColor}`} />
         <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
         <Badge variant="secondary" className="ml-auto text-xs">{items.length}</Badge>
@@ -48,7 +48,7 @@ function Group({ title, items }) {
         {items.map((it) => (
           <div 
             key={it.id} 
-            className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -93,7 +93,7 @@ export default function GlobalSearch() {
   const totalResults = Object.values(results).reduce((sum, arr) => sum + (arr?.length || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

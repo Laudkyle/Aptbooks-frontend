@@ -86,7 +86,7 @@ export default function Reconciliation() {
   const autoCorrectPreview = autoCorrectMutation.data?.data;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* QuickBooks-style Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -111,14 +111,14 @@ export default function Reconciliation() {
               <button
                 onClick={() => q.refetch()}
                 disabled={!periodId || q.isLoading}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
               >
                 <RefreshCw className={`h-4 w-4 ${q.isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
               <button
                 disabled={!periodId}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
                 Export
@@ -272,7 +272,7 @@ export default function Reconciliation() {
             {/* Account Details Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               {/* Table Header */}
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div className="px-6 py-4 border-b border-gray-200 ">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900">Account Details</h2>
                   <div className="flex items-center gap-3">
@@ -281,7 +281,7 @@ export default function Reconciliation() {
                       className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors inline-flex items-center gap-2 ${
                         showOnlyMismatches
                           ? 'bg-red-100 text-red-700 border border-red-300'
-                          : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                          : 'bg-white text-gray-600 border border-gray-300 hover:bg-slate-50'
                       }`}
                     >
                       <Filter className="h-4 w-4" />
@@ -303,7 +303,7 @@ export default function Reconciliation() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className=" border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Account
@@ -334,7 +334,7 @@ export default function Reconciliation() {
                         return (
                           <tr 
                             key={diff.accountId}
-                            className={`hover:bg-gray-50 transition-colors ${
+                            className={`hover:bg-slate-50 transition-colors ${
                               hasDifference ? 'bg-red-50' : ''
                             }`}
                           >
@@ -413,7 +413,7 @@ export default function Reconciliation() {
 
               {/* Table Footer */}
               {diffs.length > 0 && (
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div className="px-6 py-4  border-t border-gray-200">
                   <div className="text-sm text-gray-600">
                     Showing {diffs.length} accounts
                     {mismatchCount > 0 && ` • ${mismatchCount} with discrepancies`}
@@ -464,19 +464,19 @@ export default function Reconciliation() {
                 <>
                   {/* Summary */}
                   <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <div className=" rounded-lg p-4">
                       <div className="text-xs font-medium text-gray-500 uppercase">Transactions</div>
                       <div className="text-xl font-bold text-gray-900 mt-1">
                         {discrepancyDetails.summary.transactionCount}
                       </div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <div className=" rounded-lg p-4">
                       <div className="text-xs font-medium text-gray-500 uppercase">GL Balance</div>
                       <div className="text-xl font-bold text-gray-900 mt-1">
                         ${discrepancyDetails.summary.glBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <div className=" rounded-lg p-4">
                       <div className="text-xs font-medium text-gray-500 uppercase">Computed</div>
                       <div className="text-xl font-bold text-gray-900 mt-1">
                         ${discrepancyDetails.summary.computedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -493,7 +493,7 @@ export default function Reconciliation() {
                   {/* Transactions */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <table className="w-full">
-                      <thead className="bg-gray-50">
+                      <thead className="">
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
@@ -505,7 +505,7 @@ export default function Reconciliation() {
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {discrepancyDetails.transactions.map((txn) => (
-                          <tr key={txn.lineId} className="hover:bg-gray-50">
+                          <tr key={txn.lineId} className="hover:bg-slate-50">
                             <td className="px-4 py-3 text-sm text-gray-900">{txn.entryDate}</td>
                             <td className="px-4 py-3 text-sm text-gray-600 font-mono">{txn.reference || '—'}</td>
                             <td className="px-4 py-3 text-sm text-gray-900">{txn.memo || txn.lineDescription || '—'}</td>
@@ -599,18 +599,18 @@ export default function Reconciliation() {
               )}
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-2">
+            <div className="px-6 py-4  border-t border-gray-200 flex items-center justify-end gap-2">
               <button
                 onClick={() => setShowAutoCorrectModal(false)}
                 disabled={autoCorrectMutation.isLoading}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => autoCorrectMutation.mutate({ dryRun: true })}
                 disabled={autoCorrectMutation.isLoading || !autoCorrectThreshold}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Preview
               </button>

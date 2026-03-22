@@ -65,7 +65,7 @@ export default function AccrualsHub() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* QuickBooks-style Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -145,7 +145,7 @@ export default function AccrualsHub() {
             
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
@@ -163,7 +163,7 @@ export default function AccrualsHub() {
                     </tr>
                   ) : (
                     rules.map((r) => (
-                      <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4 text-sm">
                           <Link 
                             className="text-blue-600 hover:text-blue-800 hover:underline font-medium" 
@@ -205,7 +205,7 @@ export default function AccrualsHub() {
             
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Run ID</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
@@ -221,8 +221,8 @@ export default function AccrualsHub() {
                     </tr>
                   ) : (
                     runs.map((r) => (
-                      <tr key={r.runId ?? r.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 text-sm font-mono text-gray-900 bg-gray-50">
+                      <tr key={r.runId ?? r.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-mono text-gray-900 ">
                           {r.runId ?? r.id}
                         </td>
                         <td className="px-6 py-4 text-sm">

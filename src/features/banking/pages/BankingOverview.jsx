@@ -46,7 +46,7 @@ function Tile({ title, description, to, tag }) {
 
 export default function BankingOverview() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* QuickBooks-style Header */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -58,7 +58,7 @@ export default function BankingOverview() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link to={ROUTES.bankingStatements}>
-              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md font-medium hover:bg-gray-50 transition-colors">
+              <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md font-medium hover:bg-slate-50 transition-colors">
                 Import Statement
               </button>
             </Link>

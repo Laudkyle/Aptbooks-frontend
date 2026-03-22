@@ -129,7 +129,7 @@ export default function DocumentDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen  flex items-center justify-center">
         <div className="text-center">
           <Clock className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-4" />
           <p className="text-sm text-gray-600">Loading document…</p>
@@ -140,7 +140,7 @@ export default function DocumentDetailPage() {
 
   if (error || !doc) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen  flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Document not found</h2>
@@ -157,7 +157,7 @@ export default function DocumentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

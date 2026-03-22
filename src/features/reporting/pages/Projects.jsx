@@ -579,7 +579,7 @@ export default function Projects() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <PageHeader
         title="Projects"
         subtitle="Create projects, phases, and tasks for planning and dimension-aware reporting."
@@ -642,11 +642,11 @@ export default function Projects() {
         title="Create New Project"
         onClose={() => (createMutation.isPending ? null : handleCloseModal())}
         footer={
-          <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
             <Button
               onClick={handleCloseModal}
               disabled={createMutation.isPending}
-              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>
@@ -779,11 +779,11 @@ export default function Projects() {
           title={actionContent.title}
           onClose={actionContent.isPending ? null : handleCloseActionModal}
           footer={
-            <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
               <Button
                 onClick={handleCloseActionModal}
                 disabled={actionContent.isPending}
-                className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </Button>

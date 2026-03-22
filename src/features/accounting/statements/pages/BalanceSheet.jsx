@@ -45,7 +45,7 @@ function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
     <>
       <div 
         className={`
-          flex items-center py-2 hover:bg-gray-50 transition-colors duration-150 px-2 md:px-4
+          flex items-center py-2 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4
           ${getBgStyle()}
         `}
         style={{ paddingLeft: `${paddingLeft + 8}px` }}
@@ -245,7 +245,7 @@ export default function BalanceSheet() {
           )}
 
           {!periodId && !q.isLoading && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <div className="text-center py-12  rounded-lg">
               <p className="text-sm text-slate-600">
                 Select a period to view the balance sheet.
               </p>

@@ -1212,7 +1212,7 @@ export default function ProjectDetail() {
   // ============================
 
   return (
-    <div className="min-h-screen bg-gray-50 space-y-6">
+    <div className="min-h-screen  space-y-6">
       {/* Header */}
       <PageHeader
         title={project.name || "Untitled Project"}

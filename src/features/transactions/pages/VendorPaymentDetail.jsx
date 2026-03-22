@@ -128,7 +128,7 @@ export default function VendorPaymentDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -171,7 +171,7 @@ export default function VendorPaymentDetail() {
               <h3 className="text-base font-semibold text-gray-900 mb-5">Payment Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Building2 className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Vendor</span>
@@ -187,7 +187,7 @@ export default function VendorPaymentDetail() {
                   )}
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Payment Date</span>
@@ -197,7 +197,7 @@ export default function VendorPaymentDetail() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Wallet className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Cash Account</span>
@@ -207,7 +207,7 @@ export default function VendorPaymentDetail() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Total Amount</span>
@@ -219,7 +219,7 @@ export default function VendorPaymentDetail() {
 
                 {/* Payment Method */}
                 {payment?.payment_method_name && (
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                  <div className=" rounded-lg border border-gray-200 p-4">
                     <div className="text-xs font-medium text-gray-500 mb-2">Payment Method</div>
                     <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
                       {payment.payment_method_name}
@@ -228,7 +228,7 @@ export default function VendorPaymentDetail() {
                 )}
 
                 {/* Currency and FX Rate */}
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="text-xs font-medium text-gray-500 mb-2">Currency</div>
                   <div className="text-sm font-semibold text-gray-900">
                     {currencyCode}
@@ -247,7 +247,7 @@ export default function VendorPaymentDetail() {
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   {payment?.vendor_email && (
-                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div className=" rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Mail className="h-4 w-4 text-gray-400" />
                         <span className="text-xs font-medium text-gray-500">Email</span>
@@ -259,7 +259,7 @@ export default function VendorPaymentDetail() {
                   )}
 
                   {payment?.vendor_phone && (
-                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div className=" rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Phone className="h-4 w-4 text-gray-400" />
                         <span className="text-xs font-medium text-gray-500">Phone</span>
@@ -271,7 +271,7 @@ export default function VendorPaymentDetail() {
                   )}
 
                   {payment?.vendor_address_line1 && (
-                    <div className="md:col-span-2 bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <MapPin className="h-4 w-4 text-gray-400" />
                         <span className="text-xs font-medium text-gray-500">Address</span>
@@ -294,7 +294,7 @@ export default function VendorPaymentDetail() {
 
             {/* Allocations */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+              <div className="px-6 py-4  border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
                   <span className="text-sm text-gray-600">
@@ -306,7 +306,7 @@ export default function VendorPaymentDetail() {
               {allocations.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className=" border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                           Bill ID
@@ -321,7 +321,7 @@ export default function VendorPaymentDetail() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100">
                       {allocations.map((allocation, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50">
+                        <tr key={idx} className="hover:bg-slate-50">
                           <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
                             {allocation.bill_id ? `${allocation.bill_id.substring(0, 12)}...` : '—'}
                           </td>
@@ -334,7 +334,7 @@ export default function VendorPaymentDetail() {
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                    <tfoot className=" border-t-2 border-gray-200">
                       <tr>
                         <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total Allocated:

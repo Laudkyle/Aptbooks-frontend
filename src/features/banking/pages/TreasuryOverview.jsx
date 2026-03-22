@@ -21,7 +21,7 @@ function Tile({ title, description, to, tag }) {
 
 export default function TreasuryOverview() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -29,7 +29,7 @@ export default function TreasuryOverview() {
             <p className="mt-1 text-sm text-gray-600">Payment execution, liquidity visibility, transfers, cheques, and approval batches.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link to={ROUTES.treasuryDashboard}><button className="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md font-medium hover:bg-gray-50 transition-colors">Dashboard</button></Link>
+            <Link to={ROUTES.treasuryDashboard}><button className="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-md font-medium hover:bg-slate-50 transition-colors">Dashboard</button></Link>
             <Link to={ROUTES.cashForecast}><button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-medium transition-colors shadow-sm">Forecast Cash</button></Link>
           </div>
         </div>

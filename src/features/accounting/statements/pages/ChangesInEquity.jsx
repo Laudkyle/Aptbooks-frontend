@@ -32,7 +32,7 @@ function MovementRow({ label, amount, level = 0, isExpanded, onToggle, hasChildr
   
   return (
     <div 
-      className="flex items-center py-3 hover:bg-gray-50 transition-colors duration-150 px-2 md:px-4 border-b border-gray-100 last:border-0"
+      className="flex items-center py-3 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4 border-b border-gray-100 last:border-0"
       style={{ paddingLeft: `${paddingLeft + 8}px` }}
     >
       {hasChildren && (
@@ -143,7 +143,7 @@ function EquityStatementCard({ title, data, isCompare = false }) {
       )}
       
       {/* Period Info */}
-      <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-2 gap-4 mb-6 p-4  rounded-lg">
         <div>
           <p className="text-xs text-gray-500">From</p>
           <p className="text-sm font-medium text-gray-900">{formatDate(from)}</p>
@@ -193,7 +193,7 @@ function EquityStatementCard({ title, data, isCompare = false }) {
           )}
 
           {/* Computed Closing Balance */}
-          <div className="flex items-center py-4 mt-2 border-t-2 border-gray-300 bg-gray-50/50 px-2 md:px-4">
+          <div className="flex items-center py-4 mt-2 border-t-2 border-gray-300 /50 px-2 md:px-4">
             <span className="flex-1 text-sm font-semibold text-gray-900">
               Computed Closing Balance
             </span>
@@ -347,7 +347,7 @@ export default function ChangesInEquity() {
           )}
 
           {!periodId && !q.isLoading && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <div className="text-center py-12  rounded-lg">
               <p className="text-sm text-slate-600">
                 Select a period to view the statement of changes in equity.
               </p>

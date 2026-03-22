@@ -218,7 +218,7 @@ export default function VendorPaymentCreate() {
   const isLoading = vendorsLoading || accountsLoading || methodsLoading;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* QuickBooks Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -240,7 +240,7 @@ export default function VendorPaymentCreate() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(-1)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
               >
                 Cancel
               </button>
@@ -269,7 +269,7 @@ export default function VendorPaymentCreate() {
             <div className="lg:col-span-2 space-y-6">
               {/* Vendor & Payment Info */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <div className="flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-gray-600" />
                     <h2 className="text-lg font-semibold text-gray-900">Payment Information</h2>
@@ -384,7 +384,7 @@ export default function VendorPaymentCreate() {
 
               {/* Bill Allocations */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div className="px-6 py-4 border-b border-gray-200  flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-gray-600" />
                     <h2 className="text-lg font-semibold text-gray-900">Apply to Bills</h2>
@@ -500,7 +500,7 @@ export default function VendorPaymentCreate() {
             <div className="space-y-6">
               {/* Payment Summary */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <h3 className="text-sm font-semibold text-gray-900">Payment Summary</h3>
                 </div>
                 <div className="p-6 space-y-3">
@@ -553,7 +553,7 @@ export default function VendorPaymentCreate() {
 
               {/* Validation Status */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <h3 className="text-sm font-semibold text-gray-900">Required Fields</h3>
                 </div>
                 <div className="p-6 space-y-2">

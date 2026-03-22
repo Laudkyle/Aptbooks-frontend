@@ -67,7 +67,7 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
   };
 
   const getBgStyle = () => {
-    if (isTotal) return 'border-t border-gray-300 bg-gray-50/50';
+    if (isTotal) return 'border-t border-gray-300 /50';
     return '';
   };
 
@@ -75,7 +75,7 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
     <>
       <div 
         className={`
-          flex items-center py-2.5 hover:bg-gray-50 transition-colors duration-150 px-2 md:px-4
+          flex items-center py-2.5 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4
           ${getBgStyle()}
         `}
         style={{ paddingLeft: `${paddingLeft + 8}px` }}
@@ -220,7 +220,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
       )}
       
       {/* Period Info */}
-      <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-2 gap-4 mb-6 p-4  rounded-lg">
         <div>
           <p className="text-xs text-gray-500">From</p>
           <p className="text-sm font-medium text-gray-900">{formatDate(from)}</p>
@@ -235,7 +235,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
       <div className="space-y-4">
         {/* Opening Balance (if available) */}
         {openingBalance !== 0 && (
-          <div className="flex items-center py-2 px-2 md:px-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center py-2 px-2 md:px-4  rounded-lg">
             <span className="flex-1 text-sm text-gray-700">Opening Cash Balance</span>
             <span className="text-sm font-medium text-gray-900 font-mono">
               {formatCurrency(openingBalance)}
@@ -297,7 +297,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
 
       {/* Empty State */}
       {lines.length === 0 && (
-        <div className="text-center py-8 bg-gray-50 rounded-lg">
+        <div className="text-center py-8  rounded-lg">
           <p className="text-sm text-gray-500">
             No cash flow transactions for this period
           </p>
@@ -421,7 +421,7 @@ export default function Cashflow() {
           )}
 
           {!periodId && !q.isLoading && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <div className="text-center py-12  rounded-lg">
               <p className="text-sm text-slate-600">
                 Select a period to view the cash flow statement.
               </p>

@@ -434,7 +434,7 @@ export default function DocumentTypesPage() {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {entityTypes.map((type) => (
-                    <Badge key={type} variant="outline" className="bg-gray-50">
+                    <Badge key={type} variant="outline" className="">
                       {type}
                     </Badge>
                   ))}
@@ -646,7 +646,7 @@ export default function DocumentTypesPage() {
                     .map((level) => (
                       <div
                         key={level.id}
-                        className="p-2 hover:bg-gray-50 rounded cursor-pointer flex items-center justify-between"
+                        className="p-2 hover: rounded cursor-pointer flex items-center justify-between"
                         onClick={() => setSelectedLevels(prev => [...prev, level.id])}
                       >
                         <div>

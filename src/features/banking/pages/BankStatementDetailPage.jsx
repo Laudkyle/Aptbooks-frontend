@@ -130,7 +130,7 @@ export default function BankStatementDetailPage() {
   const totalCount = lines.length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       {/* QuickBooks-style Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -153,7 +153,7 @@ export default function BankStatementDetailPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCsvOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
               >
                 <Upload className="h-4 w-4" />
                 Import CSV
@@ -213,7 +213,7 @@ export default function BankStatementDetailPage() {
                   className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                     matchedFilter === filter
                       ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                      : 'bg-white text-gray-600 border border-gray-300 hover:bg-slate-50'
                   }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -223,7 +223,7 @@ export default function BankStatementDetailPage() {
             <div className="ml-auto">
               <button
                 onClick={() => linesQuery.refetch()}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
@@ -243,7 +243,7 @@ export default function BankStatementDetailPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className=" border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
@@ -257,7 +257,7 @@ export default function BankStatementDetailPage() {
                   {lines.map((line) => (
                     <tr 
                       key={line.id} 
-                      className={`hover:bg-gray-50 transition-colors ${
+                      className={`hover:bg-slate-50 transition-colors ${
                         String(selectedLineId) === String(line.id) ? 'bg-green-50' : ''
                       }`}
                     >
@@ -311,7 +311,7 @@ export default function BankStatementDetailPage() {
           )}
 
           {/* Pagination */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 border-t border-gray-200 ">
             <Pagination
               limit={paging.limit}
               offset={paging.offset}
@@ -327,7 +327,7 @@ export default function BankStatementDetailPage() {
               <h2 className="text-lg font-semibold text-gray-900">Find Matching Transaction</h2>
               <button
                 onClick={() => suggestionsQuery.refetch()}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
@@ -348,7 +348,7 @@ export default function BankStatementDetailPage() {
               <>
                 <div className="overflow-x-auto mb-6">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className=" border-b border-gray-200">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Match Score</th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
@@ -361,7 +361,7 @@ export default function BankStatementDetailPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {suggestions.map((sug) => (
-                        <tr key={sug.journal_entry_line_id} className="hover:bg-gray-50">
+                        <tr key={sug.journal_entry_line_id} className="hover:bg-slate-50">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <div className="w-12 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -444,7 +444,7 @@ export default function BankStatementDetailPage() {
             <button
               onClick={() => setJsonOpen(false)}
               disabled={importJsonMutation.isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
             </button>
@@ -479,7 +479,7 @@ export default function BankStatementDetailPage() {
             <button
               onClick={() => setCsvOpen(false)}
               disabled={importCsvMutation.isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
             </button>
