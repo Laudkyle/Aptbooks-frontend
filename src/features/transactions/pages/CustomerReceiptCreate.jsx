@@ -131,7 +131,7 @@ export default function CustomerReceiptCreate() {
   const selectedCustomer = customers.find(c => c.id === payload.customerId);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -388,7 +388,7 @@ export default function CustomerReceiptCreate() {
               )}
 
               {payload.customerId && payload.allocations.length === 0 && (
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-8 text-center">
+                <div className=" rounded-lg border border-gray-200 p-8 text-center">
                   <p className="text-sm text-gray-600">No allocations yet. Click "Add Allocation" to assign this payment to invoices.</p>
                 </div>
               )}
@@ -396,7 +396,7 @@ export default function CustomerReceiptCreate() {
               {payload.allocations.length > 0 && (
                 <div className="space-y-4">
                   {payload.allocations.map((allocation, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div key={index} className=" rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-sm font-semibold text-gray-700">Allocation #{index + 1}</span>
                         <button

@@ -99,7 +99,7 @@ export default function BillDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -142,7 +142,7 @@ export default function BillDetail() {
               <h3 className="text-base font-semibold text-gray-900 mb-5">Bill Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Vendor</span>
@@ -152,7 +152,7 @@ export default function BillDetail() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Dates</span>
@@ -163,7 +163,7 @@ export default function BillDetail() {
                 </div>
 
                 {bill?.bill?.memo && (
-                  <div className="md:col-span-2 bg-gray-50 rounded-lg border border-gray-200 p-4">
+                  <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
                     <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
                     <div className="text-sm text-gray-700">{bill.bill.memo}</div>
                   </div>
@@ -173,13 +173,13 @@ export default function BillDetail() {
 
             {/* Line Items */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+              <div className="px-6 py-4  border-b border-gray-200">
                 <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className=" border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Description
@@ -203,7 +203,7 @@ export default function BillDetail() {
                       const lineTotal = (l.quantity ?? 1) * (l.unitPrice ?? l.unit_price ?? 0);
                       
                       return (
-                        <tr key={idx} className="hover:bg-gray-50">
+                        <tr key={idx} className="hover:">
                           <td className="px-6 py-4 text-sm text-gray-900">{l.description}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">{l.quantity ?? 1}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">
@@ -227,7 +227,7 @@ export default function BillDetail() {
                     ) : null}
                   </tbody>
                   {(bill?.lines ?? []).length > 0 && (
-                    <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                    <tfoot className=" border-t-2 border-gray-200">
                       <tr>
                         <td colSpan={4} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total:

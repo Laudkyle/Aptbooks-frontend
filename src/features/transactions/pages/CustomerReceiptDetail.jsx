@@ -98,7 +98,7 @@ export default function CustomerReceiptDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -141,7 +141,7 @@ export default function CustomerReceiptDetail() {
               <h3 className="text-base font-semibold text-gray-900 mb-5">Receipt Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Customer</span>
@@ -157,7 +157,7 @@ export default function CustomerReceiptDetail() {
                   )}
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Receipt Date</span>
@@ -167,14 +167,14 @@ export default function CustomerReceiptDetail() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="text-xs font-medium text-gray-500 mb-2">Cash Account</div>
                   <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
                     {receipt?.cash_account_name ? `${receipt.cash_account_name.substring(0, 12)}...` : '—'}
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Total Amount</span>
@@ -185,7 +185,7 @@ export default function CustomerReceiptDetail() {
                 </div>
 
                 {receipt?.memo && (
-                  <div className="md:col-span-2 bg-gray-50 rounded-lg border border-gray-200 p-4">
+                  <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
                     <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
                     <div className="text-sm text-gray-700">{receipt.memo}</div>
                   </div>
@@ -195,13 +195,13 @@ export default function CustomerReceiptDetail() {
 
             {/* Allocations */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+              <div className="px-6 py-4  border-b border-gray-200">
                 <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className=" border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Invoice ID
@@ -216,7 +216,7 @@ export default function CustomerReceiptDetail() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
                     {allocations.map((a, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
+                      <tr key={idx} className="hover:">
                         <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
                           {a.invoice_id ? `${a.invoice_id.substring(0, 12)}...` : '—'}
                         </td>
@@ -237,7 +237,7 @@ export default function CustomerReceiptDetail() {
                     ) : null}
                   </tbody>
                   {allocations.length > 0 && (
-                    <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+                    <tfoot className=" border-t-2 border-gray-200">
                       <tr>
                         <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total Allocated:

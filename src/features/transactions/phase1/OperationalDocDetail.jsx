@@ -59,7 +59,7 @@ console.log({ state, availableActions });
   const currency = header.currency_code || 'GHS';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
@@ -89,10 +89,10 @@ console.log({ state, availableActions });
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50"><h2 className="text-base font-semibold text-gray-900">Lines</h2></div>
+              <div className="px-6 py-4 border-b border-gray-200 "><h2 className="text-base font-semibold text-gray-900">Lines</h2></div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className=" border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Description</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Qty</th>
