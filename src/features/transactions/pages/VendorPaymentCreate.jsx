@@ -9,19 +9,12 @@ import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeBillsApi } from '../api/bills.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
+import { generateRequestId } from '../../../shared/api/request-id.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
-// Generate UUID v4
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function VendorPaymentCreate() {
   const navigate = useNavigate();
@@ -34,7 +27,6 @@ export default function VendorPaymentCreate() {
   const toast = useToast();
 
   // Auto-generate idempotency key on mount
-  const [idempotencyKey] = useState(() => generateUUID());
   
   const [formData, setFormData] = useState({
     vendorId: '',
@@ -174,7 +166,7 @@ export default function VendorPaymentCreate() {
 
   const create = useMutation({
     mutationFn: () => {
-      const idempotencyKey = generateUUID(); 
+      const idempotencyKey = generateRequestId(); 
       const payload = {
         vendorId: formData.vendorId,
         paymentDate: formData.paymentDate,
@@ -529,15 +521,6 @@ export default function VendorPaymentCreate() {
                     <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : unallocated > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
                       ${unallocated.toFixed(2)}
                     </span>
-                  </div>
-
-                  <div className="text-xs text-text-muted">
-                    <div className="flex items-center gap-1">
-                      <span>Idempotency Key:</span>
-                      <code className="bg-surface-2 px-1 py-0.5 rounded text-[10px]">
-                        {idempotencyKey.slice(0, 8)}...
-                      </code>
-                    </div>
                   </div>
 
                   {unallocated < 0 && (

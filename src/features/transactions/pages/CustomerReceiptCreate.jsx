@@ -10,6 +10,7 @@ import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
+import { generateRequestId } from '../../../shared/api/request-id.js';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
@@ -79,7 +80,10 @@ export default function CustomerReceiptCreate() {
   );
 
   const create = useMutation({
-    mutationFn: () => receiptsApi.create(payload),
+    mutationFn: () => {
+      const idempotencyKey = generateRequestId();
+      return receiptsApi.create(payload, { idempotencyKey });
+    },
     onSuccess: (res) => {
       toast.success('Receipt created successfully');
       const id = res?.id ?? res?.data?.id;

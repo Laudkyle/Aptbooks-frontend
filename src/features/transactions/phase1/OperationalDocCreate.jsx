@@ -16,17 +16,10 @@ import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
 import { makeUsersApi } from '../../foundation/users/api/users.api.js';
 import { endpoints } from '../../../shared/api/endpoints.js';
+import { generateRequestId } from '../../../shared/api/request-id.js';
 import { getPhase1ModuleConfig } from './moduleConfigs.js';
 import { makeEmptyForm, sanitizePayload, toCurrency } from './helpers.js';
 
-// Generate UUID v4
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function OperationalDocCreate({ moduleKey }) {
   const config = getPhase1ModuleConfig(moduleKey);
@@ -140,8 +133,7 @@ export default function OperationalDocCreate({ moduleKey }) {
   const create = useMutation({
     mutationFn: () => {
       // Generate fresh idempotency key for each mutation attempt
-      const idempotencyKey = generateUUID();
-      console.log('Using idempotency key:', idempotencyKey);
+      const idempotencyKey = generateRequestId();
       return api.create(sanitizePayload(config, form), { idempotencyKey });
     },
     onSuccess: (created) => {

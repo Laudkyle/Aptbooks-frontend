@@ -9,18 +9,11 @@ import { makePartnersApi } from '../../../features/business/api/partners.api.js'
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
+import { generateRequestId } from '../../../shared/api/request-id.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
-// Generate UUID v4
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function CreditNoteCreate() {
   const navigate = useNavigate();
@@ -88,8 +81,7 @@ export default function CreditNoteCreate() {
   const create = useMutation({
     mutationFn: () => {
       // Generate fresh idempotency key for each mutation attempt
-      const idempotencyKey = generateUUID();
-      console.log('Using idempotency key:', idempotencyKey); // For debugging
+      const idempotencyKey = generateRequestId(); // For debugging
       
       // Format payload for API - convert to snake_case
       const apiPayload = {

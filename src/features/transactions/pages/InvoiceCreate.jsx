@@ -8,6 +8,7 @@ import { makeInvoicesApi } from '../api/invoices.api.js';
 import { makePartnersApi } from '../../../features/business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
+import { generateRequestId } from '../../../shared/api/request-id.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -16,14 +17,6 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
-// Generate UUID v4
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-}
 
 export default function InvoiceCreate() {
   const navigate = useNavigate();
@@ -33,7 +26,6 @@ export default function InvoiceCreate() {
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
 
-  const [idempotencyKey] = useState(() => generateUUID());
   const [payload, setPayload] = useState({
     customerId: '',
     invoiceDate: new Date().toISOString().split('T')[0],
@@ -74,7 +66,10 @@ export default function InvoiceCreate() {
     acc.type?.toLowerCase().includes('customer')  );
 
   const create = useMutation({
-    mutationFn: () => invoicesApi.create(payload, { idempotencyKey }),
+    mutationFn: () => {
+      const idempotencyKey = generateRequestId();
+      return invoicesApi.create(payload, { idempotencyKey });
+    },
     onSuccess: (res) => {
       toast.success('Invoice created successfully');
       const id = res?.id ?? res?.data?.id;
