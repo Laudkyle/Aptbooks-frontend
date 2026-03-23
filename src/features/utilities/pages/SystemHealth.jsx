@@ -28,19 +28,19 @@ function StatusBadge({ ok, trueLabel = 'Healthy', falseLabel = 'Issue detected' 
 
 function StatCard({ icon: Icon, label, value, tone = 'default', helper }) {
   const toneMap = {
-    default: 'bg-surface-2 text-text-body',
+    default: 'bg-slate-50 text-slate-700',
     success: 'bg-emerald-50 text-emerald-700',
     danger: 'bg-red-50 text-red-700',
     info: 'bg-blue-50 text-blue-700',
     warning: 'bg-amber-50 text-amber-700',
   };
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4 shadow-sm">
+    <div className="rounded-2xl border border-border-subtle bg-white/80 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-text-muted">{label}</div>
-          <div className="mt-2 text-2xl font-semibold text-text-strong">{value}</div>
-          {helper ? <div className="mt-1 text-xs text-text-muted">{helper}</div> : null}
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
+          {helper ? <div className="mt-1 text-xs text-slate-500">{helper}</div> : null}
         </div>
         <div className={`rounded-2xl p-2 ${toneMap[tone] ?? toneMap.default}`}>
           <Icon className="h-5 w-5" />
@@ -106,8 +106,8 @@ export default function SystemHealth() {
       header: 'Module',
       render: (r) => (
         <div>
-          <div className="font-medium text-text-strong">{r.module}</div>
-          <div className="text-xs text-text-muted">{r.presentCount ?? 0} / {r.requiredCount ?? 0} tables available</div>
+          <div className="font-medium text-slate-900">{r.module}</div>
+          <div className="text-xs text-slate-500">{r.presentCount ?? 0} / {r.requiredCount ?? 0} tables available</div>
         </div>
       ),
     },
@@ -118,7 +118,7 @@ export default function SystemHealth() {
     {
       header: 'Missing',
       render: (r) => (
-        <div className="max-w-md text-sm text-text-muted">
+        <div className="max-w-md text-sm text-slate-600">
           {r.missingTables?.length ? r.missingTables.slice(0, 4).join(', ') + (r.missingTables.length > 4 ? ` +${r.missingTables.length - 4} more` : '') : 'None'}
         </div>
       ),
@@ -160,58 +160,58 @@ export default function SystemHealth() {
               <div className="grid gap-4 xl:grid-cols-3">
                 <ContentCard title="Service checks" className="xl:col-span-1">
                   <div className="space-y-3">
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-sm font-semibold text-text-strong">Liveness</div>
-                          <div className="text-xs text-text-muted">Public endpoint /healthz</div>
+                          <div className="text-sm font-semibold text-slate-900">Liveness</div>
+                          <div className="text-xs text-slate-500">Public endpoint /healthz</div>
                         </div>
                         <StatusBadge ok={!!healthQ.data?.ok} trueLabel="Up" falseLabel="Down" />
                       </div>
-                      <div className="mt-3 text-sm text-text-muted">Uptime: {healthQ.data?.uptime_seconds != null ? `${healthQ.data.uptime_seconds}s` : '—'}</div>
+                      <div className="mt-3 text-sm text-slate-600">Uptime: {healthQ.data?.uptime_seconds != null ? `${healthQ.data.uptime_seconds}s` : '—'}</div>
                     </div>
 
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-sm font-semibold text-text-strong">Readiness</div>
-                          <div className="text-xs text-text-muted">Public endpoint /readyz</div>
+                          <div className="text-sm font-semibold text-slate-900">Readiness</div>
+                          <div className="text-xs text-slate-500">Public endpoint /readyz</div>
                         </div>
                         <StatusBadge ok={!!readyQ.data?.ok} trueLabel="Ready" falseLabel="Not ready" />
                       </div>
-                      <div className="mt-3 text-sm text-text-muted">Database latency: {readyQ.data?.db?.latency_ms != null ? `${readyQ.data.db.latency_ms} ms` : '—'}</div>
+                      <div className="mt-3 text-sm text-slate-600">Database latency: {readyQ.data?.db?.latency_ms != null ? `${readyQ.data.db.latency_ms} ms` : '—'}</div>
                     </div>
 
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-sm font-semibold text-text-strong">Authenticated system report</div>
-                          <div className="text-xs text-text-muted">/health/system</div>
+                          <div className="text-sm font-semibold text-slate-900">Authenticated system report</div>
+                          <div className="text-xs text-slate-500">/health/system</div>
                         </div>
                         <StatusBadge ok={!!systemQ.data?.ok} />
                       </div>
-                      <div className="mt-3 text-sm text-text-muted">Elapsed: {systemQ.data?.elapsed_ms != null ? `${systemQ.data.elapsed_ms} ms` : '—'}</div>
+                      <div className="mt-3 text-sm text-slate-600">Elapsed: {systemQ.data?.elapsed_ms != null ? `${systemQ.data.elapsed_ms} ms` : '—'}</div>
                     </div>
                   </div>
                 </ContentCard>
 
                 <ContentCard title="Environment" className="xl:col-span-1">
                   <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
-                      <dt className="text-xs uppercase tracking-wide text-text-muted">Environment</dt>
-                      <dd className="mt-1 text-sm font-medium text-text-strong">{systemQ.data?.env ?? '—'}</dd>
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Environment</dt>
+                      <dd className="mt-1 text-sm font-medium text-slate-900">{systemQ.data?.env ?? '—'}</dd>
                     </div>
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
-                      <dt className="text-xs uppercase tracking-wide text-text-muted">Host</dt>
-                      <dd className="mt-1 text-sm font-medium text-text-strong">{systemQ.data?.host?.hostname ?? '—'}</dd>
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Host</dt>
+                      <dd className="mt-1 text-sm font-medium text-slate-900">{systemQ.data?.host?.hostname ?? '—'}</dd>
                     </div>
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
-                      <dt className="text-xs uppercase tracking-wide text-text-muted">Node</dt>
-                      <dd className="mt-1 text-sm font-medium text-text-strong">{systemQ.data?.host?.node ?? '—'}</dd>
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Node</dt>
+                      <dd className="mt-1 text-sm font-medium text-slate-900">{systemQ.data?.host?.node ?? '—'}</dd>
                     </div>
-                    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
-                      <dt className="text-xs uppercase tracking-wide text-text-muted">Memory RSS</dt>
-                      <dd className="mt-1 text-sm font-medium text-text-strong">{systemQ.data?.process?.memory_rss_bytes != null ? `${Math.round(systemQ.data.process.memory_rss_bytes / 1024 / 1024)} MB` : '—'}</dd>
+                    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Memory RSS</dt>
+                      <dd className="mt-1 text-sm font-medium text-slate-900">{systemQ.data?.process?.memory_rss_bytes != null ? `${Math.round(systemQ.data.process.memory_rss_bytes / 1024 / 1024)} MB` : '—'}</dd>
                     </div>
                   </dl>
                 </ContentCard>
@@ -227,8 +227,8 @@ export default function SystemHealth() {
                           className="flex w-full items-start justify-between rounded-2xl border border-red-100 bg-red-50/70 p-3 text-left transition hover:bg-red-50"
                         >
                           <div>
-                            <div className="text-sm font-medium text-text-strong">{module}</div>
-                            <div className="text-xs text-text-muted">Missing required tables</div>
+                            <div className="text-sm font-medium text-slate-900">{module}</div>
+                            <div className="text-xs text-slate-600">Missing required tables</div>
                           </div>
                           <AlertTriangle className="mt-0.5 h-4 w-4 text-red-500" />
                         </button>
@@ -267,23 +267,23 @@ export default function SystemHealth() {
                   actions={selectedKey ? <Badge tone="info">{selectedKey}</Badge> : null}
                 >
                   {!selectedKey ? (
-                    <div className="text-sm text-text-muted">Select a module to inspect its required tables and health status.</div>
+                    <div className="text-sm text-slate-600">Select a module to inspect its required tables and health status.</div>
                   ) : moduleDetailQ.isLoading ? (
-                    <div className="text-sm text-text-muted">Loading module detail…</div>
+                    <div className="text-sm text-slate-600">Loading module detail…</div>
                   ) : moduleDetailQ.isError ? (
                     <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{moduleDetailQ.error?.message ?? 'Failed to load module detail.'}</div>
                   ) : (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-surface-2 p-4">
+                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-white/70 p-4">
                         <div>
-                          <div className="text-sm font-semibold text-text-strong">{moduleDetailQ.data?.module?.module}</div>
-                          <div className="text-xs text-text-muted">Required tables: {moduleDetailQ.data?.module?.requiredCount ?? 0}</div>
+                          <div className="text-sm font-semibold text-slate-900">{moduleDetailQ.data?.module?.module}</div>
+                          <div className="text-xs text-slate-500">Required tables: {moduleDetailQ.data?.module?.requiredCount ?? 0}</div>
                         </div>
                         <StatusBadge ok={!!moduleDetailQ.data?.ok} trueLabel="Healthy" falseLabel="Issue detected" />
                       </div>
 
                       <div>
-                        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Missing tables</div>
+                        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Missing tables</div>
                         {moduleDetailQ.data?.module?.missingTables?.length ? (
                           <div className="flex flex-wrap gap-2">
                             {moduleDetailQ.data.module.missingTables.map((table) => (
@@ -291,19 +291,19 @@ export default function SystemHealth() {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-sm text-text-muted">No missing tables.</div>
+                          <div className="text-sm text-slate-600">No missing tables.</div>
                         )}
                       </div>
 
-                      <div className="rounded-2xl border border-border-subtle bg-surface-2/70 p-4">
-                        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Coverage</div>
+                      <div className="rounded-2xl border border-border-subtle bg-slate-50/70 p-4">
+                        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Coverage</div>
                         <div className="h-3 overflow-hidden rounded-full bg-slate-200">
                           <div
                             className={`h-full rounded-full ${moduleDetailQ.data?.module?.ok ? 'bg-emerald-500' : 'bg-amber-500'}`}
                             style={{ width: `${Math.max(4, Math.min(100, ((moduleDetailQ.data?.module?.presentCount ?? 0) / Math.max(1, moduleDetailQ.data?.module?.requiredCount ?? 1)) * 100))}%` }}
                           />
                         </div>
-                        <div className="mt-2 text-sm text-text-muted">{moduleDetailQ.data?.module?.presentCount ?? 0} of {moduleDetailQ.data?.module?.requiredCount ?? 0} required tables detected.</div>
+                        <div className="mt-2 text-sm text-slate-600">{moduleDetailQ.data?.module?.presentCount ?? 0} of {moduleDetailQ.data?.module?.requiredCount ?? 0} required tables detected.</div>
                       </div>
                     </div>
                   )}
@@ -317,9 +317,9 @@ export default function SystemHealth() {
             content: (
               <ContentCard title="Task stability overview">
                 {systemQ.isLoading ? (
-                  <div className="text-sm text-text-muted">Loading scheduler summary…</div>
+                  <div className="text-sm text-slate-600">Loading scheduler summary…</div>
                 ) : !schedulerTasks.length ? (
-                  <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4 text-sm text-text-muted">No scheduler summary returned by the backend.</div>
+                  <div className="rounded-2xl border border-border-subtle bg-white/70 p-4 text-sm text-slate-600">No scheduler summary returned by the backend.</div>
                 ) : (
                   <div className="space-y-4">
                     {failingSchedulerTasks.length ? (
@@ -339,11 +339,11 @@ export default function SystemHealth() {
 
                     <DataTable
                       columns={[
-                        { header: 'Task', render: (r) => <div><div className="font-medium text-text-strong">{r.name ?? r.code}</div><div className="text-xs text-text-muted">{r.code}</div></div> },
+                        { header: 'Task', render: (r) => <div><div className="font-medium text-slate-900">{r.name ?? r.code}</div><div className="text-xs text-slate-500">{r.code}</div></div> },
                         { header: 'Status', render: (r) => <Badge tone={r.is_enabled ? 'success' : 'muted'}>{r.is_enabled ? 'Enabled' : 'Disabled'}</Badge> },
                         { header: 'Last result', render: (r) => <Badge tone={r.last_status === 'success' ? 'success' : r.last_status === 'failed' ? 'danger' : 'warning'}>{r.last_status ?? 'No runs'}</Badge> },
-                        { header: 'Last run', render: (r) => <span className="text-sm text-text-muted">{formatDateTime(r.last_started_at)}</span> },
-                        { header: 'Next run', render: (r) => <span className="text-sm text-text-muted">{formatDateTime(r.next_run_at)}</span> },
+                        { header: 'Last run', render: (r) => <span className="text-sm text-slate-600">{formatDateTime(r.last_started_at)}</span> },
+                        { header: 'Next run', render: (r) => <span className="text-sm text-slate-600">{formatDateTime(r.next_run_at)}</span> },
                       ]}
                       rows={schedulerTasks}
                       isLoading={false}
@@ -359,7 +359,7 @@ export default function SystemHealth() {
             content: (
               <ContentCard title="Authenticated health payload">
                 {systemQ.isLoading ? (
-                  <div className="text-sm text-text-muted">Loading payload…</div>
+                  <div className="text-sm text-slate-600">Loading payload…</div>
                 ) : systemQ.isError ? (
                   <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{systemQ.error?.message ?? 'Failed to load system health payload.'}</div>
                 ) : (

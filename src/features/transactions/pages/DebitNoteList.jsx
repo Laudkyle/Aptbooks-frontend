@@ -154,7 +154,7 @@ export default function DebitNoteList() {
             </Link>
             {row.memo && (
               <span
-                className="text-xs text-text-muted line-clamp-2"
+                className="text-xs text-slate-500 line-clamp-2"
                 title={row.memo}
               >
                 {row.memo}
@@ -168,11 +168,11 @@ export default function DebitNoteList() {
         accessor: "vendor_name",
         render: (row) => (
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-text-body font-medium">
+            <span className="text-sm text-slate-700 font-medium">
               {row.vendor_name ?? row.vendor_id ?? "—"}
             </span>
             {row.vendor_code && (
-              <span className="text-xs text-text-muted">{row.vendor_code}</span>
+              <span className="text-xs text-slate-500">{row.vendor_code}</span>
             )}
           </div>
         ),
@@ -181,7 +181,7 @@ export default function DebitNoteList() {
         header: "Date",
         accessor: "debit_note_date",
         render: (row) => (
-          <span className="text-sm text-text-body tabular-nums">
+          <span className="text-sm text-slate-700 tabular-nums">
             {formatDate(row.debit_note_date)}
           </span>
         ),
@@ -192,7 +192,7 @@ export default function DebitNoteList() {
         render: (row) => {
           const amount = row.total ?? 0;
           return (
-            <span className="text-sm text-text-strong font-semibold tabular-nums">
+            <span className="text-sm text-slate-900 font-semibold tabular-nums">
               {formatCurrency(amount, row.currency_code)}
             </span>
           );
@@ -279,7 +279,7 @@ export default function DebitNoteList() {
 
       {/* Results summary */}
       {!isLoading && rows.length > 0 && (
-        <div className="text-sm text-text-muted text-center">
+        <div className="text-sm text-slate-600 text-center">
           Showing {rows.length} debit {rows.length === 1 ? "note" : "notes"}
           {vendorId && " for selected vendor"}
           {rows.length > 0 && (

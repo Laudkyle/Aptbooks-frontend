@@ -64,7 +64,7 @@ export function OrgSwitcher() {
         disabled={switching}
         className={`
           group relative flex items-center gap-2 px-3 py-2 rounded-lg 
-          border border-border-subtle bg-surface-1 hover:bg-surface-2 hover:border-border-subtle
+          border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300
           transition-all duration-200 shadow-sm hover:shadow
           ${open ? 'ring-2 ring-brand-light border-brand-light' : ''}
           ${switching ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
@@ -77,15 +77,15 @@ export function OrgSwitcher() {
 
         {/* Organization Name */}
         <div className="flex flex-col items-start min-w-0">
-          <span className="text-xs font-medium text-text-muted">Organization</span>
-          <span className="text-sm font-semibold text-text-strong truncate max-w-[12rem]">
+          <span className="text-xs font-medium text-slate-500">Organization</span>
+          <span className="text-sm font-semibold text-slate-900 truncate max-w-[12rem]">
             {currentOrg?.name || 'Select Organization'}
           </span>
         </div>
 
         {/* Chevron Icon */}
         <svg
-          className={`w-4 h-4 text-text-soft transition-transform duration-200 flex-shrink-0 ${
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${
             open ? 'rotate-180' : ''
           }`}
           fill="none"
@@ -98,11 +98,11 @@ export function OrgSwitcher() {
 
       {/* Dropdown Menu */}
       {open && (
-        <div className="absolute right-0 mt-2 w-80 rounded-lg border border-border-subtle bg-surface-1 shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-80 rounded-lg border border-slate-200 bg-white shadow-xl z-50 overflow-hidden">
           {/* Header */}
-          <div className="px-4 py-3 bg-surface-2 border-b border-border-subtle">
-            <h3 className="text-sm font-semibold text-text-strong">Switch Organization</h3>
-            <p className="text-xs text-text-muted mt-0.5">
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-900">Switch Organization</h3>
+            <p className="text-xs text-slate-600 mt-0.5">
               {items.length} organization{items.length !== 1 ? 's' : ''} available
             </p>
           </div>
@@ -122,7 +122,7 @@ export function OrgSwitcher() {
                     transition-colors duration-150
                     ${isCurrent 
                       ? 'bg-brand-50 hover:bg-brand-100' 
-                      : 'hover:bg-surface-2'
+                      : 'hover:bg-slate-50'
                     }
                     ${switching ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
                   `}
@@ -146,7 +146,7 @@ export function OrgSwitcher() {
                       <span
                         className={`
                           text-sm font-medium truncate
-                          ${isCurrent ? 'text-brand-900' : 'text-text-strong'}
+                          ${isCurrent ? 'text-brand-900' : 'text-slate-900'}
                         `}
                       >
                         {org.name}
@@ -158,7 +158,7 @@ export function OrgSwitcher() {
                       )}
                     </div>
                     {org.description && (
-                      <p className="text-xs text-text-muted truncate mt-0.5">
+                      <p className="text-xs text-slate-600 truncate mt-0.5">
                         {org.description}
                       </p>
                     )}
@@ -185,7 +185,7 @@ export function OrgSwitcher() {
 
           {/* Footer (optional - add if there's a manage orgs link) */}
           {/* 
-          <div className="px-4 py-3 bg-surface-2 border-t border-border-subtle">
+          <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
             
               href="/settings/organizations"
               className="text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
@@ -204,9 +204,9 @@ export function OrgSwitcher() {
       {/* Loading Overlay */}
       {switching && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-          <div className="bg-surface-1 rounded-lg shadow-xl p-6 flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-border-subtle border-t-brand-500 rounded-full animate-spin"></div>
-            <p className="text-sm font-medium text-text-strong">Switching organization...</p>
+          <div className="bg-white rounded-lg shadow-xl p-6 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin"></div>
+            <p className="text-sm font-medium text-slate-900">Switching organization...</p>
           </div>
         </div>
       )}

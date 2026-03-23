@@ -65,21 +65,21 @@ export default function OperationalDocList({ moduleKey }) {
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Icon className="h-7 w-7 text-text-body" />
-              <h1 className="text-2xl font-bold text-text-strong">{config.title}</h1>
+              <Icon className="h-7 w-7 text-gray-700" />
+              <h1 className="text-2xl font-bold text-gray-900">{config.title}</h1>
             </div>
-            <p className="text-sm text-text-muted">Manage {config.title.toLowerCase()} and their workflow.</p>
+            <p className="text-sm text-gray-600">Manage {config.title.toLowerCase()} and their workflow.</p>
           </div>
           <Button onClick={() => navigate(config.routeNew)} className="bg-green-600 hover:bg-green-700 text-white">
             <Plus className="h-4 w-4 mr-2" /> New {config.singular}
           </Button>
         </div>
 
-        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="grid gap-4 md:grid-cols-3">
             <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder={`Search ${config.title.toLowerCase()}...`} label="Search" />
             <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} options={statusOptions} label="Status" />
-            <div className="flex items-end text-sm text-text-muted">{filteredRows.length} record(s)</div>
+            <div className="flex items-end text-sm text-gray-500">{filteredRows.length} record(s)</div>
           </div>
         </div>
 

@@ -4,7 +4,6 @@ import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeStatementsApi } from '../api/statements.api.js';
 import { makePeriodsApi } from '../../periods/api/periods.api.js';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
-import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Printer, Download, ChevronDown, ChevronRight, ArrowUpCircle, ArrowDownCircle, MinusCircle } from 'lucide-react';
 
 function formatCurrency(amount, currency = 'GHS') {
@@ -62,13 +61,13 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
   const paddingLeft = level * 24;
 
   const getTextStyle = () => {
-    if (isTotal) return 'font-semibold text-text-strong';
-    if (isSection) return 'font-medium text-text-strong';
-    return 'text-text-muted';
+    if (isTotal) return 'font-semibold text-gray-900';
+    if (isSection) return 'font-medium text-gray-800';
+    return 'text-gray-600';
   };
 
   const getBgStyle = () => {
-    if (isTotal) return 'border-t border-border-subtle /50';
+    if (isTotal) return 'border-t border-gray-300 /50';
     return '';
   };
 
@@ -76,7 +75,7 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
     <>
       <div 
         className={`
-          flex items-center py-2.5 hover:bg-surface-2 transition-colors duration-150 px-2 md:px-4
+          flex items-center py-2.5 hover:bg-slate-50 transition-colors duration-150 px-2 md:px-4
           ${getBgStyle()}
         `}
         style={{ paddingLeft: `${paddingLeft + 8}px` }}
@@ -84,7 +83,7 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
         {hasChildren && (
           <button 
             onClick={() => onToggle?.(line.id)}
-            className="mr-2 text-text-muted hover:text-text-strong flex-shrink-0"
+            className="mr-2 text-gray-600 hover:text-gray-900 flex-shrink-0"
           >
             {isExpanded ? (
               <ChevronDown className="w-4 h-4" />
@@ -108,7 +107,7 @@ function CashFlowLine({ line, level = 0, isExpanded = true, onToggle }) {
         </span>
         
         <span className={`text-sm whitespace-nowrap font-mono ${
-          line.amount < 0 ? 'text-red-600' : 'text-text-strong'
+          line.amount < 0 ? 'text-red-600' : 'text-gray-900'
         }`}>
           {formatCurrency(line.amount)}
         </span>
@@ -140,28 +139,28 @@ function ActivitySummary({ activity, total, lines = [], isExpanded, onToggle }) 
   return (
     <div className="mb-4">
       <div 
-        className="flex items-center py-3 px-2 md:px-4 bg-surface-2/80 rounded-t-lg cursor-pointer hover:bg-gray-200/80 transition-colors"
+        className="flex items-center py-3 px-2 md:px-4 bg-gray-100/80 rounded-t-lg cursor-pointer hover:bg-gray-200/80 transition-colors"
         onClick={onToggle}
       >
-        <button className="mr-2 text-text-body">
+        <button className="mr-2 text-gray-700">
           {isExpanded ? (
             <ChevronDown className="w-5 h-5" />
           ) : (
             <ChevronRight className="w-5 h-5" />
           )}
         </button>
-        <span className="flex-1 text-sm font-semibold text-text-strong">
+        <span className="flex-1 text-sm font-semibold text-gray-900">
           {getActivityLabel(activity)}
         </span>
         <span className={`text-sm font-semibold font-mono ${
-          total < 0 ? 'text-red-600' : 'text-text-strong'
+          total < 0 ? 'text-red-600' : 'text-gray-900'
         }`}>
           {formatCurrency(total)}
         </span>
       </div>
       
       {isExpanded && (
-        <div className="border border-border-subtle border-t-0 rounded-b-lg divide-y divide-border-subtle">
+        <div className="border border-gray-200 border-t-0 rounded-b-lg divide-y divide-gray-100">
           {activityLines.map((line) => (
             <CashFlowLine 
               key={line.id}
@@ -211,7 +210,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
   const closingBalance = lines.find(l => l.line_type === 'closing_balance')?.amount || 0;
 
   return (
-    <div className={`flex-1 ${isCompare ? 'border-l border-border-subtle pl-4 md:pl-6' : ''}`}>
+    <div className={`flex-1 ${isCompare ? 'border-l border-gray-200 pl-4 md:pl-6' : ''}`}>
       {isCompare && (
         <div className="mb-4">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -223,12 +222,12 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
       {/* Period Info */}
       <div className="grid grid-cols-2 gap-4 mb-6 p-4  rounded-lg">
         <div>
-          <p className="text-xs text-text-muted">From</p>
-          <p className="text-sm font-medium text-text-strong">{formatDate(from)}</p>
+          <p className="text-xs text-gray-500">From</p>
+          <p className="text-sm font-medium text-gray-900">{formatDate(from)}</p>
         </div>
         <div>
-          <p className="text-xs text-text-muted">To</p>
-          <p className="text-sm font-medium text-text-strong">{formatDate(to)}</p>
+          <p className="text-xs text-gray-500">To</p>
+          <p className="text-sm font-medium text-gray-900">{formatDate(to)}</p>
         </div>
       </div>
 
@@ -237,8 +236,8 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
         {/* Opening Balance (if available) */}
         {openingBalance !== 0 && (
           <div className="flex items-center py-2 px-2 md:px-4  rounded-lg">
-            <span className="flex-1 text-sm text-text-body">Opening Cash Balance</span>
-            <span className="text-sm font-medium text-text-strong font-mono">
+            <span className="flex-1 text-sm text-gray-700">Opening Cash Balance</span>
+            <span className="text-sm font-medium text-gray-900 font-mono">
               {formatCurrency(openingBalance)}
             </span>
           </div>
@@ -272,12 +271,12 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
         />
 
         {/* Net Change */}
-        <div className="flex items-center py-3 px-2 md:px-4 bg-surface-2 rounded-lg mt-4">
-          <span className="flex-1 text-sm font-semibold text-text-strong">
+        <div className="flex items-center py-3 px-2 md:px-4 bg-gray-100 rounded-lg mt-4">
+          <span className="flex-1 text-sm font-semibold text-gray-900">
             Net Change in Cash
           </span>
           <span className={`text-sm font-semibold font-mono ${
-            net_change < 0 ? 'text-red-600' : 'text-text-strong'
+            net_change < 0 ? 'text-red-600' : 'text-gray-900'
           }`}>
             {formatCurrency(net_change)}
           </span>
@@ -285,11 +284,11 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
 
         {/* Closing Balance (if available) */}
         {closingBalance !== 0 && (
-          <div className="flex items-center py-3 px-2 md:px-4 border-t-2 border-border-subtle mt-2">
-            <span className="flex-1 text-sm font-semibold text-text-strong">
+          <div className="flex items-center py-3 px-2 md:px-4 border-t-2 border-gray-300 mt-2">
+            <span className="flex-1 text-sm font-semibold text-gray-900">
               Closing Cash Balance
             </span>
-            <span className="text-sm font-semibold text-text-strong font-mono">
+            <span className="text-sm font-semibold text-gray-900 font-mono">
               {formatCurrency(closingBalance)}
             </span>
           </div>
@@ -299,7 +298,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
       {/* Empty State */}
       {lines.length === 0 && (
         <div className="text-center py-8  rounded-lg">
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-gray-500">
             No cash flow transactions for this period
           </p>
         </div>
@@ -351,13 +350,13 @@ export default function Cashflow() {
 
   return (
     <div className="max-w-7xl mx-auto p-3 md:p-6 lg:p-8 max-h-[calc(100vh-100px)] overflow-y-scroll">
-      <div className="bg-surface-1 rounded-lg shadow-xl">
+      <div className="bg-white rounded-lg shadow-xl">
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-text-strong">Cash Flow Statement</h2>
-              <p className="text-sm md:text-md text-text-muted mt-1">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Cash Flow Statement</h2>
+              <p className="text-sm md:text-md text-gray-600 mt-1">
                 For the period ended {selectedDate}
               </p>
             </div>
@@ -365,29 +364,27 @@ export default function Cashflow() {
             <div className="flex flex-col md:flex-row gap-4">
               <input 
                 type="date" 
-                className="border border-border-subtle rounded-md px-3 py-2 text-sm text-text-body"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
               
               <div className="flex gap-2 md:gap-4">
-                <Button
+                <button
                   onClick={handlePrint}
-                  variant="outline"
-                  leftIcon={Printer}
-                  className="flex-1 md:flex-none"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Print
-                </Button>
+                  <Printer className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                  <span className="hidden md:inline">Print</span>
+                </button>
                 
-                <Button
+                <button
                   onClick={handleExport}
-                  variant="outline"
-                  leftIcon={Download}
-                  className="flex-1 md:flex-none"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center px-3 md:px-5 py-2 md:py-3 bg-gray-100 text-xs md:text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Export
-                </Button>
+                  <Download className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                  <span className="hidden md:inline">Export</span>
+                </button>
               </div>
             </div>
           </div>
@@ -411,7 +408,7 @@ export default function Cashflow() {
           {/* Loading/Error States */}
           {q.isLoading && (
             <div className="text-center py-12">
-              <div className="text-sm text-text-muted">Loading cash flow statement...</div>
+              <div className="text-sm text-slate-600">Loading cash flow statement...</div>
             </div>
           )}
 
@@ -425,7 +422,7 @@ export default function Cashflow() {
 
           {!periodId && !q.isLoading && (
             <div className="text-center py-12  rounded-lg">
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-slate-600">
                 Select a period to view the cash flow statement.
               </p>
             </div>

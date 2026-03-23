@@ -12,7 +12,7 @@ export function PageHeader({ title, subtitle, actions, icon: Icon }) {
           ) : null}
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-brand-deep">{title}</h1>
-            {subtitle ? <p className="mt-1 text-sm text-text-muted">{subtitle}</p> : null}
+            {subtitle ? <p className="mt-1 text-sm text-slate-600">{subtitle}</p> : null}
           </div>
         </div>
       </div>

@@ -148,7 +148,7 @@ export default function VendorPaymentList() {
               {row.payment_no ?? row.id}
             </Link>
             {row.memo && (
-              <span className="text-xs text-text-muted line-clamp-1" title={row.memo}>
+              <span className="text-xs text-slate-500 line-clamp-1" title={row.memo}>
                 {row.memo}
               </span>
             )}
@@ -160,11 +160,11 @@ export default function VendorPaymentList() {
         accessor: 'vendor_name',
         render: (row) => (
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-text-body font-medium">
+            <span className="text-sm text-slate-700 font-medium">
               {row.vendor_name ?? row.vendor_id ?? '—'}
             </span>
             {row.vendor_code && (
-              <span className="text-xs text-text-muted">
+              <span className="text-xs text-slate-500">
                 {row.vendor_code}
               </span>
             )}
@@ -175,7 +175,7 @@ export default function VendorPaymentList() {
         header: 'Payment Date', 
         accessor: 'payment_date',
         render: (row) => (
-          <span className="text-sm text-text-body tabular-nums">
+          <span className="text-sm text-slate-700 tabular-nums">
             {formatDate(row.payment_date)}
           </span>
         ) 
@@ -185,11 +185,11 @@ export default function VendorPaymentList() {
         accessor: 'amount_total',
         render: (row) => (
           <div className="flex flex-col gap-0.5 items-end">
-            <span className="text-sm text-text-strong font-semibold tabular-nums">
+            <span className="text-sm text-slate-900 font-semibold tabular-nums">
               {formatCurrency(row.amount_total, row.currency_code)}
             </span>
             {row.currency_code && row.currency_code !== 'USD' && (
-              <span className="text-xs text-text-muted">
+              <span className="text-xs text-slate-500">
                 {row.currency_code}
               </span>
             )}
@@ -206,7 +206,7 @@ export default function VendorPaymentList() {
         header: 'Payment Method',
         accessor: 'payment_method_id',
         render: (row) => (
-          <span className="text-sm text-text-body">
+          <span className="text-sm text-slate-700">
             {row.payment_method_name ?? (row.payment_method_id ? `${row.payment_method_id.substring(0, 8)}...` : '—')}
           </span>
         )
@@ -284,7 +284,7 @@ export default function VendorPaymentList() {
       
       {/* Results summary */}
       {!isLoading && rows.length > 0 && (
-        <div className="text-sm text-text-muted text-center">
+        <div className="text-sm text-slate-600 text-center">
           Showing {rows.length} {rows.length === 1 ? 'payment' : 'payments'}
           {vendorId && ' for selected vendor'}
           {rows.length > 0 && (

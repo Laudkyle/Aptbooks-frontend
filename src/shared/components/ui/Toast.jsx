@@ -54,18 +54,18 @@ export function ToastProvider({ children }) {
           <div
             key={t.id}
             className={
-              'w-96 max-w-[calc(100vw-2rem)] rounded-lg border bg-surface-1 p-3 shadow-lg ' +
+              'w-96 max-w-[calc(100vw-2rem)] rounded-lg border bg-white p-3 shadow-lg ' +
               (t.type === 'success'
                 ? 'border-emerald-200'
                 : t.type === 'error'
                   ? 'border-red-200'
-                  : 'border-border-subtle')
+                  : 'border-slate-200')
             }
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-sm font-semibold text-text-strong">{t.title}</div>
-                <div className="mt-1 text-sm text-text-body">{t.message}</div>
+                <div className="text-sm font-semibold text-slate-900">{t.title}</div>
+                <div className="mt-1 text-sm text-slate-700">{t.message}</div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => remove(t.id)} aria-label="Close">
                 <X className="h-4 w-4" />

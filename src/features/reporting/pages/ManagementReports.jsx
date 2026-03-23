@@ -61,7 +61,7 @@ export default function ManagementReports() {
   const rows = rowsFrom(data);
   const columns = useMemo(() => {
     const keys = rows[0] ? Object.keys(rows[0]) : [];
-    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-text-strong">{String(r[k] ?? '')}</span> }));
+    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
   }, [rows]);
 
   return (
@@ -71,8 +71,8 @@ export default function ManagementReports() {
       <ContentCard>
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-2">
-            <Button variant={mode === 'departmental-pnl' ? 'primary' : 'outline'} onClick={() => setMode('departmental-pnl')}>Departmental P&L</Button>
-            <Button variant={mode === 'cost-center-summary' ? 'primary' : 'outline'} onClick={() => setMode('cost-center-summary')}>Cost Center Summary</Button>
+            <button className={`rounded-xl px-3 py-2 text-sm ${mode === 'departmental-pnl' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}`} onClick={() => setMode('departmental-pnl')}>Departmental P&L</button>
+            <button className={`rounded-xl px-3 py-2 text-sm ${mode === 'cost-center-summary' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}`} onClick={() => setMode('cost-center-summary')}>Cost Center Summary</button>
           </div>
           <div className="flex items-center gap-2"><Button onClick={() => refetch()} disabled={!periodId} loading={isFetching}>Run</Button></div>
         </div>

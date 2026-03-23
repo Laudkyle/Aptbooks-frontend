@@ -29,8 +29,8 @@ export default function StockMovements() {
   const rows = Array.isArray(data) ? data : data?.data ?? [];
 
   const columns = useMemo(() => [
-    { header: 'Transaction', render: (r) => <div className="flex flex-col"><div className="font-medium text-brand-deep">{r.txnType ?? r.txn_type ?? '—'}</div><div className="text-xs text-text-muted">{r.txnDate ?? r.txn_date ?? '—'}</div></div> },
-    { header: 'Reference', render: (r) => <span className="text-sm text-text-body">{r.reference ?? '—'}</span> },
+    { header: 'Transaction', render: (r) => <div className="flex flex-col"><div className="font-medium text-brand-deep">{r.txnType ?? r.txn_type ?? '—'}</div><div className="text-xs text-slate-500">{r.txnDate ?? r.txn_date ?? '—'}</div></div> },
+    { header: 'Reference', render: (r) => <span className="text-sm text-slate-700">{r.reference ?? '—'}</span> },
     { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'draft') === 'posted' ? 'success' : (r.status ?? 'draft') === 'approved' ? 'info' : 'muted'}>{r.status ?? 'draft'}</Badge> }
   ], []);
 
@@ -38,7 +38,7 @@ export default function StockMovements() {
     <div className="space-y-4">
       <PageHeader title="Inventory Transactions" subtitle="Receipts, issues, transfers and adjustments. Approve and post to update stock and GL." icon={ArrowLeftRight} actions={<Button leftIcon={Plus} variant="primary">New transaction</Button>} />
       <ContentCard>
-        <FilterBar left={<div className="grid gap-3 md:grid-cols-3"><Select label="Period" value={periodId} onChange={(e) => setPeriodId(e.target.value)} options={periodOptions} /><div className="hidden md:block" /><div className="hidden md:block" /></div>} right={<div className="text-xs text-text-muted">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}</div>} />
+        <FilterBar left={<div className="grid gap-3 md:grid-cols-3"><Select label="Period" value={periodId} onChange={(e) => setPeriodId(e.target.value)} options={periodOptions} /><div className="hidden md:block" /><div className="hidden md:block" /></div>} right={<div className="text-xs text-slate-500">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}</div>} />
         <div className="mt-3"><DataTable columns={columns} rows={rows} isLoading={isLoading} empty={{ title: 'No transactions yet', description: 'Create inventory transactions to record receipts, issues, transfers and adjustments.' }} /></div>
       </ContentCard>
     </div>

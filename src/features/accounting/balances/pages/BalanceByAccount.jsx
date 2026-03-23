@@ -45,11 +45,11 @@ export default function BalanceByAccount() {
 
       <ContentCard title="Activity">
         {q.isLoading ? (
-          <div className="text-sm text-text-body">Loading…</div>
+          <div className="text-sm text-slate-700">Loading…</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load activity.'}</div>
         ) : !accountId || !from || !to ? (
-          <div className="text-sm text-text-body">Select account and date range to load results.</div>
+          <div className="text-sm text-slate-700">Select account and date range to load results.</div>
         ) : (
           <div className="overflow-auto">
             <Table>

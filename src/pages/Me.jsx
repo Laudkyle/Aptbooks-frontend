@@ -31,9 +31,9 @@ export default function Me() {
 
       <ContentCard title="Account">
         <div className="grid gap-2 text-sm">
-          <div><span className="text-text-muted">Email:</span> {auth.user?.email}</div>
-          <div><span className="text-text-muted">User ID:</span> {auth.user?.id}</div>
-          <div><span className="text-text-muted">Organization:</span> {auth.user?.organization_id}</div>
+          <div><span className="text-slate-500">Email:</span> {auth.user?.email}</div>
+          <div><span className="text-slate-500">User ID:</span> {auth.user?.id}</div>
+          <div><span className="text-slate-500">Organization:</span> {auth.user?.organization_id}</div>
         </div>
       </ContentCard>
 
@@ -101,11 +101,11 @@ export default function Me() {
       </ContentCard>
 
       <ContentCard title="Login history">
-        {loginHistoryQuery.isLoading ? <div className="text-sm text-text-muted">Loading…</div> : null}
+        {loginHistoryQuery.isLoading ? <div className="text-sm text-slate-600">Loading…</div> : null}
         {loginHistoryQuery.error ? <div className="text-sm text-red-600">{normalizeError(loginHistoryQuery.error).message}</div> : null}
         <div className="overflow-auto">
           <table className="w-full text-sm">
-            <thead className="text-left text-text-muted">
+            <thead className="text-left text-slate-500">
               <tr>
                 <th className="py-2">When</th>
                 <th className="py-2">Success</th>
@@ -116,7 +116,7 @@ export default function Me() {
             </thead>
             <tbody>
               {(loginHistoryQuery.data?.data ?? []).map((r) => (
-                <tr key={r.id} className="border-t border-border-subtle">
+                <tr key={r.id} className="border-t border-slate-100">
                   <td className="py-2">{r.created_at}</td>
                   <td className="py-2">{r.success ? 'Yes' : 'No'}</td>
                   <td className="py-2">{r.ip ?? ''}</td>

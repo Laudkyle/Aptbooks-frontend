@@ -37,7 +37,7 @@ export default function AutoReconciliationPage() {
   const accountOptions = useMemo(() => [NONE_OPTION, ...toOptions(rowsOf(accountsQ.data), { valueKey: 'id', label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id })], [accountsQ.data]);
 
   const columns = [
-    { header: 'Code', render: (p) => <span className="font-medium text-text-strong">{p.code}</span> },
+    { header: 'Code', render: (p) => <span className="font-medium text-slate-900">{p.code}</span> },
     { header: 'Name', render: (p) => p.name ?? '—' },
     { header: 'Bank account', render: (p) => p.bank_account_code ?? p.bankAccountCode ?? p.bank_account_id ?? p.bankAccountId ?? 'All accounts' },
     { header: 'Threshold', render: (p) => p.min_score ?? p.minScore ?? '—' },
@@ -50,7 +50,7 @@ export default function AutoReconciliationPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <ContentCard title="Profiles"><DataTable columns={columns} rows={profiles} isLoading={profilesQ.isLoading} empty={{ title: 'No profiles configured', description: 'Create a profile to scope and score reconciliation suggestions.' }} /></ContentCard>
         <ContentCard title="Recent runs" actions={<Button variant="outline" leftIcon={RefreshCw} onClick={()=>runsQ.refetch()}>Refresh</Button>}>
-          <div className="space-y-3">{runs.map((r)=><div key={r.id} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between"><div className="font-medium text-text-strong">{r.profile_code ?? r.profileCode ?? 'Run'}</div><Badge tone={r.status === 'success' ? 'success' : r.status === 'failed' ? 'danger' : 'warning'}>{r.status ?? 'pending'}</Badge></div><div className="mt-2 text-sm text-text-muted">Suggestions: {r.suggestion_count ?? r.suggestionCount ?? 0}</div></div>)}{!runs.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-text-muted">No auto-reconciliation runs yet.</div>}</div>
+          <div className="space-y-3">{runs.map((r)=><div key={r.id} className="rounded-2xl border border-border-subtle p-4"><div className="flex items-center justify-between"><div className="font-medium text-slate-900">{r.profile_code ?? r.profileCode ?? 'Run'}</div><Badge tone={r.status === 'success' ? 'success' : r.status === 'failed' ? 'danger' : 'warning'}>{r.status ?? 'pending'}</Badge></div><div className="mt-2 text-sm text-slate-600">Suggestions: {r.suggestion_count ?? r.suggestionCount ?? 0}</div></div>)}{!runs.length && <div className="rounded-2xl border border-dashed border-border-subtle p-8 text-center text-sm text-slate-500">No auto-reconciliation runs yet.</div>}</div>
         </ContentCard>
       </div>
       <Modal open={open} title="Create auto reconciliation profile" onClose={()=>setOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="ghost" onClick={()=>setOpen(false)}>Cancel</Button><Button loading={create.isPending} onClick={()=>create.mutate({ ...form, minScore: Number(form.minScore || 0.9), bankAccountId: form.bankAccountId || null })}>Create profile</Button></div>}>

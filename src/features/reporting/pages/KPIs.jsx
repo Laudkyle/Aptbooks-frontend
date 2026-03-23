@@ -52,7 +52,7 @@ export default function KPIs() {
     const rows = tab === 'definitions' ? defRows : valRows;
     const keys = rows[0] ? Object.keys(rows[0]) : [];
     const show = keys.filter((k) => !String(k).toLowerCase().includes('json')).slice(0, 7);
-    return show.map((k) => ({ header: k, render: (r) => <span className="text-sm text-text-strong">{String(r[k] ?? '')}</span> }));
+    return show.map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
   }, [tab, defRows, valRows]);
 
   async function createDefinition() {
@@ -74,7 +74,7 @@ export default function KPIs() {
   return (
     <div className="space-y-4">
       <PageHeader title="KPIs" subtitle="Define KPIs and compute values per period;manage targets and thresholds in subsequent phases." icon={Activity} right={<div className="flex items-center gap-2"><Button variant="outline" onClick={() => (tab === 'definitions' ? defsQ.refetch() : valuesQ.refetch())}>Refresh</Button>{tab === 'definitions' ? <Button leftIcon={Plus} onClick={() => setOpen(true)}>New definition</Button> : <Button leftIcon={Calculator} onClick={computeValues} disabled={!compute.periodId}>Compute</Button>}</div>} />
-      <div className="rounded-2xl border border-border-subtle bg-surface-1 p-4 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <Tabs value={tab} onValueChange={setTab} items={[{ value: 'definitions', label: 'Definitions' }, { value: 'values', label: 'Values' }]} />
           {tab === 'values' ? <div className="grid w-full gap-3 md:w-auto md:grid-cols-2"><Select label="Period" value={compute.periodId} onChange={(e) => setCompute((s) => ({ ...s, periodId: e.target.value }))} options={periodOptions} /><Input label="As of date" value={compute.asOfDate} onChange={(e) => setCompute((s) => ({ ...s, asOfDate: e.target.value }))} placeholder="YYYY-MM-DD (optional)" /></div> : null}

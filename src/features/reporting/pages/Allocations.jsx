@@ -1035,7 +1035,7 @@ export default function Allocations() {
       accessor: 'code',
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-text-soft" />
+          <Tag className="h-4 w-4 text-slate-400" />
           <span className="font-mono font-medium">{row.code}</span>
         </div>
       )
@@ -1045,7 +1045,7 @@ export default function Allocations() {
       accessor: 'name',
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Layers className="h-4 w-4 text-text-soft" />
+          <Layers className="h-4 w-4 text-slate-400" />
           <span>{row.name}</span>
         </div>
       )
@@ -1071,8 +1071,8 @@ export default function Allocations() {
       header: 'Created',
       accessor: 'created_at',
       render: (row) => (
-        <div className="flex items-center gap-1 text-xs text-text-muted">
-          <Clock className="h-3.5 w-3.5 text-text-soft" />
+        <div className="flex items-center gap-1 text-xs text-slate-600">
+          <Clock className="h-3.5 w-3.5 text-slate-400" />
           {formatDate(row.created_at)}
         </div>
       )
@@ -1111,7 +1111,7 @@ export default function Allocations() {
       accessor: 'code',
       render: (row) => (
         <div className="flex items-center gap-2">
-          <Tag className="h-4 w-4 text-text-soft" />
+          <Tag className="h-4 w-4 text-slate-400" />
           <span className="font-mono font-medium">{row.code}</span>
         </div>
       )
@@ -1123,7 +1123,7 @@ export default function Allocations() {
         const config = getStatusConfig(row.status);
         return (
           <div className="flex items-center gap-2">
-            <Split className="h-4 w-4 text-text-soft" />
+            <Split className="h-4 w-4 text-slate-400" />
             <div>
               <span className="font-medium">{row.name}</span>
             </div>
@@ -1137,12 +1137,12 @@ export default function Allocations() {
         const base = bases.find(b => b.id === (row.baseId || row.allocation_base_id));
         return base ? (
           <div className="flex items-center gap-1 text-sm">
-            <Layers className="h-3.5 w-3.5 text-text-soft" />
+            <Layers className="h-3.5 w-3.5 text-slate-400" />
             <span>{base.code}</span>
-            <span className="text-xs text-text-soft">({base.payloadJson?.unit})</span>
+            <span className="text-xs text-slate-400">({base.payloadJson?.unit})</span>
           </div>
         ) : (
-          <span className="text-sm text-text-muted">—</span>
+          <span className="text-sm text-slate-500">—</span>
         );
       }
     },
@@ -1152,11 +1152,11 @@ export default function Allocations() {
         const account = accounts.find(a => a.id === (row.sourceAccountId || row.source_account_id));
         return account ? (
           <div className="flex items-center gap-1 text-sm">
-            <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+            <DollarSign className="h-3.5 w-3.5 text-slate-400" />
             <span>{account.code}</span>
           </div>
         ) : (
-          <span className="text-sm text-text-muted">—</span>
+          <span className="text-sm text-slate-500">—</span>
         );
       }
     },
@@ -1170,7 +1170,7 @@ export default function Allocations() {
             <Badge tone="info" size="sm">
               {option?.label || dimension}
             </Badge>
-            <span className="text-xs text-text-soft mt-1">Key: {option?.dimensionKey || 'costCenterId'}</span>
+            <span className="text-xs text-slate-400 mt-1">Key: {option?.dimensionKey || 'costCenterId'}</span>
           </div>
         ) : (
           <Badge tone="muted" size="sm">—</Badge>
@@ -1255,7 +1255,7 @@ export default function Allocations() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-text-muted">Loading allocations...</div>
+            <div className="text-slate-500">Loading allocations...</div>
           </div>
         </ContentCard>
       </div>
@@ -1278,8 +1278,8 @@ export default function Allocations() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-lg font-medium text-text-strong">Failed to load allocations</div>
-            <div className="text-text-muted">{basesError?.message || rulesError?.message}</div>
+            <div className="text-lg font-medium text-slate-900">Failed to load allocations</div>
+            <div className="text-slate-500">{basesError?.message || rulesError?.message}</div>
             <Button onClick={handleRefresh} className="mt-2">Try Again</Button>
           </div>
         </ContentCard>
@@ -1358,7 +1358,7 @@ export default function Allocations() {
                 className="w-40"
               />
             </div>
-            <div className="text-sm text-text-muted">
+            <div className="text-sm text-slate-500">
               {tab === 'bases' ? filteredBases.length : filteredRules.length} items
             </div>
           </div>
@@ -1366,9 +1366,9 @@ export default function Allocations() {
 
         {/* Filters Panel */}
         {showFilters && (tab === 'bases' || tab === 'rules') && (
-          <div className="mb-4 p-3 bg-surface-2 rounded-lg border border-border-subtle">
+          <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-text-body">Search</span>
+              <span className="text-xs font-medium text-slate-700">Search</span>
               <button
                 onClick={() => setFilters({ status: '', search: '' })}
                 className="text-xs text-blue-600 hover:text-blue-700"
@@ -1436,10 +1436,10 @@ export default function Allocations() {
         {tab === 'compute' && (
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Preview Panel */}
-            <div className="border border-border-subtle rounded-lg p-5">
+            <div className="border border-slate-200 rounded-lg p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Eye className="h-5 w-5 text-blue-600" />
-                <h3 className="text-base font-semibold text-text-strong">Preview Allocation</h3>
+                <h3 className="text-base font-semibold text-slate-900">Preview Allocation</h3>
               </div>
               
               <div className="space-y-4">
@@ -1474,39 +1474,39 @@ export default function Allocations() {
                 {previewMutation.isSuccess && previewState.result && (
                   <div className="mt-4 space-y-4">
                     {previewState.result.map((preview, idx) => (
-                      <div key={idx} className="border border-border-subtle rounded-lg p-4">
+                      <div key={idx} className="border border-slate-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-3">
                           <div>
                             <h4 className="font-medium">{preview.ruleName}</h4>
-                            <p className="text-xs text-text-muted">Code: {preview.ruleCode}</p>
+                            <p className="text-xs text-slate-500">Code: {preview.ruleCode}</p>
                           </div>
                           <Badge tone="info">Preview</Badge>
                         </div>
                         
                         <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
                           <div>
-                            <span className="text-xs text-text-muted">Base Amount</span>
+                            <span className="text-xs text-slate-500">Base Amount</span>
                             <div className="font-medium">{formatCurrency(preview.baseAmount)}</div>
                           </div>
                           <div>
-                            <span className="text-xs text-text-muted">Total Weight</span>
+                            <span className="text-xs text-slate-500">Total Weight</span>
                             <div className="font-medium">{preview.totalWeight}</div>
                           </div>
                         </div>
 
                         <div>
-                          <h5 className="text-xs font-medium text-text-body mb-2">Allocation Lines</h5>
+                          <h5 className="text-xs font-medium text-slate-700 mb-2">Allocation Lines</h5>
                           <div className="space-y-2">
                             {preview.lines.map((line, lineIdx) => {
                               const account = accounts.find(a => a.id === line.toAccountId);
                               return (
-                                <div key={lineIdx} className="flex justify-between text-sm bg-surface-2 p-2 rounded">
+                                <div key={lineIdx} className="flex justify-between text-sm bg-slate-50 p-2 rounded">
                                   <div>
                                     <span className="font-mono text-xs">{account?.code || line.toAccountId.substring(0, 8)}...</span>
-                                    {line.notes && <span className="text-xs text-text-muted ml-2">({line.notes})</span>}
+                                    {line.notes && <span className="text-xs text-slate-500 ml-2">({line.notes})</span>}
                                   </div>
                                   <div className="flex gap-4">
-                                    <span className="text-xs text-text-muted">w:{line.weight}</span>
+                                    <span className="text-xs text-slate-500">w:{line.weight}</span>
                                     <span className="font-medium">{formatCurrency(line.amount)}</span>
                                   </div>
                                 </div>
@@ -1522,10 +1522,10 @@ export default function Allocations() {
             </div>
 
             {/* Compute Panel */}
-            <div className="border border-border-subtle rounded-lg p-5">
+            <div className="border border-slate-200 rounded-lg p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Calculator className="h-5 w-5 text-green-600" />
-                <h3 className="text-base font-semibold text-text-strong">Compute Allocation</h3>
+                <h3 className="text-base font-semibold text-slate-900">Compute Allocation</h3>
               </div>
               
               <div className="space-y-4">
@@ -1551,9 +1551,9 @@ export default function Allocations() {
                     id="replace"
                     checked={computeState.replace}
                     onChange={(e) => setComputeState(prev => ({ ...prev, replace: e.target.checked }))}
-                    className="h-4 w-4 text-blue-600 rounded border-border-subtle"
+                    className="h-4 w-4 text-blue-600 rounded border-slate-300"
                   />
-                  <label htmlFor="replace" className="text-sm text-text-body">
+                  <label htmlFor="replace" className="text-sm text-slate-700">
                     Replace existing allocations for this period
                   </label>
                 </div>
@@ -1582,7 +1582,7 @@ export default function Allocations() {
                   <div className="mt-4 space-y-3">
                     <h4 className="text-sm font-medium">Computation Results</h4>
                     {computeState.result.map((allocation, idx) => (
-                      <div key={idx} className="border border-border-subtle rounded-lg p-3">
+                      <div key={idx} className="border border-slate-200 rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <div>
                             <Badge tone={allocation.status === 'computed' ? 'info' : 'success'}>
@@ -1604,7 +1604,7 @@ export default function Allocations() {
                           )}
                         </div>
                         {allocation.journalEntryId && (
-                          <div className="mt-2 text-xs text-text-muted">
+                          <div className="mt-2 text-xs text-slate-600">
                             Journal Entry: {allocation.journalEntryId}
                           </div>
                         )}
@@ -1635,7 +1635,7 @@ export default function Allocations() {
             <button
               type="button"
               onClick={() => setShowRuleInfo(!showRuleInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Allocation rule info</span>
@@ -1727,8 +1727,8 @@ export default function Allocations() {
                 helperText="Select the dimension type for allocation"
               />
               {ruleForm.dimensionKey && (
-                <p className="text-xs text-text-muted mt-1">
-                  JSON key: <code className="bg-surface-2 px-1 rounded">{ruleForm.dimensionKey}</code>
+                <p className="text-xs text-slate-500 mt-1">
+                  JSON key: <code className="bg-slate-100 px-1 rounded">{ruleForm.dimensionKey}</code>
                 </p>
               )}
             </div>
@@ -1748,9 +1748,9 @@ export default function Allocations() {
           </div>
 
           {/* Targets Section */}
-          <div className="border-t border-border-subtle pt-4">
+          <div className="border-t border-slate-200 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-medium text-text-body">
+              <label className="block text-sm font-medium text-slate-700">
                 Target Accounts <span className="text-red-500">*</span>
               </label>
               <Button
@@ -1775,22 +1775,22 @@ export default function Allocations() {
                   const center = centers.find(c => c.id === centerId);
                   
                   return (
-                    <div key={index} className="flex items-center justify-between bg-surface-2 p-3 rounded-lg border border-border-subtle">
+                    <div key={index} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-200">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Badge tone="info" size="sm">{index + 1}</Badge>
                           <span className="font-medium text-sm">{account?.code || target.toAccountId.substring(0, 8)}...</span>
-                          <span className="text-xs text-text-muted">Weight: {target.weight}</span>
+                          <span className="text-xs text-slate-500">Weight: {target.weight}</span>
                           {center && (
                             <Badge tone="primary" size="sm">
                               {center.code}
                             </Badge>
                           )}
                           {target.notes && (
-                            <span className="text-xs text-text-soft">({target.notes})</span>
+                            <span className="text-xs text-slate-400">({target.notes})</span>
                           )}
                         </div>
-                        <div className="text-xs text-text-soft mt-1">
+                        <div className="text-xs text-slate-400 mt-1">
                           Dimension: {ruleForm.targetDimension} → Key: {ruleForm.dimensionKey}
                         </div>
                       </div>
@@ -1817,9 +1817,9 @@ export default function Allocations() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-6 bg-surface-2 rounded-lg border border-dashed border-border-subtle">
-                <Target className="h-8 w-8 text-text-soft mx-auto mb-2" />
-                <p className="text-sm text-text-muted">No target accounts added yet</p>
+              <div className="text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                <Target className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">No target accounts added yet</p>
                 <Button
                   size="sm"
                   variant="outline"
@@ -1898,9 +1898,9 @@ export default function Allocations() {
             leftIcon={FileText}
           />
 
-          <div className="border-t border-border-subtle pt-4">
+          <div className="border-t border-slate-200 pt-4">
             <details className="text-sm">
-              <summary className="text-text-muted cursor-pointer hover:text-text-strong">
+              <summary className="text-slate-600 cursor-pointer hover:text-slate-800">
                 Additional dimensions (optional)
               </summary>
               <div className="mt-2">
@@ -1911,7 +1911,7 @@ export default function Allocations() {
                   compact={true}
                   placeholder='{ "projectId": "uuid", "locationId": "uuid" }'
                 />
-                <p className="text-xs text-text-muted mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Add additional dimension values. The main dimension ({ruleForm.dimensionKey}) will be 
                   automatically added from the selected center.
                 </p>
@@ -1943,7 +1943,7 @@ export default function Allocations() {
             <button
               type="button"
               onClick={() => setShowBaseInfo(!showBaseInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Allocation base info</span>
@@ -2023,8 +2023,8 @@ export default function Allocations() {
           </div>
 
           {/* JSON Configuration */}
-          <div className="border-t border-border-subtle pt-4">
-            <label className="block text-sm font-medium text-text-body mb-2">
+          <div className="border-t border-slate-200 pt-4">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Additional Configuration (JSON)
             </label>
             <JsonEditor
@@ -2033,7 +2033,7 @@ export default function Allocations() {
               height={200}
               placeholder='{ "unit": "hours", "description": "Based on actual labour hours" }'
             />
-            <p className="text-xs text-text-muted mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Configure additional properties in JSON format. The 'unit' field is required.
             </p>
           </div>
@@ -2130,12 +2130,12 @@ export default function Allocations() {
             {modals.deleteConfirm && <Trash2 className="h-6 w-6 text-red-600 flex-shrink-0" />}
             
             <div>
-              <p className="text-sm text-text-muted mb-2">
+              <p className="text-sm text-slate-600 mb-2">
                 {modals.archiveConfirm && `Are you sure you want to archive "${selectedRule?.name || selectedBase?.name || 'this item'}"?`}
                 {modals.activateConfirm && `Are you sure you want to activate "${selectedRule?.name || selectedBase?.name || 'this item'}"?`}
                 {modals.deleteConfirm && `Are you sure you want to permanently delete "${selectedRule?.name || 'this rule'}"?`}
               </p>
-              <p className="text-sm font-medium text-text-strong">
+              <p className="text-sm font-medium text-slate-900">
                 {modals.archiveConfirm && 'Archived items become read-only and are hidden from most views.'}
                 {modals.activateConfirm && 'Activated items become available for allocation computations.'}
                 {modals.deleteConfirm && 'This action cannot be undone. The rule will be permanently removed.'}

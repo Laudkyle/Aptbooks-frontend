@@ -189,7 +189,7 @@ const toast = useToast();
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading roles...</div>
+            <div className="text-sm text-slate-500">Loading roles...</div>
           </div>
         </ContentCard>
       </div>
@@ -213,8 +213,8 @@ const toast = useToast();
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load roles</div>
-            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load roles</div>
+            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
               Retry
             </Button>
@@ -247,19 +247,19 @@ const toast = useToast();
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Zap className="h-5 w-5 text-amber-500" />
-              <div className="text-base font-semibold text-text-strong">Quick Setup</div>
+              <div className="text-base font-semibold text-slate-900">Quick Setup</div>
             </div>
-            <div className="text-sm text-text-muted mb-4">
+            <div className="text-sm text-slate-500 mb-4">
               Apply a pre-configured role template to quickly set up common permission sets
             </div>
             
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex-1 min-w-[250px]">
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Select Template
                 </label>
                 <select
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-sm"
                   value={selectedTemplate}
                   onChange={handleTemplateChange}
                 >
@@ -299,8 +299,8 @@ const toast = useToast();
       {/* Roles List */}
       <ContentCard>
         <div className="mb-4">
-          <div className="text-base font-semibold text-text-strong">Role Directory</div>
-          <div className="mt-1 text-sm text-text-muted">
+          <div className="text-base font-semibold text-slate-900">Role Directory</div>
+          <div className="mt-1 text-sm text-slate-500">
             {roles.length} {roles.length === 1 ? 'role' : 'roles'} configured
           </div>
         </div>
@@ -308,8 +308,8 @@ const toast = useToast();
         {roles.length === 0 ? (
           <div className="text-center py-12">
             <Shield className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <div className="text-sm font-medium text-text-strong mb-1">No roles yet</div>
-            <div className="text-sm text-text-muted mb-4">
+            <div className="text-sm font-medium text-slate-900 mb-1">No roles yet</div>
+            <div className="text-sm text-slate-500 mb-4">
               Create a role or apply a template to get started
             </div>
             <div className="flex items-center justify-center gap-2">
@@ -344,10 +344,10 @@ const toast = useToast();
             </THead>
             <TBody>
               {roles.map((role) => (
-                <tr key={role.id} className="hover:bg-surface-2 transition-colors">
+                <tr key={role.id} className="hover:bg-slate-50 transition-colors">
                   <TD>
                     <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-text-soft" />
+                      <Shield className="h-4 w-4 text-slate-400" />
                       <Link 
                         className="font-medium text-brand-deep hover:text-brand-deep/80 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-deep focus:ring-offset-1 rounded"
                         to={ROUTES.adminRoleDetail(role.id)}
@@ -358,8 +358,8 @@ const toast = useToast();
                     </div>
                   </TD>
                   <TD>
-                    <div className="flex items-center gap-2 text-sm text-text-muted">
-                      <Calendar className="h-3.5 w-3.5 text-text-soft" />
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" />
                       {formatDate(role.created_at ?? role.createdAt)}
                     </div>
                   </TD>
@@ -432,9 +432,9 @@ const toast = useToast();
             />
           </div>
 
-          <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
-            <div className="text-xs font-medium text-text-body mb-2">Next Steps</div>
-            <ul className="text-xs text-text-muted space-y-2">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-xs font-medium text-slate-700 mb-2">Next Steps</div>
+            <ul className="text-xs text-slate-600 space-y-2">
               <li className="flex items-start gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-slate-400 mt-1.5 flex-shrink-0" />
                 <span>Role will be created with no permissions by default</span>

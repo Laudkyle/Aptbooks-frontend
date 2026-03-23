@@ -17,7 +17,7 @@ export function TopNav() {
   const isDark = theme === 'dark';
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1 backdrop-blur supports-[backdrop-filter]:bg-surface-2">
+    <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-1 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           <Button variant="subtle" size="sm" onClick={toggleSidebar} aria-label="Toggle sidebar">
@@ -32,11 +32,11 @@ export function TopNav() {
           <button
             type="button"
             onClick={() => navigate(ROUTES.search)}
-            className="flex w-full max-w-xl items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 px-3 py-2 text-sm text-text-muted shadow-sm transition hover:bg-surface-1"
+            className="flex w-full max-w-xl items-center gap-2 rounded-xl border border-border-subtle bg-white/70 px-3 py-2 text-sm text-slate-600 shadow-sm transition hover:bg-white"
           >
-            <Search className="h-4 w-4 text-text-muted" />
+            <Search className="h-4 w-4 text-slate-500" />
             <span className="truncate">Search partners, accounts, journals, documents…</span>
-            <span className="ml-auto hidden rounded-md bg-slate-900/5 px-2 py-0.5 text-[11px] text-text-muted lg:inline">
+            <span className="ml-auto hidden rounded-md bg-slate-900/5 px-2 py-0.5 text-[11px] text-slate-500 lg:inline">
               Ctrl K
             </span>
           </button>
@@ -56,7 +56,7 @@ export function TopNav() {
           <Button variant="subtle" size="sm" onClick={() => navigate(ROUTES.search)} title="Search" className="md:hidden">
             <Search className="h-4 w-4" />
           </Button>
-          <Link to={ROUTES.me} className="group flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-2 px-3 py-1.5 text-sm text-text-body shadow-sm transition hover:bg-surface-1">
+          <Link to={ROUTES.me} className="group flex items-center gap-2 rounded-xl border border-border-subtle bg-white/60 px-3 py-1.5 text-sm text-slate-700 shadow-sm transition hover:bg-white">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/15 text-xs font-semibold text-brand-deep">
               {(user?.email ?? 'A').slice(0, 1).toUpperCase()}
             </span>

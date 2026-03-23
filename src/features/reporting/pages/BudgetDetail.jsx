@@ -721,15 +721,15 @@ export default function BudgetDetail() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleVersionExpand(row.id)}
-            className="p-1 hover:bg-surface-2 rounded"
+            className="p-1 hover:bg-slate-100 rounded"
           >
             {expandedVersions.has(row.id) ? (
-              <ChevronDown className="h-4 w-4 text-text-soft" />
+              <ChevronDown className="h-4 w-4 text-slate-400" />
             ) : (
-              <ChevronRightIcon className="h-4 w-4 text-text-soft" />
+              <ChevronRightIcon className="h-4 w-4 text-slate-400" />
             )}
           </button>
-          <Layers className="h-4 w-4 text-text-soft" />
+          <Layers className="h-4 w-4 text-slate-400" />
           <span className="font-medium">v{row.version_no || row.versionNo}</span>
         </div>
       )
@@ -848,7 +848,7 @@ export default function BudgetDetail() {
         return account ? (
           <div className="flex flex-col">
             <span className="font-medium">{account.name || account.accountName}</span>
-            <span className="text-xs text-text-muted">{account.code}</span>
+            <span className="text-xs text-slate-500">{account.code}</span>
           </div>
         ) : (
           row.accountId || row.account_id
@@ -891,7 +891,7 @@ export default function BudgetDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-text-muted">Loading budget details...</div>
+            <div className="text-slate-500">Loading budget details...</div>
           </div>
         </ContentCard>
       </div>
@@ -913,8 +913,8 @@ export default function BudgetDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-lg font-medium text-text-strong">Failed to load budget</div>
-            <div className="text-text-muted">{budgetError.message}</div>
+            <div className="text-lg font-medium text-slate-900">Failed to load budget</div>
+            <div className="text-slate-500">{budgetError.message}</div>
             <Button onClick={() => refetchBudget()}>Retry</Button>
           </div>
         </ContentCard>
@@ -935,7 +935,7 @@ export default function BudgetDetail() {
           }
         />
         <ContentCard>
-          <div className="py-12 text-center text-text-muted">
+          <div className="py-12 text-center text-slate-500">
             The requested budget could not be found.
           </div>
         </ContentCard>
@@ -1000,28 +1000,28 @@ export default function BudgetDetail() {
         <div className="lg:col-span-1 space-y-6">
           {/* Budget Info */}
           <ContentCard>
-            <h3 className="text-sm font-semibold text-text-strong mb-4">Budget Information</h3>
+            <h3 className="text-sm font-semibold text-slate-900 mb-4">Budget Information</h3>
             <div className="space-y-3">
               <div>
-                <div className="text-xs text-text-muted">Name</div>
+                <div className="text-xs text-slate-500">Name</div>
                 <div className="text-sm font-medium">{budget.name || '—'}</div>
               </div>
               <div>
-                <div className="text-xs text-text-muted">Fiscal Year</div>
+                <div className="text-xs text-slate-500">Fiscal Year</div>
                 <div className="text-sm font-medium">{budget.fiscal_year || '—'}</div>
               </div>
               <div>
-                <div className="text-xs text-text-muted">Currency</div>
+                <div className="text-xs text-slate-500">Currency</div>
                 <div className="text-sm font-medium">{budget.currency_code || 'USD'}</div>
               </div>
               <div>
-                <div className="text-xs text-text-muted">Status</div>
+                <div className="text-xs text-slate-500">Status</div>
                 <Badge tone={budget.status === 'final' ? 'success' : 'muted'} size="sm">
                   {budget.status || 'draft'}
                 </Badge>
               </div>
               <div>
-                <div className="text-xs text-text-muted">Created</div>
+                <div className="text-xs text-slate-500">Created</div>
                 <div className="text-sm">{formatDate(budget.created_at)}</div>
               </div>
             </div>
@@ -1029,38 +1029,38 @@ export default function BudgetDetail() {
 
           {/* Quick Stats */}
           <ContentCard>
-            <h3 className="text-sm font-semibold text-text-strong mb-4">Statistics</h3>
+            <h3 className="text-sm font-semibold text-slate-900 mb-4">Statistics</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Total Versions</span>
+                <span className="text-sm text-slate-600">Total Versions</span>
                 <Badge tone="brand">{versions.length}</Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Total Lines</span>
+                <span className="text-sm text-slate-600">Total Lines</span>
                 <Badge tone="info">
                   {versions.reduce((sum, v) => sum + (v.lines?.length || 0), 0)}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Draft Versions</span>
+                <span className="text-sm text-slate-600">Draft Versions</span>
                 <Badge tone="muted">
                   {versions.filter(v => v.status === 'draft' || v.workflow_status === 'draft').length}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Submitted</span>
+                <span className="text-sm text-slate-600">Submitted</span>
                 <Badge tone="info">
                   {versions.filter(v => v.workflow_status === 'submitted').length}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Approved</span>
+                <span className="text-sm text-slate-600">Approved</span>
                 <Badge tone="success">
                   {versions.filter(v => v.workflow_status === 'approved').length}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-muted">Final</span>
+                <span className="text-sm text-slate-600">Final</span>
                 <Badge tone="success">
                   {versions.filter(v => v.status === 'final').length}
                 </Badge>
@@ -1070,8 +1070,8 @@ export default function BudgetDetail() {
 
           {/* Help */}
           <ContentCard>
-            <h3 className="text-sm font-semibold text-text-strong mb-3">Quick Tips</h3>
-            <div className="space-y-2 text-xs text-text-muted">
+            <h3 className="text-sm font-semibold text-slate-900 mb-3">Quick Tips</h3>
+            <div className="space-y-2 text-xs text-slate-600">
               <div className="flex items-start gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5" />
                 <span>Click on a version to view its lines</span>
@@ -1097,8 +1097,8 @@ export default function BudgetDetail() {
           <ContentCard>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-semibold text-text-strong">Budget Versions</h3>
-                <p className="text-sm text-text-muted mt-1">
+                <h3 className="text-base font-semibold text-slate-900">Budget Versions</h3>
+                <p className="text-sm text-slate-500 mt-1">
                   {versions.length} version{versions.length !== 1 ? 's' : ''} • Click to expand and view lines
                 </p>
               </div>
@@ -1124,9 +1124,9 @@ export default function BudgetDetail() {
 
             {versions.length === 0 ? (
               <div className="py-12 text-center">
-                <Layers className="h-12 w-12 text-text-soft mx-auto mb-3" />
-                <h3 className="text-sm font-medium text-text-strong mb-1">No versions yet</h3>
-                <p className="text-sm text-text-muted mb-4">
+                <Layers className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-sm font-medium text-slate-900 mb-1">No versions yet</h3>
+                <p className="text-sm text-slate-500 mb-4">
                   Create your first version to start building the budget
                 </p>
                 <Button
@@ -1151,13 +1151,13 @@ export default function BudgetDetail() {
                     <div
                       key={version.id}
                       className={`border rounded-lg overflow-hidden ${
-                        isSelected ? 'border-blue-300 ring-1 ring-blue-200' : 'border-border-subtle'
+                        isSelected ? 'border-blue-300 ring-1 ring-blue-200' : 'border-slate-200'
                       }`}
                     >
                       {/* Version Header */}
                       <div
                         className={`flex items-center justify-between p-4 cursor-pointer ${
-                          isSelected ? 'bg-blue-50/50' : 'hover:bg-surface-2'
+                          isSelected ? 'bg-blue-50/50' : 'hover:bg-slate-50'
                         }`}
                         onClick={() => {
                           setSelectedVersionId(version.id);
@@ -1175,22 +1175,22 @@ export default function BudgetDetail() {
                             className="p-1 hover:bg-slate-200 rounded"
                           >
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-text-muted" />
+                              <ChevronDown className="h-4 w-4 text-slate-500" />
                             ) : (
-                              <ChevronRightIcon className="h-4 w-4 text-text-muted" />
+                              <ChevronRightIcon className="h-4 w-4 text-slate-500" />
                             )}
                           </button>
-                          <Layers className={`h-5 w-5 ${isSelected ? 'text-blue-600' : 'text-text-soft'}`} />
+                          <Layers className={`h-5 w-5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`} />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className={`font-semibold ${isSelected ? 'text-blue-900' : 'text-text-strong'}`}>
+                              <span className={`font-semibold ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>
                                 Version {version.version_no || version.versionNo}
                               </span>
                               {version.name && (
-                                <span className="text-sm text-text-muted">• {version.name}</span>
+                                <span className="text-sm text-slate-600">• {version.name}</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
+                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                               <Badge tone={badge.tone} size="sm">
                                 {badge.label}
                               </Badge>
@@ -1200,7 +1200,7 @@ export default function BudgetDetail() {
                             
                             {/* Workflow metadata */}
                             {version.submitted_at && (
-                              <div className="flex items-center gap-2 mt-1 text-xs text-text-soft">
+                              <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
                                 <Clock className="h-3 w-3" />
                                 <span>Submitted {formatDateTime(version.submitted_at)}</span>
                               </div>
@@ -1336,10 +1336,10 @@ export default function BudgetDetail() {
 
                       {/* Expanded Lines */}
                       {isExpanded && (
-                        <div className="border-t border-border-subtle bg-surface-2 p-4">
+                        <div className="border-t border-slate-200 bg-slate-50/50 p-4">
                           {versionLines.length === 0 ? (
                             <div className="text-center py-6">
-                              <p className="text-sm text-text-muted mb-3">No budget lines in this version</p>
+                              <p className="text-sm text-slate-500 mb-3">No budget lines in this version</p>
                               {actions.canAddLines && (
                                 <div className="flex justify-center gap-2">
                                   <Button
@@ -1363,7 +1363,7 @@ export default function BudgetDetail() {
                           ) : (
                             <div>
                               <div className="flex items-center justify-between mb-3">
-                                <h4 className="text-sm font-medium text-text-body">Budget Lines</h4>
+                                <h4 className="text-sm font-medium text-slate-700">Budget Lines</h4>
                                 <div className="flex items-center gap-2">
                                   <Button
                                     variant="ghost"
@@ -1386,9 +1386,9 @@ export default function BudgetDetail() {
 
                               {/* Filters */}
                               {showFilters && (
-                                <div className="mb-4 p-3 bg-surface-1 rounded-lg border border-border-subtle">
+                                <div className="mb-4 p-3 bg-white rounded-lg border border-slate-200">
                                   <div className="flex items-center justify-between mb-2">
-                                    <span className="text-xs font-medium text-text-body">Filters</span>
+                                    <span className="text-xs font-medium text-slate-700">Filters</span>
                                     <button
                                       onClick={() => setFilters({ account: '', period: '', amountRange: { min: '', max: '' } })}
                                       className="text-xs text-blue-600 hover:text-blue-700"
@@ -1475,15 +1475,15 @@ export default function BudgetDetail() {
                                     const account = accountsMap.get(line.accountId || line.account_id);
                                     const period = periodsMap.get(line.periodId || line.period_id);
                                     return (
-                                      <div key={idx} className="bg-surface-1 border border-border-subtle rounded-lg p-3 hover:shadow-sm transition-shadow">
+                                      <div key={idx} className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
                                         <div className="flex items-start justify-between mb-2">
                                           <Badge tone="info" size="sm">{account?.code || '—'}</Badge>
-                                          <span className="text-xs text-text-muted">{period?.name || period?.code || '—'}</span>
+                                          <span className="text-xs text-slate-500">{period?.name || period?.code || '—'}</span>
                                         </div>
-                                        <div className="font-medium text-sm text-text-strong mb-1">
+                                        <div className="font-medium text-sm text-slate-900 mb-1">
                                           {account?.name || account?.accountName || '—'}
                                         </div>
-                                        <div className="text-base font-semibold text-text-strong">
+                                        <div className="text-base font-semibold text-slate-900">
                                           {formatCurrency(line.amount)}
                                         </div>
                                       </div>
@@ -1556,12 +1556,12 @@ export default function BudgetDetail() {
             ]}
           />
 
-          <div className="border-t border-border-subtle pt-4">
-            <label className="block text-sm font-medium text-text-body mb-2">
+          <div className="border-t border-slate-200 pt-4">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Management Dimensions (Optional)
             </label>
             <textarea
-              className="w-full h-32 px-3 py-2 border border-border-subtle rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={JSON.stringify(versionForm.dimensionJson, null, 2)}
               onChange={(e) => {
                 try {
@@ -1576,7 +1576,7 @@ export default function BudgetDetail() {
   "department": "Engineering"
 }'
             />
-            <p className="text-xs text-text-muted mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               JSON object of dimensions that apply to all lines in this version
             </p>
           </div>
@@ -1678,12 +1678,12 @@ export default function BudgetDetail() {
             </div>
           )}
 
-          <div className="border-t border-border-subtle pt-4">
-            <label className="block text-sm font-medium text-text-body mb-2">
+          <div className="border-t border-slate-200 pt-4">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Management Dimensions
             </label>
             <textarea
-              className="w-full h-32 px-3 py-2 border border-border-subtle rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={JSON.stringify(versionForm.dimensionJson, null, 2)}
               onChange={(e) => {
                 try {
@@ -1698,7 +1698,7 @@ export default function BudgetDetail() {
   "department": "Engineering"
 }'
             />
-            <p className="text-xs text-text-muted mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               JSON object of dimensions that apply to all lines in this version
             </p>
             {editingVersion?.dimension_json || editingVersion?.dimensionJson ? (
@@ -1706,12 +1706,12 @@ export default function BudgetDetail() {
                 Current dimensions: {Object.keys(editingVersion.dimension_json || editingVersion.dimensionJson || {}).length} dimension(s) defined
               </p>
             ) : (
-              <p className="text-xs text-text-soft mt-2">No dimensions currently set</p>
+              <p className="text-xs text-slate-400 mt-2">No dimensions currently set</p>
             )}
           </div>
 
           {/* Version Metadata */}
-          <div className="bg-surface-2 rounded-lg p-3 text-xs text-text-muted">
+          <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="font-medium">Created:</span> {formatDateTime(editingVersion?.created_at)}
@@ -1805,9 +1805,9 @@ export default function BudgetDetail() {
           {addLinesForm.versionId && (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {addLinesForm.lines.map((line, index) => (
-                <div key={index} className="bg-surface-2 rounded-lg p-4 border border-border-subtle">
+                <div key={index} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-text-body">Line {index + 1}</span>
+                    <span className="text-sm font-medium text-slate-700">Line {index + 1}</span>
                     {addLinesForm.lines.length > 1 && (
                       <button
                         onClick={() => {
@@ -1959,9 +1959,9 @@ export default function BudgetDetail() {
           {upsertAnnualForm.versionId && (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {upsertAnnualForm.items.map((item, index) => (
-                <div key={index} className="bg-surface-2 rounded-lg p-4 border border-border-subtle">
+                <div key={index} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-text-body">Item {index + 1}</span>
+                    <span className="text-sm font-medium text-slate-700">Item {index + 1}</span>
                     {upsertAnnualForm.items.length > 1 && (
                       <button
                         onClick={() => {
@@ -2141,7 +2141,7 @@ export default function BudgetDetail() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Periods <span className="text-red-500">*</span>
                 </label>
                 <div className="text-xs text-blue-600 mb-2 flex items-center gap-1">
@@ -2155,7 +2155,7 @@ export default function BudgetDetail() {
                     const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
                     setDistributeForm(f => ({ ...f, periodIds: selected }));
                   }}
-                  className="w-full h-32 px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={periods.length === 0}
                 >
                   {periods.map(period => (
@@ -2164,7 +2164,7 @@ export default function BudgetDetail() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-text-muted mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Hold Ctrl/Cmd to select multiple periods
                 </p>
               </div>
@@ -2246,11 +2246,11 @@ export default function BudgetDetail() {
 
           {csvForm.versionId && (
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 CSV Data
               </label>
               <textarea
-                className="w-full h-48 px-3 py-2 border border-border-subtle rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-48 px-3 py-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={csvForm.data}
                 onChange={(e) => setCsvForm(f => ({ ...f, data: e.target.value }))}
                 placeholder="accountId,periodId,amount&#10;..."
@@ -2306,11 +2306,11 @@ export default function BudgetDetail() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-body mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Rejection Reason <span className="text-red-500">*</span>
             </label>
             <textarea
-              className="w-full h-32 px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Please provide a reason for rejection..."

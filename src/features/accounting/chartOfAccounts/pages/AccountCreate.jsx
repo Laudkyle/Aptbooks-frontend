@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeCoaApi } from '../api/coa.api.js';
@@ -21,7 +20,6 @@ const TYPE_OPTIONS = [
 
 
 export default function AccountCreate() {
-  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
@@ -47,7 +45,7 @@ export default function AccountCreate() {
       }),
     onSuccess: (data) => {
       toast.success('Account created.');
-      navigate(ROUTES.accountingCoaDetail(data?.id ?? ''));
+      window.location.href = ROUTES.accountingCoaDetail(data?.id ?? '');
     },
     onError: (e) => toast.error(e.message ?? 'Create failed')
   });
@@ -84,7 +82,7 @@ export default function AccountCreate() {
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => navigate(ROUTES.accountingCoa)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => (window.location.href = ROUTES.accountingCoa)}>Cancel</Button>
           <Button onClick={() => create.mutate()} disabled={create.isLoading || !code || !name}>
             Create
           </Button>

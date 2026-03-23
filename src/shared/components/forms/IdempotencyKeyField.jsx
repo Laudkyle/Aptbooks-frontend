@@ -15,11 +15,11 @@ export function IdempotencyKeyField({
   }, []);
 
   return (
-    <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+    <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs font-semibold text-text-body">{label}</div>
-          <div className="mt-1 text-xs text-text-muted">{hint}</div>
+          <div className="text-xs font-semibold text-slate-700">{label}</div>
+          <div className="mt-1 text-xs text-slate-500">{hint}</div>
         </div>
         <Button size="sm" variant="outline" onClick={() => onChange?.(generateRequestId())}>
           Regenerate

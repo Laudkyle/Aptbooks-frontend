@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeAccrualsApi } from '../api/accruals.api.js';
@@ -16,7 +16,6 @@ import { ROUTES } from '../../../../app/constants/routes.js';
 
 
 export default function AccrualsHub() {
-  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeAccrualsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
@@ -68,25 +67,26 @@ export default function AccrualsHub() {
   return (
     <div className="min-h-screen ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* QuickBooks-style Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-text-strong">Accruals</h1>
-            <p className="mt-1 text-sm text-text-muted">Manage accrual rules and run accrual processes</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Accruals</h1>
+            <p className="mt-1 text-sm text-gray-600">Manage accrual rules and run accrual processes</p>
           </div>
-          <Button
-            onClick={() => navigate(ROUTES.accountingAccrualNew)}
-            className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
+          <button
+            onClick={() => (window.location.href = ROUTES.accountingAccrualNew)}
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-md font-medium transition-colors shadow-sm"
           >
             New Rule
-          </Button>
+          </button>
         </div>
 
         <div className="space-y-6">
           {/* Run Accruals Card */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-            <div className="border-b border-border-subtle px-6 py-4">
-              <h2 className="text-lg font-semibold text-text-strong">Run Accruals</h2>
-              <p className="mt-1 text-sm text-text-muted">Execute accrual processes for due items, reversals, or period-end</p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h2 className="text-lg font-semibold text-gray-900">Run Accruals</h2>
+              <p className="mt-1 text-sm text-gray-600">Execute accrual processes for due items, reversals, or period-end</p>
             </div>
             
             <div className="p-6">
@@ -130,7 +130,7 @@ export default function AccrualsHub() {
                   </Button>
                 </div>
 
-                <div className="mt-4 text-xs text-text-muted bg-surface-1 rounded px-3 py-2 border border-border-subtle">
+                <div className="mt-4 text-xs text-gray-600 bg-white rounded px-3 py-2 border border-gray-200">
                   <span className="font-semibold">Note:</span> As of Date is required for "Run Due". Period is required for "Run Reversals" and "Run Period-End".
                 </div>
               </div>
@@ -138,32 +138,32 @@ export default function AccrualsHub() {
           </div>
 
           {/* Rules Card */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-            <div className="border-b border-border-subtle px-6 py-4">
-              <h2 className="text-lg font-semibold text-text-strong">Accrual Rules</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h2 className="text-lg font-semibold text-gray-900">Accrual Rules</h2>
             </div>
             
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-subtle">
+              <table className="min-w-full divide-y divide-gray-200">
                 <thead className="">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Code</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Rule Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Frequency</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rule Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Frequency</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {rules.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">
+                      <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
                         No accrual rules found. Create your first rule to get started.
                       </td>
                     </tr>
                   ) : (
                     rules.map((r) => (
-                      <tr key={r.id} className="hover:bg-surface-2 transition-colors">
+                      <tr key={r.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4 text-sm">
                           <Link 
                             className="text-blue-600 hover:text-blue-800 hover:underline font-medium" 
@@ -172,17 +172,17 @@ export default function AccrualsHub() {
                             {r.code}
                           </Link>
                         </td>
-                        <td className="px-6 py-4 text-sm text-text-strong">{r.name}</td>
-                        <td className="px-6 py-4 text-sm text-text-body">
+                        <td className="px-6 py-4 text-sm text-gray-900">{r.name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">
                             {r.rule_type}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-text-body">{r.frequency}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{r.frequency}</td>
                         <td className="px-6 py-4 text-sm">
                           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                             r.status === 'active' ? 'bg-green-100 text-green-800' : 
-                            r.status === 'inactive' ? 'bg-surface-2 text-text-strong' :
+                            r.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
                             'bg-yellow-100 text-yellow-800'
                           }`}>
                             {r.status || 'Active'}
@@ -197,32 +197,32 @@ export default function AccrualsHub() {
           </div>
 
           {/* Runs Card */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-            <div className="border-b border-border-subtle px-6 py-4">
-              <h2 className="text-lg font-semibold text-text-strong">Recent Runs</h2>
-              <p className="mt-1 text-sm text-text-muted">History of accrual process executions</p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h2 className="text-lg font-semibold text-gray-900">Recent Runs</h2>
+              <p className="mt-1 text-sm text-gray-600">History of accrual process executions</p>
             </div>
             
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border-subtle">
+              <table className="min-w-full divide-y divide-gray-200">
                 <thead className="">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Run ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Created</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Run ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
                   </tr>
                 </thead>
-                <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {runs.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="px-6 py-8 text-center text-sm text-text-muted">
+                      <td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">
                         No runs found. Execute an accrual run above to see results here.
                       </td>
                     </tr>
                   ) : (
                     runs.map((r) => (
-                      <tr key={r.runId ?? r.id} className="hover:bg-surface-2 transition-colors">
-                        <td className="px-6 py-4 text-sm font-mono text-text-strong ">
+                      <tr key={r.runId ?? r.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-mono text-gray-900 ">
                           {r.runId ?? r.id}
                         </td>
                         <td className="px-6 py-4 text-sm">
@@ -230,12 +230,12 @@ export default function AccrualsHub() {
                             r.status === 'completed' ? 'bg-green-100 text-green-800' :
                             r.status === 'running' ? 'bg-blue-100 text-blue-800' :
                             r.status === 'failed' ? 'bg-red-100 text-red-800' :
-                            'bg-surface-2 text-text-strong'
+                            'bg-gray-100 text-gray-800'
                           }`}>
                             {r.status || 'Pending'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-text-body">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           {r.createdAt ?? r.created_at ?? '—'}
                         </td>
                       </tr>

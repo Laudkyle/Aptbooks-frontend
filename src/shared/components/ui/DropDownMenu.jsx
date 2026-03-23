@@ -122,7 +122,7 @@ export function DropdownMenuContent({
   return createPortal(
     <div
       ref={contentRef}
-      className={`min-w-[8rem] overflow-hidden rounded-md border border-border-subtle bg-surface-1 p-1 shadow-md animate-in fade-in-0 zoom-in-95 ${className}`}
+      className={`min-w-[8rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 shadow-md animate-in fade-in-0 zoom-in-95 ${className}`}
       style={getPositionStyles()}
       role="menu"
       aria-orientation="vertical"
@@ -162,7 +162,7 @@ export function DropdownMenuItem({
   if (asChild && React.isValidElement(children)) {
     return React.cloneElement(children, {
       onClick: handleClick,
-      className: `relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-surface-2 focus:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className}`,
+      className: `relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className}`,
       role: 'menuitem',
       tabIndex: -1,
       'data-disabled': disabled ? '' : undefined,
@@ -173,7 +173,7 @@ export function DropdownMenuItem({
   return (
     <button
       type="button"
-      className={`relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-surface-2 focus:bg-surface-2 disabled:pointer-events-none disabled:opacity-50 ${className}`}
+      className={`relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 ${className}`}
       onClick={handleClick}
       disabled={disabled}
       role="menuitem"
@@ -188,7 +188,7 @@ export function DropdownMenuItem({
 export function DropdownMenuLabel({ children, className = '', ...props }) {
   return (
     <div
-      className={`px-2 py-1.5 text-sm font-semibold text-text-strong ${className}`}
+      className={`px-2 py-1.5 text-sm font-semibold text-slate-900 ${className}`}
       {...props}
     >
       {children}
@@ -318,7 +318,7 @@ export function DropdownMenuSubTrigger({ children, className = '', ...props }) {
   return (
     <div
       ref={triggerRef}
-      className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-surface-2 ${className}`}
+      className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-slate-100 ${className}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       {...props}
@@ -358,7 +358,7 @@ export function DropdownMenuSubContent({ children, className = '', ...props }) {
 
   return createPortal(
     <div
-      className={`min-w-[8rem] overflow-hidden rounded-md border border-border-subtle bg-surface-1 p-1 shadow-md ${className}`}
+      className={`min-w-[8rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 shadow-md ${className}`}
       style={styles}
       {...props}
     >

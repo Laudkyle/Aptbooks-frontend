@@ -9,12 +9,19 @@ import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeBillsApi } from '../api/bills.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
-import { generateRequestId } from '../../../shared/api/request-id.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
+// Generate UUID v4
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function VendorPaymentCreate() {
   const navigate = useNavigate();
@@ -27,6 +34,7 @@ export default function VendorPaymentCreate() {
   const toast = useToast();
 
   // Auto-generate idempotency key on mount
+  const [idempotencyKey] = useState(() => generateUUID());
   
   const [formData, setFormData] = useState({
     vendorId: '',
@@ -166,7 +174,7 @@ export default function VendorPaymentCreate() {
 
   const create = useMutation({
     mutationFn: () => {
-      const idempotencyKey = generateRequestId(); 
+      const idempotencyKey = generateUUID(); 
       const payload = {
         vendorId: formData.vendorId,
         paymentDate: formData.paymentDate,
@@ -212,39 +220,38 @@ export default function VendorPaymentCreate() {
   return (
     <div className="min-h-screen ">
       {/* QuickBooks Header */}
-      <div className="bg-surface-1 border-b border-border-subtle">
+      <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button
+              <button
                 onClick={() => navigate(-1)}
-                variant="ghost"
-                iconOnly
-                aria-label="Go back"
-                leftIcon={ArrowLeft}
-              />
+                className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </button>
               <div>
-                <h1 className="text-2xl font-semibold text-text-strong">New Vendor Payment</h1>
-                <p className="text-sm text-text-muted mt-0.5">
+                <h1 className="text-2xl font-semibold text-gray-900">New Vendor Payment</h1>
+                <p className="text-sm text-gray-600 mt-0.5">
                   Record a payment to a vendor
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
+              <button
                 onClick={() => navigate(-1)}
-                variant="outline"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => create.mutate()}
                 disabled={create.isPending || !isValid || isLoading}
-                className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
-                leftIcon={Save}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
               >
+                <Save className="h-4 w-4" />
                 {create.isPending ? 'Creating...' : 'Save Payment'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -253,26 +260,26 @@ export default function VendorPaymentCreate() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {isLoading ? (
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-12 text-center">
-            <div className="text-sm text-text-muted">Loading payment form...</div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="text-sm text-gray-600">Loading payment form...</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Payment Details */}
             <div className="lg:col-span-2 space-y-6">
               {/* Vendor & Payment Info */}
-              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-subtle ">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 ">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-text-muted" />
-                    <h2 className="text-lg font-semibold text-text-strong">Payment Information</h2>
+                    <Building2 className="h-5 w-5 text-gray-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">Payment Information</h2>
                   </div>
                 </div>
 
                 <div className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-text-body mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Vendor <span className="text-red-500">*</span>
                       </label>
                       <Select
@@ -301,7 +308,7 @@ export default function VendorPaymentCreate() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-text-body mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Cash/Bank Account <span className="text-red-500">*</span>
                       </label>
                       <Select
@@ -311,7 +318,7 @@ export default function VendorPaymentCreate() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-body mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Payment Method
                       </label>
                       <Select
@@ -361,7 +368,7 @@ export default function VendorPaymentCreate() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-body mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Memo
                     </label>
                     <textarea
@@ -369,59 +376,58 @@ export default function VendorPaymentCreate() {
                       onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
                       rows={3}
                       placeholder="Add notes about this payment..."
-                      className="w-full px-3 py-2 border border-border-subtle rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Bill Allocations */}
-              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-subtle  flex items-center justify-between">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200  flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-text-muted" />
-                    <h2 className="text-lg font-semibold text-text-strong">Apply to Bills</h2>
+                    <DollarSign className="h-5 w-5 text-gray-600" />
+                    <h2 className="text-lg font-semibold text-gray-900">Apply to Bills</h2>
                   </div>
-                  <Button
+                  <button
                     onClick={addAllocation}
                     disabled={!formData.vendorId || billsLoading}
-                    variant="outline"
-                    leftIcon={Plus}
-                    className="border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
+                    className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-300 rounded-md hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1"
                   >
+                    <Plus className="h-4 w-4" />
                     Add Bill
-                  </Button>
+                  </button>
                 </div>
 
                 <div className="p-6">
                   {!formData.vendorId ? (
                     <div className="text-center py-8">
-                      <AlertCircle className="h-12 w-12 text-text-soft mx-auto mb-3" />
-                      <p className="text-sm text-text-muted">
+                      <AlertCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-600">
                         Select a vendor first to see outstanding bills
                       </p>
                     </div>
                   ) : billsLoading ? (
                     <div className="text-center py-8">
-                      <p className="text-sm text-text-muted">Loading bills...</p>
+                      <p className="text-sm text-gray-600">Loading bills...</p>
                     </div>
                   ) : allocations.length === 0 ? (
                     <div className="text-center py-12">
-                      <DollarSign className="h-16 w-16 text-text-soft mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-text-strong mb-2">No Bills Applied</h3>
-                      <p className="text-sm text-text-muted mb-4">
+                      <DollarSign className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Bills Applied</h3>
+                      <p className="text-sm text-gray-600 mb-4">
                         {bills.length > 0 
                           ? `${bills.length} outstanding bill${bills.length !== 1 ? 's' : ''} available`
                           : 'No outstanding bills found for this vendor'}
                       </p>
                       {bills.length > 0 && (
-                        <Button
+                        <button
                           onClick={addAllocation}
-                          className="bg-green-600 hover:bg-green-700 shadow-sm shadow-green-600/20 ring-1 ring-green-600/20"
-                          leftIcon={Plus}
+                          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-2"
                         >
+                          <Plus className="h-4 w-4" />
                           Apply to Bill
-                        </Button>
+                        </button>
                       )}
                     </div>
                   ) : (
@@ -429,10 +435,10 @@ export default function VendorPaymentCreate() {
                       {allocations.map((allocation, index) => {
                         const selectedBill = bills.find(b => b.id === allocation.billId);
                         return (
-                          <div key={index} className="flex gap-3 items-start p-4 border border-border-subtle rounded-lg hover:border-border-subtle transition-colors">
+                          <div key={index} className="flex gap-3 items-start p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
                             <div className="flex-1 grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-text-body mb-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
                                   Bill
                                 </label>
                                 <Select
@@ -441,7 +447,7 @@ export default function VendorPaymentCreate() {
                                   options={billOptions}
                                 />
                                 {selectedBill && (
-                                  <div className="mt-1 text-xs text-text-muted">
+                                  <div className="mt-1 text-xs text-gray-500">
                                     Due: ${(selectedBill.amount_due || 0).toFixed(2)} • Date: {selectedBill.bill_date}
                                   </div>
                                 )}
@@ -466,10 +472,10 @@ export default function VendorPaymentCreate() {
                         );
                       })}
 
-                      <div className="pt-3 border-t border-border-subtle">
+                      <div className="pt-3 border-t border-gray-200">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-text-body">Total Allocated:</span>
-                          <span className="font-semibold text-text-strong">${totalAllocated.toFixed(2)}</span>
+                          <span className="font-medium text-gray-700">Total Allocated:</span>
+                          <span className="font-semibold text-gray-900">${totalAllocated.toFixed(2)}</span>
                         </div>
                         {unallocated !== 0 && (
                           <div className={`flex items-center justify-between text-sm mt-2 p-2 rounded ${
@@ -493,34 +499,43 @@ export default function VendorPaymentCreate() {
             {/* Right Column - Summary */}
             <div className="space-y-6">
               {/* Payment Summary */}
-              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-subtle ">
-                  <h3 className="text-sm font-semibold text-text-strong">Payment Summary</h3>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 ">
+                  <h3 className="text-sm font-semibold text-gray-900">Payment Summary</h3>
                 </div>
                 <div className="p-6 space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-muted">Payment Amount</span>
-                    <span className="font-semibold text-text-strong">
+                    <span className="text-gray-600">Payment Amount</span>
+                    <span className="font-semibold text-gray-900">
                       ${paymentAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-muted">Bills Applied</span>
-                    <span className="font-semibold text-text-strong">
+                    <span className="text-gray-600">Bills Applied</span>
+                    <span className="font-semibold text-gray-900">
                       {allocations.filter(a => a.billId).length}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm pt-3 border-t border-border-subtle">
-                    <span className="text-text-muted">Total Allocated</span>
-                    <span className="font-semibold text-text-strong">
+                  <div className="flex items-center justify-between text-sm pt-3 border-t border-gray-200">
+                    <span className="text-gray-600">Total Allocated</span>
+                    <span className="font-semibold text-gray-900">
                       ${totalAllocated.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm pb-3 border-b border-border-subtle">
-                    <span className="text-text-muted">Unallocated</span>
+                  <div className="flex items-center justify-between text-sm pb-3 border-b border-gray-200">
+                    <span className="text-gray-600">Unallocated</span>
                     <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : unallocated > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
                       ${unallocated.toFixed(2)}
                     </span>
+                  </div>
+
+                  <div className="text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <span>Idempotency Key:</span>
+                      <code className="bg-gray-100 px-1 py-0.5 rounded text-[10px]">
+                        {idempotencyKey.slice(0, 8)}...
+                      </code>
+                    </div>
                   </div>
 
                   {unallocated < 0 && (
@@ -537,9 +552,9 @@ export default function VendorPaymentCreate() {
               </div>
 
               {/* Validation Status */}
-              <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-subtle ">
-                  <h3 className="text-sm font-semibold text-text-strong">Required Fields</h3>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 ">
+                  <h3 className="text-sm font-semibold text-gray-900">Required Fields</h3>
                 </div>
                 <div className="p-6 space-y-2">
                   {[
@@ -551,11 +566,11 @@ export default function VendorPaymentCreate() {
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       <div className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${
-                        item.valid ? 'bg-green-100 text-green-600' : 'bg-surface-2 text-text-soft'
+                        item.valid ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
                       }`}>
                         {item.valid && '✓'}
                       </div>
-                      <span className={item.valid ? 'text-text-strong' : 'text-text-muted'}>
+                      <span className={item.valid ? 'text-gray-900' : 'text-gray-500'}>
                         {item.label}
                       </span>
                     </div>

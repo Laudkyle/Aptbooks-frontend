@@ -32,9 +32,9 @@ export default function DepreciationRuns() {
   const columns = useMemo(
     () => [
       { header: 'Asset', render: (r) => <span className="font-medium text-brand-deep">{r.assetId ?? r.asset_id ?? '—'}</span> },
-      { header: 'Method', render: (r) => <span className="text-sm text-text-body">{r.method ?? 'straight_line'}</span> },
-      { header: 'Useful Life (months)', render: (r) => <span className="text-sm text-text-body">{r.usefulLifeMonths ?? r.useful_life_months ?? '—'}</span> },
-      { header: 'Status', render: (r) => <span className="text-xs text-text-muted">{r.status ?? 'active'}</span> }
+      { header: 'Method', render: (r) => <span className="text-sm text-slate-700">{r.method ?? 'straight_line'}</span> },
+      { header: 'Useful Life (months)', render: (r) => <span className="text-sm text-slate-700">{r.usefulLifeMonths ?? r.useful_life_months ?? '—'}</span> },
+      { header: 'Status', render: (r) => <span className="text-xs text-slate-500">{r.status ?? 'active'}</span> }
     ],
     []
   );
@@ -56,7 +56,7 @@ export default function DepreciationRuns() {
               <div className="hidden md:block" />
             </div>
           }
-          right={<div className="text-xs text-text-muted">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}</div>}
+          right={<div className="text-xs text-slate-500">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed to load')}</span> : null}</div>}
         />
 
         <div className="mt-3">

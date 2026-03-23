@@ -274,7 +274,7 @@ const toast = useToast();
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading user details...</div>
+            <div className="text-sm text-slate-500">Loading user details...</div>
           </div>
         </ContentCard>
       </div>
@@ -298,8 +298,8 @@ const toast = useToast();
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load user</div>
-            <div className="text-sm text-text-muted">{userQuery.error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load user</div>
+            <div className="text-sm text-slate-500">{userQuery.error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
               Retry
             </Button>
@@ -371,8 +371,8 @@ const toast = useToast();
           <ContentCard>
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <div className="text-base font-semibold text-text-strong">User Profile</div>
-                <div className="mt-1 text-sm text-text-muted">Basic information and authentication</div>
+                <div className="text-base font-semibold text-slate-900">User Profile</div>
+                <div className="mt-1 text-sm text-slate-500">Basic information and authentication</div>
               </div>
               <Badge tone={statusConfig.tone} className="flex items-center gap-1.5">
                 <StatusIcon className="h-3.5 w-3.5" />
@@ -447,20 +447,20 @@ const toast = useToast();
           {/* Roles Card */}
           <ContentCard>
             <div className="mb-6">
-              <div className="text-base font-semibold text-text-strong">Role Management</div>
-              <div className="mt-1 text-sm text-text-muted">Assign and manage user permissions</div>
+              <div className="text-base font-semibold text-slate-900">Role Management</div>
+              <div className="mt-1 text-sm text-slate-500">Assign and manage user permissions</div>
             </div>
 
             <div className="flex flex-wrap items-end gap-3 mb-6">
               <div className="flex-1 min-w-[250px]">
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Assign Role
                 </label>
                 {rolesQuery.isLoading ? (
-                  <div className="text-sm text-text-muted">Loading roles...</div>
+                  <div className="text-sm text-slate-500">Loading roles...</div>
                 ) : (
                   <select
-                    className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                     value={rolePick}
                     onChange={(e) => setRolePick(e.target.value)}
                   >
@@ -488,12 +488,12 @@ const toast = useToast();
               </Button>
             </div>
 
-            <div className="rounded-xl border border-border-subtle">
+            <div className="rounded-xl border border-slate-200">
               {(user?.roles ?? []).length === 0 ? (
                 <div className="text-center py-8">
                   <Shield className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-text-body">No roles assigned</div>
-                  <div className="text-sm text-text-muted mt-1">Assign a role to grant permissions</div>
+                  <div className="text-sm font-medium text-slate-700">No roles assigned</div>
+                  <div className="text-sm text-slate-500 mt-1">Assign a role to grant permissions</div>
                 </div>
               ) : (
                 <Table>
@@ -509,12 +509,12 @@ const toast = useToast();
                       <tr key={role.id}>
                         <TD>
                           <div className="flex items-center gap-2">
-                            <Shield className="h-4 w-4 text-text-soft" />
+                            <Shield className="h-4 w-4 text-slate-400" />
                             <span className="font-medium">{role.name}</span>
                           </div>
                         </TD>
                         <TD>
-                          <span className="text-sm text-text-muted">
+                          <span className="text-sm text-slate-600">
                             {role.description || '—'}
                           </span>
                         </TD>
@@ -540,11 +540,11 @@ const toast = useToast();
           {/* Login History */}
           <ContentCard>
             <div className="mb-6">
-              <div className="flex items-center gap-2 text-base font-semibold text-text-strong">
+              <div className="flex items-center gap-2 text-base font-semibold text-slate-900">
                 <History className="h-5 w-5" />
                 Login History
               </div>
-              <div className="mt-1 text-sm text-text-muted">Recent authentication attempts</div>
+              <div className="mt-1 text-sm text-slate-500">Recent authentication attempts</div>
             </div>
             <AdminLoginHistory userId={id} />
           </ContentCard>
@@ -554,22 +554,22 @@ const toast = useToast();
         <div className="space-y-6">
           {/* Account Status */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Account Status</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Account Status</div>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Status</span>
+                <span className="text-slate-600">Status</span>
                 <Badge tone={statusConfig.tone} className="flex items-center gap-1.5">
                   <StatusIcon className="h-3 w-3" />
                   {statusConfig.label}
                 </Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">User ID</span>
-                <span className="font-mono text-xs text-text-strong">{id}</span>
+                <span className="text-slate-600">User ID</span>
+                <span className="font-mono text-xs text-slate-900">{id}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Roles</span>
-                <span className="font-medium text-text-strong">
+                <span className="text-slate-600">Roles</span>
+                <span className="font-medium text-slate-900">
                   {(user?.roles ?? []).length}
                 </span>
               </div>
@@ -578,14 +578,14 @@ const toast = useToast();
 
           {/* Timestamps */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Timestamps</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Timestamps</div>
             <div className="space-y-3">
               {user?.created_at && (
                 <div className="flex items-start gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
+                  <Calendar className="h-4 w-4 text-slate-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-text-muted">Created</div>
-                    <div className="font-medium text-text-strong mt-0.5">
+                    <div className="text-slate-600">Created</div>
+                    <div className="font-medium text-slate-900 mt-0.5">
                       {formatDate(user.created_at)}
                     </div>
                   </div>
@@ -593,10 +593,10 @@ const toast = useToast();
               )}
               {user?.updated_at && (
                 <div className="flex items-start gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-text-soft mt-0.5" />
+                  <Clock className="h-4 w-4 text-slate-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-text-muted">Last Updated</div>
-                    <div className="font-medium text-text-strong mt-0.5">
+                    <div className="text-slate-600">Last Updated</div>
+                    <div className="font-medium text-slate-900 mt-0.5">
                       {formatDate(user.updated_at)}
                     </div>
                   </div>
@@ -604,10 +604,10 @@ const toast = useToast();
               )}
               {user?.last_login_at && (
                 <div className="flex items-start gap-2 text-sm">
-                  <History className="h-4 w-4 text-text-soft mt-0.5" />
+                  <History className="h-4 w-4 text-slate-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-text-muted">Last Login</div>
-                    <div className="font-medium text-text-strong mt-0.5">
+                    <div className="text-slate-600">Last Login</div>
+                    <div className="font-medium text-slate-900 mt-0.5">
                       {formatDate(user.last_login_at)}
                     </div>
                   </div>
@@ -618,7 +618,7 @@ const toast = useToast();
 
           {/* Quick Actions */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Quick Actions</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Quick Actions</div>
             <div className="space-y-2">
               <Button
                 variant="outline"
@@ -742,7 +742,7 @@ function AdminLoginHistory({ userId }) {
 
       {query.isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="text-sm text-text-muted">Loading login history...</div>
+          <div className="text-sm text-slate-500">Loading login history...</div>
         </div>
       ) : query.isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
@@ -754,11 +754,11 @@ function AdminLoginHistory({ userId }) {
       ) : rows.length === 0 ? (
         <div className="text-center py-8">
           <History className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-          <div className="text-sm font-medium text-text-body">No login history</div>
-          <div className="text-sm text-text-muted mt-1">Login attempts will appear here</div>
+          <div className="text-sm font-medium text-slate-700">No login history</div>
+          <div className="text-sm text-slate-500 mt-1">Login attempts will appear here</div>
         </div>
       ) : (
-        <div className="rounded-xl border border-border-subtle overflow-hidden">
+        <div className="rounded-xl border border-slate-200 overflow-hidden">
           <Table>
             <THead>
               <tr>
@@ -774,7 +774,7 @@ function AdminLoginHistory({ userId }) {
                 <tr key={row.id}>
                   <TD>
                     <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-3.5 w-3.5 text-text-soft" />
+                      <Clock className="h-3.5 w-3.5 text-slate-400" />
                       {formatDateTime(row.created_at)}
                     </div>
                   </TD>
@@ -793,7 +793,7 @@ function AdminLoginHistory({ userId }) {
                   </TD>
                   <TD>
                     <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-3.5 w-3.5 text-text-soft" />
+                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
                       <span className="font-mono text-xs">
                         {row.ip ?? '—'}
                       </span>
@@ -801,8 +801,8 @@ function AdminLoginHistory({ userId }) {
                   </TD>
                   <TD>
                     <div className="flex items-center gap-2 max-w-[300px]">
-                      <Monitor className="h-3.5 w-3.5 text-text-soft flex-shrink-0" />
-                      <span className="text-sm text-text-muted truncate" title={row.user_agent}>
+                      <Monitor className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                      <span className="text-sm text-slate-600 truncate" title={row.user_agent}>
                         {row.user_agent ?? '—'}
                       </span>
                     </div>
@@ -811,7 +811,7 @@ function AdminLoginHistory({ userId }) {
                     {row.failure_reason ? (
                       <span className="text-sm text-red-600">{row.failure_reason}</span>
                     ) : (
-                      <span className="text-sm text-text-soft">—</span>
+                      <span className="text-sm text-slate-400">—</span>
                     )}
                   </TD>
                 </tr>

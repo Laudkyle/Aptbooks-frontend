@@ -57,7 +57,7 @@ export default function RecurringTransactionsPage() {
   const enabledCount = rows.filter((r) => r.is_enabled ?? r.isEnabled).length;
 
   const columns = [
-    { header: 'Code', render: (r) => <span className="font-medium text-text-strong">{r.code}</span> },
+    { header: 'Code', render: (r) => <span className="font-medium text-slate-900">{r.code}</span> },
     { header: 'Name', render: (r) => r.name ?? '—' },
     { header: 'Source', render: (r) => r.source_type ?? r.sourceType ?? '—' },
     { header: 'Frequency', render: (r) => r.frequency ?? '—' },
@@ -83,7 +83,7 @@ export default function RecurringTransactionsPage() {
         <ContentCard title="Due soon"><div className="text-2xl font-semibold text-brand-deep">{rows.filter((r) => !!(r.next_run_at ?? r.nextRunAt)).length}</div></ContentCard>
       </div>
       <ContentCard>
-        <FilterBar left={<Select label="Status" value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} options={STATUS_FILTER_OPTIONS} />} right={<div className="text-xs text-text-muted">{filteredRows.length} records</div>} />
+        <FilterBar left={<Select label="Status" value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} options={STATUS_FILTER_OPTIONS} />} right={<div className="text-xs text-slate-500">{filteredRows.length} records</div>} />
         <div className="mt-3">
           <DataTable columns={columns} rows={filteredRows} isLoading={q.isLoading} empty={{ title: 'No recurring transactions', description: 'Create a recurring schedule to automate repeat accounting work.' }} />
         </div>

@@ -45,9 +45,9 @@ export function TransactionWorkflowActionBar({ actions, onAction, documentType, 
   if (!hasAnyAction) return null;
 
   return (
-    <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-4 mb-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-sm font-medium text-text-body">Actions:</span>
+        <span className="text-sm font-medium text-gray-700">Actions:</span>
         <ActionButton action={forwardAction} onClick={onAction} size="sm" />
         <ActionButton action={rejectAction} onClick={onAction}  size="sm" />
         <ActionButton action={voidAction} onClick={onAction}  size="sm" />

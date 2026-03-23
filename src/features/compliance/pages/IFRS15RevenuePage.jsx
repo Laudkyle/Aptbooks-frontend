@@ -286,7 +286,7 @@ export default function IFRS15RevenuePage() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading contracts...</div>
+            <div className="text-sm text-slate-500">Loading contracts...</div>
           </div>
         </ContentCard>
       </div>
@@ -322,8 +322,8 @@ export default function IFRS15RevenuePage() {
       {/* Filters */}
       <ContentCard>
         <div className="flex items-center gap-2 mb-4">
-          <Search className="h-4 w-4 text-text-muted" />
-          <span className="text-sm font-semibold text-text-strong">Search & Filter</span>
+          <Search className="h-4 w-4 text-slate-500" />
+          <span className="text-sm font-semibold text-slate-900">Search & Filter</span>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -346,7 +346,7 @@ export default function IFRS15RevenuePage() {
             ]}
           />
           <div className="flex items-end">
-            <div className="text-xs text-text-muted">
+            <div className="text-xs text-slate-500">
               {filteredContracts.length} of {rows.length} {rows.length === 1 ? 'contract' : 'contracts'}
             </div>
           </div>
@@ -356,8 +356,8 @@ export default function IFRS15RevenuePage() {
       {/* Contracts Table */}
       <ContentCard>
         <div className="mb-4">
-          <div className="text-base font-semibold text-text-strong">Contract Register</div>
-          <div className="mt-1 text-sm text-text-muted">
+          <div className="text-base font-semibold text-slate-900">Contract Register</div>
+          <div className="mt-1 text-sm text-slate-500">
             View and manage all IFRS 15 revenue contracts
           </div>
         </div>
@@ -365,8 +365,8 @@ export default function IFRS15RevenuePage() {
         {isError ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load contracts</div>
-            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load contracts</div>
+            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">
               Retry
             </Button>
@@ -374,10 +374,10 @@ export default function IFRS15RevenuePage() {
         ) : filteredContracts.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <div className="text-sm font-medium text-text-strong mb-1">
+            <div className="text-sm font-medium text-slate-900 mb-1">
               {searchQuery || statusFilter ? 'No contracts match your filters' : 'No contracts yet'}
             </div>
-            <div className="text-sm text-text-muted mb-4">
+            <div className="text-sm text-slate-500 mb-4">
               {searchQuery || statusFilter
                 ? 'Try adjusting your search or filters'
                 : 'Create your first revenue contract to begin scheduling and posting'
@@ -388,25 +388,25 @@ export default function IFRS15RevenuePage() {
             </Button>
           </div>
         ) : (
-          <div className="rounded-xl border border-border-subtle overflow-hidden">
+          <div className="rounded-xl border border-slate-200 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-surface-2 border-b border-border-subtle">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Contract</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Contract Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Start Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">End Date</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Contract</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Contract Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Start Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">End Date</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle">
+              <tbody className="divide-y divide-slate-200">
                 {filteredContracts.map((contract) => (
                   <tr
                     key={contract.id}
-                    className="hover:bg-surface-2 transition-colors"
+                    className="hover:bg-slate-50 transition-colors"
                   >
                     <td className="px-6 py-4">
                       <div>
@@ -417,14 +417,14 @@ export default function IFRS15RevenuePage() {
                           {contract.name ?? '—'}
                         </Link>
                         {contract.code && (
-                          <div className="text-xs text-text-muted mt-1">{contract.code}</div>
+                          <div className="text-xs text-slate-500 mt-1">{contract.code}</div>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 text-text-soft" />
-                        <span className="text-sm text-text-body">
+                        <Users className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="text-sm text-slate-700">
                           {contract.customer_name ?? contract.customer?.name ?? '—'}
                         </span>
                       </div>
@@ -445,32 +445,32 @@ export default function IFRS15RevenuePage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-text-soft" />
-                        <span className="text-sm text-text-body">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="text-sm text-slate-700">
                           {contract.contract_date ? new Date(contract.contract_date).toLocaleDateString() : '—'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-text-soft" />
-                        <span className="text-sm text-text-body">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="text-sm text-slate-700">
                           {contract.start_date ? new Date(contract.start_date).toLocaleDateString() : '—'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-text-soft" />
-                        <span className="text-sm text-text-body">
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="text-sm text-slate-700">
                           {contract.end_date ? new Date(contract.end_date).toLocaleDateString() : '—'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <DollarSign className="h-3.5 w-3.5 text-text-soft" />
-                        <span className="font-mono text-sm text-text-body">
+                        <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                        <span className="font-mono text-sm text-slate-700">
                           {contract.transaction_price ? 
                             Number(contract.transaction_price).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
@@ -478,7 +478,7 @@ export default function IFRS15RevenuePage() {
                             }) : '—'}
                         </span>
                         {contract.currency && (
-                          <span className="text-xs text-text-soft ml-1">{contract.currency}</span>
+                          <span className="text-xs text-slate-400 ml-1">{contract.currency}</span>
                         )}
                       </div>
                     </td>
@@ -518,8 +518,8 @@ export default function IFRS15RevenuePage() {
 
           {/* Contract Details */}
           <div>
-            <h3 className="text-sm font-semibold text-text-strong mb-3 flex items-center gap-2">
-              <FileText className="h-4 w-4 text-text-muted" />
+            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-slate-500" />
               Contract Details
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -599,8 +599,8 @@ export default function IFRS15RevenuePage() {
 
           {/* Account Mappings */}
           <div>
-            <h3 className="text-sm font-semibold text-text-strong mb-3 flex items-center gap-2">
-              <Landmark className="h-4 w-4 text-text-muted" />
+            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <Landmark className="h-4 w-4 text-slate-500" />
               Account Mappings
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -630,12 +630,12 @@ export default function IFRS15RevenuePage() {
 
           {/* Notes */}
           <div>
-            <h3 className="text-sm font-semibold text-text-strong mb-3 flex items-center gap-2">
-              <FileText className="h-4 w-4 text-text-muted" />
+            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-slate-500" />
               Notes
             </h3>
             <textarea
-              className="w-full px-3 py-2 border border-border-subtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows="3"
               placeholder="Internal description or audit context…"
               value={formData.notes}

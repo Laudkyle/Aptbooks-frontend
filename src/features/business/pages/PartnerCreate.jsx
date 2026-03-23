@@ -125,12 +125,12 @@ export default function PartnerCreate() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Building2 className="h-7 w-7 text-text-body" />
-                <h1 className="text-2xl font-bold text-text-strong">
+                <Building2 className="h-7 w-7 text-gray-700" />
+                <h1 className="text-2xl font-bold text-gray-900">
                   New {isVendor ? 'Vendor' : 'Customer'}
                 </h1>
               </div>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-gray-600">
                 Create a new business partner profile
               </p>
             </div>
@@ -138,7 +138,7 @@ export default function PartnerCreate() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-border-subtle"
+                className="border-gray-300"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
@@ -158,18 +158,18 @@ export default function PartnerCreate() {
         {/* Main Form */}
         <div className="space-y-6">
           {/* Type and Status */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-            <h3 className="text-base font-semibold text-text-strong mb-5">Partner Type</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-5">Partner Type</h3>
             
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.type}
                   onChange={(e) => handleTypeChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                 >
                   <option value="customer">Customer</option>
                   <option value="vendor">Vendor</option>
@@ -177,13 +177,13 @@ export default function PartnerCreate() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Status <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={form.status}
                   onChange={(e) => set('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -193,16 +193,16 @@ export default function PartnerCreate() {
           </div>
 
           {/* Basic Information */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-            <h3 className="text-base font-semibold text-text-strong mb-5">Basic Information</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
             
             <div className="grid gap-5 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Business Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-soft" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input 
                     value={form.name} 
                     onChange={(e) => set('name', e.target.value)} 
@@ -210,11 +210,11 @@ export default function PartnerCreate() {
                     className="pl-10"
                   />
                 </div>
-                <p className="text-xs text-text-muted mt-1.5">Minimum 2 characters required</p>
+                <p className="text-xs text-gray-500 mt-1.5">Minimum 2 characters required</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Partner Code
                 </label>
                 <Input 
@@ -225,11 +225,11 @@ export default function PartnerCreate() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-soft" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input 
                     type="email"
                     value={form.email} 
@@ -241,11 +241,11 @@ export default function PartnerCreate() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phone
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-soft" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input 
                     type="tel"
                     value={form.phone} 
@@ -257,16 +257,16 @@ export default function PartnerCreate() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Payment Terms
                 </label>
                 {paymentTermsQuery.isLoading ? (
-                  <div className="text-sm text-text-muted py-2">Loading payment terms...</div>
+                  <div className="text-sm text-gray-500 py-2">Loading payment terms...</div>
                 ) : (
                   <select
                     value={form.paymentTermsId}
                     onChange={(e) => set('paymentTermsId', e.target.value)}
-                    className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                   >
                     <option value="">Select payment terms (optional)</option>
                     {paymentTerms.map((term) => (
@@ -276,29 +276,29 @@ export default function PartnerCreate() {
                     ))}
                   </select>
                 )}
-                <p className="text-xs text-text-muted mt-1.5">Default payment terms for this partner</p>
+                <p className="text-xs text-gray-500 mt-1.5">Default payment terms for this partner</p>
               </div>
             </div>
           </div>
 
           {/* Accounting Defaults - Conditional based on type */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-            <h3 className="text-base font-semibold text-text-strong mb-5">Accounting Defaults</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-5">Accounting Defaults</h3>
             
             <div className="grid gap-5 md:grid-cols-2">
               {/* Show Receivable Account only for Customers */}
               {isCustomer && (
                 <div className={isCustomer ? 'md:col-span-2' : ''}>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Default Receivable Account
                   </label>
                   {coaQuery.isLoading ? (
-                    <div className="text-sm text-text-muted py-2">Loading accounts...</div>
+                    <div className="text-sm text-gray-500 py-2">Loading accounts...</div>
                   ) : (
                     <select
                       value={form.defaultReceivableAccountId}
                       onChange={(e) => set('defaultReceivableAccountId', e.target.value)}
-                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select an account (optional)</option>
                       {receivableAccounts.map((account) => (
@@ -308,23 +308,23 @@ export default function PartnerCreate() {
                       ))}
                     </select>
                   )}
-                  <p className="text-xs text-text-muted mt-1.5">Used for customer invoices and receivables</p>
+                  <p className="text-xs text-gray-500 mt-1.5">Used for customer invoices and receivables</p>
                 </div>
               )}
 
               {/* Show Payable Account only for Vendors */}
               {isVendor && (
                 <div className={isVendor ? 'md:col-span-2' : ''}>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Default Payable Account
                   </label>
                   {coaQuery.isLoading ? (
-                    <div className="text-sm text-text-muted py-2">Loading accounts...</div>
+                    <div className="text-sm text-gray-500 py-2">Loading accounts...</div>
                   ) : (
                     <select
                       value={form.defaultPayableAccountId}
                       onChange={(e) => set('defaultPayableAccountId', e.target.value)}
-                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select an account (optional)</option>
                       {payableAccounts.map((account) => (
@@ -334,22 +334,22 @@ export default function PartnerCreate() {
                       ))}
                     </select>
                   )}
-                  <p className="text-xs text-text-muted mt-1.5">Used for vendor bills and payables</p>
+                  <p className="text-xs text-gray-500 mt-1.5">Used for vendor bills and payables</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Additional Notes */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-            <h3 className="text-base font-semibold text-text-strong mb-5">Additional Information</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-5">Additional Information</h3>
             
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Notes
               </label>
               <div className="relative">
-                <FileText className="absolute left-3 top-3 h-4 w-4 text-text-soft" />
+                <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Textarea 
                   value={form.notes} 
                   onChange={(e) => set('notes', e.target.value)} 

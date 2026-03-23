@@ -49,9 +49,9 @@ export default function AutomationOverview() {
             <ContentCard key={card.title} className="h-full">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-text-muted">{card.title}</div>
+                  <div className="text-sm font-medium text-slate-500">{card.title}</div>
                   <div className="text-3xl font-semibold text-brand-deep">{card.value}</div>
-                  <p className="text-sm text-text-muted">{card.desc}</p>
+                  <p className="text-sm text-slate-600">{card.desc}</p>
                 </div>
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-deep">
                   <Icon className="h-5 w-5" />

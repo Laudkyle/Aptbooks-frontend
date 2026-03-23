@@ -38,7 +38,7 @@ export default function AIClassificationPage() {
   const rules = rowsOf(rulesQ.data);
 
   const columns = [
-    { header: 'Code', render: (r) => <span className="font-medium text-text-strong">{r.code}</span> },
+    { header: 'Code', render: (r) => <span className="font-medium text-slate-900">{r.code}</span> },
     { header: 'Name', render: (r) => r.name ?? '—' },
     { header: 'Target', render: (r) => r.target_type ?? r.targetType ?? '—' },
     { header: 'Output', render: (r) => r.output_value ?? r.outputValue ?? '—' }
@@ -53,9 +53,9 @@ export default function AIClassificationPage() {
         </ContentCard>
         <ContentCard className="xl:col-span-2" title="Preview classification" actions={<Button onClick={()=>classify.mutate({ text: sampleText })}>Classify</Button>}>
           <Textarea label="Sample text" value={sampleText} onChange={(e)=>setSampleText(e.target.value)} placeholder="Paste a narration, memo, or invoice description" />
-          <div className="mt-4 rounded-2xl border border-border-subtle bg-surface-2 p-4">
-            <div className="text-sm font-medium text-text-body">Result</div>
-            <div className="mt-2 text-sm text-text-muted">{renderPreview(classify.data)}</div>
+          <div className="mt-4 rounded-2xl border border-border-subtle bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-700">Result</div>
+            <div className="mt-2 text-sm text-slate-600">{renderPreview(classify.data)}</div>
           </div>
         </ContentCard>
       </div>

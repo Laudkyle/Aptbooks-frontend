@@ -154,22 +154,22 @@ export default function AssignmentsPage() {
       
       <ContentCard>
         <div className="mb-6">
-          <div className="text-base font-semibold text-text-strong">Document Template Assignments</div>
-          <div className="mt-1 text-sm text-text-muted">
+          <div className="text-base font-semibold text-slate-900">Document Template Assignments</div>
+          <div className="mt-1 text-sm text-slate-500">
             Configure which template is used by default for each document type
           </div>
         </div>
 
         {assignmentsQ.isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading assignments...</div>
+            <div className="text-sm text-slate-500">Loading assignments...</div>
           </div>
         ) : (
           <div className="space-y-8">
             {Object.entries(documentsByGroup).map(([groupName, documents]) => (
               <div key={groupName}>
                 <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-text-strong">{groupName}</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">{groupName}</h3>
                   <div className="mt-1 h-px bg-slate-200" />
                 </div>
                 <div className="grid gap-4">
@@ -180,11 +180,11 @@ export default function AssignmentsPage() {
                     return (
                       <div 
                         key={doc.value} 
-                        className="grid gap-4 rounded-xl border border-border-subtle bg-surface-1 p-4 hover:border-border-subtle transition-colors md:grid-cols-[1fr_320px_auto] md:items-center"
+                        className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-slate-300 transition-colors md:grid-cols-[1fr_320px_auto] md:items-center"
                       >
                         <div>
-                          <div className="text-sm font-medium text-text-strong">{doc.label}</div>
-                          <div className="text-xs text-text-muted mt-0.5">
+                          <div className="text-sm font-medium text-slate-900">{doc.label}</div>
+                          <div className="text-xs text-slate-500 mt-0.5">
                             {getDocumentDescription(doc.value)}
                           </div>
                         </div>
@@ -221,7 +221,7 @@ export default function AssignmentsPage() {
       {/* Summary Card */}
       <ContentCard>
         <div className="flex items-center justify-between">
-          <div className="text-sm text-text-muted">
+          <div className="text-sm text-slate-600">
             <span className="font-medium">{Object.values(selected).filter(id => id && id !== '').length}</span> of{' '}
             <span className="font-medium">{DOCUMENT_TYPES.length}</span> document types have custom templates assigned
           </div>

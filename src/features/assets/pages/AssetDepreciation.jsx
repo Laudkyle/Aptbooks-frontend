@@ -261,10 +261,10 @@ export default function AssetDepreciationPage() {
                 <ContentCard className="xl:col-span-1">
                   <div className="space-y-5">
                     <div>
-                      <div className="text-base font-semibold text-text-strong">
+                      <div className="text-base font-semibold text-slate-900">
                         Depreciation run
                       </div>
-                      <div className="mt-1 text-sm text-text-muted">
+                      <div className="mt-1 text-sm text-slate-500">
                         Select the accounting period, confirm the entry date, and review the preview before posting.
                       </div>
                     </div>
@@ -322,10 +322,10 @@ export default function AssetDepreciationPage() {
                 <ContentCard className="xl:col-span-2">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-base font-semibold text-text-strong">
+                      <div className="text-base font-semibold text-slate-900">
                         Preview results
                       </div>
-                      <div className="mt-1 text-sm text-text-muted">
+                      <div className="mt-1 text-sm text-slate-500">
                         Review the calculated depreciation lines for this run.
                       </div>
                     </div>
@@ -336,13 +336,13 @@ export default function AssetDepreciationPage() {
 
                   {!preview ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <div className="rounded-2xl bg-surface-2 p-4">
-                        <Eye className="h-8 w-8 text-text-soft" />
+                      <div className="rounded-2xl bg-slate-100 p-4">
+                        <Eye className="h-8 w-8 text-slate-400" />
                       </div>
-                      <div className="mt-4 text-base font-semibold text-text-strong">
+                      <div className="mt-4 text-base font-semibold text-slate-900">
                         No preview yet
                       </div>
-                      <div className="mt-1 max-w-md text-sm text-text-muted">
+                      <div className="mt-1 max-w-md text-sm text-slate-500">
                         Select an accounting period and generate a preview to review depreciation before posting.
                       </div>
                       <Button className="mt-5" variant="ghost" onClick={handlePreview} disabled={!canPreview || busy}>
@@ -354,10 +354,10 @@ export default function AssetDepreciationPage() {
                     <div className="mt-6 space-y-6">
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div className="rounded-2xl border border-border-subtle p-4">
-                          <div className="text-xs uppercase tracking-wide text-text-muted">
+                          <div className="text-xs uppercase tracking-wide text-slate-500">
                             Period
                           </div>
-                          <div className="mt-2 text-sm font-medium text-text-strong">
+                          <div className="mt-2 text-sm font-medium text-slate-900">
                             {periods.find((p) => p.id === periodId)?.name ||
                               periods.find((p) => p.id === periodId)?.code ||
                               periodId}
@@ -365,10 +365,10 @@ export default function AssetDepreciationPage() {
                         </div>
 
                         <div className="rounded-2xl border border-border-subtle p-4">
-                          <div className="text-xs uppercase tracking-wide text-text-muted">
+                          <div className="text-xs uppercase tracking-wide text-slate-500">
                             Entry date
                           </div>
-                          <div className="mt-2 text-sm font-medium text-text-strong">
+                          <div className="mt-2 text-sm font-medium text-slate-900">
                             {entryDate ? formatDate(entryDate) : "—"}
                           </div>
                         </div>
@@ -376,17 +376,17 @@ export default function AssetDepreciationPage() {
                         <div className="rounded-2xl border border-border-subtle p-4">
                           <div className="flex items-center justify-between gap-3">
                             <div>
-                              <div className="text-xs uppercase tracking-wide text-text-muted">
+                              <div className="text-xs uppercase tracking-wide text-slate-500">
                                 Total depreciation
                               </div>
-                              <div className="mt-2 text-lg font-semibold text-text-strong">
+                              <div className="mt-2 text-lg font-semibold text-slate-900">
                                 {totalPreviewAmount.toLocaleString("en-US", {
                                   style: "currency",
                                   currency: "USD",
                                 })}
                               </div>
                             </div>
-                            <DollarSign className="h-5 w-5 text-text-soft" />
+                            <DollarSign className="h-5 w-5 text-slate-400" />
                           </div>
                         </div>
                       </div>
@@ -408,24 +408,24 @@ export default function AssetDepreciationPage() {
                             key: "scheduleId",
                             header: "Schedule",
                             render: (value) => (
-                              <span className="font-mono text-xs text-text-muted">{value}</span>
+                              <span className="font-mono text-xs text-slate-600">{value}</span>
                             ),
                           },
                           {
                             key: "notes",
                             header: "Notes",
                             render: (value) =>
-                              value ? value : <span className="italic text-text-soft">No notes</span>,
+                              value ? value : <span className="italic text-slate-400">No notes</span>,
                           },
                         ]}
                         data={previewRows}
                       />
 
                       <details className="rounded-2xl border border-border-subtle">
-                        <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-body">
+                        <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-700">
                           Technical response details
                         </summary>
-                        <pre className="max-h-72 overflow-auto border-t border-border-subtle bg-surface-2 p-4 text-xs text-text-body">
+                        <pre className="max-h-72 overflow-auto border-t border-border-subtle bg-slate-50 p-4 text-xs text-slate-700">
                           {JSON.stringify(preview, null, 2)}
                         </pre>
                       </details>
@@ -497,10 +497,10 @@ export default function AssetDepreciationPage() {
                 <ContentCard>
                   <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-base font-semibold text-text-strong">
+                      <div className="text-base font-semibold text-slate-900">
                         Depreciation schedules
                       </div>
-                      <div className="mt-1 text-sm text-text-muted">
+                      <div className="mt-1 text-sm text-slate-500">
                         View and review depreciation schedules currently configured for assets.
                       </div>
                     </div>
@@ -516,7 +516,7 @@ export default function AssetDepreciationPage() {
                         key: "id",
                         header: "Schedule ID",
                         render: (value) => (
-                          <span className="font-mono text-xs text-text-muted">
+                          <span className="font-mono text-xs text-slate-600">
                             {String(value || "").slice(0, 8)}...
                           </span>
                         ),
@@ -525,7 +525,7 @@ export default function AssetDepreciationPage() {
                         key: "assetId",
                         header: "Asset ID",
                         render: (value) => (
-                          <span className="font-mono text-xs text-text-muted">
+                          <span className="font-mono text-xs text-slate-600">
                             {String(value || "").slice(0, 8)}...
                           </span>
                         ),
@@ -559,13 +559,13 @@ export default function AssetDepreciationPage() {
                     data={schedules}
                     emptyText={
                       <div className="flex flex-col items-center justify-center py-14 text-center">
-                        <div className="rounded-2xl bg-surface-2 p-4">
-                          <Layers3 className="h-8 w-8 text-text-soft" />
+                        <div className="rounded-2xl bg-slate-100 p-4">
+                          <Layers3 className="h-8 w-8 text-slate-400" />
                         </div>
-                        <div className="mt-4 text-base font-semibold text-text-strong">
+                        <div className="mt-4 text-base font-semibold text-slate-900">
                           No schedules found
                         </div>
-                        <div className="mt-1 max-w-md text-sm text-text-muted">
+                        <div className="mt-1 max-w-md text-sm text-slate-500">
                           There are no depreciation schedules matching the current filters.
                         </div>
                         <Button className="mt-5" variant="ghost" onClick={clearFilters}>
@@ -576,11 +576,11 @@ export default function AssetDepreciationPage() {
                   />
                 </ContentCard>
 
-                <div className="flex items-center justify-between text-sm text-text-muted">
+                <div className="flex items-center justify-between text-sm text-slate-500">
                   <div>
                     {schedules.length > 0 ? (
                       <>
-                        Showing <span className="font-medium text-text-body">{schedules.length}</span> schedule(s)
+                        Showing <span className="font-medium text-slate-700">{schedules.length}</span> schedule(s)
                       </>
                     ) : (
                       "No schedules to display"
@@ -598,7 +598,7 @@ export default function AssetDepreciationPage() {
         ]}
       />
 
-      <div className="border-t border-border-subtle pt-4 text-xs text-text-muted">
+      <div className="border-t border-border-subtle pt-4 text-xs text-slate-500">
         Last refreshed: {formatDate(new Date().toISOString())}
       </div>
     </div>

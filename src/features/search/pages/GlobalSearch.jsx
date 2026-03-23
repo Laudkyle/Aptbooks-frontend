@@ -34,31 +34,31 @@ function Group({ title, items }) {
   if (!items?.length) return null;
   
   const Icon = categoryIcons[title] || FileText;
-  const bgColor = categoryColors[title] || ' border-border-subtle';
-  const iconColor = iconColors[title] || 'text-text-muted';
+  const bgColor = categoryColors[title] || ' border-gray-200';
+  const iconColor = iconColors[title] || 'text-gray-600';
 
   return (
-    <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm overflow-hidden">
-      <div className=" border-b border-border-subtle px-4 py-3 flex items-center gap-2">
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+      <div className=" border-b border-gray-200 px-4 py-3 flex items-center gap-2">
         <Icon className={`h-5 w-5 ${iconColor}`} />
-        <h3 className="font-semibold text-text-strong text-sm">{title}</h3>
+        <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
         <Badge variant="secondary" className="ml-auto text-xs">{items.length}</Badge>
       </div>
-      <div className="divide-y divide-border-subtle">
+      <div className="divide-y divide-gray-100">
         {items.map((it) => (
           <div 
             key={it.id} 
-            className="p-4 hover:bg-surface-2 transition-colors cursor-pointer"
+            className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-text-strong mb-1">{it.label}</div>
+                <div className="text-sm font-medium text-gray-900 mb-1">{it.label}</div>
                 {it.meta && Object.keys(it.meta).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {Object.entries(it.meta).slice(0, 3).map(([key, value]) => (
                       <div key={key} className="inline-flex items-center gap-1.5 text-xs">
-                        <span className="text-text-muted">{key}:</span>
-                        <span className="text-text-body font-medium">{String(value)}</span>
+                        <span className="text-gray-500">{key}:</span>
+                        <span className="text-gray-700 font-medium">{String(value)}</span>
                       </div>
                     ))}
                   </div>
@@ -97,43 +97,43 @@ export default function GlobalSearch() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-text-strong mb-2">Search</h1>
-          <p className="text-sm text-text-muted">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Search</h1>
+          <p className="text-sm text-gray-600">
             Find partners, accounts, journals, and documents across your organization
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center gap-4">
             
             <div className="flex-1 relative">
-              <SearchIcon className="absolute left-3  mt-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-soft" />
+              <SearchIcon className="absolute left-3  mt-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search by name, ID, or keyword..."
-                className="w-full pl-10 pr-4 mt-5 py-3 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full pl-10 pr-4 mt-5 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               />
             </div>
             <div className="w-32">
-              <label className="block text-xs font-medium text-text-body mb-1">Results</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Results</label>
               <input
                 type="number"
                 min={1}
                 max={25}
                 value={limit}
                 onChange={(e) => setLimit(Number(e.target.value) || 10)}
-                className="w-full px-3 py-3 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               />
             </div>
           </div>
           
           {enabled && !query.isLoading && totalResults > 0 && (
-            <div className="mt-4 pt-4 border-t border-border-subtle">
-              <p className="text-sm text-text-muted">
-                Found <span className="font-semibold text-text-strong">{totalResults}</span> result{totalResults !== 1 ? 's' : ''} for "{q}"
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Found <span className="font-semibold text-gray-900">{totalResults}</span> result{totalResults !== 1 ? 's' : ''} for "{q}"
               </p>
             </div>
           )}
@@ -141,18 +141,18 @@ export default function GlobalSearch() {
 
         {/* Results */}
         {!enabled ? (
-          <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm p-12 text-center">
-            <SearchIcon className="h-12 w-12 text-text-soft mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-text-strong mb-2">Start searching</h3>
-            <p className="text-sm text-text-muted">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center">
+            <SearchIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Start searching</h3>
+            <p className="text-sm text-gray-500">
               Enter at least 2 characters to search across all categories
             </p>
           </div>
         ) : query.isLoading ? (
-          <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm p-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="animate-spin h-5 w-5 border-2 border-green-500 border-t-transparent rounded-full"></div>
-              <span className="text-sm font-medium text-text-body">Searching...</span>
+              <span className="text-sm font-medium text-gray-700">Searching...</span>
             </div>
             <div className="space-y-3">
               <Skeleton className="h-16" />
@@ -175,10 +175,10 @@ export default function GlobalSearch() {
             </div>
           </div>
         ) : totalResults === 0 ? (
-          <div className="bg-surface-1 rounded-lg border border-border-subtle shadow-sm p-12 text-center">
-            <SearchIcon className="h-12 w-12 text-text-soft mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-text-strong mb-2">No results found</h3>
-            <p className="text-sm text-text-muted">
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center">
+            <SearchIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+            <p className="text-sm text-gray-500">
               Try adjusting your search terms or check your spelling
             </p>
           </div>

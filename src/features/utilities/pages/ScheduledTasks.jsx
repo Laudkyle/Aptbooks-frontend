@@ -61,14 +61,14 @@ export default function ScheduledTasks() {
       <PageHeader title="Scheduled Tasks" subtitle="/utilities/scheduled-tasks" />
 
       <ContentCard title="Backend caveat">
-        <div className="text-sm text-text-body">
+        <div className="text-sm text-slate-700">
           The toggle endpoint uses <span className="font-mono">Boolean(req.params.status)</span>, so <span className="font-mono">"false"</span> evaluates to <span className="font-mono">true</span>. The UI exposes the endpoint as-is.
         </div>
       </ContentCard>
 
       <ContentCard title="Tasks" actions={<Button variant="secondary" onClick={() => q.refetch()}>Refresh</Button>}>
         {q.isLoading ? (
-          <div className="text-sm text-text-body">Loading...</div>
+          <div className="text-sm text-slate-700">Loading...</div>
         ) : q.isError ? (
           <div className="text-sm text-red-700">{q.error?.message ?? 'Failed to load tasks.'}</div>
         ) : (
@@ -97,7 +97,7 @@ export default function ScheduledTasks() {
                   </TD>
                 </tr>
               ))}
-              {tasks.length === 0 ? <tr><TD colSpan={4} className="text-text-muted">No tasks.</TD></tr> : null}
+              {tasks.length === 0 ? <tr><TD colSpan={4} className="text-slate-500">No tasks.</TD></tr> : null}
             </TBody>
           </Table>
         )}
@@ -114,7 +114,7 @@ export default function ScheduledTasks() {
           <Button variant="secondary" onClick={() => runsQ.refetch()}>Refresh</Button>
         </div>
         {runsQ.isLoading ? (
-          <div className="text-sm text-text-body">Loading...</div>
+          <div className="text-sm text-slate-700">Loading...</div>
         ) : runsQ.isError ? (
           <div className="text-sm text-red-700">{runsQ.error?.message ?? 'Failed to load runs.'}</div>
         ) : (
@@ -135,7 +135,7 @@ export default function ScheduledTasks() {
                   </TD>
                 </tr>
               ))}
-              {(runsQ.data ?? []).length === 0 ? <tr><TD colSpan={4} className="text-text-muted">No runs.</TD></tr> : null}
+              {(runsQ.data ?? []).length === 0 ? <tr><TD colSpan={4} className="text-slate-500">No runs.</TD></tr> : null}
             </TBody>
           </Table>
         )}
@@ -148,11 +148,11 @@ export default function ScheduledTasks() {
         footer={<Button variant="secondary" onClick={() => setOpenRunDetail(false)}>Close</Button>}
       >
         {detailQ.isLoading ? (
-          <div className="text-sm text-text-body">Loading...</div>
+          <div className="text-sm text-slate-700">Loading...</div>
         ) : detailQ.isError ? (
           <div className="text-sm text-red-700">{detailQ.error?.message ?? 'Failed to load run.'}</div>
         ) : (
-          <pre className="max-h-[28rem] overflow-auto rounded bg-surface-2 p-3 text-xs">{JSON.stringify(detailQ.data, null, 2)}</pre>
+          <pre className="max-h-[28rem] overflow-auto rounded bg-slate-50 p-3 text-xs">{JSON.stringify(detailQ.data, null, 2)}</pre>
         )}
       </Modal>
     </div>

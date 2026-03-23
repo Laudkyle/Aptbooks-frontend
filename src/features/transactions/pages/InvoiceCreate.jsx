@@ -8,7 +8,6 @@ import { makeInvoicesApi } from '../api/invoices.api.js';
 import { makePartnersApi } from '../../../features/business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
-import { generateRequestId } from '../../../shared/api/request-id.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -17,6 +16,14 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
+// Generate UUID v4
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function InvoiceCreate() {
   const navigate = useNavigate();
@@ -26,6 +33,7 @@ export default function InvoiceCreate() {
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
 
+  const [idempotencyKey] = useState(() => generateUUID());
   const [payload, setPayload] = useState({
     customerId: '',
     invoiceDate: new Date().toISOString().split('T')[0],
@@ -66,10 +74,7 @@ export default function InvoiceCreate() {
     acc.type?.toLowerCase().includes('customer')  );
 
   const create = useMutation({
-    mutationFn: () => {
-      const idempotencyKey = generateRequestId();
-      return invoicesApi.create(payload, { idempotencyKey });
-    },
+    mutationFn: () => invoicesApi.create(payload, { idempotencyKey }),
     onSuccess: (res) => {
       toast.success('Invoice created successfully');
       const id = res?.id ?? res?.data?.id;
@@ -129,10 +134,10 @@ export default function InvoiceCreate() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <FilePlus2 className="h-7 w-7 text-text-body" />
-                <h1 className="text-2xl font-bold text-text-strong">Create New Invoice</h1>
+                <FilePlus2 className="h-7 w-7 text-gray-700" />
+                <h1 className="text-2xl font-bold text-gray-900">Create New Invoice</h1>
               </div>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-gray-600">
                 Fill in the details below to create a new invoice
               </p>
             </div>
@@ -140,7 +145,7 @@ export default function InvoiceCreate() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-border-subtle"
+                className="border-gray-300"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
@@ -160,66 +165,66 @@ export default function InvoiceCreate() {
           {/* Left Sidebar - Summary */}
           <div className="lg:col-span-1 space-y-6">
             {/* Summary Card */}
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-              <h3 className="text-sm font-semibold text-text-strong mb-4">Invoice Summary</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">Invoice Summary</h3>
               
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <User className="h-4 w-4 text-text-soft mt-0.5" />
+                  <User className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-text-muted">Customer</div>
-                    <div className="text-sm font-medium text-text-strong mt-0.5">
+                    <div className="text-xs text-gray-500">Customer</div>
+                    <div className="text-sm font-medium text-gray-900 mt-0.5">
                       {selectedPartner ? (
                         <div>
                           <div>{selectedPartner.name || selectedPartner.businessName || 'Unknown'}</div>
                           {selectedPartner.email && (
-                            <div className="text-xs text-text-muted mt-0.5">{selectedPartner.email}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{selectedPartner.email}</div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-text-soft">Not selected</span>
+                        <span className="text-gray-400">Not selected</span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
+                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-text-muted">Invoice Date</div>
-                    <div className="text-sm font-medium text-text-strong mt-0.5">
-                      {formatDate(payload.invoiceDate) || <span className="text-text-soft">Not set</span>}
+                    <div className="text-xs text-gray-500">Invoice Date</div>
+                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                      {formatDate(payload.invoiceDate) || <span className="text-gray-400">Not set</span>}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
+                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-text-muted">Due Date</div>
-                    <div className="text-sm font-medium text-text-strong mt-0.5">
-                      {payload.dueDate || <span className="text-text-soft">Not set</span>}
+                    <div className="text-xs text-gray-500">Due Date</div>
+                    <div className="text-sm font-medium text-gray-900 mt-0.5">
+                      {payload.dueDate || <span className="text-gray-400">Not set</span>}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-text-soft mt-0.5" />
+                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-xs text-text-muted">Line Items</div>
-                    <div className="text-sm font-medium text-text-strong mt-0.5">
+                    <div className="text-xs text-gray-500">Line Items</div>
+                    <div className="text-sm font-medium text-gray-900 mt-0.5">
                       {payload.lines.length}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-border-subtle">
+                <div className="pt-3 border-t border-gray-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-semibold text-text-body">Total</span>
+                      <span className="text-sm font-semibold text-gray-700">Total</span>
                     </div>
-                    <span className="text-lg font-bold text-text-strong">
+                    <span className="text-lg font-bold text-gray-900">
                       ${total.toFixed(2)}
                     </span>
                   </div>
@@ -231,21 +236,21 @@ export default function InvoiceCreate() {
           {/* Main Content - Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Information */}
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-              <h3 className="text-base font-semibold text-text-strong mb-5">Basic Information</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
               
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Customer <span className="text-red-500">*</span>
                   </label>
                   {partnersQuery.isLoading ? (
-                    <div className="text-sm text-text-muted">Loading customers...</div>
+                    <div className="text-sm text-gray-500">Loading customers...</div>
                   ) : (
                     <select
                       value={payload.customerId}
                       onChange={(e) => updateField('customerId', e.target.value)}
-                      className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select a customer</option>
                       {partners.map((partner) => (
@@ -258,7 +263,7 @@ export default function InvoiceCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Memo
                   </label>
                   <Input
@@ -269,7 +274,7 @@ export default function InvoiceCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Invoice Date <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -280,7 +285,7 @@ export default function InvoiceCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Due Date <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -288,15 +293,15 @@ export default function InvoiceCreate() {
                     value={payload.dueDate}
                     onChange={(e) => updateField('dueDate', e.target.value)}
                   />
-                  <p className="text-xs text-text-muted mt-1">Must be on or after invoice date</p>
+                  <p className="text-xs text-gray-500 mt-1">Must be on or after invoice date</p>
                 </div>
               </div>
             </div>
 
             {/* Line Items */}
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-text-strong">Line Items</h3>
+                <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
                 <Button
                   variant="outline"
                   size="sm"
@@ -310,9 +315,9 @@ export default function InvoiceCreate() {
 
               <div className="space-y-4">
                 {payload.lines.map((line, index) => (
-                  <div key={index} className=" rounded-lg border border-border-subtle p-4">
+                  <div key={index} className=" rounded-lg border border-gray-200 p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-semibold text-text-body">Item #{index + 1}</span>
+                      <span className="text-sm font-semibold text-gray-700">Item #{index + 1}</span>
                       {payload.lines.length > 1 && (
                         <button
                           onClick={() => removeLine(index)}
@@ -325,7 +330,7 @@ export default function InvoiceCreate() {
 
                     <div className="grid gap-4 md:grid-cols-4">
                       <div className="md:col-span-4">
-                        <label className="block text-xs font-medium text-text-body mb-1.5">
+                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
                           Description <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -336,7 +341,7 @@ export default function InvoiceCreate() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-text-body mb-1.5">
+                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
                           Quantity <span className="text-red-500">*</span>
                         </label>
                         <Input
@@ -349,11 +354,11 @@ export default function InvoiceCreate() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-text-body mb-1.5">
+                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
                           Unit Price <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                           <Input
                             type="number"
                             min="0"
@@ -366,16 +371,16 @@ export default function InvoiceCreate() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-text-body mb-1.5">
+                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
                           Revenue Account <span className="text-red-500">*</span>
                         </label>
                         {coaQuery.isLoading ? (
-                          <div className="text-xs text-text-muted py-2">Loading accounts...</div>
+                          <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
                         ) : (
                           <select
                             value={line.revenueAccountId}
                             onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)}
-                            className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                           >
                             <option value="">Select revenue account</option>
                             {revenueAccounts.map((account) => (
@@ -388,9 +393,9 @@ export default function InvoiceCreate() {
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-border-subtle flex justify-between items-center">
-                      <span className="text-xs text-text-muted">Line Total</span>
-                      <span className="text-sm font-bold text-text-strong">
+                    <div className="mt-3 pt-3 border-t border-gray-300 flex justify-between items-center">
+                      <span className="text-xs text-gray-600">Line Total</span>
+                      <span className="text-sm font-bold text-gray-900">
                         ${(line.quantity * line.unitPrice).toFixed(2)}
                       </span>
                     </div>

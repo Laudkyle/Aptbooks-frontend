@@ -131,8 +131,8 @@ export default function DocumentDetailPage() {
     return (
       <div className="min-h-screen  flex items-center justify-center">
         <div className="text-center">
-          <Clock className="h-8 w-8 text-text-soft animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Loading document…</p>
+          <Clock className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading document…</p>
         </div>
       </div>
     );
@@ -143,8 +143,8 @@ export default function DocumentDetailPage() {
       <div className="min-h-screen  flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold text-text-strong mb-2">Document not found</h2>
-          <p className="text-sm text-text-muted mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Document not found</h2>
+          <p className="text-sm text-gray-600 mb-6">
             {error?.message || 'The document you\'re looking for doesn\'t exist or you don\'t have access to it.'}
           </p>
           <Button onClick={() => navigate(-1)}>
@@ -172,12 +172,12 @@ export default function DocumentDetailPage() {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h1 className="text-2xl font-bold text-text-strong">{doc.title}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{doc.title}</h1>
                 <Badge className={`${statusColors[doc.status]} border`}>
                   {doc.status}
                 </Badge>
               </div>
-              <div className="ml-12 text-sm text-text-muted">
+              <div className="ml-12 text-sm text-gray-600">
                 <span className="font-medium">Entity:</span> {doc.entity_type} · 
                 <span className="font-medium ml-2">Ref:</span> {doc.entity_ref || "—"}
               </div>
@@ -222,8 +222,8 @@ export default function DocumentDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="pt-6">
-              <div className="text-xs text-text-muted mb-1">Document Type</div>
-              <div className="font-medium text-text-strong">
+              <div className="text-xs text-gray-500 mb-1">Document Type</div>
+              <div className="font-medium text-gray-900">
                 {doc.document_type?.name || "—"}
               </div>
             </CardContent>
@@ -231,8 +231,8 @@ export default function DocumentDetailPage() {
           
           <Card>
             <CardContent className="pt-6">
-              <div className="text-xs text-text-muted mb-1">Created</div>
-              <div className="font-medium text-text-strong">
+              <div className="text-xs text-gray-500 mb-1">Created</div>
+              <div className="font-medium text-gray-900">
                 {formatDate(doc.created_at)}
               </div>
             </CardContent>
@@ -240,8 +240,8 @@ export default function DocumentDetailPage() {
           
           <Card>
             <CardContent className="pt-6">
-              <div className="text-xs text-text-muted mb-1">Current Version</div>
-              <div className="font-medium text-text-strong">
+              <div className="text-xs text-gray-500 mb-1">Current Version</div>
+              <div className="font-medium text-gray-900">
                 {doc.versions?.length
                   ? `v${doc.versions[doc.versions.length - 1].version_no}`
                   : "—"}
@@ -251,8 +251,8 @@ export default function DocumentDetailPage() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="text-xs text-text-muted mb-1">Total Versions</div>
-              <div className="font-medium text-text-strong">
+              <div className="text-xs text-gray-500 mb-1">Total Versions</div>
+              <div className="font-medium text-gray-900">
                 {doc.versions?.length || 0}
               </div>
             </CardContent>
@@ -284,7 +284,7 @@ export default function DocumentDetailPage() {
                         htmlFor="file-upload"
                         className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer
                           ${uploadMutation.isPending 
-                            ? 'bg-surface-2 text-text-soft cursor-not-allowed' 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                             : 'bg-green-600 text-white hover:bg-green-700'
                           }`}
                       >
@@ -312,7 +312,7 @@ export default function DocumentDetailPage() {
                       key: "filename", 
                       header: "File",
                       render: (value) => (
-                        <span className="text-sm text-text-muted">{value}</span>
+                        <span className="text-sm text-gray-600">{value}</span>
                       )
                     },
                     { 
@@ -338,7 +338,7 @@ export default function DocumentDetailPage() {
                           size="xs"
                           variant="outline"
                           onClick={() => handleDownload(row.id)}
-                          className="border-border-subtle"
+                          className="border-gray-300"
                         >
                           <Download className="h-3 w-3 mr-1" />
                           Download
@@ -375,7 +375,7 @@ export default function DocumentDetailPage() {
                       header: "Actor",
                       render: (value) => (
                         <div className="flex items-center gap-2">
-                          <User className="h-3 w-3 text-text-soft" />
+                          <User className="h-3 w-3 text-gray-400" />
                           <span>{value || "—"}</span>
                         </div>
                       )
@@ -409,8 +409,8 @@ export default function DocumentDetailPage() {
                       <FileText className="h-3 w-3 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-text-strong">Created</p>
-                      <p className="text-xs text-text-muted">{formatDate(doc.created_at)}</p>
+                      <p className="text-sm font-medium text-gray-900">Created</p>
+                      <p className="text-xs text-gray-500">{formatDate(doc.created_at)}</p>
                     </div>
                   </div>
 
@@ -420,8 +420,8 @@ export default function DocumentDetailPage() {
                         <Send className="h-3 w-3 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-text-strong">Submitted</p>
-                        <p className="text-xs text-text-muted">{formatDate(doc.submitted_at)}</p>
+                        <p className="text-sm font-medium text-gray-900">Submitted</p>
+                        <p className="text-xs text-gray-500">{formatDate(doc.submitted_at)}</p>
                       </div>
                     </div>
                   )}
@@ -432,8 +432,8 @@ export default function DocumentDetailPage() {
                         <CheckCircle className="h-3 w-3 text-green-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-text-strong">Approved</p>
-                        <p className="text-xs text-text-muted">{formatDate(doc.approved_at)}</p>
+                        <p className="text-sm font-medium text-gray-900">Approved</p>
+                        <p className="text-xs text-gray-500">{formatDate(doc.approved_at)}</p>
                       </div>
                     </div>
                   )}
@@ -444,8 +444,8 @@ export default function DocumentDetailPage() {
                         <XCircle className="h-3 w-3 text-red-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-text-strong">Rejected</p>
-                        <p className="text-xs text-text-muted">{formatDate(doc.rejected_at)}</p>
+                        <p className="text-sm font-medium text-gray-900">Rejected</p>
+                        <p className="text-xs text-gray-500">{formatDate(doc.rejected_at)}</p>
                       </div>
                     </div>
                   )}
@@ -460,28 +460,28 @@ export default function DocumentDetailPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Status</span>
+                  <span className="text-gray-500">Status</span>
                   <Badge className={`${statusColors[doc.status]} border`}>
                     {doc.status}
                   </Badge>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Entity Type</span>
-                  <span className="font-medium text-text-strong">{doc.entity_type}</span>
+                  <span className="text-gray-500">Entity Type</span>
+                  <span className="font-medium text-gray-900">{doc.entity_type}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Entity Ref</span>
-                  <span className="font-medium text-text-strong">{doc.entity_ref || '—'}</span>
+                  <span className="text-gray-500">Entity Ref</span>
+                  <span className="font-medium text-gray-900">{doc.entity_ref || '—'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Document Type</span>
-                  <span className="font-medium text-text-strong">
+                  <span className="text-gray-500">Document Type</span>
+                  <span className="font-medium text-gray-900">
                     {doc.document_type?.name || '—'}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Created By</span>
-                  <span className="font-medium text-text-strong">
+                  <span className="text-gray-500">Created By</span>
+                  <span className="font-medium text-gray-900">
                     {doc.created_by_name || '—'}
                   </span>
                 </div>
@@ -526,7 +526,7 @@ export default function DocumentDetailPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-body mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Comment {action === 'reject' ? '(required for rejection)' : '(optional)'}
             </label>
             <Textarea 
@@ -554,7 +554,7 @@ export default function DocumentDetailPage() {
               setAction(null);
               setComment('');
             }}
-            className="border-border-subtle"
+            className="border-gray-300"
           >
             Cancel
           </Button>

@@ -90,8 +90,8 @@ export default function BankAccountsPage() {
         {/* QuickBooks-style Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-text-strong">Bank Accounts</h1>
-            <p className="mt-1 text-sm text-text-muted">
+            <h1 className="text-2xl font-semibold text-gray-900">Bank Accounts</h1>
+            <p className="mt-1 text-sm text-gray-600">
               GL-linked bank accounts for statements, cashbook, and reconciliations
             </p>
           </div>
@@ -104,9 +104,9 @@ export default function BankAccountsPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {/* Filters Section */}
-          <div className="border-b border-border-subtle px-6 py-4 ">
+          <div className="border-b border-gray-200 px-6 py-4 ">
             <div className="grid gap-3 md:grid-cols-4">
               <Input
                 label="Search"
@@ -127,13 +127,13 @@ export default function BankAccountsPage() {
               <div className="flex items-end">
                 <Button
                   onClick={() => accountsQuery.refetch()}
-                  className="w-full bg-surface-1 border border-border-subtle text-text-body px-4 py-2 rounded-md font-medium hover:bg-surface-2 transition-colors"
+                  className="w-full bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md font-medium hover:bg-slate-50 transition-colors"
                 >
                   Refresh
                 </Button>
               </div>
               <div className="flex items-end justify-end">
-                <span className="text-xs text-text-muted font-mono">/modules/banking/accounts</span>
+                <span className="text-xs text-gray-500 font-mono">/modules/banking/accounts</span>
               </div>
             </div>
           </div>
@@ -141,37 +141,37 @@ export default function BankAccountsPage() {
           {/* Table Section */}
           <div className="overflow-x-auto">
             {accountsQuery.isLoading ? (
-              <div className="px-6 py-8 text-center text-sm text-text-muted">Loading bank accounts...</div>
+              <div className="px-6 py-8 text-center text-sm text-gray-500">Loading bank accounts...</div>
             ) : accountsQuery.isError ? (
               <div className="px-6 py-8 text-center text-sm text-red-600">
                 {accountsQuery.error?.message ?? 'Failed to load accounts.'}
               </div>
             ) : (
               <>
-                <table className="min-w-full divide-y divide-border-subtle">
+                <table className="min-w-full divide-y divide-gray-200">
                   <thead className="">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Code
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Name
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Currency
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         GL Account
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">
+                        <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
                           {rows.length === 0 
                             ? 'No bank accounts found. Create your first bank account to get started.'
                             : 'No accounts match the current filters.'}
@@ -181,10 +181,10 @@ export default function BankAccountsPage() {
                       filtered.map((r) => {
                         const active = r.is_active ?? r.isActive;
                         return (
-                          <tr key={r.id} className="hover:bg-surface-2 transition-colors">
-                            <td className="px-6 py-4 text-sm font-medium text-text-strong">{r.code ?? '—'}</td>
-                            <td className="px-6 py-4 text-sm text-text-strong">{r.name ?? '—'}</td>
-                            <td className="px-6 py-4 text-sm text-text-body">
+                          <tr key={r.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{r.code ?? '—'}</td>
+                            <td className="px-6 py-4 text-sm text-gray-900">{r.name ?? '—'}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
                               <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                 {r.currency_code ?? r.currencyCode ?? '—'}
                               </span>
@@ -192,13 +192,13 @@ export default function BankAccountsPage() {
                             <td className="px-6 py-4 text-sm">
                               <span
                                 className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                  active ? 'bg-green-100 text-green-800' : 'bg-surface-2 text-text-strong'
+                                  active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                                 }`}
                               >
                                 {active ? 'Active' : 'Inactive'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-xs font-mono text-text-muted">
+                            <td className="px-6 py-4 text-xs font-mono text-gray-600">
                               {r.gl_account_id ?? r.glAccountId ?? '—'}
                             </td>
                           </tr>
@@ -219,11 +219,11 @@ export default function BankAccountsPage() {
         title="Create Bank Account"
         onClose={() => (createMutation.isLoading ? null : setCreateOpen(false))}
         footer={
-          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-border-subtle">
+          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
             <Button
               onClick={() => setCreateOpen(false)}
               disabled={createMutation.isLoading}
-              className="px-5 py-2.5 border border-border-subtle text-text-body rounded-md font-medium hover:bg-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>
@@ -276,7 +276,7 @@ export default function BankAccountsPage() {
                 onChange={(e) => setForm((p) => ({ ...p, glAccountId: e.target.value }))}
                 options={coaOptions}
               />
-              <p className="mt-1.5 text-xs text-text-muted">
+              <p className="mt-1.5 text-xs text-gray-600">
                 Select the general ledger account that represents this bank account
               </p>
             </div>

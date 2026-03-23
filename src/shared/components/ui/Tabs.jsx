@@ -51,8 +51,8 @@ export function Tabs({ tabs = [], value, onChange, defaultValue, className }) {
             className={clsx(
               'rounded-md px-3 py-2 text-sm transition flex items-center gap-2',
               active === t.value
-                ? 'bg-surface-2 text-brand-deep font-medium'
-                : 'text-text-body hover:bg-surface-2'
+                ? 'bg-slate-100 text-brand-deep font-medium'
+                : 'text-slate-700 hover:bg-slate-50'
             )}
           >
             {t.icon && <t.icon className="h-4 w-4" />}

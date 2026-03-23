@@ -190,11 +190,11 @@ export default function IFRS9ECLPage() {
 
   const modelsColumns = useMemo(
     () => [
-      { header: 'Name', render: (m) => <div className="font-medium text-text-strong">{m.name ?? '—'}</div> },
-      { header: 'Method', render: (m) => <span className="text-sm text-text-body">{m.method ?? '—'}</span> },
+      { header: 'Name', render: (m) => <div className="font-medium text-slate-800">{m.name ?? '—'}</div> },
+      { header: 'Method', render: (m) => <span className="text-sm text-slate-700">{m.method ?? '—'}</span> },
       {
         header: 'Buckets',
-        render: (m) => <span className="text-sm text-text-body">{Array.isArray(m.buckets) ? m.buckets.length : m.bucket_count ?? '—'}</span>
+        render: (m) => <span className="text-sm text-slate-700">{Array.isArray(m.buckets) ? m.buckets.length : m.bucket_count ?? '—'}</span>
       },
       {
         header: '',
@@ -229,13 +229,13 @@ export default function IFRS9ECLPage() {
             }}
           >
             <div className="font-medium text-brand-deep hover:underline">{r.code ?? r.id}</div>
-            <div className="text-xs text-text-muted">{r.created_at ? formatDate(r.created_at) : ''}</div>
+            <div className="text-xs text-slate-500">{r.created_at ? formatDate(r.created_at) : ''}</div>
           </button>
         )
       },
-      { header: 'Period', render: (r) => <span className="text-sm text-text-body">{r.period_code ?? r.period_id ?? '—'}</span> },
-      { header: 'Model', render: (r) => <span className="text-sm text-text-body">{r.model_name ?? r.model_id ?? '—'}</span> },
-      { header: 'Status', render: (r) => <span className="text-sm text-text-body">{r.status ?? '—'}</span> }
+      { header: 'Period', render: (r) => <span className="text-sm text-slate-700">{r.period_code ?? r.period_id ?? '—'}</span> },
+      { header: 'Model', render: (r) => <span className="text-sm text-slate-700">{r.model_name ?? r.model_id ?? '—'}</span> },
+      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status ?? '—'}</span> }
     ],
     []
   );
@@ -309,7 +309,7 @@ export default function IFRS9ECLPage() {
 
                   <div className="rounded-xl border border-border-subtle p-4">
                     <div className="text-sm font-semibold text-brand-deep">Notes</div>
-                    <div className="mt-2 text-sm text-text-muted">
+                    <div className="mt-2 text-sm text-slate-600">
                       Settings are used by compute + posting flows. Accounts are pulled from your Chart of Accounts to avoid invalid IDs.
                     </div>
                   </div>
@@ -476,15 +476,15 @@ export default function IFRS9ECLPage() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <div className="rounded-xl border p-3">
-            <div className="text-xs text-text-muted">Status</div>
-            <div className="text-sm font-semibold text-text-strong">{runDetail?.status ?? '—'}</div>
+            <div className="text-xs text-slate-500">Status</div>
+            <div className="text-sm font-semibold text-slate-800">{runDetail?.status ?? '—'}</div>
           </div>
           <div className="rounded-xl border p-3">
-            <div className="text-xs text-text-muted">Created</div>
-            <div className="text-sm font-semibold text-text-strong">{runDetail?.created_at ? formatDate(runDetail.created_at) : '—'}</div>
+            <div className="text-xs text-slate-500">Created</div>
+            <div className="text-sm font-semibold text-slate-800">{runDetail?.created_at ? formatDate(runDetail.created_at) : '—'}</div>
           </div>
         </div>
-        <pre className="mt-3 max-h-64 overflow-auto rounded-xl border bg-surface-2 p-3 text-xs text-text-body">{JSON.stringify(runDetail ?? {}, null, 2)}</pre>
+        <pre className="mt-3 max-h-64 overflow-auto rounded-xl border bg-slate-50 p-3 text-xs text-slate-700">{JSON.stringify(runDetail ?? {}, null, 2)}</pre>
       </Modal>
 
       <ConfirmDialog

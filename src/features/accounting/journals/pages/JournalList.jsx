@@ -121,14 +121,14 @@ console.log(listQ);
       <PageHeader
         title="Journals"
         subtitle="Create, submit, approve/reject, post, and void journals."
-        actions={<Button onClick={() => navigate(ROUTES.accountingJournalNew)}>New journal</Button>}
+        actions={<Button onClick={() => (window.location.href = ROUTES.accountingJournalNew)}>New journal</Button>}
       />
 
       <FilterBar
         right={
           <div className="flex gap-2">
             {listQ.isFetching ? (
-              <span className="text-sm text-text-muted flex items-center">
+              <span className="text-sm text-gray-500 flex items-center">
                 Loading...
               </span>
             ) : hasSelectedPeriod && (
@@ -178,13 +178,13 @@ console.log(listQ);
       <ContentCard title="Journal list">
         {!periodId ? (
           <div className="text-center py-12">
-            <div className="text-text-muted mb-4">Please select a period to view journals</div>
+            <div className="text-gray-500 mb-4">Please select a period to view journals</div>
           </div>
         ) : listQ.isError ? (
           <div className="text-sm text-red-700">{listQ.error?.message ?? 'Failed to load journals.'}</div>
         ) : listQ.isLoading ? (
           <div className="text-center py-12">
-            <div className="text-text-muted mb-4">Loading journals for selected period...</div>
+            <div className="text-gray-500 mb-4">Loading journals for selected period...</div>
           </div>
         ) : (
           <DataTable 

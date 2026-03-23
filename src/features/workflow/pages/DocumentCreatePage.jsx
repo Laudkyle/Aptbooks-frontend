@@ -102,10 +102,10 @@ export default function DocumentCreatePage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <FilePlus2 className="h-7 w-7 text-text-body" />
-                <h1 className="text-2xl font-bold text-text-strong">Create New Document</h1>
+                <FilePlus2 className="h-7 w-7 text-gray-700" />
+                <h1 className="text-2xl font-bold text-gray-900">Create New Document</h1>
               </div>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-gray-600">
                 Fill in the details below to create a new document
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function DocumentCreatePage() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-border-subtle"
+                className="border-gray-300"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Cancel
@@ -137,7 +137,7 @@ export default function DocumentCreatePage() {
           <CardContent className="space-y-6">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Document Title <span className="text-red-500">*</span>
               </label>
               <Input
@@ -149,16 +149,16 @@ export default function DocumentCreatePage() {
 
             {/* Document Type */}
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Document Type <span className="text-red-500">*</span>
               </label>
               {typesLoading ? (
-                <div className="text-sm text-text-muted">Loading document types...</div>
+                <div className="text-sm text-gray-500">Loading document types...</div>
               ) : (
                 <select
                   value={payload.document_type_id}
                   onChange={(e) => updateField('document_type_id', e.target.value)}
-                  className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                 >
                   <option value="">Select document type</option>
                   {documentTypes.map((type) => (
@@ -172,13 +172,13 @@ export default function DocumentCreatePage() {
 
             {/* Entity Type */}
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Entity Type <span className="text-red-500">*</span>
               </label>
               <select
                 value={payload.entity_type}
                 onChange={(e) => updateField('entity_type', e.target.value)}
-                className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
               >
                 <option value="">Select entity type</option>
                 {entityTypes.map((type) => (
@@ -191,7 +191,7 @@ export default function DocumentCreatePage() {
 
             {/* Entity ID */}
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Entity ID <span className="text-red-500">*</span>
               </label>
               <Input
@@ -199,14 +199,14 @@ export default function DocumentCreatePage() {
                 onChange={(e) => updateField('entity_id', e.target.value)}
                 placeholder="e.g., invoice-123, contract-456"
               />
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 The ID of the entity this document is linked to
               </p>
             </div>
 
             {/* Entity Reference (Optional) */}
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Entity Reference
               </label>
               <Input
@@ -214,7 +214,7 @@ export default function DocumentCreatePage() {
                 onChange={(e) => updateField('entity_ref', e.target.value)}
                 placeholder="Optional reference (e.g., invoice number)"
               />
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Optional human-readable reference for the entity
               </p>
             </div>

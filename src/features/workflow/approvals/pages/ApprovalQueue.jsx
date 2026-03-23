@@ -228,19 +228,19 @@ export default function ApprovalQueue() {
       {/* ── Filters ─────────────────────────────────────────────────────── */}
       <ContentCard>
         <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-4 w-4 text-text-muted" />
-          <span className="text-sm font-semibold text-text-strong">Filters</span>
+          <Filter className="h-4 w-4 text-slate-500" />
+          <span className="text-sm font-semibold text-slate-900">Filters</span>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           {/* Source */}
           <div>
-            <label className="block text-sm font-medium text-text-body mb-2">Source</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Source</label>
             <select
               value={sourceFilter}
               onChange={handleSourceChange}
-              className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
             >
               <option value="">All Sources</option>
               {availableSources.map((s) => (
@@ -251,11 +251,11 @@ export default function ApprovalQueue() {
 
           {/* State */}
           <div>
-            <label className="block text-sm font-medium text-text-body mb-2">State</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">State</label>
             <select
               value={state}
               onChange={handleStateChange}
-              className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
             >
               <option value="">All States</option>
               <option value="pending">Pending</option>
@@ -267,14 +267,14 @@ export default function ApprovalQueue() {
 
           {/* Document Type — grayed out + cleared when non-documents source selected */}
           <div className={!docTypeFilterEnabled ? 'opacity-40 pointer-events-none select-none' : ''}>
-            <label className="block text-sm font-medium text-text-body mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Document Type
               {!docTypeFilterEnabled && (
-                <span className="ml-1.5 text-xs font-normal text-text-soft">(documents only)</span>
+                <span className="ml-1.5 text-xs font-normal text-slate-400">(documents only)</span>
               )}
             </label>
             {docTypesQuery.isLoading && docTypeFilterEnabled ? (
-              <div className="px-3 py-2 border border-border-subtle rounded-lg text-sm text-text-soft bg-surface-1">
+              <div className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-slate-400 bg-white">
                 Loading types...
               </div>
             ) : (
@@ -282,7 +282,7 @@ export default function ApprovalQueue() {
                 value={documentTypeId}
                 onChange={handleDocTypeChange}
                 disabled={!docTypeFilterEnabled}
-                className="w-full px-3 py-2 border border-border-subtle rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm disabled:bg-surface-2 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm disabled:bg-slate-50 disabled:cursor-not-allowed"
               >
                 <option value="">All Document Types</option>
                 {documentTypes.map((dt) => (
@@ -310,7 +310,7 @@ export default function ApprovalQueue() {
         {/* Active filter chips */}
         {hasActiveFilters && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-text-muted">Active filters:</span>
+            <span className="text-xs text-slate-500">Active filters:</span>
             {sourceFilter && (
               <Badge tone="brand" className="text-xs">
                 Source: {formatSource(sourceFilter)}
@@ -328,7 +328,7 @@ export default function ApprovalQueue() {
             )}
             <button
               onClick={handleClearFilters}
-              className="ml-1 text-xs text-text-muted hover:text-text-strong underline"
+              className="ml-1 text-xs text-slate-500 hover:text-slate-800 underline"
             >
               Clear all
             </button>
@@ -339,33 +339,33 @@ export default function ApprovalQueue() {
       {/* ── Table ───────────────────────────────────────────────────────── */}
       <ContentCard>
         <div className="mb-4">
-          <div className="text-base font-semibold text-text-strong">Pending Requests</div>
-          <div className="mt-1 text-sm text-text-muted">
+          <div className="text-base font-semibold text-slate-900">Pending Requests</div>
+          <div className="mt-1 text-sm text-slate-500">
             {rows.length} {rows.length === 1 ? 'request' : 'requests'} shown
           </div>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading approvals...</div>
+            <div className="text-sm text-slate-500">Loading approvals...</div>
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load inbox</div>
-            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load inbox</div>
+            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">Retry</Button>
           </div>
         ) : rows.length === 0 ? (
           <div className="text-center py-12">
             <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-3" />
-            <div className="text-sm font-medium text-text-strong">All caught up!</div>
-            <div className="text-sm text-text-muted mt-1">
+            <div className="text-sm font-medium text-slate-900">All caught up!</div>
+            <div className="text-sm text-slate-500 mt-1">
               {hasActiveFilters ? 'No requests match your filters.' : 'No pending approval requests.'}
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-border-subtle overflow-hidden">
+          <div className="rounded-xl border border-slate-200 overflow-hidden">
             <Table>
               <THead>
                 <tr>
@@ -388,7 +388,7 @@ export default function ApprovalQueue() {
                   return (
                     <tr
                       key={row.approval_id ?? row.document_id ?? row.entity_id ?? idx}
-                      className="hover:bg-surface-2 transition-colors"
+                      className="hover:bg-slate-50 transition-colors"
                     >
                       <TD>
                         <Badge tone={sourceTone} className="whitespace-nowrap">
@@ -398,16 +398,16 @@ export default function ApprovalQueue() {
 
                       <TD>
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-text-strong text-sm">{ref ?? '—'}</span>
+                          <span className="font-medium text-slate-900 text-sm">{ref ?? '—'}</span>
                           {entityId && (
-                            <span className="font-mono text-[11px] text-text-muted">{entityId}</span>
+                            <span className="font-mono text-[11px] text-slate-500">{entityId}</span>
                           )}
                           {/* Show document type name inline for documents rows */}
                           {row.document_type_name && (
-                            <span className="text-xs text-text-soft">{row.document_type_name}</span>
+                            <span className="text-xs text-slate-400">{row.document_type_name}</span>
                           )}
                           {row.workflow_state_code && (
-                            <span className="text-xs text-text-soft">{row.workflow_state_code}</span>
+                            <span className="text-xs text-slate-400">{row.workflow_state_code}</span>
                           )}
                         </div>
                       </TD>
@@ -420,15 +420,15 @@ export default function ApprovalQueue() {
                       </TD>
 
                       <TD>
-                        <div className="flex items-center gap-2 text-sm text-text-body">
-                          <User className="h-3.5 w-3.5 text-text-soft flex-shrink-0" />
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <User className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                           {row.requested_by_name ?? '—'}
                         </div>
                       </TD>
 
                       <TD>
-                        <div className="flex items-center gap-2 text-sm text-text-muted">
-                          <Calendar className="h-3.5 w-3.5 text-text-soft flex-shrink-0" />
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                           {formatDateTime(row.submitted_at ?? row.updated_at ?? row.created_at)}
                         </div>
                       </TD>
@@ -490,23 +490,23 @@ export default function ApprovalQueue() {
           </div>
 
           {approveTarget && (
-            <div className="rounded-xl border border-border-subtle bg-surface-2 p-4 space-y-2 text-sm">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-text-muted">Reference</span>
+                <span className="text-slate-600">Reference</span>
                 <span className="font-medium">{getRef(approveTarget)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-text-muted">Source</span>
+                <span className="text-slate-600">Source</span>
                 <Badge tone={SOURCE_TONES[approveTarget.source] ?? 'muted'}>{formatSource(approveTarget.source)}</Badge>
               </div>
               {approveTarget.document_type_name && (
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Document Type</span>
+                  <span className="text-slate-600">Document Type</span>
                   <span className="font-medium">{approveTarget.document_type_name}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-text-muted">Requested By</span>
+                <span className="text-slate-600">Requested By</span>
                 <span className="font-medium">{approveTarget.requested_by_name ?? '—'}</span>
               </div>
             </div>
@@ -546,23 +546,23 @@ export default function ApprovalQueue() {
           </div>
 
           {rejectTarget && (
-            <div className="rounded-xl border border-border-subtle bg-surface-2 p-4 space-y-2 text-sm">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-text-muted">Reference</span>
+                <span className="text-slate-600">Reference</span>
                 <span className="font-medium">{getRef(rejectTarget)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-text-muted">Source</span>
+                <span className="text-slate-600">Source</span>
                 <Badge tone={SOURCE_TONES[rejectTarget.source] ?? 'muted'}>{formatSource(rejectTarget.source)}</Badge>
               </div>
               {rejectTarget.document_type_name && (
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Document Type</span>
+                  <span className="text-slate-600">Document Type</span>
                   <span className="font-medium">{rejectTarget.document_type_name}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-text-muted">Requested By</span>
+                <span className="text-slate-600">Requested By</span>
                 <span className="font-medium">{rejectTarget.requested_by_name ?? '—'}</span>
               </div>
             </div>

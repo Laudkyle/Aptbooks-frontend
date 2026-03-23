@@ -250,7 +250,7 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading lease details...</div>
+            <div className="text-sm text-slate-500">Loading lease details...</div>
           </div>
         </ContentCard>
       </div>
@@ -273,8 +273,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load lease</div>
-            <div className="text-sm text-text-muted">{leaseErrorData?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load lease</div>
+            <div className="text-sm text-slate-500">{leaseErrorData?.message ?? 'An error occurred'}</div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">
               Retry
             </Button>
@@ -344,15 +344,15 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
             </Badge>
 
             {lease?.payment_amount && (
-              <div className="flex items-center gap-1.5 text-sm text-text-muted">
-                <DollarSign className="h-3.5 w-3.5 text-text-soft" />
+              <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                <DollarSign className="h-3.5 w-3.5 text-slate-400" />
                 Payment: ${Number(lease.payment_amount).toFixed(2)}
               </div>
             )}
 
             {lease?.annual_discount_rate && (
-              <div className="flex items-center gap-1.5 text-sm text-text-muted">
-                <Percent className="h-3.5 w-3.5 text-text-soft" />
+              <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                <Percent className="h-3.5 w-3.5 text-slate-400" />
                 Rate: {(lease.annual_discount_rate * 100).toFixed(2)}%
               </div>
             )}
@@ -388,8 +388,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
               <RefreshCw className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <h3 className="font-medium text-text-strong">Regenerate Schedule</h3>
-              <p className="text-xs text-text-muted mt-1">
+              <h3 className="font-medium text-slate-900">Regenerate Schedule</h3>
+              <p className="text-xs text-slate-500 mt-1">
                 Recompute lease schedule based on current parameters
               </p>
             </div>
@@ -402,8 +402,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
               <UploadCloud className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-medium text-text-strong">Initial Recognition</h3>
-              <p className="text-xs text-text-muted mt-1">
+              <h3 className="font-medium text-slate-900">Initial Recognition</h3>
+              <p className="text-xs text-slate-500 mt-1">
                 Post the initial recognition journals for this lease
               </p>
             </div>
@@ -416,8 +416,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
               <BookOpen className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <h3 className="font-medium text-text-strong">Post Period</h3>
-              <p className="text-xs text-text-muted mt-1">
+              <h3 className="font-medium text-slate-900">Post Period</h3>
+              <p className="text-xs text-slate-500 mt-1">
                 Post lease journals for a specific date range
               </p>
             </div>
@@ -426,13 +426,13 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-border-subtle">
+      <div className="border-b border-slate-200">
         <div className="flex gap-6">
           <button
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'schedule'
                 ? 'border-emerald-500 text-emerald-600'
-                : 'border-transparent text-text-muted hover:text-text-body'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
             onClick={() => setActiveTab('schedule')}
           >
@@ -445,7 +445,7 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
             className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'details'
                 ? 'border-emerald-500 text-emerald-600'
-                : 'border-transparent text-text-muted hover:text-text-body'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
             onClick={() => setActiveTab('details')}
           >
@@ -461,21 +461,21 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
       {activeTab === 'schedule' && (
         <ContentCard>
           <div className="mb-4">
-            <div className="text-base font-semibold text-text-strong">Amortization Schedule</div>
-            <div className="mt-1 text-sm text-text-muted">
+            <div className="text-base font-semibold text-slate-900">Amortization Schedule</div>
+            <div className="mt-1 text-sm text-slate-500">
               Payment schedule and liability amortization over the lease term
             </div>
           </div>
 
           {scheduleLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="text-sm text-text-muted">Loading schedule...</div>
+              <div className="text-sm text-slate-500">Loading schedule...</div>
             </div>
           ) : scheduleRows.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-              <div className="text-sm font-medium text-text-strong mb-1">No schedule generated</div>
-              <div className="text-sm text-text-muted mb-4">
+              <div className="text-sm font-medium text-slate-900 mb-1">No schedule generated</div>
+              <div className="text-sm text-slate-500 mb-4">
                 Generate a schedule to view payment amortization
               </div>
               <Button 
@@ -487,56 +487,56 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
               </Button>
             </div>
           ) : (
-            <div className="rounded-xl border border-border-subtle overflow-hidden">
+            <div className="rounded-xl border border-slate-200 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-surface-2 border-b border-border-subtle">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Payment</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Interest</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Principal</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Balance</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Payment</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Interest</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Principal</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Balance</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle">
+                <tbody className="divide-y divide-slate-200">
                   {scheduleRows.map((row, idx) => (
-                    <tr key={row?.id ?? idx} className="hover:bg-surface-2 transition-colors">
+                    <tr key={row?.id ?? idx} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-text-soft" />
-                          <span className="text-sm text-text-body">
+                          <Calendar className="h-4 w-4 text-slate-400" />
+                          <span className="text-sm text-slate-700">
                             {row?.due_date ? formatDate(row.due_date) : '—'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-text-soft" />
-                          <span className="font-mono text-sm text-text-body">
+                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                          <span className="font-mono text-sm text-slate-700">
                             {row?.payment_amount ? Number(row.payment_amount).toFixed(2) : '—'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <Percent className="h-3.5 w-3.5 text-text-soft" />
-                          <span className="font-mono text-sm text-text-body">
+                          <Percent className="h-3.5 w-3.5 text-slate-400" />
+                          <span className="font-mono text-sm text-slate-700">
                             {row?.interest_amount ? Number(row.interest_amount).toFixed(2) : '—'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-text-soft" />
-                          <span className="font-mono text-sm text-text-body">
+                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                          <span className="font-mono text-sm text-slate-700">
                             {row?.principal_amount ? Number(row.principal_amount).toFixed(2) : '—'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-text-soft" />
-                          <span className="font-mono text-sm text-text-body">
+                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                          <span className="font-mono text-sm text-slate-700">
                             {row?.closing_balance ? Number(row.closing_balance).toFixed(2) : '—'}
                           </span>
                         </div>
@@ -553,8 +553,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
       {activeTab === 'details' && lease && (
         <ContentCard>
           <div className="mb-4">
-            <div className="text-base font-semibold text-text-strong">Lease Details</div>
-            <div className="mt-1 text-sm text-text-muted">
+            <div className="text-base font-semibold text-slate-900">Lease Details</div>
+            <div className="mt-1 text-sm text-slate-500">
               Complete lease configuration and account mappings
             </div>
           </div>
@@ -562,8 +562,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
           <div className="grid gap-6 md:grid-cols-2">
             {/* Lease Terms */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-text-strong flex items-center gap-2">
-                <FileText className="h-4 w-4 text-text-muted" />
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-slate-500" />
                 Lease Terms
               </h3>
               
@@ -581,8 +581,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
 
             {/* Account Mappings */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-text-strong flex items-center gap-2">
-                <Landmark className="h-4 w-4 text-text-muted" />
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <Landmark className="h-4 w-4 text-slate-500" />
                 Account Mappings
               </h3>
               
@@ -597,8 +597,8 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
 
               {lease.notes && (
                 <div className="mt-4">
-                  <h4 className="text-xs font-medium text-text-muted mb-2">Notes</h4>
-                  <p className="text-sm text-text-body bg-surface-2 p-3 rounded-lg">{lease.notes}</p>
+                  <h4 className="text-xs font-medium text-slate-500 mb-2">Notes</h4>
+                  <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">{lease.notes}</p>
                 </div>
               )}
             </div>
@@ -626,7 +626,7 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
             </div>
           </div>
 
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-slate-600">
             Are you sure you want to regenerate the amortization schedule?
           </p>
         </div>
@@ -802,10 +802,10 @@ function DetailRow({ icon: Icon, label, value }) {
   
   return (
     <div className="flex items-start gap-2">
-      <Icon className="h-4 w-4 text-text-soft mt-0.5 flex-shrink-0" />
+      <Icon className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
       <div className="flex-1">
-        <span className="text-xs text-text-muted block">{label}</span>
-        <span className="text-sm text-text-strong font-medium">{value}</span>
+        <span className="text-xs text-slate-500 block">{label}</span>
+        <span className="text-sm text-slate-900 font-medium">{value}</span>
       </div>
     </div>
   );

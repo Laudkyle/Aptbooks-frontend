@@ -41,13 +41,13 @@ export default function SavedReports() {
         header: 'Name',
         render: (r) => (
           <div className="space-y-0.5">
-            <div className="text-sm font-medium text-text-strong">{r.name || '(unnamed)'}</div>
-            <div className="text-xs text-text-muted">{r.folder || 'No folder'}</div>
+            <div className="text-sm font-medium text-slate-900">{r.name || '(unnamed)'}</div>
+            <div className="text-xs text-slate-600">{r.folder || 'No folder'}</div>
           </div>
         )
       },
-      { header: 'Kind', render: (r) => <span className="text-sm text-text-body">{r.kind || 'sql'}</span> },
-      { header: 'Status', render: (r) => <span className="text-sm text-text-body">{r.status || r.is_archived ? 'archived' : 'active'}</span> },
+      { header: 'Kind', render: (r) => <span className="text-sm text-slate-700">{r.kind || 'sql'}</span> },
+      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status || r.is_archived ? 'archived' : 'active'}</span> },
       {
         header: '',
         render: (r) => (
@@ -115,7 +115,7 @@ export default function SavedReports() {
         }
       />
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-1 p-4 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <DataTable
           columns={columns}
           rows={rows}
@@ -143,9 +143,9 @@ export default function SavedReports() {
           />
           {form.kind === 'sql' ? (
             <div>
-              <div className="mb-1 text-sm font-medium text-text-strong">Query SQL</div>
+              <div className="mb-1 text-sm font-medium text-slate-800">Query SQL</div>
               <textarea
-                className="h-40 w-full rounded-xl border border-border-subtle bg-surface-1 p-3 font-mono text-xs text-text-strong outline-none focus:ring-2 focus:ring-[var(--color-brand-light)]"
+                className="h-40 w-full rounded-xl border border-slate-200 bg-white p-3 font-mono text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[var(--color-brand-light)]"
                 value={form.querySql}
                 onChange={(e) => setForm((s) => ({ ...s, querySql: e.target.value }))}
                 placeholder="SELECT ..."
@@ -167,9 +167,9 @@ export default function SavedReports() {
 
       <Modal open={runOpen} onClose={() => setRunOpen(false)} title="Run report">
         <div className="space-y-3">
-          <div className="rounded-xl border border-border-subtle bg-surface-2 p-3">
-            <div className="text-sm font-medium text-text-strong">{selected?.name}</div>
-            <div className="text-xs text-text-muted">{selected?.id}</div>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div className="text-sm font-medium text-slate-900">{selected?.name}</div>
+            <div className="text-xs text-slate-600">{selected?.id}</div>
           </div>
           <Input label="Version ID" value={runForm.versionId} onChange={(e) => setRunForm((s) => ({ ...s, versionId: e.target.value }))} placeholder="Optional" />
           <Input

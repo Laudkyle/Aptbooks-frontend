@@ -192,7 +192,7 @@ function getDomainIcon(domain) {
  */
 function getActionColor(action) {
   const colors = {
-    'read': 'bg-surface-2 text-text-body border-border-subtle',
+    'read': 'bg-slate-100 text-slate-700 border-slate-200',
     'manage': 'bg-blue-100 text-blue-700 border-blue-200',
     'create': 'bg-green-100 text-green-700 border-green-200',
     'update': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -214,7 +214,7 @@ function getActionColor(action) {
     'dispatch': 'bg-amber-100 text-amber-700 border-amber-200'
   };
   
-  return colors[action] || 'bg-surface-2 text-text-body border-border-subtle';
+  return colors[action] || 'bg-gray-100 text-gray-700 border-gray-200';
 }
 
 /**
@@ -518,7 +518,7 @@ export default function RoleDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading role details...</div>
+            <div className="text-sm text-slate-500">Loading role details...</div>
           </div>
         </ContentCard>
       </div>
@@ -542,8 +542,8 @@ export default function RoleDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load role</div>
-            <div className="text-sm text-text-muted">
+            <div className="text-sm font-medium text-slate-900">Failed to load role</div>
+            <div className="text-sm text-slate-500">
               {rolesQuery.error?.message ?? permissionsQuery.error?.message ?? 'An error occurred'}
             </div>
             <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
@@ -572,8 +572,8 @@ export default function RoleDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-amber-500" />
-            <div className="text-sm font-medium text-text-strong">Role not found</div>
-            <div className="text-sm text-text-muted">The requested role does not exist or has been deleted</div>
+            <div className="text-sm font-medium text-slate-900">Role not found</div>
+            <div className="text-sm text-slate-500">The requested role does not exist or has been deleted</div>
           </div>
         </ContentCard>
       </div>
@@ -620,8 +620,8 @@ export default function RoleDetail() {
           {/* Role Information */}
           <ContentCard>
             <div className="mb-6">
-              <div className="text-base font-semibold text-text-strong">Role Information</div>
-              <div className="mt-1 text-sm text-text-muted">Basic details and identification</div>
+              <div className="text-base font-semibold text-slate-900">Role Information</div>
+              <div className="mt-1 text-sm text-slate-500">Basic details and identification</div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -635,11 +635,11 @@ export default function RoleDetail() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-body mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Role ID
                 </label>
-                <div className="px-3 py-2 border border-border-subtle rounded-lg bg-surface-2">
-                  <span className="font-mono text-xs text-text-muted">{id}</span>
+                <div className="px-3 py-2 border border-slate-200 rounded-lg bg-slate-50">
+                  <span className="font-mono text-xs text-slate-600">{id}</span>
                 </div>
               </div>
             </div>
@@ -658,20 +658,20 @@ export default function RoleDetail() {
           <ContentCard>
             <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
               <div>
-                <div className="text-base font-semibold text-text-strong">Permission Management</div>
-                <div className="mt-1 text-sm text-text-muted">
+                <div className="text-base font-semibold text-slate-900">Permission Management</div>
+                <div className="mt-1 text-sm text-slate-500">
                   {attachedCount} {attachedCount === 1 ? 'permission' : 'permissions'} attached
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 {/* View Toggle */}
-                <div className="flex items-center gap-1 bg-surface-2 rounded-lg p-1 mr-2">
+                <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 mr-2">
                   <button
                     onClick={() => setViewMode('grouped')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                       viewMode === 'grouped' 
-                        ? 'bg-surface-1 text-text-strong shadow-sm' 
-                        : 'text-text-muted hover:text-text-strong'
+                        ? 'bg-white text-slate-900 shadow-sm' 
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     Grouped
@@ -680,8 +680,8 @@ export default function RoleDetail() {
                     onClick={() => setViewMode('flat')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                       viewMode === 'flat' 
-                        ? 'bg-surface-1 text-text-strong shadow-sm' 
-                        : 'text-text-muted hover:text-text-strong'
+                        ? 'bg-white text-slate-900 shadow-sm' 
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     Flat
@@ -769,7 +769,7 @@ export default function RoleDetail() {
 
             {rolePermissionsQuery.isLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="text-sm text-text-muted">Loading permissions...</div>
+                <div className="text-sm text-slate-500">Loading permissions...</div>
               </div>
             ) : rolePermissionsQuery.isError ? (
               <div className="rounded-xl border border-red-200 bg-red-50 p-4">
@@ -783,8 +783,8 @@ export default function RoleDetail() {
               filteredGroupedPermissions.length === 0 ? (
                 <div className="text-center py-12">
                   <Filter className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <div className="text-sm font-medium text-text-strong mb-1">No permissions found</div>
-                  <div className="text-sm text-text-muted">
+                  <div className="text-sm font-medium text-slate-900 mb-1">No permissions found</div>
+                  <div className="text-sm text-slate-500">
                     {filter ? 'Try adjusting your search' : 'No permissions available'}
                   </div>
                 </div>
@@ -797,22 +797,22 @@ export default function RoleDetail() {
                     const domainAttachedCount = domain.permissions.filter(p => p.isAttached).length;
                     
                     return (
-                      <div key={domain.domain} className="rounded-xl border border-border-subtle overflow-hidden">
+                      <div key={domain.domain} className="rounded-xl border border-slate-200 overflow-hidden">
                         {/* Domain Header */}
                         <div 
-                          className="flex items-center justify-between p-4 bg-surface-2 cursor-pointer hover:bg-surface-2/50 transition-colors"
+                          className="flex items-center justify-between p-4 bg-slate-50/50 cursor-pointer hover:bg-slate-100/50 transition-colors"
                           onClick={() => toggleDomain(domain.domain)}
                         >
                           <div className="flex items-center gap-3">
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-text-soft" />
+                              <ChevronDown className="h-4 w-4 text-slate-400" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-text-soft" />
+                              <ChevronRight className="h-4 w-4 text-slate-400" />
                             )}
-                            <DomainIcon className="h-5 w-5 text-text-muted" />
+                            <DomainIcon className="h-5 w-5 text-slate-500" />
                             <div>
-                              <div className="font-medium text-text-strong">{domain.displayName}</div>
-                              <div className="text-xs text-text-muted">
+                              <div className="font-medium text-slate-900">{domain.displayName}</div>
+                              <div className="text-xs text-slate-500">
                                 {domain.totalCount} total • {domain.attachedCount} attached
                               </div>
                             </div>
@@ -844,38 +844,38 @@ export default function RoleDetail() {
                         
                         {/* Domain Content */}
                         {isExpanded && (
-                          <div className="border-t border-border-subtle">
-                            <table className="min-w-full divide-y divide-border-subtle">
-                              <thead className="bg-surface-2">
+                          <div className="border-t border-slate-200">
+                            <table className="min-w-full divide-y divide-slate-200">
+                              <thead className="bg-slate-50">
                                 <tr>
                                   <th className="w-12 px-4 py-2 text-left">
                                     <span className="sr-only">Select</span>
                                   </th>
-                                  <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     Permission
                                   </th>
-                                  <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     Description
                                   </th>
-                                  <th className="w-24 px-4 py-2 text-center text-xs font-medium text-text-muted uppercase tracking-wider">
+                                  <th className="w-24 px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     Status
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                              <tbody className="bg-white divide-y divide-slate-100">
                                 {domain.permissions.map((permission) => {
                                   const isAttached = permission.isAttached;
                                   const isSelected = selected.has(permission.code);
                                   const actionColor = getActionColor(permission.parsed.action);
                                   
                                   return (
-                                    <tr key={permission.code} className={`hover:bg-surface-2 transition-colors ${isAttached ? 'bg-green-50/20' : ''}`}>
+                                    <tr key={permission.code} className={`hover:bg-slate-50 transition-colors ${isAttached ? 'bg-green-50/20' : ''}`}>
                                       <td className="px-4 py-2 text-center">
                                         <input
                                           type="checkbox"
                                           checked={isSelected}
                                           onChange={() => handleTogglePermission(permission.code)}
-                                          className="h-4 w-4 rounded border-border-subtle text-blue-600 focus:ring-blue-500"
+                                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                           aria-label={`Select ${permission.code}`}
                                         />
                                       </td>
@@ -884,13 +884,13 @@ export default function RoleDetail() {
                                           <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${actionColor}`}>
                                             {permission.parsed.action}
                                           </span>
-                                          <span className="font-mono text-xs text-text-body">
+                                          <span className="font-mono text-xs text-slate-700">
                                             {permission.parsed.entity}
                                           </span>
                                         </div>
                                       </td>
                                       <td className="px-4 py-2">
-                                        <span className="text-sm text-text-muted">
+                                        <span className="text-sm text-slate-600">
                                           {permission.description || '—'}
                                         </span>
                                       </td>
@@ -924,31 +924,31 @@ export default function RoleDetail() {
               flatFilteredPermissions.length === 0 ? (
                 <div className="text-center py-12">
                   <Filter className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <div className="text-sm font-medium text-text-strong mb-1">No permissions found</div>
-                  <div className="text-sm text-text-muted">
+                  <div className="text-sm font-medium text-slate-900 mb-1">No permissions found</div>
+                  <div className="text-sm text-slate-500">
                     {filter ? 'Try adjusting your search' : 'No permissions available'}
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl border border-border-subtle overflow-hidden">
-                  <table className="min-w-full divide-y divide-border-subtle">
-                    <thead className="bg-surface-2">
+                <div className="rounded-xl border border-slate-200 overflow-hidden">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
                       <tr>
                         <th className="w-12 px-4 py-3 text-left">
                           <span className="sr-only">Select</span>
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                           Permission Code
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                           Description
                         </th>
-                        <th className="w-24 px-4 py-3 text-center text-xs font-medium text-text-muted uppercase tracking-wider">
+                        <th className="w-24 px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
                           Status
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                    <tbody className="bg-white divide-y divide-slate-100">
                       {flatFilteredPermissions.map((permission) => {
                         const isAttached = attachedPermissions.has(permission.code);
                         const isSelected = selected.has(permission.code);
@@ -958,14 +958,14 @@ export default function RoleDetail() {
                         return (
                           <tr 
                             key={permission.code}
-                            className={`hover:bg-surface-2 transition-colors ${isAttached ? 'bg-green-50/20' : ''}`}
+                            className={`hover:bg-slate-50 transition-colors ${isAttached ? 'bg-green-50/20' : ''}`}
                           >
                             <td className="px-4 py-2 text-center">
                               <input
                                 type="checkbox"
                                 checked={isSelected}
                                 onChange={() => handleTogglePermission(permission.code)}
-                                className="h-4 w-4 rounded border-border-subtle text-blue-600 focus:ring-blue-500"
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 aria-label={`Select ${permission.code}`}
                               />
                             </td>
@@ -974,13 +974,13 @@ export default function RoleDetail() {
                                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${actionColor}`}>
                                   {parsed.action}
                                 </span>
-                                <span className="font-mono text-xs text-text-body">
+                                <span className="font-mono text-xs text-slate-700">
                                   {parsed.entity}
                                 </span>
                               </div>
                             </td>
                             <td className="px-4 py-2">
-                              <span className="text-sm text-text-muted">
+                              <span className="text-sm text-slate-600">
                                 {permission.description || '—'}
                               </span>
                             </td>
@@ -1012,25 +1012,25 @@ export default function RoleDetail() {
         <div className="space-y-6">
           {/* Statistics */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Statistics</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Statistics</div>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Total Permissions</span>
-                <span className="font-semibold text-text-strong">{permissions.length}</span>
+                <span className="text-slate-600">Total Permissions</span>
+                <span className="font-semibold text-slate-900">{permissions.length}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Attached</span>
+                <span className="text-slate-600">Attached</span>
                 <Badge tone="success">{attachedCount}</Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-text-muted">Not Attached</span>
+                <span className="text-slate-600">Not Attached</span>
                 <Badge tone="muted">{permissions.length - attachedCount}</Badge>
               </div>
               {selectedCount > 0 && (
                 <>
-                  <div className="pt-3 border-t border-border-subtle" />
+                  <div className="pt-3 border-t border-slate-200" />
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-muted">Selected</span>
+                    <span className="text-slate-600">Selected</span>
                     <Badge tone="brand">{selectedCount}</Badge>
                   </div>
                 </>
@@ -1040,20 +1040,20 @@ export default function RoleDetail() {
 
           {/* Domain Summary */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Permissions by Domain</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Permissions by Domain</div>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {groupedPermissions.map(domain => {
                 const DomainIcon = domain.icon;
                 return (
                   <div key={domain.domain} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <DomainIcon className="h-3.5 w-3.5 text-text-soft" />
-                      <span className="text-text-muted">{domain.displayName}</span>
+                      <DomainIcon className="h-3.5 w-3.5 text-slate-400" />
+                      <span className="text-slate-600">{domain.displayName}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-text-soft">{domain.attachedCount}</span>
+                      <span className="text-xs text-slate-400">{domain.attachedCount}</span>
                       <span className="text-xs text-slate-300">/</span>
-                      <span className="text-xs font-medium text-text-muted">{domain.totalCount}</span>
+                      <span className="text-xs font-medium text-slate-600">{domain.totalCount}</span>
                     </div>
                   </div>
                 );
@@ -1063,21 +1063,21 @@ export default function RoleDetail() {
 
           {/* Role Metadata */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Role Details</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Role Details</div>
             <div className="space-y-3">
               <div className="flex items-start gap-2 text-sm">
-                <Shield className="h-4 w-4 text-text-soft mt-0.5" />
+                <Shield className="h-4 w-4 text-slate-400 mt-0.5" />
                 <div className="flex-1">
-                  <div className="text-text-muted">Role Name</div>
-                  <div className="font-medium text-text-strong mt-0.5">{role.name}</div>
+                  <div className="text-slate-600">Role Name</div>
+                  <div className="font-medium text-slate-900 mt-0.5">{role.name}</div>
                 </div>
               </div>
               {role.created_at && (
                 <div className="flex items-start gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-text-soft mt-0.5" />
+                  <Calendar className="h-4 w-4 text-slate-400 mt-0.5" />
                   <div className="flex-1">
-                    <div className="text-text-muted">Created</div>
-                    <div className="font-medium text-text-strong mt-0.5">
+                    <div className="text-slate-600">Created</div>
+                    <div className="font-medium text-slate-900 mt-0.5">
                       {formatDate(role.created_at)}
                     </div>
                   </div>
@@ -1088,7 +1088,7 @@ export default function RoleDetail() {
 
           {/* Quick Actions */}
           <ContentCard>
-            <div className="text-sm font-semibold text-text-strong mb-4">Quick Actions</div>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Quick Actions</div>
             <div className="space-y-2">
               <Button
                 variant="outline"

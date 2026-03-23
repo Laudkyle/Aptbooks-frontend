@@ -47,7 +47,7 @@ export default function ReportTax() {
   const rows = rowsFrom(active.data);
   const columns = useMemo(() => {
     const keys = rows[0] ? Object.keys(rows[0]) : ['field', 'value'];
-    return keys.slice(0, 10).map((k) => ({ header: k, render: (r) => <span className="text-sm text-text-strong">{String(r[k] ?? '')}</span> }));
+    return keys.slice(0, 10).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
   }, [rows]);
 
   const run = () => {

@@ -91,7 +91,7 @@ export default function BankStatementsPage() {
         </div>
 
         {statementsQuery.isLoading ? (
-          <div className="mt-4 text-sm text-text-body">Loading...</div>
+          <div className="mt-4 text-sm text-slate-700">Loading...</div>
         ) : statementsQuery.isError ? (
           <div className="mt-4 text-sm text-red-700">{statementsQuery.error?.message ?? 'Failed to load statements.'}</div>
         ) : (
@@ -111,10 +111,10 @@ export default function BankStatementsPage() {
                     return acc ? (
                       <div>
                         <div className="text-sm font-medium">{acc.code}</div>
-                        <div className="text-xs text-text-muted">{acc.name}</div>
+                        <div className="text-xs text-slate-500">{acc.name}</div>
                       </div>
                     ) : (
-                      <span className="text-text-muted">{String(r.bank_account_id ?? '—')}</span>
+                      <span className="text-slate-500">{String(r.bank_account_id ?? '—')}</span>
                     );
                   }
                 },
@@ -141,7 +141,7 @@ export default function BankStatementsPage() {
               rows={filtered}
               keyField="id"
             />
-            {filtered.length === 0 ? <div className="mt-3 text-sm text-text-muted">No statements found.</div> : null}
+            {filtered.length === 0 ? <div className="mt-3 text-sm text-slate-600">No statements found.</div> : null}
           </div>
         )}
       </ContentCard>
@@ -200,7 +200,7 @@ export default function BankStatementsPage() {
             value={form.closingBalance}
             onChange={(e) => setForm((p) => ({ ...p, closingBalance: e.target.value }))}
           />
-          <div className="md:col-span-2 text-xs text-text-muted">
+          <div className="md:col-span-2 text-xs text-slate-500">
             After creating a statement, open it to import lines (JSON or CSV) and run matching.
           </div>
         </div>

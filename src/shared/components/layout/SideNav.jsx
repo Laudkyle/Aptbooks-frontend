@@ -94,7 +94,7 @@ const linkBase =
 const linkActive =
   "bg-brand-primary/10 text-brand-deep font-semibold ring-1 ring-brand-primary/20 " +
   "before:absolute before:left-1 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-brand-primary";
-const linkIdle = "text-text-body hover:bg-slate-900/5";
+const linkIdle = "text-slate-700 hover:bg-slate-900/5";
 
 function Item({ to, icon: Icon, label, collapsed }) {
   return (
@@ -105,7 +105,7 @@ function Item({ to, icon: Icon, label, collapsed }) {
       }
       title={collapsed ? label : undefined}
     >
-      <Icon className="h-4 w-4 text-text-muted group-hover:text-text-body" />
+      <Icon className="h-4 w-4 text-slate-500 group-hover:text-slate-700" />
       {collapsed ? (
         <span className="sr-only">{label}</span>
       ) : (
@@ -120,7 +120,7 @@ export function SideNav() {
   return (
     <aside
       className={clsx(
-        "relative h-screen overflow-y-scroll border-r border-border-subtle bg-surface-2 backdrop-blur transition-all",
+        "relative h-screen overflow-y-scroll border-r border-border-subtle bg-white/70 backdrop-blur transition-all",
         sidebarOpen ? "w-64" : "w-16",
       )}
     >
@@ -143,7 +143,7 @@ export function SideNav() {
               <div className="text-sm font-semibold text-brand-deep leading-none">
                 AptBooks
               </div>
-              <div className="mt-0.5 text-[11px] text-text-muted leading-none">
+              <div className="mt-0.5 text-[11px] text-slate-500 leading-none">
                 Accounting
               </div>
             </div>
@@ -152,7 +152,7 @@ export function SideNav() {
 
         <div
           className={clsx(
-            "px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted",
+            "px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500",
             !sidebarOpen && "text-center",
           )}
         >
@@ -188,7 +188,7 @@ export function SideNav() {
         <div className="px-2 pt-2">
           <div className="h-px w-full bg-border-subtle" />
         </div>
-        <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+        <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
           ACCOUNTING
         </div>
         <nav className="space-y-1">
@@ -300,7 +300,7 @@ export function SideNav() {
           <div className="px-2 pt-2">
             <div className="h-px w-full bg-border-subtle" />
           </div>
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             OPERATIONS
           </div>
 
@@ -311,7 +311,7 @@ export function SideNav() {
               PERMISSIONS.paymentConfigManage,
             ]}
           >
-            <div className="mt-2 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-2 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               BUSINESS
             </div>
             <nav className="mt-1 space-y-1">
@@ -365,7 +365,7 @@ export function SideNav() {
               PERMISSIONS.refundRead,
             ]}
           >
-            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               TRANSACTIONS
             </div>
             <nav className="mt-1 space-y-1">
@@ -561,7 +561,7 @@ export function SideNav() {
               PERMISSIONS.paymentPlansRead,
             ]}
           >
-            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               AR OPS
             </div>
             <nav className="mt-1 space-y-1">
@@ -627,7 +627,7 @@ export function SideNav() {
               PERMISSIONS.inventoryTransactionsRead,
             ]}
           >
-            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               ASSETS & INVENTORY
             </div>
             <nav className="mt-1 space-y-1">
@@ -765,7 +765,7 @@ export function SideNav() {
               PERMISSIONS.reportingTaxRead,
             ]}
           >
-            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               REPORTING
             </div>
             <nav className="mt-1 space-y-1">
@@ -804,7 +804,7 @@ export function SideNav() {
               PERMISSIONS.reportingReportsRead,
             ]}
           >
-            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-text-muted/90">
+            <div className="mt-4 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
               PLANNING
             </div>
             <nav className="mt-1 space-y-1">
@@ -885,7 +885,7 @@ export function SideNav() {
         </PermissionGate>
 
         <div className="mt-6">
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             BANKING
           </div>
           <nav className="mt-2 space-y-1">
@@ -963,7 +963,7 @@ export function SideNav() {
         </div>
 
         <div className="mt-6">
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             TREASURY
           </div>
           <nav className="mt-2 space-y-1">
@@ -992,7 +992,7 @@ export function SideNav() {
         </div>
 
         <div className="mt-6">
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             AUTOMATION
           </div>
           <nav className="mt-2 space-y-1">
@@ -1021,7 +1021,7 @@ export function SideNav() {
         </div>
 
         <div className="mt-6">
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             COMPLIANCE
           </div>
           <nav className="mt-2 space-y-1">
@@ -1089,7 +1089,7 @@ export function SideNav() {
         </div>
 
         <div className="mt-6">
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             WORKFLOW
           </div>
           <nav className="mt-2 space-y-1">
@@ -1140,7 +1140,7 @@ export function SideNav() {
           <div className="px-2 pt-2">
             <div className="h-px w-full bg-border-subtle" />
           </div>
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             ADMIN
           </div>
           <nav className="space-y-1">
@@ -1235,7 +1235,7 @@ export function SideNav() {
           <div className="px-2 pt-2">
             <div className="h-px w-full bg-border-subtle" />
           </div>
-          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-text-muted">
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
             UTILITIES
           </div>
           <nav className="space-y-1">

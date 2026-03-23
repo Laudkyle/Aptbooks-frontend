@@ -56,9 +56,9 @@ export default function InventoryReports() {
 
   const columns = useMemo(
     () => [
-      { header: 'Row', render: (r) => <span className="text-sm text-text-body">{r.item_name ?? r.itemId ?? r.warehouse_name ?? r.warehouseId ?? r.id ?? '—'}</span> },
-      { header: 'Details', render: (r) => <span className="text-xs text-text-muted">{r.memo ?? r.reference ?? r.txn_type ?? r.txnType ?? ''}</span> },
-      { header: 'Amount/Qty', render: (r) => <span className="text-sm text-text-body">{r.amount ?? r.quantity ?? r.value ?? r.on_hand ?? '—'}</span> }
+      { header: 'Row', render: (r) => <span className="text-sm text-slate-700">{r.item_name ?? r.itemId ?? r.warehouse_name ?? r.warehouseId ?? r.id ?? '—'}</span> },
+      { header: 'Details', render: (r) => <span className="text-xs text-slate-500">{r.memo ?? r.reference ?? r.txn_type ?? r.txnType ?? ''}</span> },
+      { header: 'Amount/Qty', render: (r) => <span className="text-sm text-slate-700">{r.amount ?? r.quantity ?? r.value ?? r.on_hand ?? '—'}</span> }
     ],
     []
   );
@@ -92,7 +92,7 @@ export default function InventoryReports() {
               ) : null}
             </div>
           }
-          right={<div className="text-xs text-text-muted">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed')}</span> : null}</div>}
+          right={<div className="text-xs text-slate-500">{error ? <span className="text-red-600">{String(error?.message ?? 'Failed')}</span> : null}</div>}
         />
 
         <div className="mt-3">

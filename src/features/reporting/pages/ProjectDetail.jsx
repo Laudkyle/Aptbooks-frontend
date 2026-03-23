@@ -845,15 +845,15 @@ export default function ProjectDetail() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => togglePhaseExpand(row.id)}
-              className="p-1 hover:bg-surface-2 rounded"
+              className="p-1 hover:bg-slate-100 rounded"
             >
               {expandedPhases.has(row.id) ? (
-                <ChevronDown className="h-4 w-4 text-text-soft" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-text-soft" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               )}
             </button>
-            <Layers3 className="h-4 w-4 text-text-soft" />
+            <Layers3 className="h-4 w-4 text-slate-400" />
             <span className="font-medium">{row.name || row.id}</span>
           </div>
         ),
@@ -862,8 +862,8 @@ export default function ProjectDetail() {
         header: "Code",
         accessor: "code",
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-text-body">
-            <Tag className="h-3.5 w-3.5 text-text-soft" />
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Tag className="h-3.5 w-3.5 text-slate-400" />
             <span className="font-mono">{row.code || "—"}</span>
           </div>
         ),
@@ -890,8 +890,8 @@ export default function ProjectDetail() {
         render: (row) => {
           if (row.start_date || row.end_date) {
             return (
-              <div className="flex items-center gap-1 text-xs text-text-muted">
-                <Calendar className="h-3.5 w-3.5 text-text-soft" />
+              <div className="flex items-center gap-1 text-xs text-slate-600">
+                <Calendar className="h-3.5 w-3.5 text-slate-400" />
                 {row.start_date && formatDate(row.start_date)}
                 {row.end_date && ` → ${formatDate(row.end_date)}`}
               </div>
@@ -974,11 +974,11 @@ export default function ProjectDetail() {
         accessor: "name",
         render: (row) => (
           <div className="flex items-center gap-2">
-            <ListTodo className="h-4 w-4 text-text-soft" />
+            <ListTodo className="h-4 w-4 text-slate-400" />
             <div>
               <span className="font-medium">{row.name || row.id}</span>
               {row.description && (
-                <p className="text-xs text-text-muted mt-0.5 line-clamp-1">
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
                   {row.description}
                 </p>
               )}
@@ -990,8 +990,8 @@ export default function ProjectDetail() {
         header: "Code",
         accessor: "code",
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-text-body">
-            <Tag className="h-3.5 w-3.5 text-text-soft" />
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Tag className="h-3.5 w-3.5 text-slate-400" />
             <span className="font-mono">{row.code || "—"}</span>
           </div>
         ),
@@ -1018,8 +1018,8 @@ export default function ProjectDetail() {
       {
         header: "Assigned To",
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-text-body">
-            <Users className="h-3.5 w-3.5 text-text-soft" />
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Users className="h-3.5 w-3.5 text-slate-400" />
             {getUserDisplayName(row.assigned_to)}
           </div>
         ),
@@ -1030,7 +1030,7 @@ export default function ProjectDetail() {
           const est = row.estimated_hours;
           const actual = row.actual_hours;
           return (
-            <div className="text-sm text-text-body">
+            <div className="text-sm text-slate-700">
               {est ? `${est}h` : "—"}
               {actual && ` / ${actual}h`}
             </div>
@@ -1042,8 +1042,8 @@ export default function ProjectDetail() {
         render: (row) => {
           if (row.start_date || row.end_date) {
             return (
-              <div className="flex items-center gap-1 text-xs text-text-muted">
-                <Calendar className="h-3.5 w-3.5 text-text-soft" />
+              <div className="flex items-center gap-1 text-xs text-slate-600">
+                <Calendar className="h-3.5 w-3.5 text-slate-400" />
                 {row.start_date && formatDate(row.start_date)}
                 {row.end_date && ` → ${formatDate(row.end_date)}`}
                 {row.completed_date && (
@@ -1145,7 +1145,7 @@ export default function ProjectDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-text-muted">Loading project details...</div>
+            <div className="text-slate-500">Loading project details...</div>
           </div>
         </ContentCard>
       </div>
@@ -1171,10 +1171,10 @@ export default function ProjectDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-lg font-medium text-text-strong">
+            <div className="text-lg font-medium text-slate-900">
               Failed to load project
             </div>
-            <div className="text-text-muted">{projectError.message}</div>
+            <div className="text-slate-500">{projectError.message}</div>
             <Button onClick={() => refetchProject()}>Retry</Button>
           </div>
         </ContentCard>
@@ -1199,7 +1199,7 @@ export default function ProjectDetail() {
           }
         />
         <ContentCard>
-          <div className="py-12 text-center text-text-muted">
+          <div className="py-12 text-center text-slate-500">
             The requested project could not be found.
           </div>
         </ContentCard>
@@ -1232,12 +1232,12 @@ export default function ProjectDetail() {
               {project.status || "draft"}
             </Badge>
             {project.code && (
-              <span className="text-sm text-text-muted">
+              <span className="text-sm text-slate-600">
                 Code: {project.code}
               </span>
             )}
             {project.start_date && project.end_date && (
-              <span className="text-sm text-text-muted">
+              <span className="text-sm text-slate-600">
                 {formatDate(project.start_date)} -{" "}
                 {formatDate(project.end_date)}
               </span>
@@ -1272,11 +1272,11 @@ export default function ProjectDetail() {
         <ContentCard>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-semibold text-text-strong flex items-center gap-2">
-                <Layers3 className="h-5 w-5 text-text-muted" />
+              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <Layers3 className="h-5 w-5 text-slate-500" />
                 Phases
               </h3>
-              <p className="text-sm text-text-muted mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 {phases.length} phase{phases.length !== 1 ? "s" : ""} in this
                 project
               </p>
@@ -1291,12 +1291,12 @@ export default function ProjectDetail() {
           </div>
 
           {phases.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-border-subtle rounded-lg">
-              <Layers3 className="h-12 w-12 text-text-soft mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-text-strong mb-1">
+            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-lg">
+              <Layers3 className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-slate-900 mb-1">
                 No phases yet
               </h3>
-              <p className="text-sm text-text-muted mb-4">
+              <p className="text-sm text-slate-500 mb-4">
                 Create your first phase to organize project work
               </p>
               <Button onClick={() => openModal("createPhase")} size="sm">
@@ -1317,13 +1317,13 @@ export default function ProjectDetail() {
                     className={`border rounded-lg overflow-hidden ${
                       isSelected
                         ? "border-blue-300 ring-1 ring-blue-200"
-                        : "border-border-subtle"
+                        : "border-slate-200"
                     }`}
                   >
                     {/* Phase Header */}
                     <div
                       className={`flex items-center justify-between p-4 cursor-pointer ${
-                        isSelected ? "bg-blue-50/50" : "hover:bg-surface-2"
+                        isSelected ? "bg-blue-50/50" : "hover:bg-slate-50"
                       }`}
                       onClick={() => {
                         setSelectedPhaseId(phase.id);
@@ -1341,18 +1341,18 @@ export default function ProjectDetail() {
                           className="p-1 hover:bg-slate-200 rounded"
                         >
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4 text-text-muted" />
+                            <ChevronDown className="h-4 w-4 text-slate-500" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 text-text-muted" />
+                            <ChevronRight className="h-4 w-4 text-slate-500" />
                           )}
                         </button>
                         <Layers3
-                          className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-text-soft"}`}
+                          className={`h-5 w-5 ${isSelected ? "text-blue-600" : "text-slate-400"}`}
                         />
                         <div>
                           <div className="flex items-center gap-2">
                             <span
-                              className={`font-semibold ${isSelected ? "text-blue-900" : "text-text-strong"}`}
+                              className={`font-semibold ${isSelected ? "text-blue-900" : "text-slate-900"}`}
                             >
                               {phase.name}
                             </span>
@@ -1362,7 +1362,7 @@ export default function ProjectDetail() {
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                             <Badge tone={badge.tone} size="sm">
                               {badge.label}
                             </Badge>
@@ -1371,13 +1371,13 @@ export default function ProjectDetail() {
                               {phaseTasks.length !== 1 ? "s" : ""}
                             </span>
                             {phase.description && (
-                              <span className="text-text-soft line-clamp-1">
+                              <span className="text-slate-400 line-clamp-1">
                                 {phase.description}
                               </span>
                             )}
                           </div>
                           {(phase.start_date || phase.end_date) && (
-                            <div className="flex items-center gap-1 mt-1 text-xs text-text-soft">
+                            <div className="flex items-center gap-1 mt-1 text-xs text-slate-400">
                               <Calendar className="h-3 w-3" />
                               {phase.start_date && formatDate(phase.start_date)}
                               {phase.end_date &&
@@ -1467,10 +1467,10 @@ export default function ProjectDetail() {
 
                     {/* Phase Tasks (when expanded) */}
                     {isExpanded && selectedPhaseId === phase.id && (
-                      <div className="border-t border-border-subtle bg-surface-2 p-4">
+                      <div className="border-t border-slate-200 bg-slate-50/50 p-4">
                         {phaseTasks.length === 0 ? (
                           <div className="text-center py-4">
-                            <p className="text-sm text-text-muted mb-3">
+                            <p className="text-sm text-slate-500 mb-3">
                               No tasks in this phase
                             </p>
                             <Button
@@ -1494,17 +1494,17 @@ export default function ProjectDetail() {
                               return (
                                 <div
                                   key={task.id}
-                                  className="bg-surface-1 border border-border-subtle rounded-lg p-3 hover:shadow-sm transition-shadow"
+                                  className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
                                 >
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                      <ListTodo className="h-4 w-4 text-text-soft" />
+                                      <ListTodo className="h-4 w-4 text-slate-400" />
                                       <div>
-                                        <span className="text-sm font-medium text-text-strong">
+                                        <span className="text-sm font-medium text-slate-900">
                                           {task.name}
                                         </span>
                                         {task.code && (
-                                          <span className="ml-2 text-xs text-text-muted">
+                                          <span className="ml-2 text-xs text-slate-500">
                                             ({task.code})
                                           </span>
                                         )}
@@ -1616,12 +1616,12 @@ export default function ProjectDetail() {
                                       {priorityBadge.label}
                                     </Badge>
                                     {task.assigned_to && (
-                                      <span className="flex items-center gap-1 text-text-muted">
+                                      <span className="flex items-center gap-1 text-slate-600">
                                         <Users className="h-3 w-3" />
                                         {task.assigned_to}
                                       </span>
                                     )}
-                                    <span className="flex items-center gap-1 text-text-muted">
+                                    <span className="flex items-center gap-1 text-slate-600">
                                       <Briefcase className="h-3 w-3" />
                                       {task.estimated_hours
                                         ? `${task.estimated_hours}h`
@@ -1632,7 +1632,7 @@ export default function ProjectDetail() {
                                   </div>
 
                                   {task.description && (
-                                    <p className="text-xs text-text-muted mt-2 line-clamp-2">
+                                    <p className="text-xs text-slate-500 mt-2 line-clamp-2">
                                       {task.description}
                                     </p>
                                   )}
@@ -1640,7 +1640,7 @@ export default function ProjectDetail() {
                                   {(task.start_date ||
                                     task.end_date ||
                                     task.completed_date) && (
-                                    <div className="flex items-center gap-2 mt-2 text-xs text-text-soft">
+                                    <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
                                       <Calendar className="h-3 w-3" />
                                       {task.start_date &&
                                         formatDate(task.start_date)}
@@ -1672,11 +1672,11 @@ export default function ProjectDetail() {
         <ContentCard>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-semibold text-text-strong flex items-center gap-2">
-                <ListTodo className="h-5 w-5 text-text-muted" />
+              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <ListTodo className="h-5 w-5 text-slate-500" />
                 Tasks
               </h3>
-              <p className="text-sm text-text-muted mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 {selectedPhaseId
                   ? `${filteredTasks.length} task${filteredTasks.length !== 1 ? "s" : ""} in selected phase`
                   : "Select a phase to view tasks"}
@@ -1705,9 +1705,9 @@ export default function ProjectDetail() {
 
           {/* Filters */}
           {showFilters && selectedPhaseId && (
-            <div className="mb-4 p-3 bg-surface-2 rounded-lg border border-border-subtle">
+            <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-text-body">
+                <span className="text-xs font-medium text-slate-700">
                   Filters
                 </span>
                 <button
@@ -1765,22 +1765,22 @@ export default function ProjectDetail() {
           )}
 
           {!selectedPhaseId ? (
-            <div className="py-12 text-center border-2 border-dashed border-border-subtle rounded-lg">
-              <Target className="h-12 w-12 text-text-soft mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-text-strong mb-1">
+            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-lg">
+              <Target className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-slate-900 mb-1">
                 No Phase Selected
               </h3>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-slate-500">
                 Select a phase from the left panel to view its tasks
               </p>
             </div>
           ) : filteredTasks.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-border-subtle rounded-lg">
-              <ListTodo className="h-12 w-12 text-text-soft mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-text-strong mb-1">
+            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-lg">
+              <ListTodo className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-slate-900 mb-1">
                 No Tasks Found
               </h3>
-              <p className="text-sm text-text-muted mb-4">
+              <p className="text-sm text-slate-500 mb-4">
                 {filters.status || filters.search || filters.priority
                   ? "Try adjusting your filters"
                   : "Create your first task to start tracking work"}
@@ -1824,7 +1824,7 @@ export default function ProjectDetail() {
             <button
               type="button"
               onClick={() => setShowPhaseInfo(!showPhaseInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Phase creation info</span>
@@ -1996,7 +1996,7 @@ export default function ProjectDetail() {
             <button
               type="button"
               onClick={() => setShowTaskInfo(!showTaskInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Task creation info</span>
@@ -2260,7 +2260,7 @@ export default function ProjectDetail() {
             )}
 
             <div>
-              <p className="text-sm text-text-muted mb-2">
+              <p className="text-sm text-slate-600 mb-2">
                 {modals.archiveConfirm &&
                   `Are you sure you want to archive "${selectedPhase?.name || selectedTask?.name || "this item"}"?`}
                 {modals.activateConfirm &&
@@ -2268,7 +2268,7 @@ export default function ProjectDetail() {
                 {modals.completeConfirm &&
                   `Are you sure you want to mark "${selectedPhase?.name || selectedTask?.name || "this item"}" as completed?`}
               </p>
-              <p className="text-sm font-medium text-text-strong">
+              <p className="text-sm font-medium text-slate-900">
                 {modals.archiveConfirm &&
                   "Archived items become read-only and are hidden from most views."}
                 {modals.activateConfirm &&

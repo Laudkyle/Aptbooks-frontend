@@ -122,28 +122,31 @@ export default function TaxAdmin() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* QuickBooks-style Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-text-strong">Taxes</h1>
-          <p className="mt-1 text-sm text-text-muted">Manage jurisdictions, tax codes, and settings</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Taxes</h1>
+          <p className="mt-1 text-sm text-gray-600">Manage jurisdictions, tax codes, and settings</p>
         </div>
 
         <PermissionGate any={[PERMISSIONS.taxRead]}>
           {/* QuickBooks-style Tabs */}
-          <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-            <div className="border-b border-border-subtle">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="border-b border-gray-200">
               <nav className="flex -mb-px">
                 {[
                   { value: 'codes', label: 'Tax Codes' },
                   { value: 'juris', label: 'Jurisdictions' },
                   { value: 'settings', label: 'Settings' }
                 ].map((tabItem) => (
-                  <Button
+                  <button
                     key={tabItem.value}
-                    variant={tab === tabItem.value ? 'primary' : 'ghost'}
                     onClick={() => setTab(tabItem.value)}
-                    className="rounded-none border-b-2 border-transparent px-6 py-4 shadow-none ring-0"
+                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                      tab === tabItem.value
+                        ? 'border-green-600 text-green-600'
+                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    }`}
                   >
                     {tabItem.label}
-                  </Button>
+                  </button>
                 ))}
               </nav>
             </div>
@@ -153,7 +156,7 @@ export default function TaxAdmin() {
                 <div className="space-y-6">
                   <PermissionGate any={[PERMISSIONS.taxManage]}>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                      <h3 className="text-sm font-semibold text-text-strong mb-4">New Tax Code</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-4">New Tax Code</h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <Select 
                           label="Jurisdiction" 
@@ -214,36 +217,36 @@ export default function TaxAdmin() {
                   </PermissionGate>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-text-strong mb-3">Tax Code List</h3>
-                    <div className="border border-border-subtle rounded-lg overflow-hidden">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Tax Code List</h3>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-border-subtle">
+                        <table className="min-w-full divide-y divide-gray-200">
                           <thead className="">
                             <tr>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Code</th>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Name</th>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Type</th>
-                              <th className="px-6 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">Rate (%)</th>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Status</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Type</th>
+                              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Rate (%)</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                          <tbody className="bg-white divide-y divide-gray-200">
                             {taxCodes.length === 0 ? (
                               <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">
+                                <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
                                   No tax codes found. Create your first tax code above.
                                 </td>
                               </tr>
                             ) : (
                               taxCodes.map((c) => (
-                                <tr key={c.id} className="hover:bg-surface-2 transition-colors">
-                                  <td className="px-6 py-4 text-sm font-medium text-text-strong">{c.code}</td>
-                                  <td className="px-6 py-4 text-sm text-text-body">{c.name}</td>
-                                  <td className="px-6 py-4 text-sm text-text-body">{c.tax_type}</td>
-                                  <td className="px-6 py-4 text-sm text-text-body text-right">{c.rate}%</td>
+                                <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{c.code}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-700">{c.name}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-700">{c.tax_type}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-700 text-right">{c.rate}%</td>
                                   <td className="px-6 py-4 text-sm">
                                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                      c.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-surface-2 text-text-strong'
+                                      c.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                                     }`}>
                                       {c.status || 'Active'}
                                     </span>
@@ -263,7 +266,7 @@ export default function TaxAdmin() {
                 <div className="space-y-6">
                   <PermissionGate any={[PERMISSIONS.taxManage]}>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                      <h3 className="text-sm font-semibold text-text-strong mb-4">New Jurisdiction</h3>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-4">New Jurisdiction</h3>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <Input 
                           label="Code" 
@@ -297,30 +300,30 @@ export default function TaxAdmin() {
                   </PermissionGate>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-text-strong mb-3">Jurisdiction List</h3>
-                    <div className="border border-border-subtle rounded-lg overflow-hidden">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Jurisdiction List</h3>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-border-subtle">
+                        <table className="min-w-full divide-y divide-gray-200">
                           <thead className="">
                             <tr>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Code</th>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Name</th>
-                              <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">Country Code</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Code</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Country Code</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                          <tbody className="bg-white divide-y divide-gray-200">
                             {jurisdictions.length === 0 ? (
                               <tr>
-                                <td colSpan={3} className="px-6 py-8 text-center text-sm text-text-muted">
+                                <td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">
                                   No jurisdictions found. Create your first jurisdiction above.
                                 </td>
                               </tr>
                             ) : (
                               jurisdictions.map((j) => (
-                                <tr key={j.id} className="hover:bg-surface-2 transition-colors">
-                                  <td className="px-6 py-4 text-sm font-medium text-text-strong">{j.code}</td>
-                                  <td className="px-6 py-4 text-sm text-text-body">{j.name}</td>
-                                  <td className="px-6 py-4 text-sm text-text-body">{j.country_code || '—'}</td>
+                                <tr key={j.id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{j.code}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-700">{j.name}</td>
+                                  <td className="px-6 py-4 text-sm text-gray-700">{j.country_code || '—'}</td>
                                 </tr>
                               ))
                             )}
@@ -335,8 +338,8 @@ export default function TaxAdmin() {
               {tab === 'settings' && (
                 <div className="space-y-6">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                    <h3 className="text-sm font-semibold text-text-strong mb-4">Tax Account Settings</h3>
-                    <p className="text-sm text-text-muted mb-4">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Tax Account Settings</h3>
+                    <p className="text-sm text-gray-600 mb-4">
                       Configure which accounts should be used for tax transactions
                     </p>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -372,8 +375,8 @@ export default function TaxAdmin() {
                     </div>
                   </div>
 
-                  <div className=" border border-border-subtle rounded-lg p-4">
-                    <p className="text-xs text-text-muted">
+                  <div className=" border border-gray-200 rounded-lg p-4">
+                    <p className="text-xs text-gray-600">
                       <span className="font-semibold">API Endpoint:</span> PUT /core/accounting/tax/settings
                     </p>
                   </div>

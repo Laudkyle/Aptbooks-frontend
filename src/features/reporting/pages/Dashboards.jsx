@@ -32,9 +32,9 @@ export default function Dashboards() {
   const rows = arr(data);
   const columns = useMemo(
     () => [
-      { header: 'Name', render: (r) => <span className="font-medium text-text-strong">{r.name}</span> },
-      { header: 'Description', render: (r) => <span className="text-sm text-text-body">{r.description ?? ''}</span> },
-      { header: 'Status', render: (r) => <span className="text-xs text-text-muted">{r.status ?? ''}</span> }
+      { header: 'Name', render: (r) => <span className="font-medium text-slate-900">{r.name}</span> },
+      { header: 'Description', render: (r) => <span className="text-sm text-slate-700">{r.description ?? ''}</span> },
+      { header: 'Status', render: (r) => <span className="text-xs text-slate-600">{r.status ?? ''}</span> }
     ],
     []
   );
@@ -74,7 +74,7 @@ export default function Dashboards() {
         }
       />
 
-      <div className="rounded-2xl border border-border-subtle bg-surface-1 p-4 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <DataTable
           columns={columns}
           rows={rows}
@@ -91,11 +91,11 @@ export default function Dashboards() {
           <Input label="Name" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
           <Input label="Description" value={form.description} onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))} />
           <div>
-            <div className="text-sm font-medium text-text-strong">layoutJson</div>
+            <div className="text-sm font-medium text-slate-900">layoutJson</div>
             <textarea
               value={form.layoutJson}
               onChange={(e) => setForm((s) => ({ ...s, layoutJson: e.target.value }))}
-              className="mt-1 min-h-[120px] w-full rounded-xl border border-border-subtle bg-surface-1 px-3 py-2 font-mono text-xs text-text-strong focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="mt-1 min-h-[120px] w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
           <div className="flex items-center justify-end gap-2 pt-2">

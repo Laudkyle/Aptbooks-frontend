@@ -114,7 +114,7 @@ function getDomainDisplayName(domain) {
  */
 function getActionColor(action) {
   const colors = {
-    'read': 'bg-surface-2 text-text-body border-border-subtle',
+    'read': 'bg-slate-100 text-slate-700 border-slate-200',
     'manage': 'bg-blue-100 text-blue-700 border-blue-200',
     'create': 'bg-green-100 text-green-700 border-green-200',
     'update': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -131,7 +131,7 @@ function getActionColor(action) {
     'close': 'bg-stone-100 text-stone-700 border-stone-200'
   };
   
-  return colors[action] || 'bg-surface-2 text-text-body border-border-subtle';
+  return colors[action] || 'bg-gray-100 text-gray-700 border-gray-200';
 }
 
 /**
@@ -282,7 +282,7 @@ export default function PermissionMatrix() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading permission matrix...</div>
+            <div className="text-sm text-slate-500">Loading permission matrix...</div>
           </div>
         </ContentCard>
       </div>
@@ -301,8 +301,8 @@ export default function PermissionMatrix() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">Failed to load permission matrix</div>
-            <div className="text-sm text-text-muted">{error?.message ?? 'An error occurred'}</div>
+            <div className="text-sm font-medium text-slate-900">Failed to load permission matrix</div>
+            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
             <button
               onClick={() => window.location.reload()}
               className="mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
@@ -331,8 +331,8 @@ export default function PermissionMatrix() {
               <Shield className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-xs text-text-muted">Total Roles</div>
-              <div className="text-xl font-bold text-text-strong">{stats.totalRoles}</div>
+              <div className="text-xs text-slate-500">Total Roles</div>
+              <div className="text-xl font-bold text-slate-900">{stats.totalRoles}</div>
             </div>
           </div>
         </ContentCard>
@@ -343,8 +343,8 @@ export default function PermissionMatrix() {
               <Lock className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <div className="text-xs text-text-muted">Total Permissions</div>
-              <div className="text-xl font-bold text-text-strong">{stats.totalPermissions}</div>
+              <div className="text-xs text-slate-500">Total Permissions</div>
+              <div className="text-xl font-bold text-slate-900">{stats.totalPermissions}</div>
             </div>
           </div>
         </ContentCard>
@@ -355,20 +355,20 @@ export default function PermissionMatrix() {
               <CheckCircle2 className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <div className="text-xs text-text-muted">Configured Roles</div>
-              <div className="text-xl font-bold text-text-strong">{stats.rolesWithPermissions}</div>
+              <div className="text-xs text-slate-500">Configured Roles</div>
+              <div className="text-xl font-bold text-slate-900">{stats.rolesWithPermissions}</div>
             </div>
           </div>
         </ContentCard>
 
         <ContentCard>
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-surface-2">
-              <Grid3x3 className="h-5 w-5 text-text-muted" />
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Grid3x3 className="h-5 w-5 text-slate-600" />
             </div>
             <div>
-              <div className="text-xs text-text-muted">Avg per Role</div>
-              <div className="text-xl font-bold text-text-strong">{stats.averagePermissionsPerRole}</div>
+              <div className="text-xs text-slate-500">Avg per Role</div>
+              <div className="text-xl font-bold text-slate-900">{stats.averagePermissionsPerRole}</div>
             </div>
           </div>
         </ContentCard>
@@ -389,7 +389,7 @@ export default function PermissionMatrix() {
           {filter && (
             <button
               onClick={handleClearFilter}
-              className="text-sm text-text-muted hover:text-text-strong font-medium transition-colors"
+              className="text-sm text-slate-600 hover:text-slate-900 font-medium transition-colors"
             >
               Clear
             </button>
@@ -397,7 +397,7 @@ export default function PermissionMatrix() {
         </div>
         
         {filter && (
-          <div className="mt-3 text-sm text-text-muted">
+          <div className="mt-3 text-sm text-slate-600">
             Showing {filteredRows.length} of {rows.length} {filteredRows.length === 1 ? 'role' : 'roles'}
           </div>
         )}
@@ -407,12 +407,12 @@ export default function PermissionMatrix() {
       <ContentCard>
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="text-base font-semibold text-text-strong">Role-Permission Matrix</div>
-            <div className="mt-1 text-sm text-text-muted">
+            <div className="text-base font-semibold text-slate-900">Role-Permission Matrix</div>
+            <div className="mt-1 text-sm text-slate-500">
               Permissions grouped by functional domain for easier browsing
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-text-muted">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-blue-500" />
               <span>Manage</span>
@@ -426,7 +426,7 @@ export default function PermissionMatrix() {
               <span>Issue</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-surface-20" />
+              <div className="h-2 w-2 rounded-full bg-slate-500" />
               <span>Read</span>
             </div>
           </div>
@@ -437,13 +437,13 @@ export default function PermissionMatrix() {
             {filter ? (
               <>
                 <Search className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <div className="text-sm font-medium text-text-strong mb-1">No matches found</div>
-                <div className="text-sm text-text-muted mb-4">
+                <div className="text-sm font-medium text-slate-900 mb-1">No matches found</div>
+                <div className="text-sm text-slate-500 mb-4">
                   Try adjusting your search terms
                 </div>
                 <button
                   onClick={handleClearFilter}
-                  className="px-4 py-2 text-sm font-medium text-text-body bg-surface-2 rounded-lg hover:bg-slate-200 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
                 >
                   Clear Filter
                 </button>
@@ -451,8 +451,8 @@ export default function PermissionMatrix() {
             ) : (
               <>
                 <Shield className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <div className="text-sm font-medium text-text-strong mb-1">No roles configured</div>
-                <div className="text-sm text-text-muted">Create roles to see them here</div>
+                <div className="text-sm font-medium text-slate-900 mb-1">No roles configured</div>
+                <div className="text-sm text-slate-500">Create roles to see them here</div>
               </>
             )}
           </div>
@@ -464,16 +464,16 @@ export default function PermissionMatrix() {
               return (
                 <div 
                   key={role.id} 
-                  className="rounded-xl border border-border-subtle bg-surface-1 hover:border-border-subtle transition-colors overflow-hidden"
+                  className="rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors overflow-hidden"
                 >
                   {/* Role Header */}
-                  <div className="p-4 border-b border-border-subtle bg-surface-2">
+                  <div className="p-4 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <Shield className="h-5 w-5 text-text-soft flex-shrink-0" />
+                        <Shield className="h-5 w-5 text-slate-400 flex-shrink-0" />
                         <div className="flex-1">
-                          <div className="text-base font-semibold text-text-strong">{role.name}</div>
-                          <div className="text-xs text-text-muted mt-0.5">
+                          <div className="text-base font-semibold text-slate-900">{role.name}</div>
+                          <div className="text-xs text-slate-500 mt-0.5">
                             Role ID: {role.id}
                           </div>
                         </div>
@@ -496,14 +496,14 @@ export default function PermissionMatrix() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => expandAllDomains(role.id)}
-                              className="p-1 text-text-soft hover:text-text-muted transition-colors"
+                              className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
                               title="Expand all domains"
                             >
                               <ChevronDown className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => collapseAllDomains(role.id)}
-                              className="p-1 text-text-soft hover:text-text-muted transition-colors"
+                              className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
                               title="Collapse all domains"
                             >
                               <ChevronRight className="h-4 w-4" />
@@ -520,11 +520,11 @@ export default function PermissionMatrix() {
                           <button
                             key={stat.domain}
                             onClick={() => toggleDomain(role.id, stat.domain)}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-surface-1 border border-border-subtle px-2.5 py-1 text-xs font-medium text-text-muted hover:bg-surface-2 transition-colors"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                           >
                             <FolderTree className="h-3 w-3" />
                             {stat.displayName}
-                            <span className="ml-0.5 text-text-soft">({stat.permissionCount})</span>
+                            <span className="ml-0.5 text-slate-400">({stat.permissionCount})</span>
                           </button>
                         ))}
                       </div>
@@ -547,15 +547,15 @@ export default function PermissionMatrix() {
                               className="flex items-center gap-2 w-full text-left mb-2 group"
                             >
                               {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-text-soft" />
+                                <ChevronDown className="h-4 w-4 text-slate-400" />
                               ) : (
-                                <ChevronRight className="h-4 w-4 text-text-soft" />
+                                <ChevronRight className="h-4 w-4 text-slate-400" />
                               )}
-                              <Layers className="h-4 w-4 text-text-muted" />
-                              <span className="text-sm font-medium text-text-body">
+                              <Layers className="h-4 w-4 text-slate-500" />
+                              <span className="text-sm font-medium text-slate-700">
                                 {stat.displayName}
                               </span>
-                              <span className="text-xs text-text-soft">
+                              <span className="text-xs text-slate-400">
                                 ({stat.permissionCount} permissions)
                               </span>
                             </button>
@@ -565,8 +565,8 @@ export default function PermissionMatrix() {
                                 {Array.from(entities.entries()).map(([entity, permissions]) => (
                                   <div key={entity}>
                                     <div className="flex items-center gap-2 mb-2">
-                                      <Tag className="h-3 w-3 text-text-soft" />
-                                      <span className="text-xs font-medium text-text-muted">
+                                      <Tag className="h-3 w-3 text-slate-400" />
+                                      <span className="text-xs font-medium text-slate-600">
                                         {entity.split('.').pop()}
                                       </span>
                                     </div>
@@ -594,9 +594,9 @@ export default function PermissionMatrix() {
                   
                   {!hasPermissions && (
                     <div className="p-6">
-                      <div className="rounded-lg border border-border-subtle bg-surface-2 p-4 text-center">
-                        <XCircle className="h-6 w-6 text-text-soft mx-auto mb-2" />
-                        <div className="text-sm text-text-muted">No permissions assigned to this role</div>
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center">
+                        <XCircle className="h-6 w-6 text-slate-400 mx-auto mb-2" />
+                        <div className="text-sm text-slate-500">No permissions assigned to this role</div>
                       </div>
                     </div>
                   )}
@@ -611,13 +611,13 @@ export default function PermissionMatrix() {
       {filteredRows.length > 0 && (
         <ContentCard>
           <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2 text-text-muted">
+            <div className="flex items-center gap-2 text-slate-600">
               <Grid3x3 className="h-4 w-4" />
               <span>
                 Displaying {filteredRows.length} {filteredRows.length === 1 ? 'role' : 'roles'}
               </span>
             </div>
-            <div className="flex items-center gap-4 text-text-muted">
+            <div className="flex items-center gap-4 text-slate-600">
               <div className="flex items-center gap-1.5">
                 <div className="h-2 w-2 rounded-full bg-green-500" />
                 <span>{stats.rolesWithPermissions} configured</span>

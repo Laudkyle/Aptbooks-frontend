@@ -143,7 +143,7 @@ export default function CreditNoteList() {
               {row.credit_note_number ?? row.code ?? row.id}
             </Link>
             {row.memo && (
-              <span className="text-xs text-text-muted line-clamp-2" title={row.memo}>
+              <span className="text-xs text-slate-500 line-clamp-2" title={row.memo}>
                 {row.memo}
               </span>
             )}
@@ -155,11 +155,11 @@ export default function CreditNoteList() {
         accessor: 'customer_name',
         render: (row) => (
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-text-body font-medium">
+            <span className="text-sm text-slate-700 font-medium">
               {row.customer_name ?? row.customer_id ?? '—'}
             </span>
             {row.customer_code && (
-              <span className="text-xs text-text-muted">
+              <span className="text-xs text-slate-500">
                 {row.customer_code}
               </span>
             )}
@@ -170,7 +170,7 @@ export default function CreditNoteList() {
         header: 'Date', 
         accessor: 'credit_note_date',
         render: (row) => (
-          <span className="text-sm text-text-body tabular-nums">
+          <span className="text-sm text-slate-700 tabular-nums">
             {formatDate(row.credit_note_date)}
           </span>
         ) 
@@ -182,7 +182,7 @@ export default function CreditNoteList() {
           const amount = row.total ?? row.total;
           return (
            
-              <span className="text-sm text-text-strong font-semibold tabular-nums">
+              <span className="text-sm text-slate-900 font-semibold tabular-nums">
                 {formatCurrency(amount, row.currency_code)}
               </span>
              
@@ -267,7 +267,7 @@ export default function CreditNoteList() {
       
       {/* Results summary */}
       {!isLoading && rows.length > 0 && (
-        <div className="text-sm text-text-muted text-center">
+        <div className="text-sm text-slate-600 text-center">
           Showing {rows.length} credit {rows.length === 1 ? 'note' : 'notes'}
           {customerId && ' for selected customer'}
           {rows.length > 0 && (

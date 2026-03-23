@@ -19,15 +19,15 @@ export default function TreasuryDashboardPage() {
     <>
       <PageHeader title="Treasury Dashboard" subtitle="Control liquidity, approvals, and treasury execution." />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <ContentCard><div className="text-sm text-text-muted">Pending payment runs</div><div className="text-3xl font-semibold mt-2">{pending.pending_payment_runs ?? 0}</div></ContentCard>
-        <ContentCard><div className="text-sm text-text-muted">Pending bank transfers</div><div className="text-3xl font-semibold mt-2">{pending.pending_bank_transfers ?? 0}</div></ContentCard>
-        <ContentCard><div className="text-sm text-text-muted">Open approval batches</div><div className="text-3xl font-semibold mt-2">{pending.open_approval_batches ?? 0}</div></ContentCard>
-        <ContentCard><div className="text-sm text-text-muted">Outstanding cheques</div><div className="text-3xl font-semibold mt-2">{data.outstandingCheques?.outstanding_cheques ?? 0}</div><div className="text-xs mt-1 text-text-muted">Amount {money(data.outstandingCheques?.outstanding_cheque_amount)}</div></ContentCard>
+        <ContentCard><div className="text-sm text-gray-500">Pending payment runs</div><div className="text-3xl font-semibold mt-2">{pending.pending_payment_runs ?? 0}</div></ContentCard>
+        <ContentCard><div className="text-sm text-gray-500">Pending bank transfers</div><div className="text-3xl font-semibold mt-2">{pending.pending_bank_transfers ?? 0}</div></ContentCard>
+        <ContentCard><div className="text-sm text-gray-500">Open approval batches</div><div className="text-3xl font-semibold mt-2">{pending.open_approval_batches ?? 0}</div></ContentCard>
+        <ContentCard><div className="text-sm text-gray-500">Outstanding cheques</div><div className="text-3xl font-semibold mt-2">{data.outstandingCheques?.outstanding_cheques ?? 0}</div><div className="text-xs mt-1 text-gray-500">Amount {money(data.outstandingCheques?.outstanding_cheque_amount)}</div></ContentCard>
       </div>
       <div className="grid gap-4 mt-4 lg:grid-cols-2">
         <ContentCard>
           <div className="text-base font-semibold mb-3">Bank balances</div>
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left text-text-muted"><th className="py-2">Code</th><th>Name</th><th>Currency</th><th className="text-right">Balance</th></tr></thead><tbody>{balances.map((r) => <tr key={r.bank_account_id} className="border-t"><td className="py-2">{r.code}</td><td>{r.name}</td><td>{r.currency_code}</td><td className="text-right">{money(r.balance)}</td></tr>)}{!balances.length && <tr><td className="py-3 text-text-muted" colSpan={4}>No balances available.</td></tr>}</tbody></table></div>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left text-gray-500"><th className="py-2">Code</th><th>Name</th><th>Currency</th><th className="text-right">Balance</th></tr></thead><tbody>{balances.map((r) => <tr key={r.bank_account_id} className="border-t"><td className="py-2">{r.code}</td><td>{r.name}</td><td>{r.currency_code}</td><td className="text-right">{money(r.balance)}</td></tr>)}{!balances.length && <tr><td className="py-3 text-gray-500" colSpan={4}>No balances available.</td></tr>}</tbody></table></div>
         </ContentCard>
         <ContentCard>
           <div className="text-base font-semibold mb-3">Approved liquidity needs</div>
@@ -46,7 +46,7 @@ export default function TreasuryDashboardPage() {
       </div>
       <ContentCard className="mt-4">
         <div className="text-base font-semibold mb-3">30-day forecast by bank account</div>
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left text-text-muted"><th className="py-2">Code</th><th>Name</th><th>Currency</th><th className="text-right">Opening</th><th className="text-right">Inflows</th><th className="text-right">Outflows</th><th className="text-right">Projected closing</th></tr></thead><tbody>{forecastAccounts.map((r)=> <tr key={r.bankAccountId} className="border-t"><td className="py-2">{r.code}</td><td>{r.name}</td><td>{r.currencyCode}</td><td className="text-right">{money(r.openingBalance)}</td><td className="text-right">{money(r.inflows)}</td><td className="text-right">{money(r.outflows)}</td><td className="text-right font-medium">{money(r.projectedClosingBalance)}</td></tr>)}{!forecastAccounts.length && <tr><td colSpan={7} className="py-3 text-text-muted">No forecast data available.</td></tr>}</tbody></table></div>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left text-gray-500"><th className="py-2">Code</th><th>Name</th><th>Currency</th><th className="text-right">Opening</th><th className="text-right">Inflows</th><th className="text-right">Outflows</th><th className="text-right">Projected closing</th></tr></thead><tbody>{forecastAccounts.map((r)=> <tr key={r.bankAccountId} className="border-t"><td className="py-2">{r.code}</td><td>{r.name}</td><td>{r.currencyCode}</td><td className="text-right">{money(r.openingBalance)}</td><td className="text-right">{money(r.inflows)}</td><td className="text-right">{money(r.outflows)}</td><td className="text-right font-medium">{money(r.projectedClosingBalance)}</td></tr>)}{!forecastAccounts.length && <tr><td colSpan={7} className="py-3 text-gray-500">No forecast data available.</td></tr>}</tbody></table></div>
       </ContentCard>
     </>
   );

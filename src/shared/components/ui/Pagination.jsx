@@ -7,7 +7,7 @@ export function Pagination({ limit, offset, total, onChange }) {
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="text-xs text-text-muted">
+      <div className="text-xs text-slate-600">
         Page {currentPage}{totalPages ? ` of ${totalPages}` : ''}
       </div>
       <div className="flex items-center gap-2">

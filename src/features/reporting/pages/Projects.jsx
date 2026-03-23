@@ -256,9 +256,9 @@ export default function Projects() {
               to={`/planning/projects/${row.id}`}
               className="group inline-flex items-center gap-2 font-medium text-brand-deep hover:text-brand-deep/80 transition-colors"
             >
-              <FolderKanban className="h-4 w-4 text-text-soft" />
+              <FolderKanban className="h-4 w-4 text-slate-400" />
               <span>{row.name ?? row.id}</span>
-              <ChevronRight className="h-4 w-4 text-text-soft opacity-0 transition-opacity group-hover:opacity-100" />
+              <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
             </Link>
           );
         },
@@ -267,8 +267,8 @@ export default function Projects() {
         header: 'Code',
         accessor: 'code',
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-text-body">
-            <Tag className="h-3.5 w-3.5 text-text-soft" />
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Tag className="h-3.5 w-3.5 text-slate-400" />
             <span className="font-mono">{row.code ?? '—'}</span>
           </div>
         ),
@@ -285,8 +285,8 @@ export default function Projects() {
         header: 'Last Updated',
         accessor: 'updated_at',
         render: (row) => (
-          <div className="flex items-center gap-2 text-sm text-text-body">
-            <Clock className="h-3.5 w-3.5 text-text-soft" />
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
             {formatDate(row.updated_at ?? row.updatedAt)}
           </div>
         ),
@@ -530,7 +530,7 @@ export default function Projects() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-text-muted">Loading projects...</div>
+            <div className="text-sm text-slate-500">Loading projects...</div>
           </div>
         </ContentCard>
       </div>
@@ -563,10 +563,10 @@ export default function Projects() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-text-strong">
+            <div className="text-sm font-medium text-slate-900">
               Failed to load projects
             </div>
-            <div className="text-sm text-text-muted">
+            <div className="text-sm text-slate-500">
               {error?.message ?? 'An error occurred'}
             </div>
             <Button variant="outline" onClick={handleRefresh} className="mt-2">
@@ -618,7 +618,7 @@ export default function Projects() {
               aria-label="Filter projects by status"
             />
           </div>
-          <div className="text-sm text-text-muted">
+          <div className="text-sm text-slate-500">
             {rows.length} {rows.length === 1 ? 'project' : 'projects'} found
           </div>
         </div>
@@ -642,11 +642,11 @@ export default function Projects() {
         title="Create New Project"
         onClose={() => (createMutation.isPending ? null : handleCloseModal())}
         footer={
-          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-border-subtle">
+          <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
             <Button
               onClick={handleCloseModal}
               disabled={createMutation.isPending}
-              className="px-5 py-2.5 border border-border-subtle text-text-body rounded-md font-medium hover:bg-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </Button>
@@ -666,7 +666,7 @@ export default function Projects() {
             <button
               type="button"
               onClick={() => setShowTopInfo(!showTopInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Project creation info</span>
@@ -734,7 +734,7 @@ export default function Projects() {
             <button
               type="button"
               onClick={() => setShowSetupInfo(!showSetupInfo)}
-              className="flex items-center gap-2 text-sm text-text-muted hover:text-text-strong"
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
             >
               <Info className="h-4 w-4" />
               <span>Project lifecycle details</span>
@@ -742,11 +742,11 @@ export default function Projects() {
             </button>
             
             {showSetupInfo && (
-              <div className="mt-2 rounded-xl border border-border-subtle bg-surface-2 p-4">
-                <div className="text-xs font-medium text-text-body mb-2">
+              <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-xs font-medium text-slate-700 mb-2">
                   Project Status Lifecycle
                 </div>
-                <ul className="text-xs text-text-muted space-y-2">
+                <ul className="text-xs text-slate-600 space-y-2">
                   <li className="flex items-start gap-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-slate-400 mt-1.5 flex-shrink-0" />
                     <span>
@@ -779,11 +779,11 @@ export default function Projects() {
           title={actionContent.title}
           onClose={actionContent.isPending ? null : handleCloseActionModal}
           footer={
-            <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-border-subtle">
+            <div className="flex items-center justify-end gap-3 px-6 py-4  border-t border-gray-200">
               <Button
                 onClick={handleCloseActionModal}
                 disabled={actionContent.isPending}
-                className="px-5 py-2.5 border border-border-subtle text-text-body rounded-md font-medium hover:bg-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </Button>
@@ -807,10 +807,10 @@ export default function Projects() {
               {actionType === 'activate' && <PlayCircle className="h-6 w-6 text-green-600 flex-shrink-0" />}
               {actionType === 'close' && <Archive className="h-6 w-6 text-amber-600 flex-shrink-0" />}
               <div>
-                <p className="text-sm text-text-muted mb-2">
+                <p className="text-sm text-slate-600 mb-2">
                   {actionContent.description}
                 </p>
-                <p className="text-sm font-medium text-text-strong">
+                <p className="text-sm font-medium text-slate-900">
                   {actionContent.warning}
                 </p>
               </div>

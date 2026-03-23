@@ -98,11 +98,11 @@ export default function ReconciliationDetailPage() {
 
       <ContentCard title="Reconciliation" actions={<Badge variant="info">/modules/banking/reconciliations/:id</Badge>}>
         {recQuery.isLoading ? (
-          <div className="text-sm text-text-body">Loading...</div>
+          <div className="text-sm text-slate-700">Loading...</div>
         ) : recQuery.isError ? (
           <div className="text-sm text-red-700">{recQuery.error?.message ?? 'Failed to load reconciliation.'}</div>
         ) : !rec ? (
-          <div className="text-sm text-text-body">No data.</div>
+          <div className="text-sm text-slate-700">No data.</div>
         ) : (
           <div className="grid gap-3 md:grid-cols-3">
             <Field label="Bank account id" value={rec.bank_account_id ?? rec.bankAccountId} />
@@ -119,7 +119,7 @@ export default function ReconciliationDetailPage() {
 
       <ContentCard title="Diff" actions={<Badge variant="info">/modules/banking/reconciliations/:id/diff</Badge>}>
         {diffQuery.isLoading ? (
-          <div className="text-sm text-text-body">Loading...</div>
+          <div className="text-sm text-slate-700">Loading...</div>
         ) : diffQuery.isError ? (
           <div className="text-sm text-red-700">{diffQuery.error?.message ?? 'Failed to load diff.'}</div>
         ) : (
@@ -139,9 +139,9 @@ export default function ReconciliationDetailPage() {
 
 function Field({ label, value }) {
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface-2 p-4">
-      <div className="text-xs font-medium text-text-muted">{label}</div>
-      <div className="mt-1 font-mono text-xs text-text-strong">{value ? String(value) : '—'}</div>
+    <div className="rounded-xl border border-border-subtle bg-white/60 p-4">
+      <div className="text-xs font-medium text-slate-600">{label}</div>
+      <div className="mt-1 font-mono text-xs text-slate-900">{value ? String(value) : '—'}</div>
     </div>
   );
 }

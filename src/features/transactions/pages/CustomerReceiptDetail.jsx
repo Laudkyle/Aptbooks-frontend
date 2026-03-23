@@ -105,15 +105,15 @@ export default function CustomerReceiptDetail() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <HandCoins className="h-7 w-7 text-text-body" />
-                <h1 className="text-2xl font-bold text-text-strong">
+                <HandCoins className="h-7 w-7 text-gray-700" />
+                <h1 className="text-2xl font-bold text-gray-900">
                   {receipt?.receipt_no ?? receipt?.code ?? (isLoading ? 'Loading...' : 'Receipt')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-gray-600">
                 Receipt ID: {id}
               </p>
             </div>
@@ -121,7 +121,7 @@ export default function CustomerReceiptDetail() {
               <Button 
                 variant="outline"
                 onClick={() => navigate(-1)}
-                className="border-border-subtle"
+                className="border-gray-300"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
@@ -137,112 +137,112 @@ export default function CustomerReceiptDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Receipt Summary */}
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
-              <h3 className="text-base font-semibold text-text-strong mb-5">Receipt Summary</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-5">Receipt Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className=" rounded-lg border border-border-subtle p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <User className="h-4 w-4 text-text-soft" />
-                    <span className="text-xs font-medium text-text-muted">Customer</span>
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span className="text-xs font-medium text-gray-500">Customer</span>
                   </div>
-                  <div className="text-sm font-semibold text-text-strong">
+                  <div className="text-sm font-semibold text-gray-900">
                     {receipt?.customer_name ?? receipt?.customer_id ?? '—'}
                   </div>
                   {receipt?.customer_email && (
-                    <div className="text-xs text-text-muted mt-1">{receipt.customer_email}</div>
+                    <div className="text-xs text-gray-500 mt-1">{receipt.customer_email}</div>
                   )}
                   {receipt?.customer_phone && (
-                    <div className="text-xs text-text-muted mt-0.5">{receipt.customer_phone}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{receipt.customer_phone}</div>
                   )}
                 </div>
 
-                <div className=" rounded-lg border border-border-subtle p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-text-soft" />
-                    <span className="text-xs font-medium text-text-muted">Receipt Date</span>
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <span className="text-xs font-medium text-gray-500">Receipt Date</span>
                   </div>
-                  <div className="text-sm font-semibold text-text-strong">
+                  <div className="text-sm font-semibold text-gray-900">
                     {formatDate(receipt?.receipt_date) ?? '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-border-subtle p-4">
-                  <div className="text-xs font-medium text-text-muted mb-2">Cash Account</div>
-                  <div className="text-sm font-semibold text-text-strong font-mono text-xs">
+                <div className=" rounded-lg border border-gray-200 p-4">
+                  <div className="text-xs font-medium text-gray-500 mb-2">Cash Account</div>
+                  <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
                     {receipt?.cash_account_name ? `${receipt.cash_account_name.substring(0, 12)}...` : '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-border-subtle p-4">
+                <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="h-4 w-4 text-text-soft" />
-                    <span className="text-xs font-medium text-text-muted">Total Amount</span>
+                    <DollarSign className="h-4 w-4 text-gray-400" />
+                    <span className="text-xs font-medium text-gray-500">Total Amount</span>
                   </div>
-                  <div className="text-sm font-semibold text-text-strong">
+                  <div className="text-sm font-semibold text-gray-900">
                     {formatCurrency(receipt?.amount_total ?? 0)}
                   </div>
                 </div>
 
                 {receipt?.memo && (
-                  <div className="md:col-span-2  rounded-lg border border-border-subtle p-4">
-                    <div className="text-xs font-medium text-text-muted mb-2">Memo</div>
-                    <div className="text-sm text-text-body">{receipt.memo}</div>
+                  <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
+                    <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
+                    <div className="text-sm text-gray-700">{receipt.memo}</div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Allocations */}
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle overflow-hidden">
-              <div className="px-6 py-4  border-b border-border-subtle">
-                <h3 className="text-base font-semibold text-text-strong">Invoice Allocations</h3>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4  border-b border-gray-200">
+                <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className=" border-b border-border-subtle">
+                  <thead className=" border-b border-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Invoice ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Invoice #
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-text-body uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Amount Applied
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-surface-1 divide-y divide-border-subtle">
+                  <tbody className="bg-white divide-y divide-gray-100">
                     {allocations.map((a, idx) => (
                       <tr key={idx} className="hover:">
-                        <td className="px-6 py-4 text-sm text-text-strong font-mono text-xs">
+                        <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
                           {a.invoice_id ? `${a.invoice_id.substring(0, 12)}...` : '—'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-text-strong">
+                        <td className="px-6 py-4 text-sm text-gray-900">
                           {a.invoice_number ?? '—'}
                         </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-text-strong text-right">
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
                           {formatCurrency(a.amount_applied ?? a.amount ?? 0)}
                         </td>
                       </tr>
                     ))}
                     {!allocations.length ? (
                       <tr>
-                        <td className="px-6 py-12 text-center text-sm text-text-muted" colSpan={3}>
+                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={3}>
                           No allocations yet
                         </td>
                       </tr>
                     ) : null}
                   </tbody>
                   {allocations.length > 0 && (
-                    <tfoot className=" border-t-2 border-border-subtle">
+                    <tfoot className=" border-t-2 border-gray-200">
                       <tr>
-                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-text-strong">
+                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total Allocated:
                         </td>
-                        <td className="px-6 py-4 text-right text-sm font-bold text-text-strong">
+                        <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
                           {formatCurrency(allocatedTotal)}
                         </td>
                       </tr>
@@ -255,48 +255,48 @@ export default function CustomerReceiptDetail() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-surface-1 rounded-lg shadow-sm border border-border-subtle p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="h-5 w-5 text-green-600" />
-                <h3 className="text-base font-semibold text-text-strong">Payment Summary</h3>
+                <h3 className="text-base font-semibold text-gray-900">Payment Summary</h3>
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-border-subtle">
+              <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Currency</span>
-                  <span className="font-medium text-text-strong">{currency}</span>
+                  <span className="text-gray-600">Currency</span>
+                  <span className="font-medium text-gray-900">{currency}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Total Amount</span>
-                  <span className="font-bold text-text-strong">
+                  <span className="text-gray-600">Total Amount</span>
+                  <span className="font-bold text-gray-900">
                     {formatCurrency(receipt?.amount_total ?? 0)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Allocated</span>
+                  <span className="text-gray-600">Allocated</span>
                   <span className="font-semibold text-blue-700">
                     {formatCurrency(allocatedTotal)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-border-subtle">
-                  <span className="text-text-muted font-semibold">Unallocated</span>
+                <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
+                  <span className="text-gray-600 font-semibold">Unallocated</span>
                   <span className={`font-bold ${unallocated < 0 ? 'text-red-600' : 'text-green-600'}`}>
                     {formatCurrency(unallocated)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-3 border-t border-border-subtle">
-                  <span className="text-text-muted">Status</span>
+                <div className="flex justify-between text-sm pt-3 border-t border-gray-200">
+                  <span className="text-gray-600">Status</span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Allocations</span>
-                  <span className="font-medium text-text-strong">{allocations.length}</span>
+                  <span className="text-gray-600">Allocations</span>
+                  <span className="font-medium text-gray-900">{allocations.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Payment Method</span>
-                  <span className="font-medium text-text-strong">
+                  <span className="text-gray-600">Payment Method</span>
+                  <span className="font-medium text-gray-900">
                     {receipt?.payment_method_id ? `${receipt.payment_method_id.substring(0, 8)}...` : '—'}
                   </span>
                 </div>
@@ -327,7 +327,7 @@ export default function CustomerReceiptDetail() {
                 </div>
               ) : (
                 <>
-                  <label className="block text-sm font-medium text-text-body mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Comment {action === 'reject' ? '(recommended)' : '(optional)'}
                   </label>
                   <Textarea
@@ -355,7 +355,7 @@ export default function CustomerReceiptDetail() {
 
           {action === 'void' && (
             <div>
-              <label className="block text-sm font-medium text-text-body mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Reason <span className="text-red-500">*</span>
               </label>
               <Textarea
@@ -372,7 +372,7 @@ export default function CustomerReceiptDetail() {
           <Button 
             variant="outline" 
             onClick={() => { setAction(null); setComment(''); setReason(''); }}
-            className="border-border-subtle"
+            className="border-gray-300"
           >
             Cancel
           </Button>
