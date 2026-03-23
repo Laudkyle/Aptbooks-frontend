@@ -25,6 +25,20 @@ export const routeMeta = {
   [ROUTES.returns]: { title: 'Returns', breadcrumbs: ['Operations', 'Transactions', 'Returns'] },
   [ROUTES.refunds]: { title: 'Refunds', breadcrumbs: ['Operations', 'Transactions', 'Refunds'] },
 
+  [ROUTES.arCollections]: { title: 'Collections', breadcrumbs: ['AR Operations', 'Collections'] },
+  [ROUTES.arDunning]: { title: 'Dunning', breadcrumbs: ['AR Operations', 'Dunning'] },
+  [ROUTES.arDisputes]: { title: 'Disputes', breadcrumbs: ['AR Operations', 'Disputes'] },
+  [ROUTES.arWriteoffs]: { title: 'Write-offs', breadcrumbs: ['AR Operations', 'Write-offs'] },
+  [ROUTES.arPaymentPlans]: { title: 'Payment Plans', breadcrumbs: ['AR Operations', 'Payment Plans'] },
+
+  [ROUTES.reportArAging]: { title: 'AR Aging', breadcrumbs: ['Reporting', 'Accounts Receivable', 'Aging'] },
+  [ROUTES.reportArOpenItems]: { title: 'AR Open Items', breadcrumbs: ['Reporting', 'Accounts Receivable', 'Open Items'] },
+  [ROUTES.reportArCustomerStatement]: { title: 'Customer Statements', breadcrumbs: ['Reporting', 'Accounts Receivable', 'Customer Statements'] },
+  [ROUTES.reportApAging]: { title: 'AP Aging', breadcrumbs: ['Reporting', 'Accounts Payable', 'Aging'] },
+  [ROUTES.reportApOpenItems]: { title: 'AP Open Items', breadcrumbs: ['Reporting', 'Accounts Payable', 'Open Items'] },
+  [ROUTES.reportApVendorStatement]: { title: 'Vendor Statements', breadcrumbs: ['Reporting', 'Accounts Payable', 'Vendor Statements'] },
+  [ROUTES.reportTax]: { title: 'Tax Reports', breadcrumbs: ['Reporting', 'Tax'] },
+
   [ROUTES.treasury]: { title: 'Treasury', breadcrumbs: ['Banking', 'Treasury'] },
   [ROUTES.treasuryDashboard]: { title: 'Treasury Dashboard', breadcrumbs: ['Banking', 'Treasury', 'Dashboard'] },
   [ROUTES.paymentRuns]: { title: 'Payment Runs', breadcrumbs: ['Banking', 'Treasury', 'Payment Runs'] },

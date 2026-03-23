@@ -770,22 +770,61 @@ export function SideNav() {
             </div>
             <nav className="mt-1 space-y-1">
               <PermissionGate any={[PERMISSIONS.reportingArRead]}>
+                {!sidebarOpen ? null : (
+                  <div className="px-3 pt-2 text-[10px] font-medium uppercase tracking-wide text-text-soft">
+                    Accounts Receivable
+                  </div>
+                )}
                 <Item
                   to={ROUTES.reportArAging}
                   icon={PieChart}
                   label="AR Aging"
                   collapsed={!sidebarOpen}
                 />
+                <Item
+                  to={ROUTES.reportArOpenItems}
+                  icon={List}
+                  label="AR Open Items"
+                  collapsed={!sidebarOpen}
+                />
+                <Item
+                  to={ROUTES.reportArCustomerStatement}
+                  icon={ScrollText}
+                  label="Customer Statements"
+                  collapsed={!sidebarOpen}
+                />
               </PermissionGate>
               <PermissionGate any={[PERMISSIONS.reportingApRead]}>
+                {!sidebarOpen ? null : (
+                  <div className="px-3 pt-3 text-[10px] font-medium uppercase tracking-wide text-text-soft">
+                    Accounts Payable
+                  </div>
+                )}
                 <Item
                   to={ROUTES.reportApAging}
                   icon={PieChart}
                   label="AP Aging"
                   collapsed={!sidebarOpen}
                 />
+                <Item
+                  to={ROUTES.reportApOpenItems}
+                  icon={List}
+                  label="AP Open Items"
+                  collapsed={!sidebarOpen}
+                />
+                <Item
+                  to={ROUTES.reportApVendorStatement}
+                  icon={Newspaper}
+                  label="Vendor Statements"
+                  collapsed={!sidebarOpen}
+                />
               </PermissionGate>
               <PermissionGate any={[PERMISSIONS.reportingTaxRead]}>
+                {!sidebarOpen ? null : (
+                  <div className="px-3 pt-3 text-[10px] font-medium uppercase tracking-wide text-text-soft">
+                    Tax
+                  </div>
+                )}
                 <Item
                   to={ROUTES.reportTax}
                   icon={ReceiptIndianRupee}
