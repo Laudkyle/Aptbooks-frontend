@@ -15,7 +15,10 @@ export function makeReportingApi(http) {
     tax: {
       vatSummary: async (qs) => (await http.get(endpoints.reporting.tax.vatSummary(qs))).data,
       vatReturn: async (qs) => (await http.get(endpoints.reporting.tax.vatReturn(qs))).data,
-      returns: async (qs) => (await http.get(endpoints.reporting.tax.returns(qs))).data
+      returns: async (qs) => (await http.get(endpoints.reporting.tax.returns(qs))).data,
+      transactions: async (qs) => (await http.get(endpoints.reporting.tax.transactions(qs))).data,
+      reconciliation: async (qs) => (await http.get(endpoints.reporting.tax.reconciliation(qs))).data,
+      diagnostics: async (qs) => (await http.get(endpoints.reporting.tax.diagnostics(qs))).data
     }
   };
 }

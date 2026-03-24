@@ -195,6 +195,10 @@ export const endpoints = {
       codeDelete: (id) => `/core/accounting/tax/codes/${id}`,
       settingsGet: "/core/accounting/tax/settings",
       settingsPut: "/core/accounting/tax/settings",
+      adjustments: (qs) => `/core/accounting/tax/adjustments?${new URLSearchParams(qs ?? {}).toString()}`,
+      createAdjustment: "/core/accounting/tax/adjustments",
+      postAdjustment: (id) => `/core/accounting/tax/adjustments/${id}/post`,
+      voidAdjustment: (id) => `/core/accounting/tax/adjustments/${id}/void`,
     },
     accruals: {
       rules: "/core/accounting/accruals",
@@ -661,6 +665,12 @@ export const endpoints = {
         `/reporting/tax/vat-return?${new URLSearchParams(qs ?? {}).toString()}`,
       returns: (qs) =>
         `/reporting/tax/returns?${new URLSearchParams(qs ?? {}).toString()}`,
+      transactions: (qs) =>
+        `/reporting/tax/transactions?${new URLSearchParams(qs ?? {}).toString()}`,
+      reconciliation: (qs) =>
+        `/reporting/tax/reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
+      diagnostics: (qs) =>
+        `/reporting/tax/diagnostics?${new URLSearchParams(qs ?? {}).toString()}`,
     },
   },
 

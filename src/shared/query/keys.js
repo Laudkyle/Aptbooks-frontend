@@ -110,7 +110,11 @@ export const qk = {
   reportApVendorStatement: (qs) => ['reports', 'ap', 'vendorStatement', qs ?? {}],
   reportTaxVatSummary: (qs) => ['reports', 'tax', 'vatSummary', qs ?? {}],
   reportTaxVatReturn: (qs) => ['reports', 'tax', 'vatReturn', qs ?? {}],
-  reportTaxReturns: (qs) => ['reports', 'tax', 'returns', qs ?? {}]
+  reportTaxReturns: (qs) => ['reports', 'tax', 'returns', qs ?? {}],
+  reportTaxTransactions: (qs) => ['reports', 'tax', 'transactions', qs ?? {}],
+  reportTaxReconciliation: (qs) => ['reports', 'tax', 'reconciliation', qs ?? {}],
+  reportTaxDiagnostics: (qs) => ['reports', 'tax', 'diagnostics', qs ?? {}],
+  taxAdjustments: (qs) => ['tax', 'adjustments', qs ?? {}]
 
 ,
   // Phase 6 — Assets

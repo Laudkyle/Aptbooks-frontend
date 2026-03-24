@@ -14,6 +14,11 @@ export function makeTaxApi(http) {
     deleteCode: async (id) => (await http.delete(endpoints.accounting.tax.codeDelete(id))).data,
 
     getSettings: async () => (await http.get(endpoints.accounting.tax.settingsGet)).data,
-    setSettings: async (body) => (await http.put(endpoints.accounting.tax.settingsPut, body)).data
+    setSettings: async (body) => (await http.put(endpoints.accounting.tax.settingsPut, body)).data,
+
+    listAdjustments: async (qs) => (await http.get(endpoints.accounting.tax.adjustments(qs))).data,
+    createAdjustment: async (body) => (await http.post(endpoints.accounting.tax.createAdjustment, body, { headers: ensureIdempotencyKey() })).data,
+    postAdjustment: async (id) => (await http.post(endpoints.accounting.tax.postAdjustment(id), {}, { headers: ensureIdempotencyKey() })).data,
+    voidAdjustment: async (id) => (await http.post(endpoints.accounting.tax.voidAdjustment(id), {}, { headers: ensureIdempotencyKey() })).data
   };
 }
