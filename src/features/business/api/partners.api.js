@@ -7,6 +7,9 @@ export function makePartnersApi(http) {
     get: async (id) => (await http.get(endpoints.modules.business.partners.detail(id))).data,
     update: async (id, body) => (await http.patch(endpoints.modules.business.partners.update(id), body)).data,
 
+    getTaxProfile: async (id) => (await http.get(endpoints.modules.business.partners.taxProfile(id))).data,
+    setTaxProfile: async (id, body) => (await http.put(endpoints.modules.business.partners.taxProfile(id), body)).data,
+
     getCreditPolicy: async (id) => (await http.get(endpoints.modules.business.partners.creditPolicy(id))).data,
     setCreditPolicy: async (id, body) =>
       (await http.put(endpoints.modules.business.partners.creditPolicy(id), body)).data,

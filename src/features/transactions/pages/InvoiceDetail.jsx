@@ -7,6 +7,7 @@ import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
+import { computeDocumentSummary } from '../../../shared/tax/frontendTax.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
@@ -14,6 +15,7 @@ import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWo
 import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 // Generate UUID v4
 function generateUUID() {
@@ -38,6 +40,9 @@ export default function InvoiceDetail() {
   });
 
   const invoice = data?.data ?? data;
+
+  const einvoiceQ = useQuery({ queryKey: ['invoice', id, 'einvoicePreview'], queryFn: () => api.getEinvoicePreview(id), enabled: !!id });
+  const filingStatusQ = useQuery({ queryKey: ['invoice', id, 'filingStatus'], queryFn: () => api.getFilingStatus(id), enabled: !!id });
   const [comment, setComment] = useState('');
   const [voidReason, setVoidReason] = useState('');
   const [action, setAction] = useState(null);
@@ -84,6 +89,7 @@ export default function InvoiceDetail() {
   };
 
   const total = calculateTotal();
+  const taxSnapshot = (invoice?.taxSummary ?? invoice?.tax_summary ?? computeDocumentSummary({ lines: invoice?.lines ?? [], taxCodes: [], pricingMode: invoice?.invoice?.pricingMode ?? 'exclusive' }));
   const currency = invoice?.invoice.currency_code || 'USD';
   
   // Helper function to format currency amounts
@@ -242,44 +248,36 @@ export default function InvoiceDetail() {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <h3 className="text-base font-semibold text-gray-900">Invoice Total</h3>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-6">
-                {formatCurrency(total)}
-              </div>
-
+              <div className="text-3xl font-bold text-gray-900 mb-6">{formatCurrency(total)}</div>
               <div className="space-y-3 pt-4 border-t border-gray-200">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Status</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Currency</span>
-                  <span className="font-medium text-gray-900">{currency}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Line Items</span>
-                  <span className="font-medium text-gray-900">{(invoice?.lines ?? []).length}</span>
-                </div>
-                {invoice?.invoice.invoice_date && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Invoice Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(invoice?.invoice.invoice_date)}</span>
-                  </div>
-                )}
-                {invoice?.invoice.due_date && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Due Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(invoice?.invoice.due_date)}</span>
-                  </div>
-                )}
+                <div className="flex justify-between text-sm"><span className="text-gray-600">Status</span><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-gray-600">Currency</span><span className="font-medium text-gray-900">{currency}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-gray-600">Line Items</span><span className="font-medium text-gray-900">{(invoice?.lines ?? []).length}</span></div>
               </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Tax summary</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.subtotal ?? total ?? 0).toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Tax</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.taxTotal ?? taxSnapshot?.tax_total ?? 0).toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Withholding</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.withholdingTotal ?? taxSnapshot?.withholding_total ?? 0).toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Non-recoverable tax</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.nonRecoverableTaxTotal ?? taxSnapshot?.non_recoverable_tax_total ?? 0).toFixed(2)}</span></div>
+                <div className="flex justify-between border-t border-gray-200 pt-2"><span className="font-semibold text-gray-900">Gross total</span><span className="font-semibold text-gray-900">{Number(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total ?? 0).toFixed(2)}</span></div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">E-invoicing status</h3>
+              <div className="space-y-2 text-sm text-gray-700">
+                <div>Status: <span className="font-medium text-gray-900">{filingStatusQ.data?.status ?? filingStatusQ.data?.state ?? 'Not available'}</span></div>
+                <div>Scheme: <span className="font-medium text-gray-900">{einvoiceQ.data?.scheme ?? einvoiceQ.data?.documentType ?? '—'}</span></div>
+              </div>
+              <div className="mt-4"><JsonPanel title="E-invoice payload" value={einvoiceQ.data ?? {}} /></div>
             </div>
           </div>
         </div>

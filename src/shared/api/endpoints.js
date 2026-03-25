@@ -199,6 +199,19 @@ export const endpoints = {
       createAdjustment: "/core/accounting/tax/adjustments",
       postAdjustment: (id) => `/core/accounting/tax/adjustments/${id}/post`,
       voidAdjustment: (id) => `/core/accounting/tax/adjustments/${id}/void`,
+      registrations: (qs) => `/core/accounting/tax/registrations?${new URLSearchParams(qs ?? {}).toString()}`,
+      registrationCreate: `/core/accounting/tax/registrations`,
+      registrationUpdate: (id) => `/core/accounting/tax/registrations/${id}`,
+      rules: (qs) => `/core/accounting/tax/rules?${new URLSearchParams(qs ?? {}).toString()}`,
+      ruleCreate: `/core/accounting/tax/rules`,
+      ruleUpdate: (id) => `/core/accounting/tax/rules/${id}`,
+      taxProfiles: (qs) => `/core/accounting/tax/partner-profiles?${new URLSearchParams(qs ?? {}).toString()}`,
+      einvoicingSettings: `/core/accounting/tax/einvoicing/settings`,
+      returnsConfig: (qs) => `/core/accounting/tax/returns/config?${new URLSearchParams(qs ?? {}).toString()}`,
+      returnTemplates: (qs) => `/core/accounting/tax/returns/templates?${new URLSearchParams(qs ?? {}).toString()}`,
+      countryPacks: (qs) => `/core/accounting/tax/country-packs?${new URLSearchParams(qs ?? {}).toString()}`,
+      automationRules: (qs) => `/core/accounting/tax/automation/rules?${new URLSearchParams(qs ?? {}).toString()}`,
+      filingAdapters: (qs) => `/core/accounting/tax/filing-adapters?${new URLSearchParams(qs ?? {}).toString()}`,
     },
     accruals: {
       rules: "/core/accounting/accruals",
@@ -236,6 +249,7 @@ export const endpoints = {
         create: "/modules/business/partners",
         detail: (id) => `/modules/business/partners/${id}`,
         update: (id) => `/modules/business/partners/${id}`,
+        taxProfile: (id) => `/modules/business/partners/${id}/tax-profile`,
         creditPolicy: (id) => `/modules/business/partners/${id}/credit-policy`,
         contacts: (id) => `/modules/business/partners/${id}/contacts`,
         contact: (id, contactId) =>
@@ -264,6 +278,9 @@ export const endpoints = {
         reject: (id) => `/modules/transactions/invoices/${id}/reject`,
         issue: (id) => `/modules/transactions/invoices/${id}/issue`,
         void: (id) => `/modules/transactions/invoices/${id}/void`,
+        determineTaxes: (id = 'preview') => `/modules/transactions/invoices/${id}/determine-taxes`,
+        einvoicePreview: (id) => `/modules/transactions/invoices/${id}/einvoice-preview`,
+        filingStatus: (id) => `/modules/transactions/invoices/${id}/filing-status`,
       },
       bills: {
         list: (qs) =>
@@ -276,6 +293,9 @@ export const endpoints = {
         reject: (id) => `/modules/transactions/bills/${id}/reject`,
         issue: (id) => `/modules/transactions/bills/${id}/issue`,
         void: (id) => `/modules/transactions/bills/${id}/void`,
+        determineTaxes: (id = 'preview') => `/modules/transactions/bills/${id}/determine-taxes`,
+        einvoicePreview: (id) => `/modules/transactions/bills/${id}/einvoice-preview`,
+        filingStatus: (id) => `/modules/transactions/bills/${id}/filing-status`,
       },
       customerReceipts: {
         list: (qs) =>
@@ -671,6 +691,18 @@ export const endpoints = {
         `/reporting/tax/reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
       diagnostics: (qs) =>
         `/reporting/tax/diagnostics?${new URLSearchParams(qs ?? {}).toString()}`,
+      withholdingSummary: (qs) =>
+        `/reporting/tax/withholding-summary?${new URLSearchParams(qs ?? {}).toString()}`,
+      recoverability: (qs) =>
+        `/reporting/tax/recoverability?${new URLSearchParams(qs ?? {}).toString()}`,
+      einvoicing: (qs) =>
+        `/reporting/tax/einvoicing?${new URLSearchParams(qs ?? {}).toString()}`,
+      jurisdictionReturns: (qs) =>
+        `/reporting/tax/jurisdiction-returns?${new URLSearchParams(qs ?? {}).toString()}`,
+      realtimeFilings: (qs) =>
+        `/reporting/tax/realtime-filings?${new URLSearchParams(qs ?? {}).toString()}`,
+      countryPackReadiness: (qs) =>
+        `/reporting/tax/country-pack-readiness?${new URLSearchParams(qs ?? {}).toString()}`,
     },
   },
 

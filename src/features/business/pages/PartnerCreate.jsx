@@ -1,34 +1,37 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Building2, Save, User, Mail, Phone, FileText } from 'lucide-react';
+import { ArrowLeft, Building2, Save, ShieldCheck } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makePartnersApi } from '../api/partners.api.js';
 import { makePaymentConfigApi } from '../api/paymentConfig.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
-
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { buildPartnerTaxProfilePayload, normalizeRows } from '../../../shared/tax/frontendTax.js';
 
 export default function PartnerCreate() {
   const { http } = useApi();
   const api = useMemo(() => makePartnersApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const taxApi = useMemo(() => makeTaxApi(http), [http]);
   const paymentConfigApi = useMemo(() => makePaymentConfigApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
   const initialType = searchParams.get('type') === 'vendor' ? 'vendor' : 'customer';
+  const [tab, setTab] = useState('core');
 
   const [form, setForm] = useState({
     type: initialType,
@@ -40,327 +43,114 @@ export default function PartnerCreate() {
     defaultReceivableAccountId: '',
     defaultPayableAccountId: '',
     paymentTermsId: '',
-    notes: ''
+    notes: '',
+    taxIdNumber: '',
+    vatRegistrationNumber: '',
+    taxRegistrationStatus: 'registered',
+    taxTreatment: initialType === 'vendor' ? 'standard_input' : 'standard_output',
+    defaultTaxCodeId: '',
+    withholdingEnabled: false,
+    withholdingRate: '',
+    recoverabilityPercent: initialType === 'vendor' ? '100' : '',
+    exemptionReasonCode: '',
+    exemptionCertificateNumber: '',
+    exemptionExpiryDate: '',
+    reverseChargeEligible: false,
+    taxCountryCode: '',
+    taxRegionCode: '',
+    placeOfSupplyBasis: 'customer_location',
+    eInvoiceScheme: '',
+    buyerReference: '',
+    filingCurrency: 'USD'
   });
 
-  // Load chart of accounts
-  const coaQuery = useQuery({
-    queryKey: ['coa'],
-    queryFn: () => coaApi.list()
-  });
+  const coaQuery = useQuery({ queryKey: ['coa', 'partner-create'], queryFn: () => coaApi.list() });
+  const paymentTermsQuery = useQuery({ queryKey: ['paymentTerms'], queryFn: () => paymentConfigApi.listPaymentTerms() });
+  const taxCodesQuery = useQuery({ queryKey: ['tax-codes', 'partner-create'], queryFn: () => taxApi.listCodes({ status: 'active' }) });
 
-  // Load payment terms
-  const paymentTermsQuery = useQuery({
-    queryKey: ['paymentTerms'],
-    queryFn: () => paymentConfigApi.listPaymentTerms()
-  });
-
-  const accounts = Array.isArray(coaQuery.data) ? coaQuery.data : coaQuery.data?.data ?? [];
-  const paymentTerms = Array.isArray(paymentTermsQuery.data) ? paymentTermsQuery.data : paymentTermsQuery.data?.data ?? [];
-  
-  // Filter accounts by type
-  const receivableAccounts = accounts.filter(acc => 
-    acc.type?.toLowerCase().includes('receivable') || 
-    acc.accountType?.toLowerCase().includes('receivable') ||
-    acc.category?.toLowerCase().includes('receivable') ||
-    acc.name?.toLowerCase().includes('receivable')
-  );
-
-  const payableAccounts = accounts.filter(acc => 
-    acc.type?.toLowerCase().includes('payable') || 
-    acc.accountType?.toLowerCase().includes('payable') ||
-    acc.category?.toLowerCase().includes('payable') ||
-    acc.name?.toLowerCase().includes('payable')
-  );
-
+  const accounts = normalizeRows(coaQuery.data);
+  const paymentTerms = normalizeRows(paymentTermsQuery.data);
+  const taxCodes = normalizeRows(taxCodesQuery.data);
+  const receivableAccounts = accounts.filter((acc) => String(acc.type ?? acc.accountType ?? acc.category ?? acc.name ?? '').toLowerCase().includes('receivable'));
+  const payableAccounts = accounts.filter((acc) => String(acc.type ?? acc.accountType ?? acc.category ?? acc.name ?? '').toLowerCase().includes('payable'));
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
-  // Handle type change - clear inappropriate account when switching
-  const handleTypeChange = (newType) => {
-    set('type', newType);
-    if (newType === 'customer') {
-      // Clear payable account when switching to customer
-      set('defaultPayableAccountId', '');
-    } else if (newType === 'vendor') {
-      // Clear receivable account when switching to vendor
-      set('defaultReceivableAccountId', '');
-    }
-  };
-
   const create = useMutation({
-    mutationFn: async () => {
-      // Backend validator expects uuid fields either omitted or valid UUID strings.
-      const body = {
-        type: form.type,
-        name: form.name,
-        code: form.code || undefined,
-        email: form.email || undefined,
-        phone: form.phone || undefined,
-        status: form.status || undefined,
-        defaultReceivableAccountId: form.defaultReceivableAccountId || undefined,
-        defaultPayableAccountId: form.defaultPayableAccountId || undefined,
-        paymentTermsId: form.paymentTermsId || undefined,
-        notes: form.notes || undefined
-      };
-      return api.create(body);
-    },
+    mutationFn: async () => api.create({
+      type: form.type,
+      name: form.name,
+      code: form.code || undefined,
+      email: form.email || undefined,
+      phone: form.phone || undefined,
+      status: form.status || undefined,
+      defaultReceivableAccountId: form.defaultReceivableAccountId || undefined,
+      defaultPayableAccountId: form.defaultPayableAccountId || undefined,
+      paymentTermsId: form.paymentTermsId || undefined,
+      notes: form.notes || undefined,
+      ...buildPartnerTaxProfilePayload(form)
+    }),
     onSuccess: (created) => {
       qc.invalidateQueries({ queryKey: qk.partners() });
       toast.success('Partner created successfully');
       const id = created?.id ?? created?.data?.id;
-      if (id) navigate(ROUTES.businessPartnerDetail(id));
-      else navigate(form.type === 'vendor' ? ROUTES.businessVendors : ROUTES.businessCustomers);
+      navigate(id ? ROUTES.businessPartnerDetail(id) : form.type === 'vendor' ? ROUTES.businessVendors : ROUTES.businessCustomers);
     },
-    onError: (e) => toast.error(e?.message ?? 'Failed to create partner')
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to create partner')
   });
 
-  const isCustomer = form.type === 'customer';
-  const isVendor = form.type === 'vendor';
-
   return (
-    <div className="min-h-screen ">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Building2 className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">
-                  New {isVendor ? 'Vendor' : 'Customer'}
-                </h1>
-              </div>
-              <p className="text-sm text-gray-600">
-                Create a new business partner profile
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="border-gray-300"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => create.mutate()}
-                disabled={create.isPending || !form.name.trim()}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {create.isPending ? 'Creating...' : 'Create Partner'}
-              </Button>
+    <div className="space-y-6 pb-8">
+      <PageHeader title={`New ${form.type === 'vendor' ? 'vendor' : 'customer'}`} subtitle="Create a business partner with tax profile defaults, recoverability settings, withholding rules, and e-invoicing identifiers." icon={Building2} />
+      <Tabs value={tab} onChange={setTab} tabs={[{ value: 'core', label: 'Core profile' }, { value: 'tax', label: 'Tax profile' }]} />
+
+      {tab === 'core' ? (
+        <ContentCard title="Partner master" actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>Back</Button>}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Select label="Type" value={form.type} onChange={(e) => set('type', e.target.value)} options={[{ value: 'customer', label: 'Customer' }, { value: 'vendor', label: 'Vendor' }]} />
+            <Select label="Status" value={form.status} onChange={(e) => set('status', e.target.value)} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+            <Input label="Business name" value={form.name} onChange={(e) => set('name', e.target.value)} />
+            <Input label="Partner code" value={form.code} onChange={(e) => set('code', e.target.value)} />
+            <Input label="Email" value={form.email} onChange={(e) => set('email', e.target.value)} />
+            <Input label="Phone" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+            <Select label="Payment terms" value={form.paymentTermsId} onChange={(e) => set('paymentTermsId', e.target.value)} options={[{ value: '', label: 'Select terms' }, ...paymentTerms.map((p) => ({ value: p.id, label: p.name || p.code || p.id }))]} />
+            {form.type === 'customer' ? (
+              <Select label="Default receivable account" value={form.defaultReceivableAccountId} onChange={(e) => set('defaultReceivableAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...receivableAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+            ) : (
+              <Select label="Default payable account" value={form.defaultPayableAccountId} onChange={(e) => set('defaultPayableAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...payableAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+            )}
+            <div className="md:col-span-2">
+              <Textarea label="Notes" rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
             </div>
           </div>
-        </div>
-
-        {/* Main Form */}
-        <div className="space-y-6">
-          {/* Type and Status */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-5">Partner Type</h3>
-            
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={form.type}
-                  onChange={(e) => handleTypeChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="vendor">Vendor</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={form.status}
-                  onChange={(e) => set('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
+        </ContentCard>
+      ) : (
+        <ContentCard title="Tax profile" actions={<div className="flex items-center gap-2 text-xs text-text-muted"><ShieldCheck className="h-4 w-4" /> Used by determination engine</div>}>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Input label="Tax ID number" value={form.taxIdNumber} onChange={(e) => set('taxIdNumber', e.target.value)} />
+            <Input label="VAT registration number" value={form.vatRegistrationNumber} onChange={(e) => set('vatRegistrationNumber', e.target.value)} />
+            <Select label="Registration status" value={form.taxRegistrationStatus} onChange={(e) => set('taxRegistrationStatus', e.target.value)} options={[{ value: 'registered', label: 'Registered' }, { value: 'unregistered', label: 'Unregistered' }, { value: 'exempt', label: 'Exempt' }]} />
+            <Select label="Tax treatment" value={form.taxTreatment} onChange={(e) => set('taxTreatment', e.target.value)} options={[{ value: 'standard_output', label: 'Standard output tax' }, { value: 'standard_input', label: 'Standard input tax' }, { value: 'reverse_charge', label: 'Reverse charge' }, { value: 'exempt', label: 'Exempt' }, { value: 'zero_rated', label: 'Zero rated' }]} />
+            <Select label="Default tax code" value={form.defaultTaxCodeId} onChange={(e) => set('defaultTaxCodeId', e.target.value)} options={[{ value: '', label: 'Select tax code' }, ...taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
+            <Input label="Recoverability (%)" type="number" value={form.recoverabilityPercent} onChange={(e) => set('recoverabilityPercent', e.target.value)} />
+            <Select label="Place of supply basis" value={form.placeOfSupplyBasis} onChange={(e) => set('placeOfSupplyBasis', e.target.value)} options={[{ value: 'customer_location', label: 'Customer location' }, { value: 'supplier_location', label: 'Supplier location' }, { value: 'ship_to', label: 'Ship-to address' }, { value: 'service_performance', label: 'Service performance location' }]} />
+            <Input label="Tax country code" value={form.taxCountryCode} onChange={(e) => set('taxCountryCode', e.target.value.toUpperCase())} />
+            <Input label="Tax region code" value={form.taxRegionCode} onChange={(e) => set('taxRegionCode', e.target.value)} />
+            <Input label="Withholding rate (%)" type="number" value={form.withholdingRate} onChange={(e) => set('withholdingRate', e.target.value)} />
+            <Input label="Exemption reason" value={form.exemptionReasonCode} onChange={(e) => set('exemptionReasonCode', e.target.value)} />
+            <Input label="Exemption certificate" value={form.exemptionCertificateNumber} onChange={(e) => set('exemptionCertificateNumber', e.target.value)} />
+            <Input label="Exemption expiry" type="date" value={form.exemptionExpiryDate} onChange={(e) => set('exemptionExpiryDate', e.target.value)} />
+            <Input label="E-invoice scheme" value={form.eInvoiceScheme} onChange={(e) => set('eInvoiceScheme', e.target.value)} placeholder="PEPPOL / GRA / etc." />
+            <Input label="Buyer reference" value={form.buyerReference} onChange={(e) => set('buyerReference', e.target.value)} />
+            <Input label="Filing currency" value={form.filingCurrency} onChange={(e) => set('filingCurrency', e.target.value.toUpperCase())} />
+            <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm"><input type="checkbox" checked={form.withholdingEnabled} onChange={(e) => set('withholdingEnabled', e.target.checked)} /> Withholding enabled</label>
+            <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm"><input type="checkbox" checked={form.reverseChargeEligible} onChange={(e) => set('reverseChargeEligible', e.target.checked)} /> Reverse charge eligible</label>
           </div>
+        </ContentCard>
+      )}
 
-          {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
-            
-            <div className="grid gap-5 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    value={form.name} 
-                    onChange={(e) => set('name', e.target.value)} 
-                    placeholder="e.g., Acme Trading Ltd."
-                    className="pl-10"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1.5">Minimum 2 characters required</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Partner Code
-                </label>
-                <Input 
-                  value={form.code} 
-                  onChange={(e) => set('code', e.target.value)} 
-                  placeholder="Optional identifier"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    type="email"
-                    value={form.email} 
-                    onChange={(e) => set('email', e.target.value)} 
-                    placeholder="contact@example.com"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    type="tel"
-                    value={form.phone} 
-                    onChange={(e) => set('phone', e.target.value)} 
-                    placeholder="+1 (555) 000-0000"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Terms
-                </label>
-                {paymentTermsQuery.isLoading ? (
-                  <div className="text-sm text-gray-500 py-2">Loading payment terms...</div>
-                ) : (
-                  <select
-                    value={form.paymentTermsId}
-                    onChange={(e) => set('paymentTermsId', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                  >
-                    <option value="">Select payment terms (optional)</option>
-                    {paymentTerms.map((term) => (
-                      <option key={term.id} value={term.id}>
-                        {term.name || term.description || `Net ${term.netDays || term.net_days || 0}`}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                <p className="text-xs text-gray-500 mt-1.5">Default payment terms for this partner</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Accounting Defaults - Conditional based on type */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-5">Accounting Defaults</h3>
-            
-            <div className="grid gap-5 md:grid-cols-2">
-              {/* Show Receivable Account only for Customers */}
-              {isCustomer && (
-                <div className={isCustomer ? 'md:col-span-2' : ''}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Default Receivable Account
-                  </label>
-                  {coaQuery.isLoading ? (
-                    <div className="text-sm text-gray-500 py-2">Loading accounts...</div>
-                  ) : (
-                    <select
-                      value={form.defaultReceivableAccountId}
-                      onChange={(e) => set('defaultReceivableAccountId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                    >
-                      <option value="">Select an account (optional)</option>
-                      {receivableAccounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1.5">Used for customer invoices and receivables</p>
-                </div>
-              )}
-
-              {/* Show Payable Account only for Vendors */}
-              {isVendor && (
-                <div className={isVendor ? 'md:col-span-2' : ''}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Default Payable Account
-                  </label>
-                  {coaQuery.isLoading ? (
-                    <div className="text-sm text-gray-500 py-2">Loading accounts...</div>
-                  ) : (
-                    <select
-                      value={form.defaultPayableAccountId}
-                      onChange={(e) => set('defaultPayableAccountId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                    >
-                      <option value="">Select an account (optional)</option>
-                      {payableAccounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1.5">Used for vendor bills and payables</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Additional Notes */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-5">Additional Information</h3>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes
-              </label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Textarea 
-                  value={form.notes} 
-                  onChange={(e) => set('notes', e.target.value)} 
-                  placeholder="Add any additional notes or information about this partner..."
-                  rows={4}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => setTab(tab === 'core' ? 'tax' : 'core')}>{tab === 'core' ? 'Next: tax profile' : 'Back to core'}</Button>
+        <Button leftIcon={Save} onClick={() => create.mutate()} disabled={create.isPending || !form.name.trim()}>{create.isPending ? 'Creating…' : 'Create partner'}</Button>
       </div>
     </div>
   );

@@ -1,22 +1,24 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FilePlus2, Plus, Trash2, DollarSign, Calendar, User, FileText } from 'lucide-react';
+import { ArrowLeft, FilePlus2, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
 import { makePartnersApi } from '../../../features/business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
-
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDate } from '../../../shared/utils/formatDate.js';
-// Generate UUID v4
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
+import { computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
@@ -25,385 +27,192 @@ function generateUUID() {
   });
 }
 
+function emptyLine() {
+  return {
+    description: '',
+    quantity: 1,
+    unitPrice: 0,
+    revenueAccountId: '',
+    taxCodeId: '',
+    taxRate: 0,
+    withholdingRate: 0,
+    recoverablePercent: 100,
+    exemptionReasonCode: ''
+  };
+}
+
 export default function InvoiceCreate() {
   const navigate = useNavigate();
   const { http } = useApi();
   const invoicesApi = useMemo(() => makeInvoicesApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const taxApi = useMemo(() => makeTaxApi(http), [http]);
   const toast = useToast();
 
-  const [idempotencyKey] = useState(() => generateUUID());
   const [payload, setPayload] = useState({
     customerId: '',
-    invoiceDate: new Date().toISOString().split('T')[0],
+    invoiceDate: new Date().toISOString().slice(0, 10),
     dueDate: '',
     memo: '',
-    lines: [
-      {
-        description: '',
-        quantity: 1,
-        unitPrice: 0,
-        revenueAccountId: ''
-      }
-    ]
+    currencyCode: 'USD',
+    taxDate: new Date().toISOString().slice(0, 10),
+    pricingMode: 'exclusive',
+    supplyType: 'goods',
+    placeOfSupplyCountryCode: '',
+    buyerReference: '',
+    jurisdictionId: '',
+    lines: [emptyLine()]
   });
+  const [taxPreview, setTaxPreview] = useState(null);
 
-  // Load partners (customers)
-  const partnersQuery = useQuery({
-    queryKey: ['partners'],
-    queryFn: () => partnersApi.list()
-  });
+  const partnersQuery = useQuery({ queryKey: ['partners', 'customers', 'tax'], queryFn: () => partnersApi.list({ type: 'customer' }) });
+  const coaQuery = useQuery({ queryKey: ['coa', 'invoice-tax'], queryFn: () => coaApi.list() });
+  const taxCodesQuery = useQuery({ queryKey: ['tax-codes', 'invoice-create'], queryFn: () => taxApi.listCodes({ status: 'active' }) });
+  const jurisdictionsQuery = useQuery({ queryKey: ['tax-jurisdictions', 'invoice-create'], queryFn: () => taxApi.listJurisdictions() });
 
-  // Load chart of accounts
-  const coaQuery = useQuery({
-    queryKey: ['coa'],
-    queryFn: () => coaApi.list()
-  });
-
-  const partnersAccounts = Array.isArray(partnersQuery.data) ? partnersQuery.data : partnersQuery.data?.data ?? [];
-  const accounts = Array.isArray(coaQuery.data) ? coaQuery.data : coaQuery.data?.data ?? [];
-  // Filter revenue accounts only
-  const revenueAccounts = accounts.filter(acc => 
-    acc.account_type_code?.toLowerCase().includes('revenue') || 
-    acc.accountType?.toLowerCase().includes('revenue') ||
-    acc.category?.toLowerCase().includes('revenue')
+  const partners = normalizeRows(partnersQuery.data).filter((p) => String(p.type ?? '').toLowerCase() === 'customer');
+  const accounts = normalizeRows(coaQuery.data);
+  const taxCodes = normalizeRows(taxCodesQuery.data);
+  const jurisdictions = normalizeRows(jurisdictionsQuery.data);
+  const revenueAccounts = accounts.filter((acc) =>
+    String(acc.account_type_code ?? acc.accountType ?? acc.category ?? '').toLowerCase().includes('revenue')
   );
 
-    const partners = partnersAccounts.filter(acc => 
-    acc.type?.toLowerCase().includes('customer')  );
+  const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes, pricingMode: payload.pricingMode }), [payload.lines, payload.pricingMode, taxCodes]);
+  const selectedCustomer = partners.find((p) => p.id === payload.customerId);
 
   const create = useMutation({
-    mutationFn: () => invoicesApi.create(payload, { idempotencyKey }),
+    mutationFn: () => invoicesApi.create(payload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
       toast.success('Invoice created successfully');
       const id = res?.id ?? res?.data?.id;
-      if (id) navigate(ROUTES.invoiceDetail(id));
-      else navigate(ROUTES.invoices);
+      navigate(id ? ROUTES.invoiceDetail(id) : ROUTES.invoices);
     },
-    onError: (e) => toast.error(e?.message ?? 'Failed to create invoice')
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to create invoice')
   });
 
-  const addLine = () => {
-    setPayload({
-      ...payload,
-      lines: [
-        ...payload.lines,
-        {
-          description: '',
-          quantity: 1,
-          unitPrice: 0,
-          revenueAccountId: ''
-        }
-      ]
+  const previewTaxes = useMutation({
+    mutationFn: () => invoicesApi.determineTaxes(payload, { idempotencyKey: generateUUID() }),
+    onSuccess: (res) => {
+      setTaxPreview(res);
+      toast.success('Tax determination refreshed');
+    },
+    onError: (e) => {
+      setTaxPreview({ fallbackSummary: summary, error: e?.response?.data ?? e?.message });
+      toast.error('Preview endpoint unavailable. Local calculation shown instead.');
+    }
+  });
+
+  const setField = (key, value) => setPayload((s) => ({ ...s, [key]: value }));
+  const updateLine = (index, key, value) => {
+    setPayload((s) => {
+      const lines = [...s.lines];
+      lines[index] = { ...lines[index], [key]: value };
+      if (key === 'taxCodeId') {
+        const code = taxCodes.find((item) => item.id === value);
+        if (code) lines[index].taxRate = Number(code.rate ?? code.tax_rate ?? 0);
+      }
+      return { ...s, lines };
     });
   };
+  const addLine = () => setPayload((s) => ({ ...s, lines: [...s.lines, emptyLine()] }));
+  const removeLine = (index) => setPayload((s) => ({ ...s, lines: s.lines.filter((_, i) => i !== index) }));
 
-  const removeLine = (index) => {
-    setPayload({
-      ...payload,
-      lines: payload.lines.filter((_, i) => i !== index)
-    });
+  const handleSubmit = () => {
+    if (!payload.customerId) return toast.error('Select a customer');
+    if (!payload.invoiceDate || !payload.dueDate) return toast.error('Invoice date and due date are required');
+    if (payload.lines.some((line) => !line.description || !line.revenueAccountId)) return toast.error('Complete all invoice lines');
+    create.mutate();
   };
-
-  const updateLine = (index, field, value) => {
-    const newLines = [...payload.lines];
-    newLines[index] = { ...newLines[index], [field]: value };
-    setPayload({ ...payload, lines: newLines });
-  };
-
-  const updateField = (field, value) => {
-    setPayload({ ...payload, [field]: value });
-  };
-
-  const calculateTotal = () => {
-    return payload.lines.reduce((sum, line) => {
-      return sum + (line.quantity * line.unitPrice);
-    }, 0);
-  };
-
-  const total = calculateTotal();
-
-  const selectedPartner = partners.find(p => p.id === payload.customerId);
 
   return (
-    <div className="min-h-screen ">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <FilePlus2 className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New Invoice</h1>
+    <div className="space-y-6 pb-8">
+      <PageHeader title="Create invoice" subtitle="International-grade invoice capture with tax determination, withholding overlays, recoverability, and e-invoicing metadata." icon={FilePlus2} />
+      <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+        <div className="space-y-6">
+          <ContentCard title="Commercial details" actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>Back</Button>}>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Select label="Customer" value={payload.customerId} onChange={(e) => setField('customerId', e.target.value)} options={[{ value: '', label: 'Select customer' }, ...partners.map((p) => ({ value: p.id, label: p.name || p.businessName || p.id }))]} />
+              <Select label="Jurisdiction" value={payload.jurisdictionId} onChange={(e) => setField('jurisdictionId', e.target.value)} options={[{ value: '', label: 'Auto determine' }, ...jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` }))]} />
+              <Input label="Invoice date" type="date" value={payload.invoiceDate} onChange={(e) => setField('invoiceDate', e.target.value)} />
+              <Input label="Due date" type="date" value={payload.dueDate} onChange={(e) => setField('dueDate', e.target.value)} />
+              <Input label="Tax point date" type="date" value={payload.taxDate} onChange={(e) => setField('taxDate', e.target.value)} />
+              <Input label="Place of supply country" value={payload.placeOfSupplyCountryCode} onChange={(e) => setField('placeOfSupplyCountryCode', e.target.value.toUpperCase())} placeholder="e.g. GH" />
+              <Select label="Pricing mode" value={payload.pricingMode} onChange={(e) => setField('pricingMode', e.target.value)} options={[{ value: 'exclusive', label: 'Tax exclusive' }, { value: 'inclusive', label: 'Tax inclusive' }]} />
+              <Select label="Supply type" value={payload.supplyType} onChange={(e) => setField('supplyType', e.target.value)} options={[{ value: 'goods', label: 'Goods' }, { value: 'services', label: 'Services' }, { value: 'mixed', label: 'Mixed supply' }, { value: 'export', label: 'Export' }]} />
+              <Input label="Currency" value={payload.currencyCode} onChange={(e) => setField('currencyCode', e.target.value.toUpperCase())} />
+              <Input label="Buyer reference" value={payload.buyerReference} onChange={(e) => setField('buyerReference', e.target.value)} placeholder="Needed for e-invoicing" />
+              <div className="md:col-span-2">
+                <Textarea label="Memo" rows={3} value={payload.memo} onChange={(e) => setField('memo', e.target.value)} placeholder="Commercial memo, supply notes, or filing references" />
               </div>
-              <p className="text-sm text-gray-600">
-                Fill in the details below to create a new invoice
-              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="border-gray-300"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => create.mutate()}
-                disabled={create.isPending}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                {create.isPending ? 'Creating...' : 'Create Invoice'}
-              </Button>
+          </ContentCard>
+
+          <ContentCard title="Invoice lines" actions={<Button leftIcon={Plus} onClick={addLine}>Add line</Button>}>
+            <div className="space-y-4">
+              {payload.lines.map((line, index) => {
+                const calc = summary.lines[index]?._calc;
+                return (
+                  <div key={index} className="rounded-2xl border border-border-subtle bg-surface-2 p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-semibold text-text-strong">Line {index + 1}</div>
+                      {payload.lines.length > 1 ? <Button variant="outline" size="sm" leftIcon={Trash2} onClick={() => removeLine(index)}>Remove</Button> : null}
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      <Input label="Description" value={line.description} onChange={(e) => updateLine(index, 'description', e.target.value)} />
+                      <Select label="Revenue account" value={line.revenueAccountId} onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...revenueAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+                      <Select label="Tax code" value={line.taxCodeId} onChange={(e) => updateLine(index, 'taxCodeId', e.target.value)} options={[{ value: '', label: 'No tax code' }, ...taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
+                      <Input label="Quantity" type="number" value={line.quantity} onChange={(e) => updateLine(index, 'quantity', Number(e.target.value))} />
+                      <Input label="Unit price" type="number" value={line.unitPrice} onChange={(e) => updateLine(index, 'unitPrice', Number(e.target.value))} />
+                      <Input label="Tax rate (%)" type="number" value={line.taxRate} onChange={(e) => updateLine(index, 'taxRate', Number(e.target.value))} />
+                      <Input label="Withholding rate (%)" type="number" value={line.withholdingRate} onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))} />
+                      <Input label="Recoverable tax (%)" type="number" value={line.recoverablePercent} onChange={(e) => updateLine(index, 'recoverablePercent', Number(e.target.value))} />
+                      <Input label="Exemption reason" value={line.exemptionReasonCode} onChange={(e) => updateLine(index, 'exemptionReasonCode', e.target.value)} placeholder="optional" />
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-5 text-xs">
+                      <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Taxable base</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.taxableBase.toFixed(2) : '0.00'}</div></div>
+                      <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Tax</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.taxAmount.toFixed(2) : '0.00'}</div></div>
+                      <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Withholding</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.withholdingAmount.toFixed(2) : '0.00'}</div></div>
+                      <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Non-recoverable tax</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.nonRecoverableTaxAmount.toFixed(2) : '0.00'}</div></div>
+                      <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Line total</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.total.toFixed(2) : '0.00'}</div></div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          </ContentCard>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Left Sidebar - Summary */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Summary Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Invoice Summary</h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <User className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500">Customer</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {selectedPartner ? (
-                        <div>
-                          <div>{selectedPartner.name || selectedPartner.businessName || 'Unknown'}</div>
-                          {selectedPartner.email && (
-                            <div className="text-xs text-gray-500 mt-0.5">{selectedPartner.email}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">Not selected</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500">Invoice Date</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {formatDate(payload.invoiceDate) || <span className="text-gray-400">Not set</span>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500">Due Date</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {payload.dueDate || <span className="text-gray-400">Not set</span>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500">Line Items</div>
-                    <div className="text-sm font-medium text-gray-900 mt-0.5">
-                      {payload.lines.length}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-semibold text-gray-700">Total</span>
-                    </div>
-                    <span className="text-lg font-bold text-gray-900">
-                      ${total.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        <div className="space-y-6">
+          <ContentCard title="Tax and posting summary" actions={<Button variant="outline" leftIcon={RefreshCw} onClick={() => previewTaxes.mutate()} loading={previewTaxes.isPending}>Determine</Button>}>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between"><span className="text-text-muted">Customer</span><span className="font-medium text-text-strong">{selectedCustomer?.name || 'Not selected'}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span className="font-medium text-text-strong">{summary.subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Output tax</span><span className="font-medium text-text-strong">{summary.taxTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Withholding</span><span className="font-medium text-text-strong">{summary.withholdingTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Recoverable tax</span><span className="font-medium text-text-strong">{summary.recoverableTaxTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-text-muted">Non-recoverable tax</span><span className="font-medium text-text-strong">{summary.nonRecoverableTaxTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between border-t border-border-subtle pt-3"><span className="font-semibold text-text-strong">Grand total</span><span className="font-semibold text-text-strong">{summary.grandTotal.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="font-semibold text-text-strong">Expected collectible</span><span className="font-semibold text-text-strong">{summary.payableTotal.toFixed(2)}</span></div>
             </div>
-          </div>
-
-          {/* Main Content - Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Basic Information</h3>
-              
-              <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Customer <span className="text-red-500">*</span>
-                  </label>
-                  {partnersQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading customers...</div>
-                  ) : (
-                    <select
-                      value={payload.customerId}
-                      onChange={(e) => updateField('customerId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                    >
-                      <option value="">Select a customer</option>
-                      {partners.map((partner) => (
-                        <option key={partner.id} value={partner.id}>
-                          {partner.name || partner.businessName || partner.id}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Memo
-                  </label>
-                  <Input
-                    value={payload.memo}
-                    onChange={(e) => updateField('memo', e.target.value)}
-                    placeholder="Optional note or reference"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Invoice Date <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    type="date"
-                    value={payload.invoiceDate}
-                    onChange={(e) => updateField('invoiceDate', e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Due Date <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    type="date"
-                    value={payload.dueDate}
-                    onChange={(e) => updateField('dueDate', e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Must be on or after invoice date</p>
-                </div>
-              </div>
+            <div className="mt-5 flex gap-2">
+              <Button leftIcon={ReceiptText} onClick={handleSubmit} loading={create.isPending}>Create invoice</Button>
             </div>
+          </ContentCard>
 
-            {/* Line Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={addLine}
-                  className="border-green-600 text-green-700 hover:bg-green-50"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Line
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                {payload.lines.map((line, index) => (
-                  <div key={index} className=" rounded-lg border border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-semibold text-gray-700">Item #{index + 1}</span>
-                      {payload.lines.length > 1 && (
-                        <button
-                          onClick={() => removeLine(index)}
-                          className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-4">
-                      <div className="md:col-span-4">
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                          Description <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          value={line.description}
-                          onChange={(e) => updateLine(index, 'description', e.target.value)}
-                          placeholder="Product or service description"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                          Quantity <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          type="number"
-                          min="1"
-                          step="1"
-                          value={line.quantity}
-                          onChange={(e) => updateLine(index, 'quantity', parseFloat(e.target.value) || 1)}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                          Unit Price <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={line.unitPrice}
-                            onChange={(e) => updateLine(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                            className="pl-7"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                          Revenue Account <span className="text-red-500">*</span>
-                        </label>
-                        {coaQuery.isLoading ? (
-                          <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
-                        ) : (
-                          <select
-                            value={line.revenueAccountId}
-                            onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                          >
-                            <option value="">Select revenue account</option>
-                            {revenueAccounts.map((account) => (
-                              <option key={account.id} value={account.id}>
-                                {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-gray-300 flex justify-between items-center">
-                      <span className="text-xs text-gray-600">Line Total</span>
-                      <span className="text-sm font-bold text-gray-900">
-                        ${(line.quantity * line.unitPrice).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <ContentCard title="E-invoicing readiness">
+            <div className="space-y-2 text-sm text-text-body">
+              <p>Buyer reference: <span className="font-medium text-text-strong">{payload.buyerReference || 'Missing'}</span></p>
+              <p>Tax point date: <span className="font-medium text-text-strong">{payload.taxDate || 'Missing'}</span></p>
+              <p>Jurisdiction: <span className="font-medium text-text-strong">{jurisdictions.find((j) => j.id === payload.jurisdictionId)?.name || 'Auto'}</span></p>
+              <p>Pricing mode: <span className="font-medium text-text-strong">{payload.pricingMode}</span></p>
             </div>
-          </div>
+          </ContentCard>
+
+          <ContentCard title="Tax preview payload">
+            <JsonPanel title="Preview response" value={taxPreview ?? { localFallback: summary }} />
+          </ContentCard>
         </div>
       </div>
     </div>

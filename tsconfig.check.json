@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "target": "es2020",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "types": []
+  },
+  "include": [
+    "src/features/accounting/tax/pages/TaxAdmin.jsx",
+    "src/features/accounting/tax/api/tax.api.js",
+    "src/features/business/api/partners.api.js",
+    "src/features/business/pages/PartnerCreate.jsx",
+    "src/features/business/pages/PartnerDetail.jsx",
+    "src/features/transactions/api/invoices.api.js",
+    "src/features/transactions/api/bills.api.js",
+    "src/features/transactions/pages/InvoiceCreate.jsx",
+    "src/features/transactions/pages/BillCreate.jsx",
+    "src/features/transactions/pages/InvoiceDetail.jsx",
+    "src/features/transactions/pages/BillDetail.jsx",
+    "src/features/reporting/api/reporting.api.js",
+    "src/features/reporting/pages/ReportTax.jsx",
+    "src/features/automation/pages/Overview.jsx",
+    "src/shared/api/endpoints.js",
+    "src/shared/tax/frontendTax.js"
+  ]
+}

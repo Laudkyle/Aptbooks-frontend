@@ -7,6 +7,10 @@ export function makeInvoicesApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.invoices.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.invoices.detail(id))).data,
+    determineTaxes: async (body, { id = 'preview', idempotencyKey } = {}) =>
+      (await http.post(endpoints.modules.transactions.invoices.determineTaxes(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
+    getEinvoicePreview: async (id) => (await http.get(endpoints.modules.transactions.invoices.einvoicePreview(id))).data,
+    getFilingStatus: async (id) => (await http.get(endpoints.modules.transactions.invoices.filingStatus(id))).data,
 
     submitForApproval: async (id, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.invoices.submitForApproval(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
