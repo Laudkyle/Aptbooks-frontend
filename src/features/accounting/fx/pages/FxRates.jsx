@@ -113,39 +113,17 @@ export default function FxRates() {
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="space-y-6">
           {/* Tabs */}
-          <div className="bg-surface-1 rounded-lg shadow-soft border border-border-subtle p-1">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setTab('types')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'types'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
-              >
-                Rate Types
-              </button>
-              <button
-                onClick={() => setTab('rates')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'rates'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
-              >
-                Exchange Rates
-              </button>
-              <button
-                onClick={() => setTab('effective')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  tab === 'effective'
-                    ? 'bg-brand-primary text-white'
-                    : 'text-text-body hover:bg-surface-2'
-                }`}
-              >
-                Rate Lookup
-              </button>
-            </div>
+          <div className="bg-surface-1 rounded-lg shadow-soft border border-border-subtle px-4 pt-2">
+            <Tabs
+              value={tab}
+              onChange={setTab}
+              className="space-y-0"
+              tabs={[
+                { value: 'types', label: 'Rate Types', icon: DollarSign },
+                { value: 'rates', label: 'Exchange Rates', icon: TrendingUp },
+                { value: 'effective', label: 'Rate Lookup', icon: Calendar },
+              ]}
+            />
           </div>
 
           {/* Rate Types Tab */}

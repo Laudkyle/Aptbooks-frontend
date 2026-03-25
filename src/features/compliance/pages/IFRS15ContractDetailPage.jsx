@@ -10,6 +10,7 @@ import { Input } from "../../../shared/components/ui/Input.jsx";
 import { Select } from "../../../shared/components/ui/Select.jsx";
 import { Modal } from "../../../shared/components/ui/Modal.jsx";
 import { useToast } from "../../../shared/components/ui/Toast.jsx";
+import { Tabs } from "../../../shared/components/ui/Tabs.jsx";
 
 import {
   ArrowLeft,
@@ -635,62 +636,16 @@ export default function IFRS15ContractDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200">
-        <div className="flex gap-6">
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "overview"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActiveTab("overview")}
-          >
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4" />
-              Overview
-            </div>
-          </button>
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "obligations"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActiveTab("obligations")}
-          >
-            <div className="flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              Obligations ({obligations.length})
-            </div>
-          </button>
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "schedule"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActiveTab("schedule")}
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Schedule ({scheduleLines.length})
-            </div>
-          </button>
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "costs"
-                ? "border-emerald-500 text-emerald-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-            onClick={() => setActiveTab("costs")}
-          >
-            <div className="flex items-center gap-2">
-              <Receipt className="h-4 w-4" />
-              Costs ({costs.length})
-            </div>
-          </button>
-        </div>
-      </div>
+      <Tabs
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { value: 'overview', label: 'Overview', icon: Layers },
+          { value: 'obligations', label: `Obligations (${obligations.length})`, icon: Tag },
+          { value: 'schedule', label: `Schedule (${scheduleLines.length})`, icon: Calendar },
+          { value: 'costs', label: `Costs (${costs.length})`, icon: Receipt },
+        ]}
+      />
 
       {/* Tab Content */}
       <ContentCard>

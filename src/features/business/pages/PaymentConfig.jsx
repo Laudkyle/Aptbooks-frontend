@@ -14,6 +14,7 @@ import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 
 export default function PaymentConfig() {
   const { http } = useApi();
@@ -284,29 +285,17 @@ export default function PaymentConfig() {
       {/* Tabs Navigation */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex gap-6">
-            {[
-              { key: 'terms', label: 'Payment Terms', icon: Clock },
-              { key: 'methods', label: 'Payment Methods', icon: Wallet },
-              { key: 'settings', label: 'Account Settings', icon: Settings }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors inline-flex items-center gap-2 ${
-                    activeTab === tab.key
-                      ? 'border-green-600 text-green-600'
-                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+          <Tabs
+            value={activeTab}
+            onChange={setActiveTab}
+            className="space-y-0"
+            listClassName="gap-6"
+            tabs={[
+              { value: 'terms', label: 'Payment Terms', icon: Clock },
+              { value: 'methods', label: 'Payment Methods', icon: Wallet },
+              { value: 'settings', label: 'Account Settings', icon: Settings }
+            ]}
+          />
         </div>
       </div>
 

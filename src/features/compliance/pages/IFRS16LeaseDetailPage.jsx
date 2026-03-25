@@ -33,6 +33,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -426,36 +427,14 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200">
-        <div className="flex gap-6">
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'schedule'
-                ? 'border-emerald-500 text-emerald-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-            onClick={() => setActiveTab('schedule')}
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Amortization Schedule
-            </div>
-          </button>
-          <button
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'details'
-                ? 'border-emerald-500 text-emerald-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-            onClick={() => setActiveTab('details')}
-          >
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Lease Details
-            </div>
-          </button>
-        </div>
-      </div>
+      <Tabs
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { value: 'schedule', label: 'Amortization Schedule', icon: Calendar },
+          { value: 'details', label: 'Lease Details', icon: FileText },
+        ]}
+      />
 
       {/* Tab Content */}
       {activeTab === 'schedule' && (
