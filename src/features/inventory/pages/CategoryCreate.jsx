@@ -13,6 +13,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 
 export default function CategoryCreate() {
   const nav = useNavigate();
@@ -78,10 +79,10 @@ export default function CategoryCreate() {
           <Input label="Code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} required />
           <Input label="Name" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} required />
 
-          <Select label="Inventory account" value={form.inventoryAccountId} onChange={(e) => setForm((s) => ({ ...s, inventoryAccountId: e.target.value }))} options={accountOptions} required />
-          <Select label="COGS account" value={form.cogsAccountId} onChange={(e) => setForm((s) => ({ ...s, cogsAccountId: e.target.value }))} options={accountOptions} required />
-          <Select label="Adjustment account" value={form.adjustmentAccountId} onChange={(e) => setForm((s) => ({ ...s, adjustmentAccountId: e.target.value }))} options={accountOptions} required />
-          <Select label="Clearing account" value={form.clearingAccountId} onChange={(e) => setForm((s) => ({ ...s, clearingAccountId: e.target.value }))} options={accountOptions} required />
+          <AccountSelect label="Inventory account" value={form.inventoryAccountId} onChange={(e) => setForm((s) => ({ ...s, inventoryAccountId: e.target.value }))} filters={{ accountTypeCodes: ['ASSET'] }} required />
+          <AccountSelect label="COGS account" value={form.cogsAccountId} onChange={(e) => setForm((s) => ({ ...s, cogsAccountId: e.target.value }))} filters={{ accountTypeCodes: ['EXPENSE'] }} required />
+          <AccountSelect label="Adjustment account" value={form.adjustmentAccountId} onChange={(e) => setForm((s) => ({ ...s, adjustmentAccountId: e.target.value }))} allowEmpty required />
+          <AccountSelect label="Clearing account" value={form.clearingAccountId} onChange={(e) => setForm((s) => ({ ...s, clearingAccountId: e.target.value }))} allowEmpty required />
 
           <div className="md:col-span-2 flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => nav(-1)}>Cancel</Button>

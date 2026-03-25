@@ -12,6 +12,7 @@ import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 // Generate UUID v4
@@ -311,10 +312,10 @@ export default function VendorPaymentCreate() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Cash/Bank Account <span className="text-red-500">*</span>
                       </label>
-                      <Select
+                      <AccountSelect
                         value={formData.cashAccountId}
                         onChange={(e) => setFormData({ ...formData, cashAccountId: e.target.value })}
-                        options={accountOptions}
+                        allowEmpty
                       />
                     </div>
                     <div>

@@ -7,6 +7,7 @@ import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
 import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../../shared/components/forms/AccountSelect.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
 import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
 
@@ -38,7 +39,7 @@ export default function BalanceByAccount() {
     <div className="space-y-4">
       <PageHeader title="Account Activity" subtitle="Ledger activity for a single account within a date range." />
       <FilterBar>
-        <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} options={accountOptions} />
+        <AccountSelect value={accountId} onChange={(e) => setAccountId(e.target.value)} allowEmpty />
         <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
         <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
       </FilterBar>

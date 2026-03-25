@@ -19,6 +19,7 @@ import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { NONE_OPTION, toOptions } from '../../../shared/utils/options.js';
@@ -194,17 +195,17 @@ export default function Writeoffs() {
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <Select
+                  <AccountSelect
                     label="AR bad debt expense account"
                     value={settingsDraft?.ar_bad_debt_expense_account_id ?? ''}
                     onChange={(e) => setSettingsDraft((s) => ({ ...s, ar_bad_debt_expense_account_id: e.target.value || null }))}
-                    options={accountOptions}
+                    allowEmpty
                   />
-                  <Select
+                  <AccountSelect
                     label="AP write-off income account"
                     value={settingsDraft?.ap_writeoff_income_account_id ?? ''}
                     onChange={(e) => setSettingsDraft((s) => ({ ...s, ap_writeoff_income_account_id: e.target.value || null }))}
-                    options={accountOptions}
+                    allowEmpty
                   />
                 </div>
               </ContentCard>

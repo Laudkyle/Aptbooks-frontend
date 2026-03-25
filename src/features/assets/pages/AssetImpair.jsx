@@ -14,6 +14,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 
 export default function AssetImpair() {
@@ -88,7 +89,7 @@ export default function AssetImpair() {
           <Select label="Period" value={form.periodId} onChange={(e)=>setForm(s=>({...s, periodId:e.target.value}))} options={periodOptions} required />
 <Input label="Entry date" type="date" value={form.entryDate} onChange={(e)=>setForm(s=>({...s, entryDate:e.target.value}))} required />
 <Input label="Impairment amount" type="number" min="0" step="0.01" value={form.impairmentAmount} onChange={(e)=>setForm(s=>({...s, impairmentAmount:e.target.value}))} required />
-<Select label="Impairment loss account" value={form.impairmentLossAccountId} onChange={(e)=>setForm(s=>({...s, impairmentLossAccountId:e.target.value}))} options={accountOptions} required />
+<AccountSelect label="Impairment loss account" value={form.impairmentLossAccountId} onChange={(e)=>setForm(s=>({...s, impairmentLossAccountId:e.target.value}))} required />
 <Textarea className="md:col-span-2" label="Memo (optional)" value={form.memo} onChange={(e)=>setForm(s=>({...s, memo:e.target.value}))} />
           <div className="md:col-span-2 flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => nav(-1)}>

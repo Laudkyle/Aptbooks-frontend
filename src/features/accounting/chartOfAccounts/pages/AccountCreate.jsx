@@ -6,6 +6,7 @@ import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx'
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../../shared/components/forms/AccountSelect.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
@@ -60,7 +61,7 @@ export default function AccountCreate() {
           <Select label="Account type" value={accountTypeCode} onChange={(e) => setAccountTypeCode(e.target.value)} options={TYPE_OPTIONS} />
           <Input className="md:col-span-2" label="Name" value={name} onChange={(e) => setName(e.target.value)} />
           <Input label="Category (optional)" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} />
-          <Input label="Parent account ID (optional)" value={parentAccountId} onChange={(e) => setParentAccountId(e.target.value)} />
+          <AccountSelect label="Parent account (optional)" value={parentAccountId} onChange={(e) => setParentAccountId(e.target.value)} allowEmpty />
           <Select
             label="Postable"
             value={String(isPostable)}

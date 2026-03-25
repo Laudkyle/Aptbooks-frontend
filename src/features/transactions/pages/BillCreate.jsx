@@ -12,6 +12,7 @@ import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
@@ -162,7 +163,7 @@ export default function BillCreate() {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       <Input label="Description" value={line.description} onChange={(e) => updateLine(index, 'description', e.target.value)} />
-                      <Select label="Expense account" value={line.expenseAccountId} onChange={(e) => updateLine(index, 'expenseAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...expenseAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+                      <AccountSelect label="Expense account" value={line.expenseAccountId} onChange={(e) => updateLine(index, 'expenseAccountId', e.target.value)} filters={{ accountTypeCodes: ['EXPENSE'] }} allowEmpty />
                       <Select label="Tax code" value={line.taxCodeId} onChange={(e) => updateLine(index, 'taxCodeId', e.target.value)} options={[{ value: '', label: 'No tax code' }, ...taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
                       <Input label="Quantity" type="number" value={line.quantity} onChange={(e) => updateLine(index, 'quantity', Number(e.target.value))} />
                       <Input label="Unit price" type="number" value={line.unitPrice} onChange={(e) => updateLine(index, 'unitPrice', Number(e.target.value))} />

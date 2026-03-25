@@ -13,6 +13,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 
 export default function PaymentConfig() {
   const { http } = useApi();
@@ -568,10 +569,10 @@ export default function PaymentConfig() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Unapplied Receipts Account
                         </label>
-                        <Select
+                        <AccountSelect
                           value={settingsDraft?.arUnappliedAccountId ?? ''}
                           onChange={(e) => setSettingsDraft((s) => ({ ...s, arUnappliedAccountId: e.target.value || null }))}
-                          options={accountOptions}
+                          allowEmpty
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Default account for customer receipts not yet applied to invoices
@@ -599,10 +600,10 @@ export default function PaymentConfig() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Early Payment Discount Account
                         </label>
-                        <Select
+                        <AccountSelect
                           value={settingsDraft?.arDiscountAccountId ?? ''}
                           onChange={(e) => setSettingsDraft((s) => ({ ...s, arDiscountAccountId: e.target.value || null }))}
-                          options={accountOptions}
+                          allowEmpty
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Account for recording customer payment discounts
@@ -638,10 +639,10 @@ export default function PaymentConfig() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Prepayments Account
                         </label>
-                        <Select
+                        <AccountSelect
                           value={settingsDraft?.apPrepaymentsAccountId ?? ''}
                           onChange={(e) => setSettingsDraft((s) => ({ ...s, apPrepaymentsAccountId: e.target.value || null }))}
-                          options={accountOptions}
+                          allowEmpty
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Default account for vendor prepayments
@@ -669,10 +670,10 @@ export default function PaymentConfig() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Discount Income Account
                         </label>
-                        <Select
+                        <AccountSelect
                           value={settingsDraft?.apDiscountIncomeAccountId ?? ''}
                           onChange={(e) => setSettingsDraft((s) => ({ ...s, apDiscountIncomeAccountId: e.target.value || null }))}
-                          options={accountOptions}
+                          allowEmpty
                         />
                         <p className="text-xs text-gray-500 mt-1">
                           Account for recording vendor payment discounts received
@@ -709,10 +710,10 @@ export default function PaymentConfig() {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Online Cash Account
                           </label>
-                          <Select
+                          <AccountSelect
                             value={settingsDraft?.onlineCashAccountId ?? ''}
                             onChange={(e) => setSettingsDraft((s) => ({ ...s, onlineCashAccountId: e.target.value || null }))}
-                            options={accountOptions}
+                            allowEmpty
                           />
                           <p className="text-xs text-gray-500 mt-1">
                             Bank account for online payment deposits

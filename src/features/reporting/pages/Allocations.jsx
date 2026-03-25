@@ -54,6 +54,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { JsonEditor } from '../../../shared/components/data/JsonEditor.jsx';
@@ -1699,11 +1700,11 @@ export default function Allocations() {
             </div>
 
             <div>
-              <Select
+              <AccountSelect
                 label="Source Account"
                 value={ruleForm.sourceAccountId}
                 onChange={(e) => setRuleForm(f => ({ ...f, sourceAccountId: e.target.value }))}
-                options={accountOptions}
+                allowEmpty
                 error={formErrors.sourceAccountId}
                 required
               />
@@ -1864,7 +1865,7 @@ export default function Allocations() {
             label="Target Account"
             value={targetForm.toAccountId}
             onChange={(e) => setTargetForm(f => ({ ...f, toAccountId: e.target.value }))}
-            options={accountOptions}
+            allowEmpty
             required
           />
 

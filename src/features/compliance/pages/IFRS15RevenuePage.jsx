@@ -31,6 +31,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -604,26 +605,29 @@ export default function IFRS15RevenuePage() {
               Account Mappings
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
-              <Select
+              <AccountSelect
                 label="Revenue Account"
                 value={formData.revenue_account_id}
                 onChange={(e) => handleFieldChange('revenue_account_id', e.target.value)}
-                options={accountOptions}
+                allowEmpty
                 leftIcon={Receipt}
+                filters={{ accountTypeCodes: ['REVENUE'] }}
               />
-              <Select
+              <AccountSelect
                 label="Contract Asset Account"
                 value={formData.contract_asset_account_id}
                 onChange={(e) => handleFieldChange('contract_asset_account_id', e.target.value)}
-                options={accountOptions}
+                allowEmpty
                 leftIcon={CreditCard}
+                filters={{ accountTypeCodes: ['ASSET'] }}
               />
-              <Select
+              <AccountSelect
                 label="Contract Liability Account"
                 value={formData.contract_liability_account_id}
                 onChange={(e) => handleFieldChange('contract_liability_account_id', e.target.value)}
-                options={accountOptions}
+                allowEmpty
                 leftIcon={CreditCard}
+                filters={{ accountTypeCodes: ['LIABILITY'] }}
               />
             </div>
           </div>

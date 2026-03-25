@@ -13,6 +13,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 
 export default function AssetCategoryEdit() {
   const { id } = useParams();
@@ -107,31 +108,31 @@ export default function AssetCategoryEdit() {
             onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
           />
 
-          <Select
+          <AccountSelect
             label="Asset account"
             value={form.assetAccountId}
             onChange={(e) => setForm((s) => ({ ...s, assetAccountId: e.target.value }))}
             options={accountOptions}
           />
-          <Select
+          <AccountSelect
             label="Accumulated depreciation account"
             value={form.accumDeprAccountId}
             onChange={(e) => setForm((s) => ({ ...s, accumDeprAccountId: e.target.value }))}
             options={accountOptions}
           />
-          <Select
+          <AccountSelect
             label="Depreciation expense account"
             value={form.deprExpenseAccountId}
             onChange={(e) => setForm((s) => ({ ...s, deprExpenseAccountId: e.target.value }))}
             options={accountOptions}
           />
-          <Select
+          <AccountSelect
             label="Disposal gain account"
             value={form.disposalGainAccountId}
             onChange={(e) => setForm((s) => ({ ...s, disposalGainAccountId: e.target.value }))}
             options={accountOptions}
           />
-          <Select
+          <AccountSelect
             label="Disposal loss account"
             value={form.disposalLossAccountId}
             onChange={(e) => setForm((s) => ({ ...s, disposalLossAccountId: e.target.value }))}

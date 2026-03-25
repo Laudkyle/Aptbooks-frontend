@@ -11,6 +11,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Table } from '../../../shared/components/ui/Table.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -71,14 +72,6 @@ export default function BankAccountsPage() {
     }))
   );
 
-  const currencyRows = normalizeRows(currenciesQuery.data?.data);
-  console.log('currencyRows', currenciesQuery);
-  const currencyOptions = [{ value: '', label: 'Select currency' }].concat(
-    currencyRows.map((c) => ({
-      value: c.code ?? c.currency_code,
-      label: `${c.code ?? c.currency_code} — ${c.name ?? c.currency_name ?? ''}`.trim()
-    }))
-  );
 
   return (
     <div className="min-h-screen ">

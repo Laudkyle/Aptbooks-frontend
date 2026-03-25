@@ -13,6 +13,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
@@ -87,7 +88,7 @@ export default function KPIs() {
           <Input label="Code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} placeholder="e.g., GROSS_MARGIN" />
           <Input label="Name" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} placeholder="e.g., Gross margin" />
           <Select label="Type" value={form.kpiType} onChange={(e) => setForm((s) => ({ ...s, kpiType: e.target.value }))} options={[{ value: 'ACCOUNT_BALANCE', label: 'Account balance' }, { value: 'EXPRESSION', label: 'Expression' }]} />
-          {form.kpiType === 'ACCOUNT_BALANCE' ? <Select label="Account" value={form.accountId} onChange={(e) => setForm((s) => ({ ...s, accountId: e.target.value }))} options={accountOptions} /> : null}
+          {form.kpiType === 'ACCOUNT_BALANCE' ? <AccountSelect label="Account" value={form.accountId} onChange={(e) => setForm((s) => ({ ...s, accountId: e.target.value }))} allowEmpty /> : null}
           <Select label="Status" value={form.status} onChange={(e) => setForm((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
           <Input label="Category" value={form.category} onChange={(e) => setForm((s) => ({ ...s, category: e.target.value }))} placeholder="Optional" />
           <div className="flex items-center justify-end gap-2 pt-2"><Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button onClick={createDefinition} disabled={!form.code || !form.name || (form.kpiType === 'ACCOUNT_BALANCE' && !form.accountId)}>Create</Button></div>

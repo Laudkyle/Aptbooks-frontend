@@ -8,7 +8,9 @@ import { qk } from '../../../shared/query/keys.js';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { makeOpsDocsApi } from '../api/opsDocs.api.js';
@@ -639,13 +641,10 @@ export default function OperationalDocCreate({ moduleKey }) {
                           {accountsQuery.isLoading ? (
                             <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
                           ) : (
-                            <Select
+                            <AccountSelect
                               value={line.accountId}
                               onChange={(e) => updateLine(index, 'accountId', e.target.value)}
-                              options={[
-                                { value: '', label: 'Select account...' },
-                                ...accountOptions
-                              ]}
+                              allowEmpty
                             />
                           )}
                         </div>

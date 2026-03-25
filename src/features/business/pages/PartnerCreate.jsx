@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
@@ -115,9 +116,9 @@ export default function PartnerCreate() {
             <Input label="Phone" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
             <Select label="Payment terms" value={form.paymentTermsId} onChange={(e) => set('paymentTermsId', e.target.value)} options={[{ value: '', label: 'Select terms' }, ...paymentTerms.map((p) => ({ value: p.id, label: p.name || p.code || p.id }))]} />
             {form.type === 'customer' ? (
-              <Select label="Default receivable account" value={form.defaultReceivableAccountId} onChange={(e) => set('defaultReceivableAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...receivableAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+              <AccountSelect label="Default receivable account" value={form.defaultReceivableAccountId} onChange={(e) => set('defaultReceivableAccountId', e.target.value)} filters={{ accountTypeCodes: ['ASSET'] }} allowEmpty />
             ) : (
-              <Select label="Default payable account" value={form.defaultPayableAccountId} onChange={(e) => set('defaultPayableAccountId', e.target.value)} options={[{ value: '', label: 'Select account' }, ...payableAccounts.map((a) => ({ value: a.id, label: `${a.code ? `${a.code} — ` : ''}${a.name}` }))]} />
+              <AccountSelect label="Default payable account" value={form.defaultPayableAccountId} onChange={(e) => set('defaultPayableAccountId', e.target.value)} filters={{ accountTypeCodes: ['LIABILITY'] }} allowEmpty />
             )}
             <div className="md:col-span-2">
               <Textarea label="Notes" rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} />

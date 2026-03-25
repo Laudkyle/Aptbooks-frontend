@@ -31,6 +31,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -558,65 +559,47 @@ export default function IFRS16LeasesPage() {
               Account Mappings
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
-              <Select
+              <AccountSelect
                 label="ROU Asset Account"
                 value={formData.rou_asset_account_id}
-                onChange={(e) => handleFieldChange('rou_asset_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'ROU Asset Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={BookOpen}
+                allowEmpty
               />
-              <Select
+              <AccountSelect
                 label="Lease Liability Account"
                 value={formData.lease_liability_account_id}
-                onChange={(e) => handleFieldChange('lease_liability_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'Lease Liability Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={CreditCard}
+                allowEmpty
               />
-              <Select
+              <AccountSelect
                 label="Interest Expense Account"
                 value={formData.interest_expense_account_id}
-                onChange={(e) => handleFieldChange('interest_expense_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'Interest Expense Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={Percent}
+                allowEmpty
               />
-              <Select
+              <AccountSelect
                 label="Depreciation Expense Account"
                 value={formData.depreciation_expense_account_id}
-                onChange={(e) => handleFieldChange('depreciation_expense_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'Depreciation Expense Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={Receipt}
+                allowEmpty
               />
-              <Select
+              <AccountSelect
                 label="Accumulated Depreciation Account"
                 value={formData.accumulated_depreciation_account_id}
-                onChange={(e) => handleFieldChange('accumulated_depreciation_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'Accumulated Depreciation Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={BookOpen}
+                allowEmpty
               />
-              <Select
+              <AccountSelect
                 label="Cash / Bank Account"
                 value={formData.cash_account_id}
-                onChange={(e) => handleFieldChange('cash_account_id', e.target.value)}
-                options={[
-                  { value: '', label: '— Select account —' },
-                  ...accountOptions
-                ]}
+                onChange={(e) => handleFieldChange(\'Cash / Bank Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
                 leftIcon={PiggyBank}
+                allowEmpty
               />
             </div>
           </div>

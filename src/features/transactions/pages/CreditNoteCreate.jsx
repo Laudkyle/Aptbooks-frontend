@@ -11,6 +11,7 @@ import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 // Generate UUID v4
@@ -507,19 +508,12 @@ export default function CreditNoteCreate() {
                           {coaQuery.isLoading ? (
                             <div className="text-xs text-gray-500 py-2">Loading accounts...</div>
                           ) : (
-                            <select
+                            <AccountSelect
                               value={line.revenueAccountId}
                               onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                              filters={{ accountTypeCodes: ['REVENUE'] }}
                               required
-                            >
-                              <option value="">Select revenue account</option>
-                              {revenueAccounts.map((account) => (
-                                <option key={account.id} value={account.id}>
-                                  {account.code ? `${account.code} - ` : ''}{account.name || account.account_name || account.id}
-                                </option>
-                              ))}
-                            </select>
+                            />
                           )}
                         </div>
 

@@ -18,6 +18,7 @@ import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { ConfirmDialog } from '../../../shared/components/ui/ConfirmDialog.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
@@ -268,23 +269,24 @@ export default function IFRS9ECLPage() {
                   <div className="lg:col-span-2 rounded-xl border border-border-subtle p-4">
                     <div className="text-sm font-semibold text-brand-deep">Posting & thresholds</div>
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
-                      <Select
+                      <AccountSelect
                         label="Allowance account"
                         value={effectiveSettingsForm.allowance_account_id}
                         onChange={(e) => setSettingsForm((s) => ({ ...(s ?? effectiveSettingsForm), allowance_account_id: e.target.value }))}
-                        options={accountOptions}
+                        allowEmpty
                       />
-                      <Select
+                      <AccountSelect
                         label="Impairment expense account"
                         value={effectiveSettingsForm.impairment_expense_account_id}
                         onChange={(e) => setSettingsForm((s) => ({ ...(s ?? effectiveSettingsForm), impairment_expense_account_id: e.target.value }))}
-                        options={accountOptions}
+                        allowEmpty
+                        filters={{ accountTypeCodes: ['EXPENSE'] }}
                       />
-                      <Select
+                      <AccountSelect
                         label="Write-off account"
                         value={effectiveSettingsForm.writeoff_account_id}
                         onChange={(e) => setSettingsForm((s) => ({ ...(s ?? effectiveSettingsForm), writeoff_account_id: e.target.value }))}
-                        options={accountOptions}
+                        allowEmpty
                       />
                       <div />
                       <Input

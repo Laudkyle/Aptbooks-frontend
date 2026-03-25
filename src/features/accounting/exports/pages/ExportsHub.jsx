@@ -9,6 +9,7 @@ import { ContentCard } from '../../../../shared/components/layout/ContentCard.js
 import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
 import { ExportButton } from '../../../../shared/components/data/ExportButton.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../../shared/components/forms/AccountSelect.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { downloadBlob, filenameFromContentDisposition } from '../../../../shared/utils/fileDownload.js';
@@ -93,7 +94,7 @@ export default function ExportsHub() {
             </ExportButton>
           }
         >
-          <Select value={accountId} onChange={(e) => setAccountId(e.target.value)} options={accountOptions} />
+          <AccountSelect value={accountId} onChange={(e) => setAccountId(e.target.value)} allowEmpty />
           <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
         </FilterBar>

@@ -17,6 +17,7 @@ import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { FilterBar } from '../../../shared/components/data/FilterBar.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { ConfirmDialog } from '../../../shared/components/ui/ConfirmDialog.jsx';
@@ -255,29 +256,29 @@ export default function IAS12TaxesPage() {
               options={rateSetOptions}
             />
 
-            <Select
+            <AccountSelect
               label="Deferred tax asset account"
               value={String(settingsForm?.deferred_tax_asset_account_id ?? '')}
               onChange={(e) => setSettingsForm((s) => ({ ...(s ?? {}), deferred_tax_asset_account_id: e.target.value || null }))}
-              options={accountOptions}
+              allowEmpty
             />
-            <Select
+            <AccountSelect
               label="Deferred tax liability account"
               value={String(settingsForm?.deferred_tax_liability_account_id ?? '')}
               onChange={(e) => setSettingsForm((s) => ({ ...(s ?? {}), deferred_tax_liability_account_id: e.target.value || null }))}
-              options={accountOptions}
+              allowEmpty
             />
-            <Select
+            <AccountSelect
               label="Tax expense account"
               value={String(settingsForm?.tax_expense_account_id ?? '')}
               onChange={(e) => setSettingsForm((s) => ({ ...(s ?? {}), tax_expense_account_id: e.target.value || null }))}
-              options={accountOptions}
+              allowEmpty
             />
-            <Select
+            <AccountSelect
               label="Tax payable account"
               value={String(settingsForm?.tax_payable_account_id ?? '')}
               onChange={(e) => setSettingsForm((s) => ({ ...(s ?? {}), tax_payable_account_id: e.target.value || null }))}
-              options={accountOptions}
+              allowEmpty
             />
 
             <Select
