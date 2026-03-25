@@ -33,6 +33,7 @@ function formatLabel(value) {
     .replace(/[_-]+/g, " ")
     .replace(/^./, (c) => c.toUpperCase());
 }
+
 function statusTone(value) {
   const v = String(value ?? "").toLowerCase();
   if (["posted", "active", "ready", "enabled"].includes(v)) return "success";
@@ -54,66 +55,79 @@ export default function TaxAdmin() {
     queryFn: api.listJurisdictions,
     staleTime: 10000,
   });
+
   const codesQ = useQuery({
     queryKey: ["tax-codes-admin"],
     queryFn: () => api.listCodes({}),
     staleTime: 10000,
   });
+
   const settingsQ = useQuery({
     queryKey: ["tax-settings"],
     queryFn: api.getSettings,
     staleTime: 10000,
   });
+
   const adjustmentsQ = useQuery({
     queryKey: qk.taxAdjustments({}),
     queryFn: () => api.listAdjustments({}),
     staleTime: 10000,
   });
+
   const accountsQ = useQuery({
     queryKey: ["coa", "tax-admin"],
     queryFn: () => coaApi.list({ includeArchived: "false" }),
     staleTime: 10000,
   });
+
   const registrationsQ = useQuery({
     queryKey: ["tax-registrations"],
     queryFn: () => api.listRegistrations({}),
     staleTime: 10000,
   });
+
   const rulesQ = useQuery({
     queryKey: ["tax-rules"],
     queryFn: () => api.listRules({}),
     staleTime: 10000,
   });
+
   const profilesQ = useQuery({
     queryKey: ["tax-profiles"],
     queryFn: () => api.listPartnerProfiles({}),
     staleTime: 10000,
   });
+
   const einvoiceQ = useQuery({
     queryKey: ["tax-einvoice-settings"],
     queryFn: api.getEinvoicingSettings,
     staleTime: 10000,
   });
+
   const returnTemplatesQ = useQuery({
     queryKey: ["tax-return-templates"],
     queryFn: () => api.listReturnTemplates({}),
     staleTime: 10000,
   });
+
   const returnConfigsQ = useQuery({
     queryKey: ["tax-return-configs"],
     queryFn: () => api.listReturnConfigs({}),
     staleTime: 10000,
   });
+
   const countryPacksQ = useQuery({
     queryKey: ["tax-country-packs"],
     queryFn: () => api.listCountryPacks({}),
     staleTime: 10000,
   });
+
   const automationRulesQ = useQuery({
     queryKey: ["tax-automation-rules"],
     queryFn: () => api.listAutomationRules({}),
     staleTime: 10000,
   });
+
   const filingAdaptersQ = useQuery({
     queryKey: ["tax-filing-adapters"],
     queryFn: () => api.listFilingAdapters({}),
@@ -133,22 +147,40 @@ export default function TaxAdmin() {
   const automationRules = normalizeRows(automationRulesQ.data);
   const filingAdapters = normalizeRows(filingAdaptersQ.data);
 
-  const accountOptions = [{ value: "", label: "Select account" }].concat(
-    accounts.map((a) => ({
-      value: a.id,
-      label: `${a.code ? `${a.code} — ` : ""}${a.name}`,
-    })),
-  );
   const jurisOptions = [{ value: "", label: "No jurisdiction" }].concat(
     jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` })),
   );
+
   const taxCodeOptions = [{ value: "", label: "None" }].concat(
     taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` })),
   );
 
+  const accountLabelById = useMemo(() => {
+    const map = new Map();
+    accounts.forEach((a) => {
+      map.set(
+        String(a.id),
+        `${a.code ? `${a.code} — ` : ""}${a.name || a.accountName || "Unnamed account"}`,
+      );
+    });
+    return map;
+  }, [accounts]);
+
+  const taxCodeLabelById = useMemo(() => {
+    const map = new Map();
+    taxCodes.forEach((c) => {
+      map.set(
+        String(c.id),
+        `${c.code ? `${c.code} — ` : ""}${c.name || "Unnamed tax code"}`,
+      );
+    });
+    return map;
+  }, [taxCodes]);
+
   const [jCode, setJCode] = useState("");
   const [jName, setJName] = useState("");
   const [countryCode, setCountryCode] = useState("");
+
   const createJ = useMutation({
     mutationFn: () =>
       api.createJurisdiction({
@@ -174,6 +206,7 @@ export default function TaxAdmin() {
   const [rate, setRate] = useState("");
   const [direction, setDirection] = useState("");
   const [taxCategory, setTaxCategory] = useState("standard");
+
   const createCode = useMutation({
     mutationFn: () =>
       api.createCode({
@@ -197,7 +230,6 @@ export default function TaxAdmin() {
       toast.error(e.response?.data?.message ?? e.message ?? "Create failed"),
   });
 
-  // Settings state
   const [outputTaxAccountId, setOutputTaxAccountId] = useState("");
   const [inputTaxAccountId, setInputTaxAccountId] = useState("");
   const [defaultTaxCodeId, setDefaultTaxCodeId] = useState("");
@@ -252,9 +284,9 @@ export default function TaxAdmin() {
         nonRecoverableInputTaxAccountId:
           nonRecoverableInputTaxAccountId || null,
         reverseChargeTaxAccountId: reverseChargeTaxAccountId || null,
-        taxRoundingStrategy: taxRoundingStrategy,
-        enforcePartnerTaxProfile: enforcePartnerTaxProfile,
-        requireTaxJurisdiction: requireTaxJurisdiction,
+        taxRoundingStrategy,
+        enforcePartnerTaxProfile,
+        requireTaxJurisdiction,
       }),
     onSuccess: () => {
       toast.success("Settings saved.");
@@ -264,6 +296,71 @@ export default function TaxAdmin() {
       toast.error(e.response?.data?.message ?? e.message ?? "Save failed"),
   });
 
+  const configuredSettings = useMemo(
+    () =>
+      [
+        {
+          label: "Output tax account",
+          value: outputTaxAccountId
+            ? accountLabelById.get(String(outputTaxAccountId)) ||
+              outputTaxAccountId
+            : null,
+        },
+        {
+          label: "Input tax account",
+          value: inputTaxAccountId
+            ? accountLabelById.get(String(inputTaxAccountId)) ||
+              inputTaxAccountId
+            : null,
+        },
+        {
+          label: "Default tax code",
+          value: defaultTaxCodeId
+            ? taxCodeLabelById.get(String(defaultTaxCodeId)) || defaultTaxCodeId
+            : null,
+        },
+        {
+          label: "Withholding tax payable account",
+          value: withholdingTaxPayableAccountId
+            ? accountLabelById.get(String(withholdingTaxPayableAccountId)) ||
+              withholdingTaxPayableAccountId
+            : null,
+        },
+        {
+          label: "Withholding tax receivable account",
+          value: withholdingTaxReceivableAccountId
+            ? accountLabelById.get(String(withholdingTaxReceivableAccountId)) ||
+              withholdingTaxReceivableAccountId
+            : null,
+        },
+        {
+          label: "Non-recoverable input tax account",
+          value: nonRecoverableInputTaxAccountId
+            ? accountLabelById.get(String(nonRecoverableInputTaxAccountId)) ||
+              nonRecoverableInputTaxAccountId
+            : null,
+        },
+        {
+          label: "Reverse charge tax account",
+          value: reverseChargeTaxAccountId
+            ? accountLabelById.get(String(reverseChargeTaxAccountId)) ||
+              reverseChargeTaxAccountId
+            : null,
+        },
+      ].filter((item) => item.value != null),
+    [
+      outputTaxAccountId,
+      inputTaxAccountId,
+      defaultTaxCodeId,
+      withholdingTaxPayableAccountId,
+      withholdingTaxReceivableAccountId,
+      nonRecoverableInputTaxAccountId,
+      reverseChargeTaxAccountId,
+      accountLabelById,
+      taxCodeLabelById,
+    ],
+  );
+
   const [reg, setReg] = useState({
     jurisdictionId: "",
     registrationNumber: "",
@@ -272,6 +369,7 @@ export default function TaxAdmin() {
     effectiveFrom: "",
     effectiveTo: "",
   });
+
   const createRegistration = useMutation({
     mutationFn: () => api.createRegistration(reg),
     onSuccess: () => {
@@ -299,6 +397,7 @@ export default function TaxAdmin() {
     taxCodeId: "",
     priority: 100,
   });
+
   const createRule = useMutation({
     mutationFn: () => api.createRule(rule),
     onSuccess: () => {
@@ -325,9 +424,11 @@ export default function TaxAdmin() {
     transportProfile: "",
     realtimeFilingEnabled: false,
   });
+
   useEffect(() => {
     if (einvoiceQ.data) setEinvoice((s) => ({ ...s, ...einvoiceQ.data }));
   }, [einvoiceQ.data]);
+
   const saveEinvoice = useMutation({
     mutationFn: () => api.saveEinvoicingSettings(einvoice),
     onSuccess: () => {
@@ -378,6 +479,7 @@ export default function TaxAdmin() {
       render: (row) => Number(row.rate ?? 0).toFixed(2),
     },
   ];
+
   const simpleColumns = (fields) =>
     fields.map((field) => ({
       header: formatLabel(field),
@@ -399,6 +501,7 @@ export default function TaxAdmin() {
         subtitle="Wave 1–3 frontend coverage for tax domain redesign, determination controls, partner tax profiles, e-invoicing, filing adapters, automation, and country packs."
         icon={ShieldCheck}
       />
+
       <Tabs
         value={tab}
         onChange={setTab}
@@ -447,6 +550,7 @@ export default function TaxAdmin() {
               </div>
             </div>
           </ContentCard>
+
           <ContentCard title="New tax code">
             <div className="grid gap-4 md:grid-cols-3">
               <Select
@@ -515,9 +619,11 @@ export default function TaxAdmin() {
               </div>
             </div>
           </ContentCard>
+
           <ContentCard title="Tax codes register">
             <DataTable columns={codeColumns} rows={taxCodes} />
           </ContentCard>
+
           <ContentCard title="Jurisdictions">
             <DataTable
               columns={simpleColumns(["code", "name", "country_code"])}
@@ -592,6 +698,7 @@ export default function TaxAdmin() {
               </div>
             </div>
           </ContentCard>
+
           <ContentCard title="Registrations">
             <DataTable
               columns={simpleColumns([
@@ -696,6 +803,7 @@ export default function TaxAdmin() {
               </div>
             </div>
           </ContentCard>
+
           <ContentCard title="Determination rules">
             <DataTable
               columns={simpleColumns([
@@ -803,7 +911,29 @@ export default function TaxAdmin() {
               </Button>
             </div>
           </div>
-         
+
+          {configuredSettings.length ? (
+            <div className="mt-6 rounded-2xl border border-border-subtle bg-surface/60 p-4">
+              <div className="mb-3 text-sm font-semibold text-text-strong">
+                Current account mappings
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                {configuredSettings.map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-xl border border-border-subtle bg-background px-3 py-2"
+                  >
+                    <div className="text-xs uppercase tracking-wide text-text-muted">
+                      {item.label}
+                    </div>
+                    <div className="mt-1 text-sm font-medium text-text-strong">
+                      {item.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </ContentCard>
       ) : null}
 
@@ -871,7 +1001,7 @@ export default function TaxAdmin() {
                       realtimeFilingEnabled: e.target.checked,
                     }))
                   }
-                />{" "}
+                />
                 Enable real-time filing
               </label>
               <div className="flex items-end">
@@ -884,6 +1014,7 @@ export default function TaxAdmin() {
               </div>
             </div>
           </ContentCard>
+
           <ContentCard title="Return templates">
             <DataTable
               columns={simpleColumns([
@@ -896,6 +1027,7 @@ export default function TaxAdmin() {
               rows={returnTemplates}
             />
           </ContentCard>
+
           <ContentCard title="Jurisdiction return configs">
             <DataTable
               columns={simpleColumns([
@@ -907,6 +1039,7 @@ export default function TaxAdmin() {
               rows={returnConfigs}
             />
           </ContentCard>
+
           <ContentCard title="Manual tax adjustments">
             <DataTable
               columns={simpleColumns([
@@ -929,6 +1062,7 @@ export default function TaxAdmin() {
               rows={automationRules}
             />
           </ContentCard>
+
           <ContentCard title="Near-real-time filing adapters">
             <DataTable
               columns={simpleColumns([
@@ -940,6 +1074,7 @@ export default function TaxAdmin() {
               rows={filingAdapters}
             />
           </ContentCard>
+
           <ContentCard title="Country packs">
             <DataTable
               columns={simpleColumns([
