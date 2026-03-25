@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeJournalsApi } from '../api/journals.api.js';
@@ -21,6 +22,7 @@ export default function JournalCreate() {
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
+  const navigate = useNavigate();
 
   const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
   const accountsQ = useQuery({ queryKey: ['coa', 'active'], queryFn: () => coaApi.list({ includeArchived: 'false' }), staleTime: 10_000 });
@@ -73,7 +75,7 @@ export default function JournalCreate() {
       }),
     onSuccess: (data) => {
       toast.success('Journal draft created.');
-      window.location.href = ROUTES.accountingJournalDetail(data?.id ?? '');
+      navigate(ROUTES.accountingJournalDetail(data?.id ?? ''));
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Create failed')
   });
@@ -168,7 +170,7 @@ export default function JournalCreate() {
             Totals — Debit: {deb.toFixed(2)} | Credit: {cre.toFixed(2)} {balanced ? '(Balanced)' : '(Not balanced)'}
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => (window.location.href = ROUTES.accountingJournals)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => navigate(ROUTES.accountingJournals)}>Cancel</Button>
             <Button onClick={() => create.mutate()} disabled={create.isLoading || !periodId || !entryDate || lines.length < 2 || !balanced}>
               Create draft
             </Button>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeAccrualsApi } from '../api/accruals.api.js';
@@ -21,6 +22,7 @@ export default function AccrualCreate() {
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const toast = useToast();
+  const navigate = useNavigate();
 
   const accountsQ = useQuery({ queryKey: ['coa', 'active'], queryFn: () => coaApi.list({ includeArchived: 'false' }), staleTime: 10_000 });
   const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
@@ -82,7 +84,7 @@ export default function AccrualCreate() {
       }),
     onSuccess: () => {
       toast.success('Accrual rule created.');
-      window.location.href = ROUTES.accountingAccruals;
+      navigate(ROUTES.accountingAccruals);
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Create failed')
   });
@@ -174,7 +176,7 @@ export default function AccrualCreate() {
         </Table>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => (window.location.href = ROUTES.accountingAccruals)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => navigate(ROUTES.accountingAccruals)}>Cancel</Button>
           <Button
             onClick={() => create.mutate()}
             disabled={

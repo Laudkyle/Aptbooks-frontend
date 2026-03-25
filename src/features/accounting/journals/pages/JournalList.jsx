@@ -121,7 +121,7 @@ console.log(listQ);
       <PageHeader
         title="Journals"
         subtitle="Create, submit, approve/reject, post, and void journals."
-        actions={<Button onClick={() => (window.location.href = ROUTES.accountingJournalNew)}>New journal</Button>}
+        actions={<Button onClick={() => navigate(ROUTES.accountingJournalNew)}>New journal</Button>}
       />
 
       <FilterBar

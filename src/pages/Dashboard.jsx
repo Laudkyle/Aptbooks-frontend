@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   FileText,
@@ -18,6 +18,7 @@ import { Button } from '../shared/components/ui/Button.jsx';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="app-page">
@@ -26,11 +27,11 @@ export default function Dashboard() {
         subtitle={`Signed in as ${user?.email ?? '—'}`}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="primary" size="sm" onClick={() => (window.location.href = ROUTES.accountingJournals)}>
+            <Button variant="primary" size="sm" onClick={() => navigate(ROUTES.accountingJournals)}>
               <FileText className="h-4 w-4" />
               New journal
             </Button>
-            <Button variant="outline" size="sm" onClick={() => (window.location.href = ROUTES.search)}>
+            <Button variant="outline" size="sm" onClick={() => navigate(ROUTES.search)}>
               <Search className="h-4 w-4" />
               Search
             </Button>
