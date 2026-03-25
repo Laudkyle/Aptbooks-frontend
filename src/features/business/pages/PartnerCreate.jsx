@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { buildPartnerTaxProfilePayload, normalizeRows } from '../../../shared/tax/frontendTax.js';
@@ -141,7 +142,7 @@ export default function PartnerCreate() {
             <Input label="Exemption expiry" type="date" value={form.exemptionExpiryDate} onChange={(e) => set('exemptionExpiryDate', e.target.value)} />
             <Input label="E-invoice scheme" value={form.eInvoiceScheme} onChange={(e) => set('eInvoiceScheme', e.target.value)} placeholder="PEPPOL / GRA / etc." />
             <Input label="Buyer reference" value={form.buyerReference} onChange={(e) => set('buyerReference', e.target.value)} />
-            <Input label="Filing currency" value={form.filingCurrency} onChange={(e) => set('filingCurrency', e.target.value.toUpperCase())} />
+            <CurrencySelect label="Filing currency" value={form.filingCurrency} onChange={(e) => set('filingCurrency', e.target.value)} allowEmpty />
             <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm"><input type="checkbox" checked={form.withholdingEnabled} onChange={(e) => set('withholdingEnabled', e.target.checked)} /> Withholding enabled</label>
             <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm"><input type="checkbox" checked={form.reverseChargeEligible} onChange={(e) => set('reverseChargeEligible', e.target.checked)} /> Reverse charge eligible</label>
           </div>

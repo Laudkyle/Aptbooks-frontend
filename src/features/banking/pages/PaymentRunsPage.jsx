@@ -8,6 +8,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
@@ -38,7 +39,7 @@ export default function PaymentRunsPage() {
       <div className="grid md:grid-cols-2 gap-4">
         <Select label="Bank account" value={form.bankAccountId} onChange={(e)=>setForm(s=>({...s, bankAccountId:e.target.value}))} options={[{value:'', label:'Select bank account'}, ...accounts.map(a=>({value:a.id, label:`${a.code} ${a.name}`}))]} />
         <Input label="Execution date" type="date" value={form.executionDate} onChange={(e)=>setForm(s=>({...s, executionDate:e.target.value}))} />
-        <Input label="Currency code (optional)" value={form.currencyCode} onChange={(e)=>setForm(s=>({...s, currencyCode:e.target.value}))} />
+        <CurrencySelect label="Currency (optional)" value={form.currencyCode} onChange={(e)=>setForm(s=>({...s, currencyCode:e.target.value}))} allowEmpty />
         <Textarea label="Memo" value={form.memo} onChange={(e)=>setForm(s=>({...s, memo:e.target.value}))} className="md:col-span-2" />
       </div>
     </Modal>

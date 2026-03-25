@@ -10,6 +10,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Table } from '../../../shared/components/ui/Table.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -38,11 +39,6 @@ export default function BankAccountsPage() {
   const coaQuery = useQuery({
     queryKey: ['coa.list'],
     queryFn: async () => coaApi.listAccounts?.() ?? coaApi.list?.() ?? []
-  });
-
-  const currenciesQuery = useQuery({
-    queryKey: ['currencies.list'],
-    queryFn: async () => api.listCurrencies(http)
   });
 
   const createMutation = useMutation({
@@ -255,11 +251,11 @@ export default function BankAccountsPage() {
               value={form.code}
               onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))}
             />
-            <Select
+            <CurrencySelect
               label="Currency"
               value={form.currencyCode}
               onChange={(e) => setForm((p) => ({ ...p, currencyCode: e.target.value }))}
-              options={currencyOptions}
+              allowEmpty
             />
             <div className="md:col-span-2">
               <Input

@@ -8,6 +8,7 @@ import { qk } from '../../../shared/query/keys.js';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { makeOpsDocsApi } from '../api/opsDocs.api.js';
@@ -505,14 +506,11 @@ export default function OperationalDocCreate({ moduleKey }) {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Currency
-                  </label>
-                  <Input
+                  <CurrencySelect
+                    label="Currency"
                     value={form.currencyCode}
-                    onChange={(e) => updateField('currencyCode', e.target.value.toUpperCase())}
-                    placeholder="e.g. GHS"
-                    maxLength={3}
+                    onChange={(e) => updateField('currencyCode', e.target.value)}
+                    allowEmpty
                   />
                 </div>
 

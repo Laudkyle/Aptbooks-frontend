@@ -4,6 +4,7 @@ import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeFxApi } from '../api/fx.api.js';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../../shared/components/forms/CurrencySelect.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Tabs } from '../../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
@@ -267,17 +268,17 @@ export default function FxRates() {
                       options={typeOptions}
                       label="Rate Type"
                     />
-                    <Input 
-                      label="From Currency" 
-                      value={fromCurrency} 
-                      onChange={(e) => setFromCurrency(e.target.value.toUpperCase())}
-                      placeholder="USD"
+                    <CurrencySelect
+                      label="From Currency"
+                      value={fromCurrency}
+                      onChange={(e) => setFromCurrency(e.target.value)}
+                      allowEmpty
                     />
-                    <Input 
-                      label="To Currency" 
-                      value={toCurrency} 
-                      onChange={(e) => setToCurrency(e.target.value.toUpperCase())}
-                      placeholder="GHS"
+                    <CurrencySelect
+                      label="To Currency"
+                      value={toCurrency}
+                      onChange={(e) => setToCurrency(e.target.value)}
+                      allowEmpty
                     />
                     <div className="flex items-end">
                       <Button 
@@ -455,17 +456,15 @@ export default function FxRates() {
                       options={typeOptions}
                       label="Rate Type *"
                     />
-                    <Input 
-                      label="From Currency *" 
-                      value={fromCurrency} 
-                      onChange={(e) => setFromCurrency(e.target.value.toUpperCase())}
-                      placeholder="USD"
+                    <CurrencySelect
+                      label="From Currency *"
+                      value={fromCurrency}
+                      onChange={(e) => setFromCurrency(e.target.value)}
                     />
-                    <Input 
-                      label="To Currency *" 
-                      value={toCurrency} 
-                      onChange={(e) => setToCurrency(e.target.value.toUpperCase())}
-                      placeholder="GHS"
+                    <CurrencySelect
+                      label="To Currency *"
+                      value={toCurrency}
+                      onChange={(e) => setToCurrency(e.target.value)}
                     />
                     <Input 
                       label="As Of Date *" 

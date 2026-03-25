@@ -3,10 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { useAuth } from '../../../shared/hooks/useAuth.js';
-import { CURRENCIES } from '../../../app/constants/currencies.js';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { normalizeError } from '../../../shared/api/errors.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 
@@ -44,11 +43,10 @@ export default function Register() {
         }}
       >
         <Input label="Organization name" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} required />
-        <Select
+        <CurrencySelect
           label="Base currency"
           value={baseCurrencyCode}
           onChange={(e) => setBaseCurrencyCode(e.target.value)}
-          options={CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
         />
         <Input label="Admin email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <Input label="Password (min 10 chars)" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={10} required />

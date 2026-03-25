@@ -12,6 +12,7 @@ import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -141,7 +142,7 @@ export default function InvoiceCreate() {
               <Input label="Place of supply country" value={payload.placeOfSupplyCountryCode} onChange={(e) => setField('placeOfSupplyCountryCode', e.target.value.toUpperCase())} placeholder="e.g. GH" />
               <Select label="Pricing mode" value={payload.pricingMode} onChange={(e) => setField('pricingMode', e.target.value)} options={[{ value: 'exclusive', label: 'Tax exclusive' }, { value: 'inclusive', label: 'Tax inclusive' }]} />
               <Select label="Supply type" value={payload.supplyType} onChange={(e) => setField('supplyType', e.target.value)} options={[{ value: 'goods', label: 'Goods' }, { value: 'services', label: 'Services' }, { value: 'mixed', label: 'Mixed supply' }, { value: 'export', label: 'Export' }]} />
-              <Input label="Currency" value={payload.currencyCode} onChange={(e) => setField('currencyCode', e.target.value.toUpperCase())} />
+              <CurrencySelect label="Currency" value={payload.currencyCode} onChange={(e) => setField('currencyCode', e.target.value)} />
               <Input label="Buyer reference" value={payload.buyerReference} onChange={(e) => setField('buyerReference', e.target.value)} placeholder="Needed for e-invoicing" />
               <div className="md:col-span-2">
                 <Textarea label="Memo" rows={3} value={payload.memo} onChange={(e) => setField('memo', e.target.value)} placeholder="Commercial memo, supply notes, or filing references" />
