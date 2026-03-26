@@ -249,28 +249,28 @@ export default function TaxAdmin() {
   const [requireTaxJurisdiction, setRequireTaxJurisdiction] = useState(false);
 
   useEffect(() => {
-    if (!settingsQ.data) return;
-    setOutputTaxAccountId(settingsQ.data.outputTaxAccountId ?? "");
-    setInputTaxAccountId(settingsQ.data.inputTaxAccountId ?? "");
-    setDefaultTaxCodeId(settingsQ.data.defaultTaxCodeId ?? "");
+    if (!settingsQ.data?.data) return;
+    setOutputTaxAccountId(settingsQ.data?.data.output_tax_account_id ?? "");
+    setInputTaxAccountId(settingsQ.data?.data.input_tax_account_id ?? "");
+    setDefaultTaxCodeId(settingsQ.data?.data.default_tax_code_id ?? "");
     setWithholdingTaxPayableAccountId(
-      settingsQ.data.withholdingTaxPayableAccountId ?? "",
+      settingsQ.data?.data.withholding_tax_payable_account_id  ?? "",
     );
     setWithholdingTaxReceivableAccountId(
-      settingsQ.data.withholdingTaxReceivableAccountId ?? "",
+      settingsQ.data?.data.withholding_tax_receivable_account_id ?? "",
     );
     setNonRecoverableInputTaxAccountId(
-      settingsQ.data.nonRecoverableInputTaxAccountId ?? "",
+      settingsQ.data?.data.non_recoverable_input_tax_account_id ?? "",
     );
     setReverseChargeTaxAccountId(
-      settingsQ.data.reverseChargeTaxAccountId ?? "",
+      settingsQ.data?.data.reverse_charge_tax_account_id ?? "",
     );
-    setTaxRoundingStrategy(settingsQ.data.taxRoundingStrategy ?? "line");
+    setTaxRoundingStrategy(settingsQ.data?.data.tax_rounding_strategy ?? "line");
     setEnforcePartnerTaxProfile(
-      settingsQ.data.enforcePartnerTaxProfile ?? false,
+      settingsQ.data?.data.enforce_partner_tax_profile ?? false,
     );
-    setRequireTaxJurisdiction(settingsQ.data.requireTaxJurisdiction ?? false);
-  }, [settingsQ.data]);
+    setRequireTaxJurisdiction(settingsQ.data?.data.require_tax_jurisdiction ?? false);
+  }, [settingsQ.data?.data]);
 
   const saveSettings = useMutation({
     mutationFn: () =>
