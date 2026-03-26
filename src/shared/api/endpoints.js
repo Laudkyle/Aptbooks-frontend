@@ -210,7 +210,7 @@ export const endpoints = {
       returnsConfig: (qs) => `/core/accounting/tax/returns/config?${new URLSearchParams(qs ?? {}).toString()}`,
       returnTemplates: (qs) => `/core/accounting/tax/returns/templates?${new URLSearchParams(qs ?? {}).toString()}`,
       countryPacks: (qs) => `/core/accounting/tax/country-packs?${new URLSearchParams(qs ?? {}).toString()}`,
-      automationRules: (qs) => `/core/accounting/tax/automation/rules?${new URLSearchParams(qs ?? {}).toString()}`,
+      automationRules: (qs) => `/core/accounting/tax/automation-rules?${new URLSearchParams(qs ?? {}).toString()}`,
       filingAdapters: (qs) => `/core/accounting/tax/filing-adapters?${new URLSearchParams(qs ?? {}).toString()}`,
     },
     accruals: {
@@ -467,7 +467,7 @@ export const endpoints = {
         update: (id) => `/modules/printing/templates/${id}`,
         publish: (id) => `/modules/printing/templates/${id}/publish`,
         previewSample: (documentType, templateId) =>
-          `/modules/printing/templates/render/sample/${documentType}?${new URLSearchParams(templateId ? { templateId } : {}).toString()}`,
+          `/modules/printing/render/sample/${documentType}?${new URLSearchParams(templateId ? { templateId } : {}).toString()}`,
       },
       assignments: {
         list: (qs) =>
@@ -476,7 +476,7 @@ export const endpoints = {
       },
       render: {
         document: (documentType, documentId, qs) =>
-          `/modules/printing/templates/render/${documentType}/${documentId}?${new URLSearchParams(qs ?? {}).toString()}`,
+          `/modules/printing/render/${documentType}/${documentId}?${new URLSearchParams(qs ?? {}).toString()}`,
       },
     },
     ar: {

@@ -32,12 +32,18 @@ export default function AccrualCreate() {
   const [ruleType, setRuleType] = useState('RECURRING');
   const [frequency, setFrequency] = useState('MONTHLY');
   const [status, setStatus] = useState('active');
+  const [autoReverse, setAutoReverse] = useState(false);
+  const [reverseTiming, setReverseTiming] = useState('NEXT_PERIOD_START');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [isRequired, setIsRequired] = useState(false);
 
   const [lines, setLines] = useState([
     { accountId: '', dc: 'debit', amountValue: '', description: '' },
     { accountId: '', dc: 'credit', amountValue: '', description: '' }
   ]);
 
+  // Deferral-specific fields (match backend expectations)
   const [defTotalAmount, setDefTotalAmount] = useState('');
   const [defPeriodCount, setDefPeriodCount] = useState('');
   const [defStartPeriodId, setDefStartPeriodId] = useState('');
@@ -55,33 +61,53 @@ export default function AccrualCreate() {
   const accountOptions = [{ value: '', label: 'Select account…' }].concat(
     (accountsQ.data ?? []).map((a) => ({ value: a.id, label: `${a.code} — ${a.name}` }))
   );
+  
   const periodOptions = [{ value: '', label: 'Select start period…' }].concat(
     (periodsQ.data ?? []).map((p) => ({ value: p.id, label: p.code }))
   );
 
   const create = useMutation({
-    mutationFn: () =>
-      api.createRule({
+    mutationFn: () => {
+      const payload = {
         code,
         name,
         ruleType,
         frequency,
+        autoReverse: ruleType === 'REVERSING' ? true : autoReverse,
         status,
+        isRequired,
         lines: lines.map((l) => ({
           accountId: l.accountId,
           dc: l.dc,
           amountValue: Number(l.amountValue),
           description: l.description || undefined
-        })),
-        deferralSchedule:
-          ruleType === 'DEFERRAL'
-            ? {
-                totalAmount: Number(defTotalAmount),
-                periodCount: Number(defPeriodCount),
-                startPeriodId: defStartPeriodId
-              }
-            : undefined
-      }),
+        }))
+      };
+
+      // Add reverseTiming for REVERSING rules
+      if (ruleType === 'REVERSING') {
+        payload.reverseTiming = reverseTiming;
+      }
+
+      // Add startDate and endDate if provided
+      if (startDate) {
+        payload.startDate = startDate;
+      }
+      if (endDate) {
+        payload.endDate = endDate;
+      }
+
+      // Add deferral schedule for DEFERRAL rules
+      if (ruleType === 'DEFERRAL') {
+        payload.deferralSchedule = {
+          totalAmount: Number(defTotalAmount),
+          periodCount: Number(defPeriodCount),
+          startPeriodId: defStartPeriodId
+        };
+      }
+
+      return api.createRule(payload);
+    },
     onSuccess: () => {
       toast.success('Accrual rule created.');
       navigate(ROUTES.accountingAccruals);
@@ -129,18 +155,107 @@ export default function AccrualCreate() {
               { value: 'inactive', label: 'inactive' }
             ]}
           />
+          {ruleType === 'REVERSING' && (
+            <>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="autoReverse"
+                  checked={true}
+                  readOnly
+                  disabled
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <label htmlFor="autoReverse" className="text-sm text-gray-600">
+                  Auto Reverse (required for REVERSING rules)
+                </label>
+              </div>
+              <Select
+                label="Reverse Timing"
+                value={reverseTiming}
+                onChange={(e) => setReverseTiming(e.target.value)}
+                options={[
+                  { value: 'NEXT_PERIOD_START', label: 'NEXT_PERIOD_START' }
+                ]}
+              />
+            </>
+          )}
+          {ruleType !== 'REVERSING' && (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="autoReverse"
+                checked={autoReverse}
+                onChange={(e) => setAutoReverse(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="autoReverse" className="text-sm text-gray-600">
+                Auto Reverse
+              </label>
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isRequired"
+              checked={isRequired}
+              onChange={(e) => setIsRequired(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <label htmlFor="isRequired" className="text-sm text-gray-600">
+              Required
+            </label>
+          </div>
         </div>
       </ContentCard>
 
-      {ruleType === 'DEFERRAL' ? (
-        <ContentCard title="Deferral schedule">
+      <ContentCard title="Date Range (Optional)">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <Input 
+            label="Start Date" 
+            type="date" 
+            value={startDate} 
+            onChange={(e) => setStartDate(e.target.value)} 
+          />
+          <Input 
+            label="End Date" 
+            type="date" 
+            value={endDate} 
+            onChange={(e) => setEndDate(e.target.value)} 
+          />
+        </div>
+      </ContentCard>
+
+      {ruleType === 'DEFERRAL' && (
+        <ContentCard title="Deferral Schedule">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <Input label="Total amount" type="number" value={defTotalAmount} onChange={(e) => setDefTotalAmount(e.target.value)} />
-            <Input label="Period count" type="number" value={defPeriodCount} onChange={(e) => setDefPeriodCount(e.target.value)} />
-            <Select label="Start period" value={defStartPeriodId} onChange={(e) => setDefStartPeriodId(e.target.value)} options={periodOptions} />
+            <Input 
+              label="Total Amount" 
+              type="number" 
+              value={defTotalAmount} 
+              onChange={(e) => setDefTotalAmount(e.target.value)} 
+              required
+            />
+            <Input 
+              label="Period Count" 
+              type="number" 
+              value={defPeriodCount} 
+              onChange={(e) => setDefPeriodCount(e.target.value)} 
+              required
+            />
+            <Select 
+              label="Start Period" 
+              value={defStartPeriodId} 
+              onChange={(e) => setDefStartPeriodId(e.target.value)} 
+              options={periodOptions}
+              required
+            />
+          </div>
+          <div className="mt-2 text-sm text-gray-500">
+            Deferral will be recognized equally over {defPeriodCount || 'N'} periods starting from the selected period.
           </div>
         </ContentCard>
-      ) : null}
+      )}
 
       <ContentCard title="Lines" actions={<Button variant="secondary" onClick={addLine}>Add line</Button>}>
         <Table>
@@ -156,7 +271,13 @@ export default function AccrualCreate() {
           <TBody>
             {lines.map((l, idx) => (
               <tr key={idx}>
-                <TD><AccountSelect value={l.accountId} onChange={(e) => setLine(idx, { accountId: e.target.value })} allowEmpty /></TD>
+                <TD>
+                  <AccountSelect 
+                    value={l.accountId} 
+                    onChange={(e) => setLine(idx, { accountId: e.target.value })} 
+                    allowEmpty 
+                  />
+                </TD>
                 <TD>
                   <Select
                     value={l.dc}
@@ -167,16 +288,38 @@ export default function AccrualCreate() {
                     ]}
                   />
                 </TD>
-                <TD className="text-right"><Input type="number" value={l.amountValue} onChange={(e) => setLine(idx, { amountValue: e.target.value })} /></TD>
-                <TD><Input value={l.description} onChange={(e) => setLine(idx, { description: e.target.value })} /></TD>
-                <TD className="text-right"><Button variant="ghost" size="sm" onClick={() => removeLine(idx)} disabled={lines.length <= 2}>Remove</Button></TD>
+                <TD className="text-right">
+                  <Input 
+                    type="number" 
+                    value={l.amountValue} 
+                    onChange={(e) => setLine(idx, { amountValue: e.target.value })} 
+                  />
+                </TD>
+                <TD>
+                  <Input 
+                    value={l.description} 
+                    onChange={(e) => setLine(idx, { description: e.target.value })} 
+                  />
+                </TD>
+                <TD className="text-right">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => removeLine(idx)} 
+                    disabled={lines.length <= 2}
+                  >
+                    Remove
+                  </Button>
+                </TD>
               </tr>
             ))}
           </TBody>
         </Table>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => navigate(ROUTES.accountingAccruals)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => navigate(ROUTES.accountingAccruals)}>
+            Cancel
+          </Button>
           <Button
             onClick={() => create.mutate()}
             disabled={
