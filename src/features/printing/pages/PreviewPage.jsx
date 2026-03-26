@@ -10,6 +10,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
+import { getTemplateSpec } from '../templateSpecs.js';
 
 function rowsOf(data) {
   return Array.isArray(data?.items) ? data.items : Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
@@ -50,6 +51,7 @@ export default function PreviewPage() {
   const templates = rowsOf(templatesQ.data);
   const html = resolveHtml(previewQ.data);
   const resolvedTemplateName = previewQ.data?.template?.name ?? previewQ.data?.resolvedTemplate?.name;
+  const templateSpec = getTemplateSpec(documentType);
 
   useEffect(() => {
     if (!autoPrint || didAutoPrint || !html) return;
@@ -96,20 +98,44 @@ export default function PreviewPage() {
         </div>
       </ContentCard>
 
-      <ContentCard className="p-0 overflow-hidden">
-        {previewQ.isLoading ? (
-          <div className="p-10 text-sm text-slate-500">Loading preview…</div>
-        ) : html ? (
-          <iframe
-            ref={iframeRef}
-            title="Document preview"
-            className="min-h-[calc(100vh-16rem)] w-full bg-white"
-            srcDoc={html}
-          />
-        ) : (
-          <div className="p-10 text-sm text-slate-500">No preview available for this document yet.</div>
-        )}
-      </ContentCard>
+      <div className="grid gap-4 xl:grid-cols-[320px_1fr]">
+        <ContentCard title="Coverage checklist">
+          {templateSpec ? (
+            <div className="space-y-4 text-sm">
+              <p className="text-slate-600">{templateSpec.description}</p>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Expected sections</div>
+                <ul className="mt-2 space-y-2 text-slate-700">
+                  {templateSpec.sections.map((section) => (
+                    <li key={section} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">{section}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Critical fields</div>
+                <div className="mt-2 text-slate-600">{templateSpec.keyFields.join(' • ')}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">No coverage checklist is defined for this document type yet.</div>
+          )}
+        </ContentCard>
+
+        <ContentCard className="p-0 overflow-hidden">
+          {previewQ.isLoading ? (
+            <div className="p-10 text-sm text-slate-500">Loading preview…</div>
+          ) : html ? (
+            <iframe
+              ref={iframeRef}
+              title="Document preview"
+              className="min-h-[calc(100vh-16rem)] w-full bg-white"
+              srcDoc={html}
+            />
+          ) : (
+            <div className="p-10 text-sm text-slate-500">No preview available for this document yet.</div>
+          )}
+        </ContentCard>
+      </div>
     </div>
   );
 }

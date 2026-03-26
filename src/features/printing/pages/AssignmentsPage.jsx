@@ -41,6 +41,7 @@ export default function AssignmentsPage() {
   const toast = useToast();
   const [selected, setSelected] = useState({});
   const [saving, setSaving] = useState({}); // Track saving state per document type
+  const [originalAssignments, setOriginalAssignments] = useState({});
 
   const templatesQ = useQuery({ 
     queryKey: qk.printingTemplates({ active: true }), 
@@ -67,6 +68,7 @@ export default function AssignmentsPage() {
       if (key) next[key] = templateId != null ? String(templateId) : '';
     });
     setSelected(next);
+    setOriginalAssignments(next);
   }, [assignments]);
 
   const templateOptions = [
@@ -200,10 +202,7 @@ export default function AssignmentsPage() {
                         <Button
                           variant="outline"
                           onClick={() => handleSave(doc.value, currentTemplateId)}
-                          disabled={isSaving || (currentTemplateId === selected[doc.value] && assignments.some(a => 
-                            (a.document_type ?? a.documentType ?? a.entityType) === doc.value && 
-                            String(a.template_id ?? a.templateId) === currentTemplateId
-                          ))}
+                          disabled={isSaving || (currentTemplateId === (originalAssignments[doc.value] ?? ''))}
                           loading={isSaving}
                         >
                           {currentTemplateId ? 'Update' : 'Clear Assignment'}
