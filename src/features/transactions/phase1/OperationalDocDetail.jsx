@@ -15,6 +15,7 @@ import { makeOpsDocsApi } from '../api/opsDocs.api.js';
 import { getPhase1ModuleConfig } from './moduleConfigs.js';
 import { getPhase1Actions, getStatusBadgeClass, toCurrency } from './helpers.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
+import { buildTaxDetailModel, formatTaxAmount } from '../utils/taxDetail.js';
 
 export default function OperationalDocDetail({ moduleKey }) {
   const config = getPhase1ModuleConfig(moduleKey);
@@ -55,7 +56,8 @@ console.log({ state, availableActions });
     onError: (err) => toast.error(err?.response?.data?.message || 'Action failed.')
   });
 
-  const total = Number(header.amount_total ?? lines.reduce((sum, line) => sum + Number(line.line_total ?? 0), 0));
+  const taxModel = useMemo(() => buildTaxDetailModel({ header, payload: detail, lines, pricingMode: header.pricing_mode ?? header.pricingMode ?? 'exclusive' }), [detail, header, lines]);
+  const total = Number(taxModel.summary.grandTotal ?? header.amount_total ?? lines.reduce((sum, line) => sum + Number(line.line_total ?? 0), 0));
   const currency = header.currency_code || 'GHS';
 
   return (
@@ -98,37 +100,55 @@ console.log({ state, availableActions });
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Qty</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Unit Price</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Account</th>
+                      {taxModel.hasLineTax ? <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Tax</th> : null}
+                      {taxModel.hasLineTax ? <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Tax Amt</th> : null}
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {lines.length ? lines.map((line) => (
+                    {taxModel.lines.length ? taxModel.lines.map((line) => (
                       <tr key={line.id ?? line.line_no}>
                         <td className="px-6 py-4 text-sm text-gray-900">{line.description}</td>
                         <td className="px-6 py-4 text-sm text-gray-700">{line.quantity ?? 1}</td>
-                        <td className="px-6 py-4 text-sm text-gray-700">{toCurrency(line.unit_price ?? 0, currency)}</td>
-                        <td className="px-6 py-4 text-xs text-gray-500 font-mono">{line.account_id ?? '—'}</td>
-                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">{toCurrency(line.line_total ?? 0, currency)}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{toCurrency(line.unit_price ?? line.unitPrice ?? 0, currency)}</td>
+                        <td className="px-6 py-4 text-xs text-gray-500 font-mono">{line.account_id ?? line.accountId ?? '—'}</td>
+                        {taxModel.hasLineTax ? <td className="px-6 py-4 text-xs text-gray-700">{line._tax.taxCode ? `${line._tax.taxCode}${line._tax.taxRate ? ` (${line._tax.taxRate}%)` : ''}` : (line._tax.taxRate ? `${line._tax.taxRate}%` : '—')}</td> : null}
+                        {taxModel.hasLineTax ? <td className="px-6 py-4 text-right text-sm text-gray-700">{toCurrency(line._tax.taxAmount, currency)}</td> : null}
+                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">{toCurrency(line._tax.total || line.line_total || 0, currency)}</td>
                       </tr>
-                    )) : <tr><td className="px-6 py-10 text-sm text-gray-500 text-center" colSpan={5}>No lines on this document.</td></tr>}
+                    )) : <tr><td className="px-6 py-10 text-sm text-gray-500 text-center" colSpan={taxModel.hasLineTax ? 7 : 5}>No lines on this document.</td></tr>}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-fit">
-            <div className="text-sm text-gray-500 mb-1">Total Amount</div>
-            <div className="text-3xl font-bold text-gray-900 mb-6">{toCurrency(total, currency)}</div>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-gray-600">Currency</span><span className="font-medium text-gray-900">{currency}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Line Count</span><span className="font-medium text-gray-900">{lines.length}</span></div>
-              {header.counterparty_partner_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Partner ID</span><span className="font-medium text-gray-900 break-all text-right">{header.counterparty_partner_id}</span></div> : null}
-              {header.cash_account_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Cash Account</span><span className="font-medium text-gray-900 break-all text-right">{header.cash_account_id}</span></div> : null}
-              {header.primary_account_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Primary Account</span><span className="font-medium text-gray-900 break-all text-right">{header.primary_account_id}</span></div> : null}
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-fit">
+              <div className="text-sm text-gray-500 mb-1">Total Amount</div>
+              <div className="text-3xl font-bold text-gray-900 mb-6">{toCurrency(total, currency)}</div>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">Currency</span><span className="font-medium text-gray-900">{currency}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Line Count</span><span className="font-medium text-gray-900">{lines.length}</span></div>
+                {header.counterparty_partner_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Partner ID</span><span className="font-medium text-gray-900 break-all text-right">{header.counterparty_partner_id}</span></div> : null}
+                {header.cash_account_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Cash Account</span><span className="font-medium text-gray-900 break-all text-right">{header.cash_account_id}</span></div> : null}
+                {header.primary_account_id ? <div className="flex justify-between gap-4"><span className="text-gray-600">Primary Account</span><span className="font-medium text-gray-900 break-all text-right">{header.primary_account_id}</span></div> : null}
+              </div>
             </div>
+            {taxModel.hasTax ? <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-fit">
+              <div className="text-sm font-semibold text-gray-900 mb-4">Tax Summary</div>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-gray-600">Pricing Mode</span><span className="font-medium text-gray-900 capitalize">{taxModel.pricingMode}</span></div>
+                {taxModel.taxPointDate ? <div className="flex justify-between gap-4"><span className="text-gray-600">Tax Date</span><span className="font-medium text-gray-900 text-right">{formatDate(taxModel.taxPointDate)}</span></div> : null}
+                {taxModel.taxJurisdiction ? <div className="flex justify-between gap-4"><span className="text-gray-600">Jurisdiction</span><span className="font-medium text-gray-900 text-right">{taxModel.taxJurisdiction}</span></div> : null}
+                <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.subtotal)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Tax</span><span className="font-medium text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.taxTotal)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Withholding</span><span className="font-medium text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.withholdingTotal)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Recoverable tax</span><span className="font-medium text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.recoverableTaxTotal)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">Non-recoverable tax</span><span className="font-medium text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.nonRecoverableTaxTotal)}</span></div>
+                <div className="flex justify-between border-t border-gray-200 pt-3"><span className="font-semibold text-gray-900">Gross total</span><span className="font-semibold text-gray-900">{formatTaxAmount((value) => toCurrency(value, currency), taxModel.summary.grandTotal)}</span></div>
+              </div>
+            </div> : null}
           </div>
-        </div>
       </div>
 
       <Modal open={!!action} onClose={() => setAction(null)} title={`${config.singular} Action`} footer={<div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setAction(null)}>Cancel</Button><Button onClick={() => run.mutate({ key: action })} loading={run.isPending}>Confirm</Button></div>}>

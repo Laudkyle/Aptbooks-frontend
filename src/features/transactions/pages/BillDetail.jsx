@@ -16,6 +16,7 @@ import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 import { computeDocumentSummary } from '../../../shared/tax/frontendTax.js';
+import { buildTaxDetailModel } from '../utils/taxDetail.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -92,6 +93,7 @@ export default function BillDetail() {
 
   const total = calculateTotal();
   const taxSnapshot = (bill?.taxSummary ?? bill?.tax_summary ?? computeDocumentSummary({ lines: bill?.lines ?? [], taxCodes: [], pricingMode: bill?.bill?.pricingMode ?? 'exclusive' }));
+  const taxDetail = useMemo(() => buildTaxDetailModel({ header: record ?? {}, payload: bill, lines: bill?.lines ?? [], pricingMode: record?.pricingMode ?? record?.pricing_mode ?? 'exclusive' }), [record, bill]);
   const currency = bill?.bill?.currency_code || bill?.currency_code || 'USD';
   
   // Helper function to format currency amounts
@@ -199,15 +201,19 @@ export default function BillDetail() {
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Expense Account
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Tax
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Tax Amount
+                      </th>
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Total
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {(bill?.lines ?? []).map((l, idx) => {
-                      const lineTotal = (l.quantity ?? 1) * (l.unitPrice ?? l.unit_price ?? 0);
-                      
+                    {taxDetail.lines.map((l, idx) => {
                       return (
                         <tr key={idx} className="hover:">
                           <td className="px-6 py-4 text-sm text-gray-900">{l.description}</td>
@@ -216,30 +222,36 @@ export default function BillDetail() {
                             {formatCurrency(l.unitPrice ?? l.unit_price ?? 0)}
                           </td>
                           <td className="px-6 py-4 text-gray-500 font-mono text-xs">
-                            {l.expenseAccountId ?? l.expense_account_id ? `${(l.expenseAccountId ?? l.expense_account_id).substring(0, 8)}...` : '—'}
+                            {(l.expenseAccountId ?? l.expense_account_id) ? `${(l.expenseAccountId ?? l.expense_account_id).substring(0, 8)}...` : '—'}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-gray-700">
+                            {l._tax.taxCode ? `${l._tax.taxCode}${l._tax.taxRate ? ` (${l._tax.taxRate}%)` : ''}` : (l._tax.taxRate ? `${l._tax.taxRate}%` : '—')}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700 text-right">
+                            {formatCurrency(l._tax.taxAmount ?? 0)}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            {formatCurrency(lineTotal)}
+                            {formatCurrency(l._tax.total ?? 0)}
                           </td>
                         </tr>
                       );
                     })}
-                    {!(bill?.lines ?? []).length ? (
+                    {!taxDetail.lines.length ? (
                       <tr>
-                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={5}>
+                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={7}>
                           No line items
                         </td>
                       </tr>
                     ) : null}
                   </tbody>
-                  {(bill?.lines ?? []).length > 0 && (
+                  {taxDetail.lines.length > 0 && (
                     <tfoot className=" border-t-2 border-gray-200">
                       <tr>
-                        <td colSpan={4} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td colSpan={6} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                           Total:
                         </td>
                         <td className="px-6 py-4 text-right text-lg font-bold text-gray-900">
-                          {formatCurrency(total)}
+                          {formatCurrency(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total)}
                         </td>
                       </tr>
                     </tfoot>
@@ -256,7 +268,7 @@ export default function BillDetail() {
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <h3 className="text-base font-semibold text-gray-900">Bill Total</h3>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-6">{formatCurrency(total)}</div>
+              <div className="text-3xl font-bold text-gray-900 mb-6">{formatCurrency(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total)}</div>
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-sm"><span className="text-gray-600">Status</span><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
                 <div className="flex justify-between text-sm"><span className="text-gray-600">Currency</span><span className="font-medium text-gray-900">{currency}</span></div>

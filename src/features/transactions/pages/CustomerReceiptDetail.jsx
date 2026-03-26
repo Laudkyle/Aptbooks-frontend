@@ -7,6 +7,7 @@ import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeCustomerReceiptsApi } from '../api/customerReceipts.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
+import { buildTaxDetailModel } from '../utils/taxDetail.js';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -87,6 +88,8 @@ export default function CustomerReceiptDetail() {
   // Currency formatting
   const currency = receipt?.currency_code || 'USD';
   
+  const taxDetail = useMemo(() => buildTaxDetailModel({ header: receipt ?? {}, payload: data?.data ?? data ?? {}, lines: receipt?.lines ?? [], pricingMode: receipt?.pricing_mode ?? receipt?.pricingMode ?? 'exclusive' }), [receipt, data]);
+
   const formatCurrency = (amount) => {
     const numAmount = parseFloat(amount) || 0;
     return new Intl.NumberFormat('en-US', {
@@ -302,6 +305,19 @@ export default function CustomerReceiptDetail() {
                 </div>
               </div>
             </div>
+            {taxDetail.hasTax ? (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">Tax Summary</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between"><span className="text-gray-600">Pricing Mode</span><span className="font-medium text-gray-900 capitalize">{taxDetail.pricingMode}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.subtotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-600">Tax</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.taxTotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-600">Withholding</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.withholdingTotal)}</span></div>
+                  <div className="flex justify-between border-t border-gray-200 pt-2"><span className="font-semibold text-gray-900">Gross total</span><span className="font-semibold text-gray-900">{formatCurrency(taxDetail.summary.grandTotal)}</span></div>
+                </div>
+              </div>
+            ) : null}
+
           </div>
         </div>
       </div>
