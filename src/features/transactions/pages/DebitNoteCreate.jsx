@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileMinus2, Plus, Trash2, DollarSign, Calendar, User, FileText, Percent } from 'lucide-react';
@@ -13,6 +13,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -67,10 +68,15 @@ export default function DebitNoteCreate() {
     staleTime: 60000 // 1 minute
   });
 
-  const partners = Array.isArray(partnersQuery.data) ? partnersQuery.data : partnersQuery.data?.data ?? [];
-  const accounts = Array.isArray(coaQuery.data) ? coaQuery.data : coaQuery.data?.data ?? [];
-  const taxCodesData = taxCodesQuery.data?.data ?? taxCodesQuery.data;
-  const taxCodes = Array.isArray(taxCodesData) ? taxCodesData : [];
+  const selectedVendorTaxProfileQuery = useQuery({
+    queryKey: ['partners', payload.vendorId, 'taxProfile'],
+    queryFn: () => partnersApi.getTaxProfile(payload.vendorId),
+    enabled: !!payload.vendorId
+  });
+
+  const partners = normalizeRows(partnersQuery.data);
+  const accounts = normalizeRows(coaQuery.data);
+  const taxCodes = normalizeRows(taxCodesQuery.data);
 
   // Filter vendors only
   const vendors = partners.filter(p => p.type === 'vendor');
@@ -84,26 +90,13 @@ export default function DebitNoteCreate() {
   // Filter active tax codes
   const activeTaxCodes = taxCodes.filter(tax => tax.status === 'active' || tax.is_active);
 
+  const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes: activeTaxCodes, pricingMode: 'exclusive' }), [payload.lines, activeTaxCodes]);
+  const lastAppliedVendorTaxProfileRef = useRef('');
+  const apiPayload = useMemo(() => buildTransactionTaxPayload(payload, { partnerKey: 'vendorId', dateKey: 'debitNoteDate', referenceKey: null, accountField: 'expenseAccountId', taxCodes: activeTaxCodes }), [payload, activeTaxCodes]);
+
   const create = useMutation({
     mutationFn: () => {
-      // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      
-      // Format payload for API - convert to snake_case
-      const apiPayload = {
-        vendorId: payload.vendorId,
-        debitNoteDate: payload.debitNoteDate,
-        memo: payload.memo || undefined,
-        lines: payload.lines.map(line => ({
-          description: line.description,
-          quantity: parseFloat(line.quantity) || 1,
-          unitPrice: parseFloat(line.unitPrice) || 0,
-          expenseAccountId: line.expenseAccountId,
-          taxCodeId: line.taxCodeId || undefined,
-          taxAmount: parseFloat(line.taxAmount) || 0
-        }))
-      };
-      
       return debitNotesApi.create(apiPayload, { idempotencyKey });
     },
     onSuccess: (res) => {
@@ -118,6 +111,18 @@ export default function DebitNoteCreate() {
       console.error('Create debit note error:', e); // For debugging
     }
   });
+
+
+  useEffect(() => {
+    if (!payload.vendorId) {
+      lastAppliedVendorTaxProfileRef.current = '';
+      return;
+    }
+    const profile = selectedVendorTaxProfileQuery.data;
+    if (!profile || lastAppliedVendorTaxProfileRef.current === payload.vendorId) return;
+    setPayload((current) => applyTaxProfileToDocument(current, profile));
+    lastAppliedVendorTaxProfileRef.current = payload.vendorId;
+  }, [payload.vendorId, selectedVendorTaxProfileQuery.data]);
 
   const addLine = useCallback(() => {
     setPayload(prev => ({
@@ -183,31 +188,13 @@ export default function DebitNoteCreate() {
   }, [activeTaxCodes]);
 
   const updateField = useCallback((field, value) => {
+    if (field === 'vendorId') lastAppliedVendorTaxProfileRef.current = '';
     setPayload(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const calculateTotal = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      const lineTotal = (line.quantity * line.unitPrice) + (parseFloat(line.taxAmount) || 0);
-      return sum + lineTotal;
-    }, 0);
-  }, [payload.lines]);
-
-  const calculateSubtotal = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      return sum + (line.quantity * line.unitPrice);
-    }, 0);
-  }, [payload.lines]);
-
-  const calculateTotalTax = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      return sum + (parseFloat(line.taxAmount) || 0);
-    }, 0);
-  }, [payload.lines]);
-
-  const total = calculateTotal();
-  const subtotal = calculateSubtotal();
-  const totalTax = calculateTotalTax();
+  const subtotal = summary.subtotal;
+  const totalTax = summary.taxTotal;
+  const total = summary.grandTotal;
 
   const selectedVendor = vendors.find(v => v.id === payload.vendorId);
 

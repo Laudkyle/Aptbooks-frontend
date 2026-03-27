@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileMinus2, Plus, Trash2, DollarSign, Calendar, User, FileText, Percent } from 'lucide-react';
@@ -13,6 +13,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -67,10 +68,15 @@ export default function CreditNoteCreate() {
     staleTime: 60000 // 1 minute
   });
 
-  const partners = Array.isArray(partnersQuery.data) ? partnersQuery.data : partnersQuery.data?.data ?? [];
-  const accounts = Array.isArray(coaQuery.data) ? coaQuery.data : coaQuery.data?.data ?? [];
-  const taxCodesData = taxCodesQuery.data?.data ?? taxCodesQuery.data;
-  const taxCodes = Array.isArray(taxCodesData) ? taxCodesData : [];
+  const selectedCustomerTaxProfileQuery = useQuery({
+    queryKey: ['partners', payload.customerId, 'taxProfile'],
+    queryFn: () => partnersApi.getTaxProfile(payload.customerId),
+    enabled: !!payload.customerId
+  });
+
+  const partners = normalizeRows(partnersQuery.data);
+  const accounts = normalizeRows(coaQuery.data);
+  const taxCodes = normalizeRows(taxCodesQuery.data);
   
   // Filter customers only
   const customers = partners.filter(p => p.type === 'customer');
@@ -86,27 +92,13 @@ export default function CreditNoteCreate() {
   // Filter active tax codes
   const activeTaxCodes = taxCodes.filter(tax => tax.status === 'active' || tax.is_active);
 
+  const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes: activeTaxCodes, pricingMode: 'exclusive' }), [payload.lines, activeTaxCodes]);
+  const lastAppliedCustomerTaxProfileRef = useRef('');
+  const apiPayload = useMemo(() => buildTransactionTaxPayload(payload, { partnerKey: 'customerId', dateKey: 'creditNoteDate', referenceKey: null, accountField: 'revenueAccountId', taxCodes: activeTaxCodes }), [payload, activeTaxCodes]);
+
   const create = useMutation({
     mutationFn: () => {
-      // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      console.log('Using idempotency key:', idempotencyKey); // For debugging
-      
-      // Format payload for API - convert to snake_case
-      const apiPayload = {
-        customerId: payload.customerId,
-        creditNoteDate: payload.creditNoteDate,
-        memo: payload.memo || undefined,
-        lines: payload.lines.map(line => ({
-          description: line.description,
-          quantity: parseFloat(line.quantity) || 1,
-          unitPrice: parseFloat(line.unitPrice) || 0,
-          revenueAccountId: line.revenueAccountId,
-          taxCodeId: line.taxCodeId || undefined,
-          taxAmount: parseFloat(line.taxAmount) || 0
-        }))
-      };
-      
       return creditNotesApi.create(apiPayload, { idempotencyKey });
     },
     onSuccess: (res) => {
@@ -121,6 +113,18 @@ export default function CreditNoteCreate() {
       console.error('Create credit note error:', e); // For debugging
     }
   });
+
+
+  useEffect(() => {
+    if (!payload.customerId) {
+      lastAppliedCustomerTaxProfileRef.current = '';
+      return;
+    }
+    const profile = selectedCustomerTaxProfileQuery.data;
+    if (!profile || lastAppliedCustomerTaxProfileRef.current === payload.customerId) return;
+    setPayload((current) => applyTaxProfileToDocument(current, profile));
+    lastAppliedCustomerTaxProfileRef.current = payload.customerId;
+  }, [payload.customerId, selectedCustomerTaxProfileQuery.data]);
 
   const addLine = useCallback(() => {
     setPayload(prev => ({
@@ -186,31 +190,13 @@ export default function CreditNoteCreate() {
   }, [activeTaxCodes]);
 
   const updateField = useCallback((field, value) => {
+    if (field === 'customerId') lastAppliedCustomerTaxProfileRef.current = '';
     setPayload(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const calculateTotal = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      const lineTotal = (line.quantity * line.unitPrice) + (parseFloat(line.taxAmount) || 0);
-      return sum + lineTotal;
-    }, 0);
-  }, [payload.lines]);
-
-  const calculateSubtotal = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      return sum + (line.quantity * line.unitPrice);
-    }, 0);
-  }, [payload.lines]);
-
-  const calculateTotalTax = useCallback(() => {
-    return payload.lines.reduce((sum, line) => {
-      return sum + (parseFloat(line.taxAmount) || 0);
-    }, 0);
-  }, [payload.lines]);
-
-  const total = calculateTotal();
-  const subtotal = calculateSubtotal();
-  const totalTax = calculateTotalTax();
+  const subtotal = summary.subtotal;
+  const totalTax = summary.taxTotal;
+  const total = summary.grandTotal;
 
   const selectedCustomer = customers.find(c => c.id === payload.customerId);
 

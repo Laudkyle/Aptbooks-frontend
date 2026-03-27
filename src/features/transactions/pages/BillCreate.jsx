@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FilePlus2, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
@@ -19,7 +19,7 @@ import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -70,6 +70,11 @@ export default function BillCreate() {
 
   const partnersQuery = useQuery({ queryKey: ['partners', 'vendors', 'tax'], queryFn: () => partnersApi.list({ type: 'vendor' }) });
   const coaQuery = useQuery({ queryKey: ['coa', 'bill-tax'], queryFn: () => coaApi.list() });
+  const selectedVendorTaxProfileQuery = useQuery({
+    queryKey: ['partners', payload.vendorId, 'taxProfile'],
+    queryFn: () => partnersApi.getTaxProfile(payload.vendorId),
+    enabled: !!payload.vendorId
+  });
   const taxCodesQuery = useQuery({ queryKey: ['tax-codes', 'bill-create'], queryFn: () => taxApi.listCodes({ status: 'active' }) });
   const jurisdictionsQuery = useQuery({ queryKey: ['tax-jurisdictions', 'bill-create'], queryFn: () => taxApi.listJurisdictions() });
 
@@ -83,9 +88,26 @@ export default function BillCreate() {
 
   const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes, pricingMode: payload.pricingMode }), [payload.lines, payload.pricingMode, taxCodes]);
   const selectedVendor = vendors.find((p) => p.id === payload.vendorId);
+  const lastAppliedVendorTaxProfileRef = useRef('');
+  const apiPayload = useMemo(
+    () => buildTransactionTaxPayload(payload, { partnerKey: 'vendorId', dateKey: 'billDate', referenceKey: null, accountField: 'expenseAccountId', taxCodes }),
+    [payload, taxCodes]
+  );
+
+
+  useEffect(() => {
+    if (!payload.vendorId) {
+      lastAppliedVendorTaxProfileRef.current = '';
+      return;
+    }
+    const profile = selectedVendorTaxProfileQuery.data;
+    if (!profile || lastAppliedVendorTaxProfileRef.current === payload.vendorId) return;
+    setPayload((current) => applyTaxProfileToDocument(current, profile));
+    lastAppliedVendorTaxProfileRef.current = payload.vendorId;
+  }, [payload.vendorId, selectedVendorTaxProfileQuery.data]);
 
   const create = useMutation({
-    mutationFn: () => billsApi.create(payload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => billsApi.create(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
       toast.success('Bill created successfully');
       const id = res?.id ?? res?.data?.id;
@@ -95,7 +117,7 @@ export default function BillCreate() {
   });
 
   const previewTaxes = useMutation({
-    mutationFn: () => billsApi.determineTaxes(payload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => billsApi.determineTaxes(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
       setTaxPreview(res);
       toast.success('Tax determination refreshed');
@@ -106,7 +128,10 @@ export default function BillCreate() {
     }
   });
 
-  const setField = (key, value) => setPayload((s) => ({ ...s, [key]: value }));
+  const setField = (key, value) => {
+    if (key === 'vendorId') lastAppliedVendorTaxProfileRef.current = '';
+    setPayload((s) => ({ ...s, [key]: value }));
+  };
   const updateLine = (index, key, value) => {
     setPayload((s) => {
       const lines = [...s.lines];

@@ -78,19 +78,27 @@ export default function PartnerCreate() {
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
   const create = useMutation({
-    mutationFn: async () => api.create({
-      type: form.type,
-      name: form.name,
-      code: form.code || undefined,
-      email: form.email || undefined,
-      phone: form.phone || undefined,
-      status: form.status || undefined,
-      defaultReceivableAccountId: form.defaultReceivableAccountId || undefined,
-      defaultPayableAccountId: form.defaultPayableAccountId || undefined,
-      paymentTermsId: form.paymentTermsId || undefined,
-      notes: form.notes || undefined,
-      ...buildPartnerTaxProfilePayload(form)
-    }),
+    mutationFn: async () => {
+      const created = await api.create({
+        type: form.type,
+        name: form.name,
+        code: form.code || undefined,
+        email: form.email || undefined,
+        phone: form.phone || undefined,
+        status: form.status || undefined,
+        defaultReceivableAccountId: form.defaultReceivableAccountId || undefined,
+        defaultPayableAccountId: form.defaultPayableAccountId || undefined,
+        paymentTermsId: form.paymentTermsId || undefined,
+        notes: form.notes || undefined
+      });
+
+      const partnerId = created?.id ?? created?.data?.id;
+      if (partnerId) {
+        await api.setTaxProfile(partnerId, buildPartnerTaxProfilePayload({ ...form, name: form.name }));
+      }
+
+      return created;
+    },
     onSuccess: (created) => {
       qc.invalidateQueries({ queryKey: qk.partners() });
       toast.success('Partner created successfully');

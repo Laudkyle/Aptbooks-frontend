@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FilePlus2, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
@@ -19,7 +19,7 @@ import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
-import { computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -70,6 +70,11 @@ export default function InvoiceCreate() {
 
   const partnersQuery = useQuery({ queryKey: ['partners', 'customers', 'tax'], queryFn: () => partnersApi.list({ type: 'customer' }) });
   const coaQuery = useQuery({ queryKey: ['coa', 'invoice-tax'], queryFn: () => coaApi.list() });
+  const selectedCustomerTaxProfileQuery = useQuery({
+    queryKey: ['partners', payload.customerId, 'taxProfile'],
+    queryFn: () => partnersApi.getTaxProfile(payload.customerId),
+    enabled: !!payload.customerId
+  });
   const taxCodesQuery = useQuery({ queryKey: ['tax-codes', 'invoice-create'], queryFn: () => taxApi.listCodes({ status: 'active' }) });
   const jurisdictionsQuery = useQuery({ queryKey: ['tax-jurisdictions', 'invoice-create'], queryFn: () => taxApi.listJurisdictions() });
 
@@ -83,9 +88,26 @@ export default function InvoiceCreate() {
 
   const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes, pricingMode: payload.pricingMode }), [payload.lines, payload.pricingMode, taxCodes]);
   const selectedCustomer = partners.find((p) => p.id === payload.customerId);
+  const lastAppliedCustomerTaxProfileRef = useRef('');
+  const apiPayload = useMemo(
+    () => buildTransactionTaxPayload(payload, { partnerKey: 'customerId', dateKey: 'invoiceDate', referenceKey: null, accountField: 'revenueAccountId', taxCodes }),
+    [payload, taxCodes]
+  );
+
+
+  useEffect(() => {
+    if (!payload.customerId) {
+      lastAppliedCustomerTaxProfileRef.current = '';
+      return;
+    }
+    const profile = selectedCustomerTaxProfileQuery.data;
+    if (!profile || lastAppliedCustomerTaxProfileRef.current === payload.customerId) return;
+    setPayload((current) => applyTaxProfileToDocument(current, profile));
+    lastAppliedCustomerTaxProfileRef.current = payload.customerId;
+  }, [payload.customerId, selectedCustomerTaxProfileQuery.data]);
 
   const create = useMutation({
-    mutationFn: () => invoicesApi.create(payload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => invoicesApi.create(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
       toast.success('Invoice created successfully');
       const id = res?.id ?? res?.data?.id;
@@ -95,7 +117,7 @@ export default function InvoiceCreate() {
   });
 
   const previewTaxes = useMutation({
-    mutationFn: () => invoicesApi.determineTaxes(payload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => invoicesApi.determineTaxes(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
       setTaxPreview(res);
       toast.success('Tax determination refreshed');
@@ -106,7 +128,10 @@ export default function InvoiceCreate() {
     }
   });
 
-  const setField = (key, value) => setPayload((s) => ({ ...s, [key]: value }));
+  const setField = (key, value) => {
+    if (key === 'customerId') lastAppliedCustomerTaxProfileRef.current = '';
+    setPayload((s) => ({ ...s, [key]: value }));
+  };
   const updateLine = (index, key, value) => {
     setPayload((s) => {
       const lines = [...s.lines];
