@@ -252,15 +252,21 @@ export function buildTransactionTaxPayload(payload = {}, { partnerKey, dateKey, 
 }
 
 export function buildPartnerTaxProfilePayload(state = {}) {
+  const registrationStatus = state.taxRegistrationStatus || undefined;
+  const isTaxRegistered = registrationStatus ? registrationStatus === 'registered' : undefined;
+  const isTaxExempt = state.isTaxExempt != null ? !!state.isTaxExempt : undefined;
+
   return {
     taxregistrationNumber: state.taxIdNumber || state.vatRegistrationNumber || undefined,
     legalName: state.legalName || state.name || undefined,
     taxClass: state.taxTreatment || undefined,
     defaultTaxCodeId: state.defaultTaxCodeId || undefined,
+    purchaseTaxCodeId: state.purchaseTaxCodeId || undefined,
+    salesTaxCodeId: state.salesTaxCodeId || undefined,
     jurisdictionId: state.jurisdictionId || undefined,
     placeOfSupply: state.placeOfSupplyBasis || undefined,
-    isTaxRegistered: state.taxRegistrationStatus ? state.taxRegistrationStatus === 'registered' : undefined,
-    isTaxExempt: state.taxRegistrationStatus === 'exempt' || state.taxTreatment === 'exempt' ? true : undefined,
+    isTaxRegistered,
+    isTaxExempt,
     exemptionReasonCode: state.exemptionReasonCode || undefined,
     certificateReference: state.exemptionCertificateNumber || undefined,
     certificateExpiry: state.exemptionExpiryDate || undefined,
@@ -276,7 +282,7 @@ export function buildPartnerTaxProfilePayload(state = {}) {
         ? undefined
         : normalizeFractionOrPercent(state.recoverabilityPercent, 1),
     destinationCountryCode: state.taxCountryCode || undefined,
-    registrationStatus: state.taxRegistrationStatus || undefined,
+    registrationStatus,
     eInvoiceNetwork: state.eInvoiceScheme || undefined,
     metadata: {
       buyerReference: state.buyerReference || undefined,

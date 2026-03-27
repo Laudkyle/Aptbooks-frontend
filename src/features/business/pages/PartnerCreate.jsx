@@ -1,14 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Building2, Save, ShieldCheck } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makePartnersApi } from '../api/partners.api.js';
-import { makePaymentConfigApi } from '../api/paymentConfig.api.js';
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
-import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -18,16 +15,16 @@ import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
+import { PaymentTermsSelect } from '../../../shared/components/forms/PaymentTermsSelect.jsx';
+import { TaxCodeSelect } from '../../../shared/components/forms/TaxCodeSelect.jsx';
+import { JurisdictionSelect } from '../../../shared/components/forms/JurisdictionSelect.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { buildPartnerTaxProfilePayload, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { buildPartnerTaxProfilePayload } from '../../../shared/tax/frontendTax.js';
 
 export default function PartnerCreate() {
   const { http } = useApi();
   const api = useMemo(() => makePartnersApi(http), [http]);
-  const coaApi = useMemo(() => makeCoaApi(http), [http]);
-  const taxApi = useMemo(() => makeTaxApi(http), [http]);
-  const paymentConfigApi = useMemo(() => makePaymentConfigApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
   const navigate = useNavigate();
@@ -51,7 +48,11 @@ export default function PartnerCreate() {
     taxRegistrationStatus: 'registered',
     taxTreatment: initialType === 'vendor' ? 'standard_input' : 'standard_output',
     defaultTaxCodeId: '',
+    purchaseTaxCodeId: '',
+    salesTaxCodeId: '',
+    jurisdictionId: '',
     withholdingEnabled: false,
+    withholdingTaxCodeId: '',
     withholdingRate: '',
     recoverabilityPercent: initialType === 'vendor' ? '100' : '',
     exemptionReasonCode: '',
@@ -66,15 +67,6 @@ export default function PartnerCreate() {
     filingCurrency: 'USD'
   });
 
-  const coaQuery = useQuery({ queryKey: ['coa', 'partner-create'], queryFn: () => coaApi.list() });
-  const paymentTermsQuery = useQuery({ queryKey: ['paymentTerms'], queryFn: () => paymentConfigApi.listPaymentTerms() });
-  const taxCodesQuery = useQuery({ queryKey: ['tax-codes', 'partner-create'], queryFn: () => taxApi.listCodes({ status: 'active' }) });
-
-  const accounts = normalizeRows(coaQuery.data);
-  const paymentTerms = normalizeRows(paymentTermsQuery.data);
-  const taxCodes = normalizeRows(taxCodesQuery.data);
-  const receivableAccounts = accounts.filter((acc) => String(acc.type ?? acc.accountType ?? acc.category ?? acc.name ?? '').toLowerCase().includes('receivable'));
-  const payableAccounts = accounts.filter((acc) => String(acc.type ?? acc.accountType ?? acc.category ?? acc.name ?? '').toLowerCase().includes('payable'));
   const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
 
   const create = useMutation({
@@ -110,7 +102,7 @@ export default function PartnerCreate() {
 
   return (
     <div className="space-y-6 pb-8">
-      <PageHeader title={`New ${form.type === 'vendor' ? 'vendor' : 'customer'}`} subtitle="Create a business partner with tax profile defaults, recoverability settings, withholding rules, and e-invoicing identifiers." icon={Building2} />
+      <PageHeader title={`New ${form.type === 'vendor' ? 'vendor' : 'customer'}`} subtitle="Create a business partner with backend-aligned UUID selects for accounts, payment terms, tax codes, and jurisdiction defaults." icon={Building2} />
       <Tabs value={tab} onChange={setTab} tabs={[{ value: 'core', label: 'Core profile' }, { value: 'tax', label: 'Tax profile' }]} />
 
       {tab === 'core' ? (
@@ -122,12 +114,11 @@ export default function PartnerCreate() {
             <Input label="Partner code" value={form.code} onChange={(e) => set('code', e.target.value)} />
             <Input label="Email" value={form.email} onChange={(e) => set('email', e.target.value)} />
             <Input label="Phone" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
-            <Select label="Payment terms" value={form.paymentTermsId} onChange={(e) => set('paymentTermsId', e.target.value)} options={[{ value: '', label: 'Select terms' }, ...paymentTerms.map((p) => ({ value: p.id, label: p.name || p.code || p.id }))]} />
-            {form.type === 'customer' ? (
+            <PaymentTermsSelect label="Payment terms" value={form.paymentTermsId} onChange={(e) => set('paymentTermsId', e.target.value)} allowEmpty />
+            <div className="grid gap-4 sm:grid-cols-2 md:col-span-2">
               <AccountSelect label="Default receivable account" value={form.defaultReceivableAccountId} onChange={(e) => set('defaultReceivableAccountId', e.target.value)} filters={{ accountTypeCodes: ['ASSET'] }} allowEmpty />
-            ) : (
               <AccountSelect label="Default payable account" value={form.defaultPayableAccountId} onChange={(e) => set('defaultPayableAccountId', e.target.value)} filters={{ accountTypeCodes: ['LIABILITY'] }} allowEmpty />
-            )}
+            </div>
             <div className="md:col-span-2">
               <Textarea label="Notes" rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} />
             </div>
@@ -138,12 +129,16 @@ export default function PartnerCreate() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <Input label="Tax ID number" value={form.taxIdNumber} onChange={(e) => set('taxIdNumber', e.target.value)} />
             <Input label="VAT registration number" value={form.vatRegistrationNumber} onChange={(e) => set('vatRegistrationNumber', e.target.value)} />
-            <Select label="Registration status" value={form.taxRegistrationStatus} onChange={(e) => set('taxRegistrationStatus', e.target.value)} options={[{ value: 'registered', label: 'Registered' }, { value: 'unregistered', label: 'Unregistered' }, { value: 'exempt', label: 'Exempt' }]} />
+            <Select label="Registration status" value={form.taxRegistrationStatus} onChange={(e) => set('taxRegistrationStatus', e.target.value)} options={[{ value: 'registered', label: 'Registered' }, { value: 'unregistered', label: 'Unregistered' }, { value: 'pending', label: 'Pending' }, { value: 'suspended', label: 'Suspended' }]} />
             <Select label="Tax treatment" value={form.taxTreatment} onChange={(e) => set('taxTreatment', e.target.value)} options={[{ value: 'standard_output', label: 'Standard output tax' }, { value: 'standard_input', label: 'Standard input tax' }, { value: 'reverse_charge', label: 'Reverse charge' }, { value: 'exempt', label: 'Exempt' }, { value: 'zero_rated', label: 'Zero rated' }]} />
-            <Select label="Default tax code" value={form.defaultTaxCodeId} onChange={(e) => set('defaultTaxCodeId', e.target.value)} options={[{ value: '', label: 'Select tax code' }, ...taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
+            <TaxCodeSelect label="Default tax code" value={form.defaultTaxCodeId} onChange={(e) => set('defaultTaxCodeId', e.target.value)} allowEmpty />
+            <JurisdictionSelect label="Jurisdiction" value={form.jurisdictionId} onChange={(e) => set('jurisdictionId', e.target.value)} allowEmpty />
+            <TaxCodeSelect label="Purchase tax code" value={form.purchaseTaxCodeId} onChange={(e) => set('purchaseTaxCodeId', e.target.value)} allowEmpty />
+            <TaxCodeSelect label="Sales tax code" value={form.salesTaxCodeId} onChange={(e) => set('salesTaxCodeId', e.target.value)} allowEmpty />
+            <TaxCodeSelect label="Withholding tax code" value={form.withholdingTaxCodeId} onChange={(e) => set('withholdingTaxCodeId', e.target.value)} allowEmpty />
             <Input label="Recoverability (%)" type="number" value={form.recoverabilityPercent} onChange={(e) => set('recoverabilityPercent', e.target.value)} />
             <Select label="Place of supply basis" value={form.placeOfSupplyBasis} onChange={(e) => set('placeOfSupplyBasis', e.target.value)} options={[{ value: 'customer_location', label: 'Customer location' }, { value: 'supplier_location', label: 'Supplier location' }, { value: 'ship_to', label: 'Ship-to address' }, { value: 'service_performance', label: 'Service performance location' }]} />
-            <Input label="Tax country code" value={form.taxCountryCode} onChange={(e) => set('taxCountryCode', e.target.value.toUpperCase())} />
+            <Input label="Tax country code" value={form.taxCountryCode} onChange={(e) => set('taxCountryCode', e.target.value.toUpperCase())} maxLength={2} />
             <Input label="Tax region code" value={form.taxRegionCode} onChange={(e) => set('taxRegionCode', e.target.value)} />
             <Input label="Withholding rate (%)" type="number" value={form.withholdingRate} onChange={(e) => set('withholdingRate', e.target.value)} />
             <Input label="Exemption reason" value={form.exemptionReasonCode} onChange={(e) => set('exemptionReasonCode', e.target.value)} />
