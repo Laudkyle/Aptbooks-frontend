@@ -97,7 +97,6 @@ export default function TaxAdmin() {
     queryFn: () => api.listPartnerProfiles({}),
     staleTime: 10000,
   });
-
   const einvoiceQ = useQuery({
     queryKey: ["tax-einvoice-settings"],
     queryFn: api.getEinvoicingSettings,
@@ -146,6 +145,7 @@ export default function TaxAdmin() {
   const countryPacks = normalizeRows(countryPacksQ.data);
   const automationRules = normalizeRows(automationRulesQ.data);
   const filingAdapters = normalizeRows(filingAdaptersQ.data);
+console.log(rules)
 
   const jurisOptions = [{ value: "", label: "No jurisdiction" }].concat(
     jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` })),
@@ -493,6 +493,35 @@ export default function TaxAdmin() {
           String(row[field] ?? "—")
         ),
     }));
+    const adColumns = (fields) =>
+    fields.map((field) => {
+        // If field is a string, use it for both header and accessor
+        // If field is an object, use header and accessor separately
+        const header = typeof field === 'string' ? formatLabel(field) : field.header;
+        const accessorKey = typeof field === 'string' ? field : field.accessorKey;
+        const customRender = typeof field === 'string' ? null : field.render;
+
+        return {
+            header,
+            accessorKey,
+            render: (row) => {
+                // Use custom render if provided
+                if (customRender) {
+                    return customRender(row);
+                }
+                
+                // Default rendering logic
+                if (/status|state|enabled/i.test(accessorKey)) {
+                    return (
+                        <Badge tone={statusTone(row[accessorKey])}>
+                            {String(row[accessorKey] ?? "—")}
+                        </Badge>
+                    );
+                }
+                return String(row[accessorKey] ?? "—");
+            },
+        };
+    });
 
   return (
     <div className="space-y-6 pb-8">
@@ -701,13 +730,13 @@ export default function TaxAdmin() {
 
           <ContentCard title="Registrations">
             <DataTable
-              columns={simpleColumns([
-                "registrationNumber",
-                "legalEntityName",
-                "filingFrequency",
-                "effectiveFrom",
-                "effectiveTo",
-                "status",
+              columns={adColumns([
+                {header:"Registration Number", accessorKey:"registration_no"},
+                {header:"Legal Entity Name", accessorKey:"legal_entity_name"},
+                {header:"Filing Frequency", accessorKey:"filing_frequency"},
+                {header:"Effective From", accessorKey:"effective_from"},
+                {header:"Effective To", accessorKey:"effective_to"},
+                {header:"Registration Type", accessorKey:"registration_type"},
               ])}
               rows={registrations}
             />
@@ -806,15 +835,14 @@ export default function TaxAdmin() {
 
           <ContentCard title="Determination rules">
             <DataTable
-              columns={simpleColumns([
-                "code",
-                "name",
-                "documentType",
-                "supplyType",
-                "placeOfSupplyBasis",
-                "taxCodeId",
-                "priority",
-                "status",
+              columns={adColumns([
+                { header: "Name", accessorKey: "name" },
+                { header: "Document Type", accessorKey: "document_type" },
+                { header: "Supply Type", accessorKey: "partner_type" },
+                { header: "Place of Supply Basis", accessorKey: "place_of_supply_basis" },
+                { header: "Tax Code", accessorKey: "tax_code_code" },
+                { header: "Priority", accessorKey: "priority" },
+                { header: "Status", accessorKey: "status" },
               ])}
               rows={rules}
             />
@@ -940,14 +968,16 @@ export default function TaxAdmin() {
       {tab === "profiles" ? (
         <ContentCard title="Partner tax profiles">
           <DataTable
-            columns={simpleColumns([
-              "partnerName",
-              "taxTreatment",
-              "taxRegistrationStatus",
-              "withholdingRate",
-              "recoverabilityPercent",
-              "countryCode",
-            ])}
+            columns={
+              adColumns([
+              { header:"Legal name",accessorKey:"legal_name" },
+              { header:"Tax class",accessorKey:"tax_class" },
+              { header:"Registration status",accessorKey:"registration_status" },
+              {header:"WithHolding Rate",accessorKey:"withholding_rate_override"},
+              {header:"recoverability Percent",accessorKey:"recoverable_percent_override"},
+              {header:"Destination Country Code",accessorKey:"destination_country_code"},
+            ])
+          }
             rows={profiles}
           />
         </ContentCard>
