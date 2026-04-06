@@ -32,6 +32,7 @@ import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
+import { SignatureManager } from '../components/SignatureManager.jsx';
 
 
 export default function UserDetail() {
@@ -537,6 +538,14 @@ const toast = useToast();
             </div>
           </ContentCard>
 
+          <SignatureManager
+            mode="admin"
+            userId={id}
+            fallbackUser={user}
+            title="Print signature"
+            subtitle="Manage the stored signature used when this user is the prepared by, approved by, or posted by signatory on printed documents."
+          />
+
           {/* Login History */}
           <ContentCard>
             <div className="mb-6">
@@ -613,6 +622,24 @@ const toast = useToast();
                   </div>
                 </div>
               )}
+            </div>
+          </ContentCard>
+
+          <ContentCard>
+            <div className="text-sm font-semibold text-slate-900 mb-4">Signature Status</div>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600">Configured</span>
+                <span className="font-medium text-slate-900">{user?.signature?.has_signature ? 'Yes' : 'No'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600">Display name</span>
+                <span className="max-w-[11rem] truncate text-right font-medium text-slate-900">{user?.signature?.signature_display_name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600">Title</span>
+                <span className="max-w-[11rem] truncate text-right font-medium text-slate-900">{user?.signature?.signature_title || '—'}</span>
+              </div>
             </div>
           </ContentCard>
 

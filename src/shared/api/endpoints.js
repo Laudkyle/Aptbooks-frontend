@@ -21,6 +21,8 @@ export const endpoints = {
       switchOrganization: "/core/users/me/switch-organization",
       meLoginHistory: (limit = 50) =>
         `/core/users/me/login-history?limit=${limit}`,
+      meSignature: "/core/users/me/signature",
+      signature: (id) => `/core/users/${id}/signature`,
       list: "/core/users",
       create: "/core/users/create/",
       detail: (id) => `/core/users/${id}`,
