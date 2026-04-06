@@ -28,6 +28,7 @@ import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWo
 import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -325,11 +326,11 @@ export default function VendorPaymentDetail() {
                     <tbody className="bg-white divide-y divide-gray-100">
                       {allocations.map((allocation, idx) => (
                         <tr key={idx} className="hover:bg-slate-50">
-                          <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
-                            {allocation.bill_id ? `${allocation.bill_id.substring(0, 12)}...` : '—'}
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {formatDocumentSummary(allocation, 'bill')}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
-                            {allocation.bill_number ?? '—'}
+                            {formatDocumentAmount(allocation)}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
                             {formatCurrency(allocation.amount_applied ?? 0)}

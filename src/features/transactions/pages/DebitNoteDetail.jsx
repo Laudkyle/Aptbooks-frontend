@@ -22,6 +22,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentOptionLabel, formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -57,7 +58,7 @@ export default function DebitNoteDetail() {
   // Extract debit note data - data is already the debit note object
   const billsQ = useQuery({ queryKey: ['transactions', 'bills', 'select'], queryFn: () => billsApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
   const billRows = Array.isArray(billsQ.data) ? billsQ.data : billsQ.data?.data ?? [];
-  const billOptions = [{ value: '', label: 'Select bill...' }, ...billRows.map((bill) => ({ value: bill.id, label: [bill.code || bill.reference, bill.vendor_name || bill.partner_name].filter(Boolean).join(' — ') || bill.id }))];
+  const billOptions = [{ value: '', label: 'Select bill...' }, ...billRows.map((bill) => ({ value: bill.id, label: formatDocumentOptionLabel(bill, 'bill') }))];
 
   const note = data?.data ?? data;
   
@@ -468,7 +469,10 @@ export default function DebitNoteDetail() {
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Bill ID
+                        Bill
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Bill Total
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
                         Amount Applied
@@ -481,8 +485,11 @@ export default function DebitNoteDetail() {
                   <tbody className="bg-white divide-y divide-slate-100">
                     {applications.map((application, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-sm text-slate-900 font-mono text-xs">
-                          {application.bill_id ? `${application.bill_id.substring(0, 12)}...` : '—'}
+                        <td className="px-4 py-3 text-sm text-slate-900">
+                          {formatDocumentSummary(application, 'bill', currencyCode)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-700">
+                          {formatDocumentAmount(application, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
                           {formatCurrency(application.amount_applied, currencyCode)}
@@ -495,7 +502,7 @@ export default function DebitNoteDetail() {
                   </tbody>
                   <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                     <tr>
-                      <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td colSpan={2} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
                         Total Applied:
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-bold text-slate-900">
@@ -772,7 +779,7 @@ export default function DebitNoteDetail() {
               <div className="text-sm text-blue-900">
                 <div className="font-medium mb-1">Apply credit to a vendor bill</div>
                 <div className="text-blue-700">
-                  Enter the bill ID and the amount to apply. The bill balance will be reduced by this amount.
+                  Select the bill by bill number and total amount, then enter the amount to apply. The bill balance will be reduced by this amount.
                 </div>
               </div>
             </div>

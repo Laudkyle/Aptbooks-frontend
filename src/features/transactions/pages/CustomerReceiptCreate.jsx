@@ -14,6 +14,7 @@ import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentOptionLabel } from '../utils/documentDisplay.js';
 
 export default function CustomerReceiptCreate() {
   const navigate = useNavigate();
@@ -423,8 +424,7 @@ export default function CustomerReceiptCreate() {
                               <option value="">Select invoice</option>
                               {customerInvoices.map((invoice) => (
                                 <option key={invoice.id} value={invoice.id}>
-                                  {invoice.invoiceNumber || invoice.code || invoice.id}
-                                  {invoice.amountTotal || invoice.amount ? ` - $${Number(invoice.amountTotal || invoice.amount).toFixed(2)}` : ''}
+                                  {formatDocumentOptionLabel(invoice, 'invoice')}
                                 </option>
                               ))}
                             </select>

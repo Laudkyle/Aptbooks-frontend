@@ -14,6 +14,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentOptionLabel, formatDocumentAmount } from '../utils/documentDisplay.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -133,7 +134,7 @@ export default function VendorPaymentCreate() {
     { value: '', label: 'Select bill...' },
     ...bills.map(b => ({
       value: b.id,
-      label: `${b.bill_number || b.id.slice(0, 8)} - $${(b.amount_due || 0).toFixed(2)} due`,
+      label: formatDocumentOptionLabel(b, 'bill'),
       bill: b
     }))
   ];
@@ -449,7 +450,7 @@ export default function VendorPaymentCreate() {
                                 />
                                 {selectedBill && (
                                   <div className="mt-1 text-xs text-gray-500">
-                                    Due: ${(selectedBill.amount_due || 0).toFixed(2)} • Date: {selectedBill.bill_date}
+                                    Total: {formatDocumentAmount(selectedBill)} • Date: {selectedBill.bill_date}
                                   </div>
                                 )}
                               </div>

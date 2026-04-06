@@ -16,6 +16,7 @@ import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWo
 import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -207,10 +208,10 @@ export default function CustomerReceiptDetail() {
                   <thead className=" border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Invoice ID
+                        Invoice
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Invoice #
+                        Invoice Total
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Amount Applied
@@ -220,11 +221,11 @@ export default function CustomerReceiptDetail() {
                   <tbody className="bg-white divide-y divide-gray-100">
                     {allocations.map((a, idx) => (
                       <tr key={idx} className="hover:">
-                        <td className="px-6 py-4 text-sm text-gray-900 font-mono text-xs">
-                          {a.invoice_id ? `${a.invoice_id.substring(0, 12)}...` : '—'}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {formatDocumentSummary(a, 'invoice')}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {a.invoice_number ?? '—'}
+                          {formatDocumentAmount(a)}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
                           {formatCurrency(a.amount_applied ?? a.amount ?? 0)}

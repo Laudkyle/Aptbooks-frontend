@@ -21,6 +21,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatDocumentOptionLabel, formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -56,7 +57,7 @@ export default function CreditNoteDetail() {
   // Extract credit note data - based on your console.log, data is already the credit note object
   const invoicesQ = useQuery({ queryKey: ['transactions', 'invoices', 'select'], queryFn: () => invoicesApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
   const invoiceRows = Array.isArray(invoicesQ.data) ? invoicesQ.data : invoicesQ.data?.data ?? [];
-  const invoiceOptions = [{ value: '', label: 'Select invoice...' }, ...invoiceRows.map((inv) => ({ value: inv.id, label: [inv.code || inv.reference, inv.customer_name || inv.partner_name].filter(Boolean).join(' — ') || inv.id }))];
+  const invoiceOptions = [{ value: '', label: 'Select invoice...' }, ...invoiceRows.map((inv) => ({ value: inv.id, label: formatDocumentOptionLabel(inv, 'invoice') }))];
 
   const note = data?.data ?? data;
   
@@ -470,7 +471,10 @@ const statusConfig = getStatusConfig(status);
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Invoice ID
+                        Invoice
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        Invoice Total
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">
                         Amount Applied
@@ -483,8 +487,11 @@ const statusConfig = getStatusConfig(status);
                   <tbody className="bg-white divide-y divide-slate-100">
                     {applications.map((application, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-sm text-slate-900 font-mono text-xs">
-                          {application.invoice_id ? `${application.invoice_id.substring(0, 12)}...` : '—'}
+                        <td className="px-4 py-3 text-sm text-slate-900">
+                          {formatDocumentSummary(application, 'invoice', currencyCode)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-700">
+                          {formatDocumentAmount(application, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
                           {formatCurrency(application.amount_applied, currencyCode)}
@@ -497,7 +504,7 @@ const statusConfig = getStatusConfig(status);
                   </tbody>
                   <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                     <tr>
-                      <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td colSpan={2} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
                         Total Applied:
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-bold text-slate-900">
@@ -774,7 +781,7 @@ const statusConfig = getStatusConfig(status);
               <div className="text-sm text-green-900">
                 <div className="font-medium mb-1">Apply credit to a customer invoice</div>
                 <div className="text-green-700">
-                  Enter the invoice ID and the amount to apply. The invoice balance will be reduced by this amount.
+                  Select the invoice by invoice number and total amount, then enter the amount to apply. The invoice balance will be reduced by this amount.
                 </div>
               </div>
             </div>
