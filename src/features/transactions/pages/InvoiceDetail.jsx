@@ -7,8 +7,6 @@ import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
-import { computeDocumentSummary } from '../../../shared/tax/frontendTax.js';
-import { buildTaxDetailModel } from '../utils/taxDetail.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
@@ -40,17 +38,24 @@ export default function InvoiceDetail() {
     queryFn: () => api.get(id)
   });
 
-  const invoice = data?.data ?? data;
+  const invoiceData = data?.data ?? data;
+  
+  // Extract the actual invoice object and lines from the response
+  const invoice = invoiceData?.invoice || invoiceData;
+  const lines = invoiceData?.lines || [];
+  const allocationsSummary = invoiceData?.allocations_summary || {};
+  const paid = allocationsSummary?.paid || 0;
+  const outstanding = allocationsSummary?.outstanding || invoice?.total || 0;
 
   const einvoiceQ = useQuery({ queryKey: ['invoice', id, 'einvoicePreview'], queryFn: () => api.getEinvoicePreview(id), enabled: !!id });
   const filingStatusQ = useQuery({ queryKey: ['invoice', id, 'filingStatus'], queryFn: () => api.getFilingStatus(id), enabled: !!id });
+  
   const [comment, setComment] = useState('');
   const [voidReason, setVoidReason] = useState('');
   const [action, setAction] = useState(null);
 
   const run = useMutation({
     mutationFn: async () => {
-      // Generate a unique idempotency key for each action
       const idempotencyKey = generateUUID();
       
       if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
@@ -70,42 +75,45 @@ export default function InvoiceDetail() {
     onError: (e) => toast.error(e?.message ?? 'Action failed')
   });
 
-  const record = invoice?.invoice ?? invoice;
-  const workflowState = normalizeTransactionWorkflow({ type: 'invoice', entity: record, payload: invoice });
-  const status = workflowState.businessStatus;
+  const workflowState = normalizeTransactionWorkflow({ type: 'invoice', entity: invoice, payload: invoiceData });
+  const status = workflowState.businessStatus || invoice?.workflow_status || 'draft';
   const availableActions = resolveTransactionActions({ type: 'invoice', state: workflowState });
+  
   const statusColors = {
     paid: 'bg-green-100 text-green-800 border-green-200',
     issued: 'bg-blue-100 text-blue-800 border-blue-200',
     voided: 'bg-red-100 text-red-800 border-red-200',
     draft: 'bg-amber-100 text-amber-800 border-amber-200',
-    pending: 'bg-purple-100 text-purple-800 border-purple-200'
+    pending: 'bg-purple-100 text-purple-800 border-purple-200',
+    approved: 'bg-green-100 text-green-800 border-green-200'
   };
 
-  const calculateTotal = () => {
-    if (!invoice?.lines) return 0;
-    return invoice.lines.reduce((sum, line) => {
-      return sum + ((line.quantity ?? 1) * (line.unit_price ?? 0));
-    }, 0);
-  };
-
-  const total = calculateTotal();
-  const taxSnapshot = (invoice?.taxSummary ?? invoice?.tax_summary ?? computeDocumentSummary({ lines: invoice?.lines ?? [], taxCodes: [], pricingMode: invoice?.invoice?.pricingMode ?? 'exclusive' }));
-  const taxDetail = useMemo(() => buildTaxDetailModel({ header: record ?? {}, payload: invoice, lines: invoice?.lines ?? [], pricingMode: record?.pricingMode ?? record?.pricing_mode ?? 'exclusive' }), [record, invoice]);
-  const currency = invoice?.invoice.currency_code || 'USD';
+  const currency = invoice?.currency_code || 'GHS';
   
   // Helper function to format currency amounts
   const formatCurrency = (amount) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(amount);
+    }).format(numAmount || 0);
   };
 
+  // Get totals from the response structure
+  const subtotal = invoice?.subtotal ? parseFloat(invoice.subtotal) : 0;
+  const taxTotal = invoice?.tax_total ? parseFloat(invoice.tax_total) : 0;
+  const total = invoice?.total ? parseFloat(invoice.total) : 0;
+  const outstandingAmount = typeof outstanding === 'string' ? parseFloat(outstanding) : outstanding;
+  const paidAmount = typeof paid === 'string' ? parseFloat(paid) : paid;
+
+  // Get customer info - since customer_name isn't in the invoice object directly
+  const customerId = invoice?.customer_id;
+  // You might want to fetch customer details separately, or display the ID for now
+
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -114,10 +122,10 @@ export default function InvoiceDetail() {
               <div className="flex items-center gap-3 mb-2">
                 <FileText className="h-7 w-7 text-gray-700" />
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {invoice?.invoice.invoiceNumber ?? invoice?.invoice.code ?? (isLoading ? 'Loading...' : 'Invoice')}
+                  {invoice?.invoice_no || (isLoading ? 'Loading...' : 'Invoice')}
                 </h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Draft'}
                 </span>
               </div>
               <p className="text-sm text-gray-600">
@@ -148,45 +156,58 @@ export default function InvoiceDetail() {
               <h3 className="text-base font-semibold text-gray-900 mb-5">Invoice Summary</h3>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className="rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Customer</span>
+                    <span className="text-xs font-medium text-gray-500">Customer ID</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {invoice?.invoice.customer_name ?? '—'}
+                    {customerId || '—'}
                   </div>
                 </div>
 
-                <div className=" rounded-lg border border-gray-200 p-4">
+                <div className="rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">Dates</span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {formatDate(invoice?.invoice.invoice_date)} → {formatDate(invoice?.invoice.due_date)}
+                    {formatDate(invoice?.invoice_date)} → {formatDate(invoice?.due_date)}
                   </div>
                 </div>
 
-                {invoice?.invoice.memo && (
-                  <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
+                {invoice?.memo && (
+                  <div className="md:col-span-2 rounded-lg border border-gray-200 p-4">
                     <div className="text-xs font-medium text-gray-500 mb-2">Memo</div>
-                    <div className="text-sm text-gray-700">{invoice.invoice.memo}</div>
+                    <div className="text-sm text-gray-700">{invoice.memo}</div>
                   </div>
                 )}
+
+                <div className="md:col-span-2 rounded-lg border border-gray-200 p-4">
+                  <div className="text-xs font-medium text-gray-500 mb-2">Timeline</div>
+                  <div className="space-y-1 text-sm">
+                    <div>Created: {formatDate(invoice?.created_at)}</div>
+                    {invoice?.submitted_at && <div>Submitted: {formatDate(invoice.submitted_at)}</div>}
+                    {invoice?.approved_at && <div>Approved: {formatDate(invoice.approved_at)}</div>}
+                    {invoice?.issued_at && <div>Issued: {formatDate(invoice.issued_at)}</div>}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Line Items */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4  border-b border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-base font-semibold text-gray-900">Line Items</h3>
               </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className=" border-b border-gray-200">
+                  <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        #
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Description
                       </th>
@@ -200,7 +221,10 @@ export default function InvoiceDetail() {
                         Revenue Account
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Tax
+                        Tax Code
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Tax Rate
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Tax Amount
@@ -211,46 +235,78 @@ export default function InvoiceDetail() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
-                    {taxDetail.lines.map((l, idx) => {
+                    {lines.map((line, idx) => {
+                      const quantity = line.quantity ? parseFloat(line.quantity) : 1;
+                      const unitPrice = line.unit_price ? parseFloat(line.unit_price) : 0;
+                      const lineTotal = line.line_total ? parseFloat(line.line_total) : 0;
+                      const taxAmount = line.tax_amount ? parseFloat(line.tax_amount) : 0;
+                      const taxRate = line.taxes?.[0]?.tax_rate ? parseFloat(line.taxes[0].tax_rate) : 0;
+                      
                       return (
-                        <tr key={idx} className="hover:">
-                          <td className="px-6 py-4 text-sm text-gray-900">{l.description}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{l.quantity ?? 1}</td>
+                        <tr key={line.id || idx} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-500">{line.line_no || idx + 1}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900">{line.description || '—'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{quantity}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">
-                            {formatCurrency(l.unitPrice ?? l.unit_price ?? 0)}
+                            {formatCurrency(unitPrice)}
                           </td>
-                          <td className="px-6 py-4 text-gray-500 font-mono text-xs">
-                            {l.revenue_account_id ? `${l.revenue_account_id.substring(0, 8)}...` : '—'}
+                          <td className="px-6 py-4">
+                            <div className="text-xs">
+                              <div className="font-mono text-gray-600">{line.account_code || '—'}</div>
+                              <div className="text-gray-500">{line.account_name || '—'}</div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-xs text-gray-700">
-                            {l._tax.taxCode ? `${l._tax.taxCode}${l._tax.taxRate ? ` (${l._tax.taxRate}%)` : ''}` : (l._tax.taxRate ? `${l._tax.taxRate}%` : '—')}
+                            {line.tax_code_code || line.tax_code?.code || '—'}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-gray-700">
+                            {taxRate}%
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700 text-right">
-                            {formatCurrency(l._tax.taxAmount ?? 0)}
+                            {formatCurrency(taxAmount)}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            {formatCurrency(l._tax.total ?? 0)}
+                            {formatCurrency(lineTotal + taxAmount)}
                           </td>
                         </tr>
                       );
                     })}
-                    {!taxDetail.lines.length ? (
+                    {!lines.length ? (
                       <tr>
-                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={7}>
+                        <td className="px-6 py-12 text-center text-sm text-gray-500" colSpan={9}>
                           No line items
                         </td>
                       </tr>
                     ) : null}
                   </tbody>
-                  {taxDetail.lines.length > 0 && (
-                    <tfoot className=" border-t-2 border-gray-200">
+                  {lines.length > 0 && (
+                    <tfoot className="bg-gray-50 border-t-2 border-gray-200">
                       <tr>
-                        <td colSpan={6} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td colSpan={7} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                          Subtotal:
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(subtotal)}
+                        </td>
+                        <td className="px-6 py-4"></td>
+                      </tr>
+                      <tr>
+                        <td colSpan={7} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                          Tax Total:
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(taxTotal)}
+                        </td>
+                        <td className="px-6 py-4"></td>
+                      </tr>
+                      <tr className="border-t border-gray-200">
+                        <td colSpan={7} className="px-6 py-4 text-right text-base font-bold text-gray-900">
                           Total:
                         </td>
                         <td className="px-6 py-4 text-right text-lg font-bold text-gray-900">
-                          {formatCurrency(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total)}
+                          {formatCurrency(total)}
                         </td>
+                        <td className="px-6 py-4"></td>
                       </tr>
                     </tfoot>
                   )}
@@ -266,30 +322,82 @@ export default function InvoiceDetail() {
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <h3 className="text-base font-semibold text-gray-900">Invoice Total</h3>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-6">{formatCurrency(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total)}</div>
+              <div className="text-3xl font-bold text-gray-900 mb-6">{formatCurrency(total)}</div>
               <div className="space-y-3 pt-4 border-t border-gray-200">
-                <div className="flex justify-between text-sm"><span className="text-gray-600">Status</span><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>{status.charAt(0).toUpperCase() + status.slice(1)}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-gray-600">Currency</span><span className="font-medium text-gray-900">{currency}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-gray-600">Line Items</span><span className="font-medium text-gray-900">{(invoice?.lines ?? []).length}</span></div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Status</span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
+                    {status?.charAt(0).toUpperCase() + status?.slice(1) || 'Draft'}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Currency</span>
+                  <span className="font-medium text-gray-900">{currency}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Line Items</span>
+                  <span className="font-medium text-gray-900">{lines.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Paid</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(paidAmount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Outstanding</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(outstandingAmount)}</span>
+                </div>
               </div>
             </div>
+
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Tax summary</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Tax Summary</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.subtotal ?? total ?? 0).toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Tax</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.taxTotal ?? taxSnapshot?.tax_total ?? 0).toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Withholding</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.withholdingTotal ?? taxSnapshot?.withholding_total ?? 0).toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-600">Non-recoverable tax</span><span className="font-medium text-gray-900">{Number(taxSnapshot?.nonRecoverableTaxTotal ?? taxSnapshot?.non_recoverable_tax_total ?? 0).toFixed(2)}</span></div>
-                <div className="flex justify-between border-t border-gray-200 pt-2"><span className="font-semibold text-gray-900">Gross total</span><span className="font-semibold text-gray-900">{Number(taxSnapshot?.grandTotal ?? taxSnapshot?.grand_total ?? total ?? 0).toFixed(2)}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Tax Total</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(taxTotal)}</span>
+                </div>
+                {lines.map((line, idx) => {
+                  const taxBreakdown = line.tax_breakdown;
+                  if (taxBreakdown?.components?.length && taxBreakdown.components[0]?.tax_amount > 0) {
+                    return taxBreakdown.components.map((comp, compIdx) => (
+                      <div key={`${idx}-${compIdx}`} className="flex justify-between pl-4 text-xs">
+                        <span className="text-gray-500">
+                          {comp.tax_code_meta?.code || comp.tax_type} ({comp.tax_rate}%)
+                        </span>
+                        <span className="text-gray-600">{formatCurrency(comp.tax_amount)}</span>
+                      </div>
+                    ));
+                  }
+                  return null;
+                })}
+                <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                  <span className="font-semibold text-gray-900">Total</span>
+                  <span className="font-semibold text-gray-900">{formatCurrency(total)}</span>
+                </div>
               </div>
             </div>
+
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">E-invoicing status</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-4">E-invoicing Status</h3>
               <div className="space-y-2 text-sm text-gray-700">
-                <div>Status: <span className="font-medium text-gray-900">{filingStatusQ.data?.status ?? filingStatusQ.data?.state ?? 'Not available'}</span></div>
-                <div>Scheme: <span className="font-medium text-gray-900">{einvoiceQ.data?.scheme ?? einvoiceQ.data?.documentType ?? '—'}</span></div>
+                <div className="flex justify-between">
+                  <span>Status:</span>
+                  <span className="font-medium text-gray-900">{filingStatusQ.data?.status ?? filingStatusQ.data?.state ?? 'Not available'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Scheme:</span>
+                  <span className="font-medium text-gray-900">{einvoiceQ.data?.scheme ?? einvoiceQ.data?.documentType ?? '—'}</span>
+                </div>
               </div>
-              <div className="mt-4"><JsonPanel title="E-invoice payload" value={einvoiceQ.data ?? {}} /></div>
+              {einvoiceQ.data && Object.keys(einvoiceQ.data).length > 0 && (
+                <div className="mt-4">
+                  <JsonPanel title="E-invoice payload" value={einvoiceQ.data} />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -314,7 +422,7 @@ export default function InvoiceDetail() {
         }
       >
         <div className="space-y-4">
-          {action === 'approve' || action === 'reject' ? (
+          {(action === 'approve' || action === 'reject') && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Comment {action === 'reject' ? '(recommended)' : '(optional)'}
@@ -326,9 +434,9 @@ export default function InvoiceDetail() {
                 placeholder={`Add a ${action === 'reject' ? 'reason for rejection' : 'comment'}...`}
               />
             </div>
-          ) : null}
+          )}
           
-          {action === 'void' ? (
+          {action === 'void' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Reason <span className="text-red-500">*</span>
@@ -340,7 +448,7 @@ export default function InvoiceDetail() {
                 placeholder="Explain why this invoice is being voided..."
               />
             </div>
-          ) : null}
+          )}
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
