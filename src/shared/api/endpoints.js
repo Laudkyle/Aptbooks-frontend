@@ -778,6 +778,7 @@ export const endpoints = {
     approvalLevels: {
       list: "/workflow/documents/approval-levels",
       create: "/workflow/documents/approval-levels",
+      global: "/workflow/documents/approval-levels/global",
       getUsers: (levelId) =>
         `/workflow/documents/approval-levels/${levelId}/users`,
       setUsers: (levelId) =>

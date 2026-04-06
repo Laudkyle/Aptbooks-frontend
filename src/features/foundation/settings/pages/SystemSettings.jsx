@@ -945,81 +945,194 @@ function CreateDocumentTypeModal({ onClose, documentsApi, qc, toast }) {
   );
 }
 
-function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditingTypeId }) {
-  const typesQ  = useQuery({ queryKey: ["document-types"],   queryFn: documentsApi.listDocumentTypes,  staleTime: 30_000 });
-  const levelsQ = useQuery({ queryKey: ["approval-levels"],  queryFn: documentsApi.listApprovalLevels, staleTime: 30_000 });
 
-  const types        = typesQ.data ?? [];
+function formatChainSummary(levels = []) {
+  if (!Array.isArray(levels) || levels.length === 0) return "No levels configured";
+  return levels.map((level) => level?.name || level?.code || "Unnamed level").join(" → ");
+}
+
+function ApprovalLadderPanel({ documentsApi, qc, toast, editingTypeId, setEditingTypeId }) {
+  const [showGlobalModal, setShowGlobalModal] = useState(false);
+  const typesQ = useQuery({ queryKey: ["document-types"], queryFn: documentsApi.listDocumentTypes, staleTime: 30_000 });
+  const levelsQ = useQuery({ queryKey: ["approval-levels"], queryFn: documentsApi.listApprovalLevels, staleTime: 30_000 });
+  const globalQ = useQuery({ queryKey: ["global-document-ladder"], queryFn: documentsApi.getGlobalApprovalLevels, staleTime: 0 });
+
+  const types = typesQ.data ?? [];
   const activeLevels = (levelsQ.data ?? []).filter((l) => l.is_active).sort((a, b) => a.sequence - b.sequence);
-  const isLoading    = typesQ.isLoading || levelsQ.isLoading;
-  const isError      = typesQ.isError   || levelsQ.isError;
-  const editingType  = types.find((t) => t.id === editingTypeId) || null;
+  const globalLevels = Array.isArray(globalQ.data) ? globalQ.data : [];
+  const isLoading = typesQ.isLoading || levelsQ.isLoading || globalQ.isLoading;
+  const isError = typesQ.isError || levelsQ.isError || globalQ.isError;
+  const editingType = types.find((t) => t.id === editingTypeId) || null;
 
   return (
     <>
-      <ContentCard title="Approval Ladders" subtitle="Assign an ordered chain of approval levels to each document type">
+      <ContentCard title="Approval Ladders" subtitle="Define one global approval chain, then override it only for specific document types when needed.">
         <div className="space-y-4">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
             <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             <p className="text-sm text-amber-800">
-              <strong className="font-semibold">Changing a ladder is non-destructive for in-flight documents.</strong>{" "}
-              Updates only affect newly submitted documents. Documents already in the workflow continue using the ladder active at submission time.
+              <strong className="font-semibold">Priority order:</strong> document-type approval ladders override the global ladder. When a document type has no override, it inherits the global approval chain.
             </p>
           </div>
-          {isError && <ErrorBanner message="Failed to load data." onRetry={() => { qc.invalidateQueries({ queryKey: ["document-types"] }); qc.invalidateQueries({ queryKey: ["approval-levels"] }); }} />}
+          {isError && <ErrorBanner message="Failed to load data." onRetry={() => { qc.invalidateQueries({ queryKey: ["document-types"] }); qc.invalidateQueries({ queryKey: ["approval-levels"] }); qc.invalidateQueries({ queryKey: ["global-document-ladder"] }); }} />}
           {!isError && isLoading ? <LoadingRows cols={3} />
-            : types.length === 0 ? <EmptyState message="No document types found. Create document types first, then come back here to assign their approval ladders." />
             : activeLevels.length === 0 ? <EmptyState message="No active approval levels found. Create and activate approval levels first." />
             : (
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
-                <Table>
-                  <THead><tr><TH>Document Type</TH><TH>Approval Chain</TH><TH className="text-right">Actions</TH></tr></THead>
-                  <TBody>
-                    {types.map((docType) => (
-                      <tr key={docType.id} className="hover:bg-slate-50">
-                        <TD>
-                          <div className="font-medium text-slate-900">{docType.name}</div>
-                          <code className="text-xs font-mono text-slate-500">{docType.code}</code>
-                        </TD>
-                        <TD><span className="text-sm text-slate-400 italic">Click Configure to view or update the approval chain</span></TD>
-                        <TD className="text-right"><Button onClick={() => setEditingTypeId(docType.id)}>Configure</Button></TD>
-                      </tr>
-                    ))}
-                  </TBody>
-                </Table>
+              <div className="space-y-4">
+                <div className="border border-brand-200 bg-brand-50 rounded-lg p-4 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-sm font-semibold text-brand-900">Global Approval Ladder</div>
+                    <p className="mt-1 text-sm text-brand-800">{formatChainSummary(globalLevels)}</p>
+                    <p className="mt-2 text-xs text-brand-700">Used for all document types unless a document-specific ladder is configured.</p>
+                  </div>
+                  <Button onClick={() => setShowGlobalModal(true)}>Configure Global</Button>
+                </div>
+
+                {types.length === 0 ? <EmptyState message="No document types found. Create document types first, then come back here to assign overrides." /> : (
+                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                    <Table>
+                      <THead><tr><TH>Document Type</TH><TH>Resolved Approval Behaviour</TH><TH className="text-right">Actions</TH></tr></THead>
+                      <TBody>
+                        {types.map((docType) => {
+                          const localCount = Array.isArray(docType.approval_levels) ? docType.approval_levels.length : 0;
+                          const hasOverride = localCount > 0;
+                          return (
+                            <tr key={docType.id} className="hover:bg-slate-50">
+                              <TD>
+                                <div className="font-medium text-slate-900">{docType.name}</div>
+                                <code className="text-xs font-mono text-slate-500">{docType.code}</code>
+                              </TD>
+                              <TD>
+                                {hasOverride ? (
+                                  <div>
+                                    <div className="text-sm font-medium text-slate-900">Document-specific override</div>
+                                    <div className="text-xs text-slate-500">{formatChainSummary(docType.approval_levels)}</div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <div className="text-sm font-medium text-slate-900">Inherited from global ladder</div>
+                                    <div className="text-xs text-slate-500">{formatChainSummary(globalLevels)}</div>
+                                  </div>
+                                )}
+                              </TD>
+                              <TD className="text-right"><Button onClick={() => setEditingTypeId(docType.id)}>Configure Override</Button></TD>
+                            </tr>
+                          );
+                        })}
+                      </TBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             )}
         </div>
       </ContentCard>
-      {editingType && <EditLadderModal docType={editingType} allLevels={activeLevels} onClose={() => setEditingTypeId(null)} documentsApi={documentsApi} qc={qc} toast={toast} />}
+      {showGlobalModal && <GlobalLadderModal allLevels={activeLevels} currentLevels={globalLevels} onClose={() => setShowGlobalModal(false)} documentsApi={documentsApi} qc={qc} toast={toast} />}
+      {editingType && <EditLadderModal docType={editingType} allLevels={activeLevels} onClose={() => setEditingTypeId(null)} documentsApi={documentsApi} qc={qc} toast={toast} globalLevels={globalLevels} />}
     </>
   );
 }
 
-function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast }) {
+function GlobalLadderModal({ allLevels, currentLevels, onClose, documentsApi, qc, toast }) {
+  const [selectedIds, setSelectedIds] = useState((currentLevels ?? []).map((l) => l.id));
+  useEffect(() => { setSelectedIds((currentLevels ?? []).map((l) => l.id)); }, [currentLevels]);
+
+  const toggleLevel = (id) => setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  const moveUp = (idx) => { if (idx === 0) return; setSelectedIds((prev) => { const n = [...prev]; [n[idx-1], n[idx]] = [n[idx], n[idx-1]]; return n; }); };
+  const moveDown = (idx) => setSelectedIds((prev) => { if (idx === prev.length - 1) return prev; const n = [...prev]; [n[idx], n[idx+1]] = [n[idx+1], n[idx]]; return n; });
+
+  const save = useMutation({
+    mutationFn: () => documentsApi.setGlobalApprovalLevels(selectedIds),
+    onSuccess: () => {
+      toast.success("Global approval ladder updated");
+      qc.invalidateQueries({ queryKey: ["global-document-ladder"] });
+      qc.invalidateQueries({ queryKey: ["document-types"] });
+      onClose();
+    },
+    onError: (e) => toast.error(e.message || "Failed to update global ladder"),
+  });
+
+  const selectedLevels = selectedIds.map((id) => allLevels.find((l) => l.id === id)).filter(Boolean);
+  const unselectedLevels = allLevels.filter((l) => !selectedIds.includes(l.id));
+
+  return (
+    <Modal open onClose={onClose} title="Configure Global Approval Ladder">
+      <div className="space-y-5">
+        <p className="text-sm text-slate-600">This ladder applies to every document type by default. A document-type ladder will override it.</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Available Levels</p>
+            <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
+              {unselectedLevels.length === 0 ? <div className="p-4 text-center text-sm text-slate-400">All levels assigned</div> : unselectedLevels.map((level) => (
+                <button key={level.id} onClick={() => toggleLevel(level.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-brand-50 border-b border-slate-100 last:border-b-0 group transition-colors">
+                  <div><span className="text-sm font-medium text-slate-900">{level.name}</span><span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span></div>
+                  <svg className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Global Chain</p>
+            <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
+              {selectedLevels.length === 0 ? <div className="p-4 text-center text-sm text-slate-400">No global levels selected</div> : selectedLevels.map((level, idx) => (
+                <div key={level.id} className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 last:border-b-0">
+                  <div className="flex items-center gap-3"><span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex-shrink-0">{idx + 1}</span><div><span className="text-sm font-medium text-slate-900">{level.name}</span><span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span></div></div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move up"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>
+                    <button onClick={() => moveDown(idx)} disabled={idx === selectedLevels.length - 1} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move down"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>
+                    <button onClick={() => toggleLevel(level.id)} className="p-1 text-slate-400 hover:text-red-500 ml-1" title="Remove"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center pt-2 border-t">
+          <p className="text-xs text-slate-500">{selectedLevels.length === 0 ? "No levels selected — documents without overrides will skip approval." : `${selectedLevels.length} level${selectedLevels.length > 1 ? "s" : ""} in global chain`}</p>
+          <div className="flex gap-3"><Button variant="secondary" onClick={onClose}>Cancel</Button><Button onClick={() => save.mutate()} disabled={save.isLoading}>{save.isLoading ? "Saving..." : "Save Global Ladder"}</Button></div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast, globalLevels = [] }) {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const ladderQ = useQuery({ queryKey: ["document-type-ladder", docType.id], queryFn: () => documentsApi.getDocumentTypeLadder(docType.id), staleTime: 0 });
 
-  useEffect(() => { if (ladderQ.data && ladderQ.data.length > 0) setSelectedIds(ladderQ.data.map((l) => l.id)); }, [ladderQ.data]);
+  useEffect(() => {
+    if (Array.isArray(docType?.approval_levels) && docType.approval_levels.length > 0) {
+      setSelectedIds(docType.approval_levels.map((l) => l.id));
+      return;
+    }
+    setSelectedIds([]);
+  }, [docType]);
 
   const toggleLevel = (id) => setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
-  const moveUp   = (idx) => { if (idx === 0) return; setSelectedIds((prev) => { const n = [...prev]; [n[idx-1], n[idx]] = [n[idx], n[idx-1]]; return n; }); };
+  const moveUp = (idx) => { if (idx === 0) return; setSelectedIds((prev) => { const n = [...prev]; [n[idx-1], n[idx]] = [n[idx], n[idx-1]]; return n; }); };
   const moveDown = (idx) => setSelectedIds((prev) => { if (idx === prev.length - 1) return prev; const n = [...prev]; [n[idx], n[idx+1]] = [n[idx+1], n[idx]]; return n; });
 
   const save = useMutation({
     mutationFn: () => documentsApi.setDocumentTypeApprovalLevels(docType.id, selectedIds),
-    onSuccess: () => { toast.success(`Approval ladder updated for "${docType.name}"`); qc.invalidateQueries({ queryKey: ["document-types"] }); qc.invalidateQueries({ queryKey: ["document-type-ladder", docType.id] }); onClose(); },
+    onSuccess: () => {
+      toast.success(selectedIds.length === 0 ? `Override cleared for "${docType.name}"` : `Approval ladder updated for "${docType.name}"`);
+      qc.invalidateQueries({ queryKey: ["document-types"] });
+      qc.invalidateQueries({ queryKey: ["document-type-ladder", docType.id] });
+      onClose();
+    },
     onError: (e) => toast.error(e.message || "Failed to update ladder"),
   });
 
-  const selectedLevels   = selectedIds.map((id) => allLevels.find((l) => l.id === id)).filter(Boolean);
+  const selectedLevels = selectedIds.map((id) => allLevels.find((l) => l.id === id)).filter(Boolean);
   const unselectedLevels = allLevels.filter((l) => !selectedIds.includes(l.id));
+  const hasOverride = selectedIds.length > 0;
+  const resolvedLevels = hasOverride ? selectedLevels : globalLevels;
 
   return (
     <Modal open onClose={onClose} title={`Configure Approval Ladder — ${docType.name}`}>
       <div className="space-y-5">
-        <p className="text-sm text-slate-600">Select the approval levels required for this document type and arrange them in the order approvals must occur.</p>
+        <p className="text-sm text-slate-600">Leave this empty to inherit the global ladder. Add levels here only when this document type needs its own override.</p>
 
         {ladderQ.isLoading && (
           <div className="flex items-center gap-3 py-4 text-sm text-slate-500">
@@ -1027,49 +1140,33 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
             Loading current ladder...
           </div>
         )}
-        {ladderQ.isError && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
-            Could not load the existing ladder. You can still configure it — saving will replace whatever is currently set.
-          </div>
-        )}
+
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Current resolution</div>
+          <div className="text-sm text-slate-800 font-medium">{hasOverride ? "Document-specific override" : "Inherited from global ladder"}</div>
+          <div className="text-xs text-slate-500 mt-1">{formatChainSummary(resolvedLevels)}</div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Available Levels</p>
             <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
-              {unselectedLevels.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-400">All levels assigned</div>
-              ) : unselectedLevels.map((level) => (
+              {unselectedLevels.length === 0 ? <div className="p-4 text-center text-sm text-slate-400">All levels assigned</div> : unselectedLevels.map((level) => (
                 <button key={level.id} onClick={() => toggleLevel(level.id)} className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-brand-50 border-b border-slate-100 last:border-b-0 group transition-colors">
-                  <div>
-                    <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                    <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
-                  </div>
+                  <div><span className="text-sm font-medium text-slate-900">{level.name}</span><span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span></div>
                   <svg className="w-4 h-4 text-slate-300 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Approval Chain <span className="text-slate-400 font-normal normal-case">(in order)</span>
-            </p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Override Chain <span className="text-slate-400 font-normal normal-case">(leave empty to inherit global)</span></p>
             <div className="border border-slate-200 rounded-lg overflow-hidden min-h-[120px]">
-              {ladderQ.isLoading ? (
-                <div className="p-4 text-center text-sm text-slate-400">Loading...</div>
-              ) : selectedLevels.length === 0 ? (
-                <div className="p-4 text-center text-sm text-slate-400">← Select levels to build the chain</div>
-              ) : selectedLevels.map((level, idx) => (
+              {selectedLevels.length === 0 ? <div className="p-4 text-center text-sm text-slate-400">No override selected — this document type will use the global ladder.</div> : selectedLevels.map((level, idx) => (
                 <div key={level.id} className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 last:border-b-0">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex-shrink-0">{idx + 1}</span>
-                    <div>
-                      <span className="text-sm font-medium text-slate-900">{level.name}</span>
-                      <span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span>
-                    </div>
-                  </div>
+                  <div className="flex items-center gap-3"><span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex-shrink-0">{idx + 1}</span><div><span className="text-sm font-medium text-slate-900">{level.name}</span><span className="ml-2 text-xs text-slate-400">seq {level.sequence}</span></div></div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => moveUp(idx)}   disabled={idx === 0}                      className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move up">  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>
+                    <button onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move up"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>
                     <button onClick={() => moveDown(idx)} disabled={idx === selectedLevels.length - 1} className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" title="Move down"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></button>
                     <button onClick={() => toggleLevel(level.id)} className="p-1 text-slate-400 hover:text-red-500 ml-1" title="Remove"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
                   </div>
@@ -1079,31 +1176,9 @@ function EditLadderModal({ docType, allLevels, onClose, documentsApi, qc, toast 
           </div>
         </div>
 
-        {selectedLevels.length > 0 && (
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Workflow Preview</p>
-            <div className="flex items-center flex-wrap gap-2">
-              <span className="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-medium">Submitted</span>
-              {selectedLevels.map((level) => (
-                <React.Fragment key={level.id}>
-                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">{level.name}</span>
-                </React.Fragment>
-              ))}
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              <span className="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">Approved</span>
-            </div>
-          </div>
-        )}
-
         <div className="flex justify-between items-center pt-2 border-t">
-          <p className="text-xs text-slate-500">
-            {selectedLevels.length === 0 ? "No levels selected — documents of this type will skip the approval workflow." : `${selectedLevels.length} level${selectedLevels.length > 1 ? "s" : ""} in chain`}
-          </p>
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button onClick={() => save.mutate()} disabled={save.isLoading || ladderQ.isLoading}>{save.isLoading ? "Saving..." : "Save Ladder"}</Button>
-          </div>
+          <p className="text-xs text-slate-500">{selectedLevels.length === 0 ? "No override selected — saving will make this type inherit the global chain." : `${selectedLevels.length} level${selectedLevels.length > 1 ? "s" : ""} in override chain`}</p>
+          <div className="flex gap-3"><Button variant="secondary" onClick={onClose}>Cancel</Button><Button variant="secondary" onClick={() => setSelectedIds([])} disabled={selectedIds.length === 0}>Use Global Instead</Button><Button onClick={() => save.mutate()} disabled={save.isLoading || ladderQ.isLoading}>{save.isLoading ? "Saving..." : "Save Ladder"}</Button></div>
         </div>
       </div>
     </Modal>

@@ -41,6 +41,7 @@ export default function DocumentTypesPage() {
   const [activeModal, setActiveModal] = useState(null); // 'type', 'level', 'assign'
   const [selectedType, setSelectedType] = useState(null);
   const [selectedLevels, setSelectedLevels] = useState([]);
+  const [globalLevels, setGlobalLevels] = useState([]);
 
   // Form states
   const [typeForm, setTypeForm] = useState({
@@ -87,6 +88,14 @@ export default function DocumentTypesPage() {
     queryFn: () => api.listEntityTypes()
   });
 
+  const {
+    data: globalLevelsResponse,
+    isLoading: globalLevelsLoading
+  } = useQuery({
+    queryKey: ['globalApprovalLevels'],
+    queryFn: () => api.getGlobalApprovalLevels()
+  });
+
   // Safely extract data with fallbacks to empty arrays
   const documentTypes = React.useMemo(() => {
     if (!typesResponse) return [];
@@ -104,6 +113,15 @@ export default function DocumentTypesPage() {
     if (levelsResponse?.items && Array.isArray(levelsResponse.items)) return levelsResponse.items;
     return [];
   }, [levelsResponse]);
+
+
+  const globalApprovalLevels = React.useMemo(() => {
+    if (!globalLevelsResponse) return [];
+    if (Array.isArray(globalLevelsResponse)) return globalLevelsResponse;
+    if (globalLevelsResponse?.data && Array.isArray(globalLevelsResponse.data)) return globalLevelsResponse.data;
+    if (globalLevelsResponse?.items && Array.isArray(globalLevelsResponse.items)) return globalLevelsResponse.items;
+    return [];
+  }, [globalLevelsResponse]);
 
   const entityTypes = React.useMemo(() => {
     if (!entityTypesResponse) return [];
@@ -162,6 +180,21 @@ export default function DocumentTypesPage() {
     }
   });
 
+
+  const saveGlobalLevelsMutation = useMutation({
+    mutationFn: (levelIds) => api.setGlobalApprovalLevels(levelIds),
+    onSuccess: () => {
+      toast.success('Global approval ladder updated successfully');
+      qc.invalidateQueries({ queryKey: ['globalApprovalLevels'] });
+      qc.invalidateQueries({ queryKey: ['documentTypes'] });
+      setActiveModal(null);
+      setGlobalLevels([]);
+    },
+    onError: (e) => {
+      toast.error(e?.message ?? 'Failed to update global approval ladder');
+    }
+  });
+
   const resetTypeForm = () => {
     setTypeForm({ name: '', code: '', description: '' });
   };
@@ -202,6 +235,11 @@ export default function DocumentTypesPage() {
     });
   };
 
+
+  const handleSaveGlobalLevels = () => {
+    saveGlobalLevelsMutation.mutate(globalLevels);
+  };
+
   const moveLevel = (index, direction) => {
     const newLevels = [...selectedLevels];
     if (direction === 'up' && index > 0) {
@@ -212,7 +250,7 @@ export default function DocumentTypesPage() {
     setSelectedLevels(newLevels);
   };
 
-  const isLoading = typesLoading || levelsLoading || entityTypesLoading;
+  const isLoading = typesLoading || levelsLoading || entityTypesLoading || globalLevelsLoading;
   const hasError = typesIsError || levelsIsError;
 
   return (
@@ -275,6 +313,40 @@ export default function DocumentTypesPage() {
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
+
+          {/* Global Approval Ladder */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Layers className="h-5 w-5" />
+                Global Approval Ladder
+              </CardTitle>
+              <CardDescription>
+                Used for all document types by default. A document-specific ladder overrides it.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border border-blue-200 bg-blue-50 rounded-lg p-4 flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-sm font-medium text-blue-900">Current global chain</div>
+                  <p className="text-sm text-blue-800 mt-1">{globalApprovalLevels.length ? globalApprovalLevels.map(level => level.name || level.code).join(' → ') : 'No levels configured'}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="border-blue-300"
+                  onClick={() => {
+                    setGlobalLevels(globalApprovalLevels.map(level => level.id));
+                    setActiveModal('global');
+                  }}
+                  disabled={approvalLevels.length === 0}
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  Configure Global
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Document Types */}
           <Card>
             <CardHeader>
@@ -326,7 +398,7 @@ export default function DocumentTypesPage() {
                             <p className="text-sm text-gray-600 line-clamp-2">{type.description}</p>
                           )}
                           <div className="mt-2 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
-                            <span>Approval levels: {type.approval_levels?.length || 0}</span>
+                            <span>{type.approval_levels?.length ? `Override levels: ${type.approval_levels.length}` : `Uses global: ${globalApprovalLevels.length}`}</span>
                             <span>Created: {type.created_at ? new Date(type.created_at).toLocaleDateString() : '—'}</span>
                           </div>
                         </div>
@@ -617,6 +689,68 @@ export default function DocumentTypesPage() {
         </div>
       </Modal>
 
+
+      {/* Global Approval Levels Modal */}
+      <Modal
+        open={activeModal === 'global'}
+        onClose={() => {
+          setActiveModal(null);
+          setGlobalLevels([]);
+        }}
+        title="Configure Global Approval Ladder"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            This ladder is the default for every document type. Any document type with its own approval levels will override this global chain.
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Available Levels</h4>
+              <div className="border border-gray-200 rounded-lg p-2 max-h-96 overflow-y-auto">
+                {approvalLevels.filter(level => !globalLevels.includes(level.id)).map((level) => (
+                  <div key={level.id} className="p-2 rounded cursor-pointer flex items-center justify-between hover:bg-gray-50" onClick={() => setGlobalLevels(prev => [...prev, level.id])}>
+                    <div><span className="text-sm font-medium">{level.name}</span><span className="text-xs text-gray-500 ml-2">({level.code})</span></div>
+                    <Plus className="h-4 w-4 text-gray-400" />
+                  </div>
+                ))}
+                {approvalLevels.filter(level => !globalLevels.includes(level.id)).length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">No more levels available</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Global Levels (in order)</h4>
+              <div className="border border-gray-200 rounded-lg p-2 max-h-96 overflow-y-auto">
+                {globalLevels.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No global levels selected.</p>
+                ) : (
+                  globalLevels.map((levelId, index) => {
+                    const level = approvalLevels.find(l => l.id === levelId);
+                    if (!level) return null;
+                    return (
+                      <div key={levelId} className="p-2 bg-blue-50 rounded mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2 flex-wrap"><Badge className="bg-blue-600 text-white">#{index + 1}</Badge><span className="text-sm font-medium">{level.name}</span><span className="text-xs text-gray-500">({level.code})</span></div>
+                        <div className="flex items-center gap-1 ml-2">
+                          <button onClick={() => { if (index > 0) { const copy = [...globalLevels]; [copy[index], copy[index-1]] = [copy[index-1], copy[index]]; setGlobalLevels(copy); } }} disabled={index===0} className="p-1 hover:bg-blue-100 rounded disabled:opacity-30" title="Move up"><ArrowUp className="h-4 w-4" /></button>
+                          <button onClick={() => { if (index < globalLevels.length - 1) { const copy = [...globalLevels]; [copy[index], copy[index+1]] = [copy[index+1], copy[index]]; setGlobalLevels(copy); } }} disabled={index===globalLevels.length-1} className="p-1 hover:bg-blue-100 rounded disabled:opacity-30" title="Move down"><ArrowDown className="h-4 w-4" /></button>
+                          <button onClick={() => setGlobalLevels(prev => prev.filter(id => id !== levelId))} className="p-1 hover:bg-red-100 rounded text-red-600" title="Remove"><X className="h-4 w-4" /></button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="outline" onClick={() => { setActiveModal(null); setGlobalLevels([]); }} className="border-gray-300">Cancel</Button>
+          <Button onClick={handleSaveGlobalLevels} disabled={saveGlobalLevelsMutation.isPending} className="bg-green-600 hover:bg-green-700">{saveGlobalLevelsMutation.isPending ? 'Saving...' : 'Save Global Ladder'}</Button>
+        </div>
+      </Modal>
+
       {/* Assign Approval Levels Modal */}
       <Modal
         open={activeModal === 'assign'}
@@ -630,7 +764,7 @@ export default function DocumentTypesPage() {
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            Select and order the approval levels for this document type. Use the arrows to reorder.
+            Select and order the approval levels for this document type. Leave this list empty if the document type should inherit the global approval ladder.
           </p>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -742,10 +876,10 @@ export default function DocumentTypesPage() {
           </Button>
           <Button 
             onClick={handleAssignLevels}
-            disabled={assignLevelsMutation.isPending || selectedLevels.length === 0}
+            disabled={assignLevelsMutation.isPending}
             className="bg-green-600 hover:bg-green-700"
           >
-            {assignLevelsMutation.isPending ? 'Saving...' : 'Save Configuration'}
+            {assignLevelsMutation.isPending ? 'Saving...' : (selectedLevels.length === 0 ? 'Use Global Ladder' : 'Save Configuration')}
           </Button>
         </div>
       </Modal>

@@ -49,6 +49,19 @@ export function makeDocumentsApi(http) {
       return res.data;
     },
 
+    getGlobalApprovalLevels: async () => {
+      const res = await http.get(endpoints.documents.approvalLevels.global);
+      return res.data;
+    },
+    setGlobalApprovalLevels: async (approvalLevelIds) => {
+      const res = await http.put(
+        endpoints.documents.approvalLevels.global,
+        { approval_level_ids: approvalLevelIds },
+        { headers: ensureIdempotencyKey() }
+      );
+      return res.data;
+    },
+
     // ── Approval Level Users (level → assigned approvers) ───────────────────
     getApprovalLevelUsers: async (levelId) => {
       const res = await http.get(endpoints.documents.approvalLevels.getUsers(levelId));

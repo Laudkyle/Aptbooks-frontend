@@ -85,6 +85,16 @@ export function makeDocumentTypesApi(http) {
       });
     },
 
+    getGlobalApprovalLevels() {
+      return http.get(`${BASE}/approval-levels/global`);
+    },
+
+    setGlobalApprovalLevels(approvalLevelIds) {
+      return http.put(`${BASE}/approval-levels/global`, {
+        approval_level_ids: approvalLevelIds
+      });
+    },
+
     // ── Entity types (informational) ──────────────────────────────────────────
 
     /**
