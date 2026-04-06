@@ -37,7 +37,7 @@ export function TransactionWorkflowActionBar({ actions, onAction, documentType, 
   };
 
   // Use provided actions or fall back to default submit action
-  const forwardAction = actions?.forwardAction || defaultSubmitAction;
+  const forwardAction = actions?.forwardAction ;
   const rejectAction = actions?.rejectAction;
   const voidAction = actions?.voidAction;
 
