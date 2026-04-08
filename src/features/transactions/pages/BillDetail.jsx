@@ -82,7 +82,7 @@ export default function BillDetail() {
   const applyDebitNote = useMutation({
     mutationFn: async ({ debitNoteId, amount }) => {
       const idempotencyKey = generateUUID();
-      return debitNotesApi.apply(debitNoteId, { bill_id: id, amount_applied: amount }, { idempotencyKey });
+      return debitNotesApi.apply(debitNoteId, { billId: id, amountApplied: amount }, { idempotencyKey });
     },
     onSuccess: () => {
       toast.success('Debit note applied successfully');
@@ -126,7 +126,7 @@ export default function BillDetail() {
     const remaining = typeof remainingRaw === 'string' ? parseFloat(remainingRaw) : Number(remainingRaw || 0);
     return (!vendorId || noteVendorId === vendorId) && remaining > 0 && !['draft', 'voided', 'rejected'].includes(noteStatus);
   });
-
+console.log(availableDebitNotes)
   const canApplyDebits = ['issued', 'approved', 'partial', 'paid'].includes(String(status).toLowerCase()) && outstandingAmount > 0;
 
   return (

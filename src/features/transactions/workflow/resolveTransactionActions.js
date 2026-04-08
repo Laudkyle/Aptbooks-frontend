@@ -59,7 +59,8 @@ export function resolveTransactionActions({ type, state, remainingAmount = 0 } =
       return result;
     }
     case 'creditNote': {
-      if (businessStatus === 'draft') {
+      const preIssueStatuses = ['draft', 'approved'];
+      if (preIssueStatuses.includes(businessStatus) || (workflowStatus === 'approved' && businessStatus !== 'issued')) {
         result.forwardAction = workflowForward(state, ACTION_CONFIG.issueCreditNote);
       } else if (['issued', 'partial'].includes(businessStatus) && Number(remainingAmount) > 0) {
         result.forwardAction = ACTION_CONFIG.applyCreditNote;
@@ -67,7 +68,8 @@ export function resolveTransactionActions({ type, state, remainingAmount = 0 } =
       return result;
     }
     case 'debitNote': {
-      if (businessStatus === 'draft') {
+      const preIssueStatuses = ['draft', 'approved'];
+      if (preIssueStatuses.includes(businessStatus) || (workflowStatus === 'approved' && businessStatus !== 'issued')) {
         result.forwardAction = workflowForward(state, ACTION_CONFIG.issueDebitNote);
       } else if (['issued', 'partial'].includes(businessStatus) && Number(remainingAmount) > 0) {
         result.forwardAction = ACTION_CONFIG.applyDebitNote;
