@@ -57,7 +57,8 @@ export default function DebitNoteDetail() {
 
   // Extract debit note data - data is already the debit note object
   const billsQ = useQuery({ queryKey: ['transactions', 'bills', 'select'], queryFn: () => billsApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
-  const billRows = Array.isArray(billsQ.data) ? billsQ.data : billsQ.data?.data ?? [];
+  const billRows =(Array.isArray(billsQ.data) ? billsQ.data : billsQ.data?.data ?? [])  .filter(bill => (bill.status || '').toLowerCase() === 'issued');
+
   const billOptions = [{ value: '', label: 'Select bill...' }, ...billRows.map((bill) => ({ value: bill.id, label: formatDocumentOptionLabel(bill, 'bill') }))];
 
   const note = data?.data ?? data;
@@ -70,13 +71,13 @@ export default function DebitNoteDetail() {
   // Action state
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
-  const [applyBody, setApplyBody] = useState({ bill_id: '', amount_applied: '' });
+  const [applyBody, setApplyBody] = useState({ billId: '', amountApplied: '' });
   const [voidBody, setVoidBody] = useState({ reason: '' });
 
   // Form validation
   const isApplyFormValid = useMemo(() => {
-    const amount = parseFloat(applyBody.amount_applied);
-    return applyBody.bill_id.trim() !== '' && !isNaN(amount) && amount > 0;
+    const amount = parseFloat(applyBody.amountApplied);
+    return applyBody.billId.trim() !== '' && !isNaN(amount) && amount > 0;
   }, [applyBody]);
 
   // Calculate remaining amount - use balance.remaining if available
@@ -88,7 +89,7 @@ export default function DebitNoteDetail() {
     // Fallback calculation
     const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
     const appliedTotal = applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amount_applied ?? 0));
+      return sum + (parseFloat(app.amountApplied ?? 0));
     }, 0);
     return totalAmount - appliedTotal;
   }, [note, applications]);
@@ -100,7 +101,7 @@ export default function DebitNoteDetail() {
     }
     
     return applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amount_applied ?? 0));
+      return sum + (parseFloat(app.amountApplied ?? 0));
     }, 0);
   }, [note, applications]);
 
@@ -142,7 +143,7 @@ export default function DebitNoteDetail() {
   const handleCloseAction = useCallback(() => {
     setAction(null);
     setComment('');
-    setApplyBody({ bill_id: '', amount_applied: '' });
+    setApplyBody({ billId: '', amountApplied: '' });
     setVoidBody({ reason: '' });
   }, []);
 
@@ -167,10 +168,10 @@ export default function DebitNoteDetail() {
       if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
       if (action === 'issue') return api.issue(id, { idempotencyKey });
       if (action === 'apply') {
-        const amount = parseFloat(applyBody.amount_applied);
+        const amount = parseFloat(applyBody.amountApplied);
         return api.apply(id, { 
-          bill_id: applyBody.bill_id.trim(), 
-          amount_applied: amount 
+          billId: applyBody.billId.trim(), 
+          amountApplied: amount 
         }, { idempotencyKey });
       }
       if (action === 'void') return api.void(id, voidBody, { idempotencyKey });
@@ -492,7 +493,7 @@ export default function DebitNoteDetail() {
                           {formatDocumentAmount(application, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
-                          {formatCurrency(application.amount_applied, currencyCode)}
+                          {formatCurrency(application.amountApplied, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">
                           {formatDate(application.applied_at ?? application.created_at)}
@@ -787,8 +788,8 @@ export default function DebitNoteDetail() {
 
           <Select 
             label="Bill" 
-            value={applyBody.bill_id} 
-            onChange={(e) => handleApplyBodyChange('bill_id', e.target.value)}
+            value={applyBody.billId} 
+            onChange={(e) => handleApplyBodyChange('billId', e.target.value)}
             options={billOptions}
             required
             aria-label="Bill to apply credit to"
@@ -796,8 +797,8 @@ export default function DebitNoteDetail() {
           
           <Input
             label="Amount to Apply"
-            value={applyBody.amount_applied}
-            onChange={(e) => handleApplyBodyChange('amount_applied', e.target.value)}
+            value={applyBody.amountApplied}
+            onChange={(e) => handleApplyBodyChange('amountApplied', e.target.value)}
             type="number"
             step="0.01"
             min="0"

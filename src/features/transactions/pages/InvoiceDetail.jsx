@@ -82,7 +82,7 @@ export default function InvoiceDetail() {
   const applyCreditNote = useMutation({
     mutationFn: async ({ creditNoteId, amount }) => {
       const idempotencyKey = generateUUID();
-      return creditNotesApi.apply(creditNoteId, { invoice_id: id, amount_applied: amount }, { idempotencyKey });
+      return creditNotesApi.apply(creditNoteId, { invoiceId: id, amountApplied: amount }, { idempotencyKey });
     },
     onSuccess: () => {
       toast.success('Credit note applied successfully');
