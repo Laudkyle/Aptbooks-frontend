@@ -69,15 +69,16 @@ export default function CustomerReceiptCreate() {
   const customers = partners.filter(p => p.type === 'customer');
   
   // Filter invoices for selected customer
-  const customerInvoices = payload.customerId 
-    ? invoices.filter(inv => inv.customerId === payload.customerId || inv.customer_id === payload.customerId)
-    : invoices;
+  const customerInvoices = useMemo(() => {
+  if (!payload.customerId) return invoices;
   
-  // Filter cash/bank accounts
-  const cashAccounts = accounts.filter(acc => 
-    acc.category_name?.toLowerCase().includes('cash') ||
-    acc.category_name?.toLowerCase().includes('bank')
+  return invoices.filter(inv => 
+    (inv.customerId === payload.customerId || inv.customer_id === payload.customerId) 
+    && inv.status === 'issued'
   );
+}, [invoices, payload.customerId]);
+
+  const cashAccounts = accounts
 
   const create = useMutation({
     mutationFn: () => receiptsApi.create(payload),
