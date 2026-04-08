@@ -56,8 +56,9 @@ export default function CreditNoteDetail() {
 
   // Extract credit note data - based on your console.log, data is already the credit note object
   const invoicesQ = useQuery({ queryKey: ['transactions', 'invoices', 'select'], queryFn: () => invoicesApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
-  const invoiceRows = Array.isArray(invoicesQ.data) ? invoicesQ.data : invoicesQ.data?.data ?? [];
-  const invoiceOptions = [{ value: '', label: 'Select invoice...' }, ...invoiceRows.map((inv) => ({ value: inv.id, label: formatDocumentOptionLabel(inv, 'invoice') }))];
+const invoiceRows = (Array.isArray(invoicesQ.data) ? invoicesQ.data : invoicesQ.data?.data ?? [])
+  .filter(inv => (inv.status || '').toLowerCase() === 'issued');
+    const invoiceOptions = [{ value: '', label: 'Select invoice...' }, ...invoiceRows.map((inv) => ({ value: inv.id, label: formatDocumentOptionLabel(inv, 'invoice') }))];
 
   const note = data?.data ?? data;
   
@@ -69,13 +70,13 @@ export default function CreditNoteDetail() {
   // Action state
   const [action, setAction] = useState(null);
   const [comment, setComment] = useState('');
-  const [applyBody, setApplyBody] = useState({ invoice_id: '', amount_applied: '' });
+  const [applyBody, setApplyBody] = useState({ invoiceId: '', amountApplied: '' });
   const [voidBody, setVoidBody] = useState({ reason: '' });
 
   // Form validation
   const isApplyFormValid = useMemo(() => {
-    const amount = parseFloat(applyBody.amount_applied);
-    return applyBody.invoice_id.trim() !== '' && !isNaN(amount) && amount > 0;
+    const amount = parseFloat(applyBody.amountApplied);
+    return applyBody.invoiceId.trim() !== '' && !isNaN(amount) && amount > 0;
   }, [applyBody]);
 
   // Calculate remaining amount - use balance.remaining from your data
@@ -87,7 +88,7 @@ export default function CreditNoteDetail() {
     // Fallback calculation
     const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
     const appliedTotal = applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amount_applied ?? 0));
+      return sum + (parseFloat(app.amountApplied ?? 0));
     }, 0);
     return totalAmount - appliedTotal;
   }, [note, applications]);
@@ -99,7 +100,7 @@ export default function CreditNoteDetail() {
     }
     
     return applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amount_applied ?? 0));
+      return sum + (parseFloat(app.amountApplied ?? 0));
     }, 0);
   }, [note, applications]);
 
@@ -144,7 +145,7 @@ const statusConfig = getStatusConfig(status);
   const handleCloseAction = useCallback(() => {
     setAction(null);
     setComment('');
-    setApplyBody({ invoice_id: '', amount_applied: '' });
+    setApplyBody({ invoiceId: '', amountApplied: '' });
     setVoidBody({ reason: '' });
   }, []);
 
@@ -169,10 +170,10 @@ const statusConfig = getStatusConfig(status);
       if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
       if (action === 'issue') return api.issue(id, { idempotencyKey });
       if (action === 'apply') {
-        const amount = parseFloat(applyBody.amount_applied);
+        const amount = parseFloat(applyBody.amountApplied);
         return api.apply(id, { 
-          invoice_id: applyBody.invoice_id.trim(), 
-          amount_applied: amount 
+          invoiceId: applyBody.invoiceId.trim(), 
+          amountApplied: amount 
         }, { idempotencyKey });
       }
       if (action === 'void') return api.void(id, voidBody, { idempotencyKey });
@@ -494,7 +495,7 @@ const statusConfig = getStatusConfig(status);
                           {formatDocumentAmount(application, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
-                          {formatCurrency(application.amount_applied, currencyCode)}
+                          {formatCurrency(application.amountApplied, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">
                           {formatDate(application.applied_at ?? application.created_at)}
@@ -789,8 +790,8 @@ const statusConfig = getStatusConfig(status);
 
           <Select 
             label="Invoice" 
-            value={applyBody.invoice_id} 
-            onChange={(e) => handleApplyBodyChange('invoice_id', e.target.value)}
+            value={applyBody.invoiceId} 
+            onChange={(e) => handleApplyBodyChange('invoiceId', e.target.value)}
             options={invoiceOptions}
             required
             aria-label="Invoice to apply credit to"
@@ -798,8 +799,8 @@ const statusConfig = getStatusConfig(status);
           
           <Input
             label="Amount to Apply"
-            value={applyBody.amount_applied}
-            onChange={(e) => handleApplyBodyChange('amount_applied', e.target.value)}
+            value={applyBody.amountApplied}
+            onChange={(e) => handleApplyBodyChange('amountApplied', e.target.value)}
             type="number"
             step="0.01"
             min="0"
