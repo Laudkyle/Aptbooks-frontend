@@ -63,12 +63,8 @@ export default function DebitNoteDetail() {
 
   const note = data?.data ?? data;
   
-  const applications = useMemo(() => (note?.applications || []).map((application) => ({
-    ...application,
-    amountApplied: application.amountApplied ?? application.amount_applied ?? 0,
-    invoiceId: application.invoiceId ?? application.invoice_id ?? '',
-    billId: application.billId ?? application.bill_id ?? ''
-  })), [note]);
+  // Extract applications - use applications array from your data structure
+  const applications = (note?.applications || []).map((app) => ({ ...app, amountApplied: app.amountApplied ?? app.amount_applied ?? 0, invoiceId: app.invoiceId ?? app.invoice_id, billId: app.billId ?? app.bill_id }));
   const lines = note?.lines || [];
 
 
