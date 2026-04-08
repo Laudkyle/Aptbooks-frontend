@@ -62,8 +62,12 @@ const invoiceRows = (Array.isArray(invoicesQ.data) ? invoicesQ.data : invoicesQ.
 
   const note = data?.data ?? data;
   
-  // Extract allocations/applications - use applications array from your data
-  const applications = note?.applications || [];
+  const applications = useMemo(() => (note?.applications || []).map((application) => ({
+    ...application,
+    amountApplied: application.amountApplied ?? application.amount_applied ?? 0,
+    invoiceId: application.invoiceId ?? application.invoice_id ?? '',
+    billId: application.billId ?? application.bill_id ?? ''
+  })), [note]);
   const lines = note?.lines || [];
 
 
