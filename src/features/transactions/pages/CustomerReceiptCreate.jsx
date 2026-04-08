@@ -9,6 +9,7 @@ import { makePartnersApi } from '../../../features/business/api/partners.api.js'
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeInvoicesApi } from '../api/invoices.api.js';
+import { makeCreditNotesApi } from '../api/creditNotes.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
@@ -22,6 +23,7 @@ export default function CustomerReceiptCreate() {
   const receiptsApi = useMemo(() => makeCustomerReceiptsApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
   const invoicesApi = useMemo(() => makeInvoicesApi(http), [http]);
+  const creditNotesApi = useMemo(() => makeCreditNotesApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const paymentConfigApi = useMemo(() => makePaymentConfigApi(http), [http]);
   const toast = useToast();
@@ -48,6 +50,12 @@ export default function CustomerReceiptCreate() {
     queryFn: () => invoicesApi.list()
   });
 
+  const creditNotesQuery = useQuery({
+    queryKey: ['creditNotes', payload.customerId],
+    queryFn: () => creditNotesApi.list({ customerId: payload.customerId, limit: 200 }),
+    enabled: !!payload.customerId
+  });
+
   // Load chart of accounts
   const coaQuery = useQuery({
     queryKey: ['coa'],
@@ -64,6 +72,14 @@ export default function CustomerReceiptCreate() {
   const invoices = Array.isArray(invoicesQuery.data) ? invoicesQuery.data : invoicesQuery.data?.data ?? [];
   const accounts = Array.isArray(coaQuery.data) ? coaQuery.data : coaQuery.data?.data ?? [];
   const paymentMethods = Array.isArray(paymentMethodsQuery.data) ? paymentMethodsQuery.data : paymentMethodsQuery.data?.data ?? [];
+  const creditNotes = Array.isArray(creditNotesQuery.data) ? creditNotesQuery.data : creditNotesQuery.data?.data ?? [];
+  const availableCreditNotes = useMemo(() => creditNotes.filter((note) => {
+    const noteCustomerId = note.customer_id || note.customerId;
+    const status = (note.status || note.workflow_status || '').toLowerCase();
+    const remainingRaw = note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total;
+    const remaining = typeof remainingRaw === 'string' ? parseFloat(remainingRaw) : Number(remainingRaw || 0);
+    return (!payload.customerId || noteCustomerId === payload.customerId) && remaining > 0 && !['voided', 'draft', 'rejected'].includes(status);
+  }), [creditNotes, payload.customerId]);
   
   // Filter customers only
   const customers = partners.filter(p => p.type === 'customer');
@@ -363,6 +379,66 @@ export default function CustomerReceiptCreate() {
                 </div>
               </div>
             </div>
+
+
+            {/* Credit Notes */}
+            {payload.customerId && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900">Available Credit Notes</h3>
+                    <p className="text-xs text-gray-500 mt-1">Credit notes are non-cash settlements. Open one to apply it to the relevant invoice before or after cash allocation.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(ROUTES.creditNoteNew)}
+                      className="border-gray-300"
+                    >
+                      New Credit Note
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(ROUTES.creditNotes)}
+                      className="border-gray-300"
+                    >
+                      View All
+                    </Button>
+                  </div>
+                </div>
+
+                {creditNotesQuery.isLoading ? (
+                  <div className="text-sm text-gray-500">Loading credit notes...</div>
+                ) : availableCreditNotes.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-600">No available credit notes for this customer.</div>
+                ) : (
+                  <div className="space-y-3">
+                    {availableCreditNotes.map((note) => {
+                      const remaining = Number(note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total ?? 0);
+                      const noteNo = note.credit_note_no || note.code || note.id;
+                      return (
+                        <div key={note.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">{noteNo}</div>
+                            <div className="text-xs text-gray-500 mt-1">Remaining: ${remaining.toFixed(2)}</div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(ROUTES.creditNoteDetail(note.id))}
+                            className="border-green-600 text-green-700 hover:bg-green-50"
+                          >
+                            Open & Apply
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Allocations */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

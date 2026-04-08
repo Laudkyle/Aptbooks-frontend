@@ -8,6 +8,7 @@ import { makePartnersApi } from '../../business/api/partners.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeBillsApi } from '../api/bills.api.js';
+import { makeDebitNotesApi } from '../api/debitNotes.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
@@ -33,6 +34,7 @@ export default function VendorPaymentCreate() {
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const paymentConfigApi = useMemo(() => makePaymentConfigApi(http), [http]);
   const billsApi = useMemo(() => makeBillsApi(http), [http]);
+  const debitNotesApi = useMemo(() => makeDebitNotesApi(http), [http]);
   const toast = useToast();
 
   // Auto-generate idempotency key on mount
@@ -72,6 +74,13 @@ export default function VendorPaymentCreate() {
     staleTime: 60_000
   });
 
+  const { data: debitNotesData, isLoading: debitNotesLoading } = useQuery({
+    queryKey: ['debitNotes', { vendorId: formData.vendorId }],
+    queryFn: () => debitNotesApi.list({ vendorId: formData.vendorId, limit: 100 }),
+    enabled: !!formData.vendorId,
+    staleTime: 30_000
+  });
+
   // Fetch outstanding bills for selected vendor
   const { data: billsData, isLoading: billsLoading } = useQuery({
     queryKey: ['bills', { vendorId: formData.vendorId, status: 'issued' }],
@@ -99,6 +108,19 @@ export default function VendorPaymentCreate() {
     const data = billsData?.data || billsData || [];
     return Array.isArray(data) ? data : [];
   }, [billsData]);
+
+  const debitNotes = useMemo(() => {
+    const data = debitNotesData?.data || debitNotesData || [];
+    return Array.isArray(data) ? data : [];
+  }, [debitNotesData]);
+
+  const availableDebitNotes = useMemo(() => debitNotes.filter((note) => {
+    const noteVendorId = note.vendor_id || note.vendorId;
+    const status = (note.status || note.workflow_status || '').toLowerCase();
+    const remainingRaw = note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total;
+    const remaining = typeof remainingRaw === 'string' ? parseFloat(remainingRaw) : Number(remainingRaw || 0);
+    return (!formData.vendorId || noteVendorId === formData.vendorId) && remaining > 0 && !['voided', 'draft', 'rejected'].includes(status);
+  }), [debitNotes, formData.vendorId]);
 
   const vendorOptions = [
     { value: '', label: 'Select vendor...' },
@@ -383,6 +405,61 @@ export default function VendorPaymentCreate() {
                   </div>
                 </div>
               </div>
+
+
+              {/* Debit Notes */}
+              {formData.vendorId && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Available Debit Notes</h3>
+                      <p className="text-sm text-gray-500 mt-1">Debit notes are non-cash vendor settlements. Open one to apply it to the relevant bill.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => navigate(ROUTES.debitNoteNew)}
+                        className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
+                      >
+                        New Debit Note
+                      </button>
+                      <button
+                        onClick={() => navigate(ROUTES.debitNotes)}
+                        className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50 transition-colors"
+                      >
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {debitNotesLoading ? (
+                      <div className="text-sm text-gray-600">Loading debit notes...</div>
+                    ) : availableDebitNotes.length === 0 ? (
+                      <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-600">No available debit notes for this vendor.</div>
+                    ) : (
+                      <div className="space-y-3">
+                        {availableDebitNotes.map((note) => {
+                          const remaining = Number(note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total ?? 0);
+                          const noteNo = note.debit_note_no || note.code || note.id;
+                          return (
+                            <div key={note.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+                              <div>
+                                <div className="text-sm font-semibold text-gray-900">{noteNo}</div>
+                                <div className="text-xs text-gray-500 mt-1">Remaining: ${remaining.toFixed(2)}</div>
+                              </div>
+                              <button
+                                onClick={() => navigate(ROUTES.debitNoteDetail(note.id))}
+                                className="px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 transition-colors"
+                              >
+                                Open & Apply
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Bill Allocations */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
