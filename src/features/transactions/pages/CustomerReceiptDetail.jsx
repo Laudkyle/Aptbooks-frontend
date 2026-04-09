@@ -29,6 +29,15 @@ import {
   formatDocumentAmount,
 } from "../utils/documentDisplay.js";
 
+
+function getLinkedDocumentMetrics(doc = {}, kind = "document") {
+  const gross = Number(doc?.total ?? doc?.amount_total ?? 0);
+  const withholding = Number(doc?.withholding_total ?? doc?.withholdingTotal ?? 0);
+  const settlementBasis = Number(doc?.net_settlement_total ?? doc?.settlement_basis_total ?? Math.max(0, gross - withholding));
+  const openBalance = Number(doc?.outstanding ?? doc?.amount_due ?? settlementBasis);
+  return { gross, withholding, settlementBasis, openBalance };
+}
+
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
@@ -396,6 +405,31 @@ export default function CustomerReceiptDetail() {
                 </div>
               </div>
             </div>
+            {allocations.length > 0 ? (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">Settlement Basis Breakdown</h3>
+                <div className="space-y-3">
+                  {allocations.map((allocation, index) => {
+                    const linked = allocation.invoice || allocation.bill || {};
+                    const kind = allocation.invoice ? 'invoice' : 'bill';
+                    const label = linked.invoice_no || linked.bill_no || linked.code || linked.id || `${kind} ${index + 1}`;
+                    const metrics = getLinkedDocumentMetrics(linked, kind);
+                    const applied = Number(allocation.amount_applied ?? allocation.amountApplied ?? allocation.amount ?? 0);
+                    return (
+                      <div key={allocation.id || index} className="rounded-lg border border-gray-200 p-4 text-sm space-y-1">
+                        <div className="font-semibold text-gray-900">{label}</div>
+                        <div className="flex justify-between text-gray-600"><span>Gross document</span><span>{formatCurrency(metrics.gross)}</span></div>
+                        <div className="flex justify-between text-gray-600"><span>Withholding</span><span>{formatCurrency(metrics.withholding)}</span></div>
+                        <div className="flex justify-between text-gray-600"><span>Settlement basis</span><span>{formatCurrency(metrics.settlementBasis)}</span></div>
+                        <div className="flex justify-between text-gray-600"><span>Cash settled by this {'receipt'}</span><span>{formatCurrency(applied)}</span></div>
+                        <div className="flex justify-between font-semibold border-t border-gray-200 pt-1"><span>Open balance on linked document</span><span>{formatCurrency(metrics.openBalance)}</span></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {taxDetail.hasTax ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">

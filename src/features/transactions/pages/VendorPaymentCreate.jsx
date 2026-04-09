@@ -15,7 +15,7 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDocumentOptionLabel, formatDocumentAmount } from '../utils/documentDisplay.js';
+import { formatDocumentOptionLabel, formatDocumentAmount, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -177,7 +177,8 @@ export default function VendorPaymentCreate() {
     if (field === 'billId' && value) {
       const selectedBill = bills.find(b => b.id === value);
       if (selectedBill && !updated[index].amountApplied) {
-        updated[index].amountApplied = String(selectedBill.amount_due || 0);
+        const suggestedAmount = getDocumentOutstanding(selectedBill, 'bill') ?? getDocumentSettlementBasis(selectedBill, 'bill') ?? 0;
+        updated[index].amountApplied = String(suggestedAmount);
       }
     }
     
@@ -525,14 +526,23 @@ export default function VendorPaymentCreate() {
                                   onChange={(e) => updateAllocation(index, 'billId', e.target.value)}
                                   options={billOptions}
                                 />
-                                {selectedBill && (
-                                  <div className="mt-1 text-xs text-gray-500">
-                                    Total: {formatDocumentAmount(selectedBill)} • Date: {selectedBill.bill_date}
-                                  </div>
-                                )}
+                                {selectedBill && (() => {
+                                  const gross = Number(selectedBill.total ?? 0);
+                                  const withholding = getDocumentWithholding(selectedBill, 'bill') ?? 0;
+                                  const settlementBasis = getDocumentSettlementBasis(selectedBill, 'bill') ?? gross;
+                                  const open = getDocumentOutstanding(selectedBill, 'bill') ?? settlementBasis;
+                                  return (
+                                    <div className="mt-2 rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-700 space-y-1">
+                                      <div className="flex justify-between"><span>Gross bill</span><span>{formatDocumentAmount(selectedBill)}</span></div>
+                                      <div className="flex justify-between"><span>Withholding</span><span>${withholding.toFixed(2)}</span></div>
+                                      <div className="flex justify-between"><span>Settlement basis</span><span>${settlementBasis.toFixed(2)}</span></div>
+                                      <div className="flex justify-between font-semibold border-t border-gray-200 pt-1"><span>Open balance</span><span>${open.toFixed(2)}</span></div>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                               <Input
-                                label="Amount Applied"
+                                label="Cash Paid / Applied"
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"

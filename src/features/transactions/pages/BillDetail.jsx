@@ -25,6 +25,7 @@ import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
 import { useToast } from "../../../shared/components/ui/Toast.jsx";
 import { JsonPanel } from "../../../shared/components/data/JsonPanel.jsx";
 import { ROUTES } from "../../../app/constants/routes.js";
+import { getDocumentSettlementBasis, getDocumentWithholding } from "../utils/documentDisplay.js";
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -169,6 +170,8 @@ export default function BillDetail() {
   const subtotal = bill?.subtotal ? parseFloat(bill.subtotal) : 0;
   const taxTotal = bill?.tax_total ? parseFloat(bill.tax_total) : 0;
   const total = bill?.total ? parseFloat(bill.total) : 0;
+  const withholdingTotal = getDocumentWithholding(bill, 'bill') ?? 0;
+  const settlementBasisTotal = getDocumentSettlementBasis(bill, 'bill') ?? total;
   const paidAmount = typeof paid === "string" ? parseFloat(paid) : paid;
   const debitAppliedAmount = typeof debitApplied === "string" ? parseFloat(debitApplied) : debitApplied;
   const outstandingAmount = typeof outstanding === "string" ? parseFloat(outstanding) : outstanding;
@@ -680,10 +683,22 @@ export default function BillDetail() {
                   }
                   return null;
                 })}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Withholding</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(withholdingTotal)}
+                  </span>
+                </div>
                 <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
-                  <span className="font-semibold text-gray-900">Total</span>
+                  <span className="font-semibold text-gray-900">Gross total</span>
                   <span className="font-semibold text-gray-900">
                     {formatCurrency(total)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-gray-900">Settlement basis</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatCurrency(settlementBasisTotal)}
                   </span>
                 </div>
               </div>

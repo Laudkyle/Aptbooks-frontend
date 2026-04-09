@@ -25,6 +25,7 @@ import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
 import { useToast } from "../../../shared/components/ui/Toast.jsx";
 import { JsonPanel } from "../../../shared/components/data/JsonPanel.jsx";
 import { ROUTES } from "../../../app/constants/routes.js";
+import { getDocumentSettlementBasis, getDocumentWithholding } from "../utils/documentDisplay.js";
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -158,6 +159,8 @@ export default function InvoiceDetail() {
   const subtotal = invoice?.subtotal ? parseFloat(invoice.subtotal) : 0;
   const taxTotal = invoice?.tax_total ? parseFloat(invoice.tax_total) : 0;
   const total = invoice?.total ? parseFloat(invoice.total) : 0;
+  const withholdingTotal = getDocumentWithholding(invoice, 'invoice') ?? 0;
+  const settlementBasisTotal = getDocumentSettlementBasis(invoice, 'invoice') ?? total;
   const outstandingAmount =
     typeof outstanding === "string" ? parseFloat(outstanding) : outstanding;
   const paidAmount = typeof paid === "string" ? parseFloat(paid) : paid;
@@ -485,6 +488,18 @@ export default function InvoiceDetail() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Withholding</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(withholdingTotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Settlement basis</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(settlementBasisTotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Outstanding</span>
                   <span className="font-medium text-gray-900">
                     {formatCurrency(outstandingAmount)}
@@ -660,10 +675,22 @@ export default function InvoiceDetail() {
                   }
                   return null;
                 })}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Withholding</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(withholdingTotal)}
+                  </span>
+                </div>
                 <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
-                  <span className="font-semibold text-gray-900">Total</span>
+                  <span className="font-semibold text-gray-900">Gross total</span>
                   <span className="font-semibold text-gray-900">
                     {formatCurrency(total)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-gray-900">Settlement basis</span>
+                  <span className="font-semibold text-gray-900">
+                    {formatCurrency(settlementBasisTotal)}
                   </span>
                 </div>
               </div>

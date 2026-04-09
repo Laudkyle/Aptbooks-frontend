@@ -15,7 +15,7 @@ import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDocumentOptionLabel } from '../utils/documentDisplay.js';
+import { formatDocumentOptionLabel, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
 
 export default function CustomerReceiptCreate() {
   const navigate = useNavigate();
@@ -46,8 +46,9 @@ export default function CustomerReceiptCreate() {
 
   // Load invoices
   const invoicesQuery = useQuery({
-    queryKey: ['invoices'],
-    queryFn: () => invoicesApi.list()
+    queryKey: ['invoices', payload.customerId],
+    queryFn: () => invoicesApi.list({ customerId: payload.customerId, status: 'issued', limit: 200 }),
+    enabled: !!payload.customerId
   });
 
   const creditNotesQuery = useQuery({
@@ -94,10 +95,21 @@ export default function CustomerReceiptCreate() {
   );
 }, [invoices, payload.customerId]);
 
-  const cashAccounts = accounts
+  const cashAccounts = accounts.filter((account) =>
+    String(account.category_name || account.categoryName || '').toLowerCase().includes('cash') ||
+    String(account.category_name || account.categoryName || '').toLowerCase().includes('bank')
+  );
 
   const create = useMutation({
-    mutationFn: () => receiptsApi.create(payload),
+    mutationFn: () => receiptsApi.create({
+      ...payload,
+      allocations: payload.allocations
+        .filter((allocation) => allocation.invoiceId && Number(allocation.amountApplied) > 0)
+        .map((allocation) => ({
+          invoiceId: allocation.invoiceId,
+          amountApplied: Number(allocation.amountApplied) || 0,
+        })),
+    }),
     onSuccess: (res) => {
       toast.success('Receipt created successfully');
       const id = res?.id ?? res?.data?.id;
@@ -114,7 +126,7 @@ export default function CustomerReceiptCreate() {
         ...payload.allocations,
         {
           invoiceId: '',
-          amount: 0
+          amountApplied: 0
         }
       ]
     });
@@ -130,6 +142,13 @@ export default function CustomerReceiptCreate() {
   const updateAllocation = (index, field, value) => {
     const newAllocations = [...payload.allocations];
     newAllocations[index] = { ...newAllocations[index], [field]: value };
+    if (field === 'invoiceId' && value) {
+      const selectedInvoice = customerInvoices.find((invoice) => invoice.id === value);
+      const suggestedAmount = getDocumentOutstanding(selectedInvoice, 'invoice') ?? getDocumentSettlementBasis(selectedInvoice, 'invoice') ?? 0;
+      if (selectedInvoice && !newAllocations[index].amountApplied) {
+        newAllocations[index].amountApplied = suggestedAmount;
+      }
+    }
     setPayload({ ...payload, allocations: newAllocations });
   };
 
@@ -139,7 +158,7 @@ export default function CustomerReceiptCreate() {
 
   const calculateAllocatedTotal = () => {
     return payload.allocations.reduce((sum, allocation) => {
-      return sum + (parseFloat(allocation.amount) || 0);
+      return sum + (parseFloat(allocation.amountApplied) || 0);
     }, 0);
   };
 
@@ -506,11 +525,27 @@ export default function CustomerReceiptCreate() {
                               ))}
                             </select>
                           )}
+                          {allocation.invoiceId && (() => {
+                            const selectedInvoice = customerInvoices.find((invoice) => invoice.id === allocation.invoiceId);
+                            if (!selectedInvoice) return null;
+                            const gross = Number(selectedInvoice.total ?? 0);
+                            const withholding = getDocumentWithholding(selectedInvoice, 'invoice') ?? 0;
+                            const settlementBasis = getDocumentSettlementBasis(selectedInvoice, 'invoice') ?? gross;
+                            const open = getDocumentOutstanding(selectedInvoice, 'invoice') ?? settlementBasis;
+                            return (
+                              <div className="mt-2 rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-700 space-y-1">
+                                <div className="flex justify-between"><span>Gross invoice</span><span>${gross.toFixed(2)}</span></div>
+                                <div className="flex justify-between"><span>Withholding</span><span>${withholding.toFixed(2)}</span></div>
+                                <div className="flex justify-between"><span>Settlement basis</span><span>${settlementBasis.toFixed(2)}</span></div>
+                                <div className="flex justify-between font-semibold border-t border-gray-200 pt-1"><span>Open balance</span><span>${open.toFixed(2)}</span></div>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                            Amount <span className="text-red-500">*</span>
+                            Cash Received / Applied <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
@@ -518,8 +553,8 @@ export default function CustomerReceiptCreate() {
                               type="number"
                               min="0"
                               step="0.01"
-                              value={allocation.amount}
-                              onChange={(e) => updateAllocation(index, 'amount', parseFloat(e.target.value) || 0)}
+                              value={allocation.amountApplied}
+                              onChange={(e) => updateAllocation(index, 'amountApplied', parseFloat(e.target.value) || 0)}
                               className="pl-7"
                             />
                           </div>

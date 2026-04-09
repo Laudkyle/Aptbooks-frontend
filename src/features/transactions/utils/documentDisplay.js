@@ -60,6 +60,53 @@ export function getDocumentTotal(doc, kind = "document") {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function pickNumericValue(candidates = []) {
+  const raw = candidates.find(
+    (value) => value !== undefined && value !== null && value !== "",
+  );
+  if (raw === undefined) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function getDocumentWithholding(doc, kind = "document") {
+  if (!doc) return null;
+  const kindSpecific =
+    kind === "invoice"
+      ? [doc.invoice_withholding, doc.invoiceWithholding]
+      : kind === "bill"
+        ? [doc.bill_withholding, doc.billWithholding]
+        : [];
+
+  return pickNumericValue([
+    ...kindSpecific,
+    doc.withholding_total,
+    doc.withholdingTotal,
+    doc.withholding_amount,
+    doc.withholdingAmount,
+  ]);
+}
+
+export function getDocumentSettlementBasis(doc, kind = "document") {
+  if (!doc) return null;
+  const kindSpecific =
+    kind === "invoice"
+      ? [doc.invoice_settlement_basis, doc.invoiceSettlementBasis]
+      : kind === "bill"
+        ? [doc.bill_settlement_basis, doc.billSettlementBasis]
+        : [];
+
+  return pickNumericValue([
+    ...kindSpecific,
+    doc.settlement_basis_total,
+    doc.settlementBasisTotal,
+    doc.net_settlement_total,
+    doc.netSettlementTotal,
+    doc.net_due,
+    doc.netDue,
+  ]);
+}
+
 export function getDocumentOutstanding(doc, kind = "document") {
   if (!doc) return null;
   const kindSpecific =
@@ -69,7 +116,7 @@ export function getDocumentOutstanding(doc, kind = "document") {
         ? [doc.bill_outstanding, doc.billOutstanding]
         : [];
 
-  const candidates = [
+  return pickNumericValue([
     ...kindSpecific,
     doc.outstanding,
     doc.amount_due,
@@ -78,13 +125,7 @@ export function getDocumentOutstanding(doc, kind = "document") {
     doc.remainingAmount,
     doc.unapplied_amount,
     doc.unappliedAmount,
-  ];
-  const raw = candidates.find(
-    (value) => value !== undefined && value !== null && value !== "",
-  );
-  if (raw === undefined) return null;
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) ? parsed : null;
+  ]);
 }
 
 export function formatDocumentAmount(
@@ -107,6 +148,19 @@ export function formatDocumentAmount(
   }
 }
 
+function formatMoneyValue(amount, currency) {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
 export function formatDocumentOutstanding(
   doc,
   fallbackCurrency = "USD",
@@ -115,16 +169,29 @@ export function formatDocumentOutstanding(
   const outstanding = getDocumentOutstanding(doc, kind);
   if (outstanding == null) return "—";
   const currency = doc?.currency_code || doc?.currencyCode || fallbackCurrency;
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(outstanding);
-  } catch {
-    return `${currency} ${outstanding.toFixed(2)}`;
-  }
+  return formatMoneyValue(outstanding, currency);
+}
+
+export function formatDocumentWithholding(
+  doc,
+  fallbackCurrency = "USD",
+  kind = "document",
+) {
+  const withholding = getDocumentWithholding(doc, kind);
+  if (withholding == null) return "—";
+  const currency = doc?.currency_code || doc?.currencyCode || fallbackCurrency;
+  return formatMoneyValue(withholding, currency);
+}
+
+export function formatDocumentSettlementBasis(
+  doc,
+  fallbackCurrency = "USD",
+  kind = "document",
+) {
+  const settlementBasis = getDocumentSettlementBasis(doc, kind);
+  if (settlementBasis == null) return "—";
+  const currency = doc?.currency_code || doc?.currencyCode || fallbackCurrency;
+  return formatMoneyValue(settlementBasis, currency);
 }
 
 export function formatDocumentOptionLabel(
@@ -140,14 +207,16 @@ export function formatDocumentOptionLabel(
         ? "Unnamed bill"
         : "Unnamed document");
   const totalLabel = formatDocumentAmount(doc, fallbackCurrency, kind);
-  const outstandingLabel = formatDocumentOutstanding(
-    doc,
-    fallbackCurrency,
-    kind,
-  );
-  if (outstandingLabel !== "—")
-    return `${number} — Total: ${totalLabel} — Outstanding: ${outstandingLabel}`;
-  return `${number} — Total: ${totalLabel}`;
+  const withholdingLabel = formatDocumentWithholding(doc, fallbackCurrency, kind);
+  const settlementLabel = formatDocumentSettlementBasis(doc, fallbackCurrency, kind);
+  const outstandingLabel = formatDocumentOutstanding(doc, fallbackCurrency, kind);
+
+  const parts = [`Gross: ${totalLabel}`];
+  if (withholdingLabel !== "—" && getDocumentWithholding(doc, kind) > 0) parts.push(`WHT: ${withholdingLabel}`);
+  if (settlementLabel !== "—") parts.push(`Settlement: ${settlementLabel}`);
+  if (outstandingLabel !== "—") parts.push(`Open: ${outstandingLabel}`);
+
+  return `${number} — ${parts.join(" — ")}`;
 }
 
 export function formatDocumentSummary(
