@@ -1,33 +1,52 @@
+import React, { useMemo, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  FileMinus2,
+  Send,
+  Trash2,
+  AlertCircle,
+  CheckCircle2,
+  FileText,
+  Calendar,
+  DollarSign,
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  List,
+} from "lucide-react";
 
-import React, { useMemo, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, FileMinus2, Send, Trash2, AlertCircle, CheckCircle2, FileText, Calendar, DollarSign, Building2, Mail, Phone, MapPin, List } from 'lucide-react';
+import { useApi } from "../../../shared/hooks/useApi.js";
+import { qk } from "../../../shared/query/keys.js";
+import { makeDebitNotesApi } from "../api/debitNotes.api.js";
+import { makeBillsApi } from "../api/bills.api.js";
+import { formatDate } from "../../../shared/utils/formatDate.js";
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makeDebitNotesApi } from '../api/debitNotes.api.js';
-import { makeBillsApi } from '../api/bills.api.js';
-import { formatDate } from '../../../shared/utils/formatDate.js';
-
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
-import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
-import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDocumentOptionLabel, formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
+import { PageHeader } from "../../../shared/components/layout/PageHeader.jsx";
+import { ContentCard } from "../../../shared/components/layout/ContentCard.jsx";
+import { Button } from "../../../shared/components/ui/Button.jsx";
+import { TransactionWorkflowActionBar } from "../components/TransactionWorkflowActionBar.jsx";
+import { normalizeTransactionWorkflow } from "../workflow/normalizeTransactionWorkflow.js";
+import { resolveTransactionActions } from "../workflow/resolveTransactionActions.js";
+import { Badge } from "../../../shared/components/ui/Badge.jsx";
+import { Modal } from "../../../shared/components/ui/Modal.jsx";
+import { Input } from "../../../shared/components/ui/Input.jsx";
+import { Select } from "../../../shared/components/ui/Select.jsx";
+import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
+import { useToast } from "../../../shared/components/ui/Toast.jsx";
+import {
+  formatDocumentOptionLabel,
+  formatDocumentSummary,
+  formatDocumentAmount,
+  formatDocumentOutstanding,
+} from "../utils/documentDisplay.js";
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -42,99 +61,139 @@ export default function DebitNoteDetail() {
   const toast = useToast();
 
   // Fetch debit note details
-  const { 
-    data, 
-    isLoading, 
-    isError, 
-    error 
-  } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: qk.debitNote(id),
     queryFn: () => api.get(id),
     enabled: !!id,
     staleTime: 30000,
-    retry: 2
+    retry: 2,
   });
 
   // Extract debit note data - data is already the debit note object
-  const billsQ = useQuery({ queryKey: ['transactions', 'bills', 'select'], queryFn: () => billsApi.list({ limit: 200, offset: 0 }), staleTime: 60_000 });
-  const billRows =(Array.isArray(billsQ.data) ? billsQ.data : billsQ.data?.data ?? [])  .filter(bill => (bill.status || '').toLowerCase() === 'issued');
+  const billsQ = useQuery({
+    queryKey: ["transactions", "bills", "select"],
+    queryFn: () => billsApi.list({ limit: 200, offset: 0 }),
+    staleTime: 60_000,
+  });
+  const billRows = (
+    Array.isArray(billsQ.data) ? billsQ.data : (billsQ.data?.data ?? [])
+  ).filter((bill) => (bill.status || "").toLowerCase() === "issued");
 
-  const billOptions = [{ value: '', label: 'Select bill...' }, ...billRows.map((bill) => ({ value: bill.id, label: formatDocumentOptionLabel(bill, 'bill') }))];
+  const billOptions = [
+    { value: "", label: "Select bill..." },
+    ...billRows.map((bill) => ({
+      value: bill.id,
+      label: formatDocumentOptionLabel(bill, "bill"),
+    })),
+  ];
 
   const note = data?.data ?? data;
-  
-  // Extract applications - use applications array from your data structure
-  const applications = (note?.applications || []).map((app) => ({ ...app, amountApplied: app.amountApplied ?? app.amount_applied ?? 0, invoiceId: app.invoiceId ?? app.invoice_id, billId: app.billId ?? app.bill_id }));
-  const lines = note?.lines || [];
 
+  // Extract applications - use applications array from your data structure
+  const applications = (note?.applications || []).map((app) => ({
+    ...app,
+    amountApplied: app.amountApplied ?? app.amount_applied ?? app.amount ?? 0,
+    invoiceId: app.invoiceId ?? app.invoice_id,
+    billId: app.billId ?? app.bill_id,
+    billTotal: app.billTotal ?? app.bill_total ?? app.total_amount ?? app.total,
+    billOutstanding:
+      app.billOutstanding ?? app.bill_outstanding ?? app.outstanding,
+    currencyCode: app.currencyCode ?? app.currency_code ?? note?.currency_code,
+  }));
+  const lines = note?.lines || [];
 
   // Action state
   const [action, setAction] = useState(null);
-  const [comment, setComment] = useState('');
-  const [applyBody, setApplyBody] = useState({ billId: '', amountApplied: '' });
-  const [voidBody, setVoidBody] = useState({ reason: '' });
+  const [comment, setComment] = useState("");
+  const [applyBody, setApplyBody] = useState({ billId: "", amountApplied: "" });
+  const [voidBody, setVoidBody] = useState({ reason: "" });
 
   // Form validation
   const isApplyFormValid = useMemo(() => {
     const amount = parseFloat(applyBody.amountApplied);
-    return applyBody.billId.trim() !== '' && !isNaN(amount) && amount > 0;
+    return applyBody.billId.trim() !== "" && !isNaN(amount) && amount > 0;
   }, [applyBody]);
 
   // Calculate remaining amount - use balance.remaining if available
-  const remainingAmount = useMemo(() => {
-    if (note?.balance?.remaining !== undefined) {
-      return parseFloat(note.balance.remaining);
-    }
-    
-    // Fallback calculation
-    const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
-    const appliedTotal = applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amountApplied ?? 0));
+  const totalApplied = useMemo(() => {
+    const fromBalance = Number(
+      note?.balance?.applied ??
+        note?.balance?.applied_amount ??
+        note?.applied_amount,
+    );
+    if (Number.isFinite(fromBalance)) return fromBalance;
+
+    return applications.reduce((sum, app) => {
+      const value = Number(app.amountApplied ?? 0);
+      return sum + (Number.isFinite(value) ? value : 0);
     }, 0);
-    return totalAmount - appliedTotal;
   }, [note, applications]);
 
-  // Calculate total applied amount
-  const totalApplied = useMemo(() => {
-    if (note?.balance?.applied !== undefined) {
-      return parseFloat(note.balance.applied);
-    }
-    
-    return applications.reduce((sum, app) => {
-      return sum + (parseFloat(app.amountApplied ?? 0));
-    }, 0);
-  }, [note, applications]);
+  const remainingAmount = useMemo(() => {
+    const fromBalance = Number(
+      note?.balance?.remaining ??
+        note?.balance?.remaining_amount ??
+        note?.remaining_amount ??
+        note?.detail_meta?.totals?.unapplied_amount,
+    );
+    if (Number.isFinite(fromBalance)) return fromBalance;
+
+    const totalAmount = Number(
+      note?.total ?? note?.amount ?? note?.balance?.total ?? 0,
+    );
+    return totalAmount - totalApplied;
+  }, [note, totalApplied]);
 
   // Format currency
-  const formatCurrency = useCallback((amount, currencyCode = 'USD') => {
-    if (amount == null || amount === '') return '—';
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (isNaN(numAmount)) return '—';
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+  const formatCurrency = useCallback((amount, currencyCode = "USD") => {
+    if (amount == null || amount === "") return "—";
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(numAmount)) return "—";
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currencyCode,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(numAmount);
   }, []);
- const workflowState = normalizeTransactionWorkflow({ type: 'debitNote', entity: note, payload: note });
-  const status = workflowState.workflowStatus || 'draft';
+  const workflowState = normalizeTransactionWorkflow({
+    type: "debitNote",
+    entity: note,
+    payload: note,
+  });
+  const derivedStatus =
+    remainingAmount <= 0 && totalApplied > 0
+      ? "applied"
+      : totalApplied > 0
+        ? "partial"
+        : workflowState.workflowStatus || note?.status || "draft";
+  const status = derivedStatus;
   // Get status badge configuration
   const getStatusConfig = useCallback((status) => {
     const configs = {
-      issued: { tone: 'brand', label: 'Issued', icon: Send },
-      applied: { tone: 'success', label: 'Applied', icon: CheckCircle2 },
-      draft: { tone: 'muted', label: 'Draft', icon: FileText },
-      voided: { tone: 'error', label: 'Voided', icon: Trash2 },
-      partial: { tone: 'warning', label: 'Partially Applied', icon: DollarSign }
+      issued: { tone: "brand", label: "Issued", icon: Send },
+      applied: { tone: "success", label: "Applied", icon: CheckCircle2 },
+      draft: { tone: "muted", label: "Draft", icon: FileText },
+      voided: { tone: "error", label: "Voided", icon: Trash2 },
+      partial: {
+        tone: "warning",
+        label: "Partially Applied",
+        icon: DollarSign,
+      },
     };
-    
-    return configs[status] || { tone: 'muted', label: status || 'Draft', icon: FileText };
+
+    return (
+      configs[status] || {
+        tone: "muted",
+        label: status || "Draft",
+        icon: FileText,
+      }
+    );
   }, []);
 
   const statusConfig = getStatusConfig(status);
- 
+
   // Action handlers
   const handleOpenAction = useCallback((actionType) => {
     setAction(actionType);
@@ -142,13 +201,13 @@ export default function DebitNoteDetail() {
 
   const handleCloseAction = useCallback(() => {
     setAction(null);
-    setComment('');
-    setApplyBody({ billId: '', amountApplied: '' });
-    setVoidBody({ reason: '' });
+    setComment("");
+    setApplyBody({ billId: "", amountApplied: "" });
+    setVoidBody({ reason: "" });
   }, []);
 
   const handleApplyBodyChange = useCallback((field, value) => {
-    setApplyBody(prev => ({ ...prev, [field]: value }));
+    setApplyBody((prev) => ({ ...prev, [field]: value }));
   }, []);
 
   const handleVoidReasonChange = useCallback((e) => {
@@ -163,44 +222,123 @@ export default function DebitNoteDetail() {
   const runAction = useMutation({
     mutationFn: async () => {
       const idempotencyKey = generateUUID();
-      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
-      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey });
-      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
-      if (action === 'issue') return api.issue(id, { idempotencyKey });
-      if (action === 'apply') {
+      if (action === "submit")
+        return api.submitForApproval(id, { idempotencyKey });
+      if (action === "approve")
+        return api.approve(id, { comment }, { idempotencyKey });
+      if (action === "reject")
+        return api.reject(id, { comment }, { idempotencyKey });
+      if (action === "issue") return api.issue(id, { idempotencyKey });
+      if (action === "apply") {
         const amount = parseFloat(applyBody.amountApplied);
-        return api.apply(id, { 
-          billId: applyBody.billId.trim(), 
-          amountApplied: amount 
-        }, { idempotencyKey });
+        return api.apply(
+          id,
+          {
+            billId: applyBody.billId.trim(),
+            amountApplied: amount,
+          },
+          { idempotencyKey },
+        );
       }
-      if (action === 'void') return api.void(id, voidBody, { idempotencyKey });
-      throw new Error('Unknown action');
+      if (action === "void") return api.void(id, voidBody, { idempotencyKey });
+      throw new Error("Unknown action");
     },
     onSuccess: (response) => {
+      if (action === "apply") {
+        const appliedAmount = Number(applyBody.amountApplied || 0);
+        qc.setQueryData(qk.debitNote(id), (old) => {
+          const current = old?.data ?? old;
+          if (!current) return old;
+
+          const currentApplied =
+            Number(current?.balance?.applied ?? current?.applied_amount ?? 0) ||
+            0;
+          const total =
+            Number(
+              current?.balance?.total ?? current?.total ?? current?.amount ?? 0,
+            ) || 0;
+          const nextApplied = currentApplied + appliedAmount;
+          const nextRemaining = Math.max(0, total - nextApplied);
+
+          const responseApp = response?.data ?? response ?? {};
+          const nextApplication = {
+            ...responseApp,
+            id: responseApp.id ?? generateUUID(),
+            bill_id:
+              responseApp.bill_id ?? responseApp.billId ?? applyBody.billId,
+            billId:
+              responseApp.billId ?? responseApp.bill_id ?? applyBody.billId,
+            amount_applied:
+              responseApp.amount_applied ??
+              responseApp.amountApplied ??
+              appliedAmount,
+            amountApplied:
+              responseApp.amountApplied ??
+              responseApp.amount_applied ??
+              appliedAmount,
+            applied_at: responseApp.applied_at ?? new Date().toISOString(),
+          };
+
+          const patched = {
+            ...current,
+            status: nextRemaining <= 0 ? "applied" : current.status,
+            applied_amount: nextApplied,
+            remaining_amount: nextRemaining,
+            applications: [...(current.applications || []), nextApplication],
+            balance: {
+              ...(current.balance || {}),
+              total,
+              total_amount: total,
+              applied: nextApplied,
+              applied_amount: nextApplied,
+              remaining: nextRemaining,
+              remaining_amount: nextRemaining,
+            },
+            detail_meta: {
+              ...(current.detail_meta || {}),
+              totals: {
+                ...(current.detail_meta?.totals || {}),
+                unapplied_amount: nextRemaining,
+                outstanding: nextRemaining,
+              },
+            },
+          };
+
+          return old?.data ? { ...old, data: patched } : patched;
+        });
+      }
       const messages = {
-        submit: 'Submitted for approval',
-        approve: 'Debit note approved successfully',
-        reject: 'Debit note rejected',
-        issue: 'Debit note issued successfully',
-        apply: 'Debit note applied to bill',
-        void: 'Debit note voided'
+        submit: "Submitted for approval",
+        approve: "Debit note approved successfully",
+        reject: "Debit note rejected",
+        issue: "Debit note issued successfully",
+        apply: "Debit note applied to bill",
+        void: "Debit note voided",
       };
-      toast.success(messages[action] || 'Action completed');
+      toast.success(messages[action] || "Action completed");
       qc.invalidateQueries({ queryKey: qk.debitNote(id) });
       qc.invalidateQueries({ queryKey: qk.debitNotes() });
+      qc.invalidateQueries({ queryKey: qk.bill(applyBody.billId) });
+      qc.invalidateQueries({ queryKey: ["transactions", "bills"] });
       handleCloseAction();
     },
     onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.response?.data?.message ?? err?.message ?? 'Action failed';
+      const message =
+        err?.response?.data?.error ??
+        err?.response?.data?.message ??
+        err?.message ??
+        "Action failed";
       toast.error(message);
-    }
+    },
   });
 
-
-  const availableActions = resolveTransactionActions({ type: 'debitNote', state: workflowState, remainingAmount });
-  const canIssue = availableActions.forwardAction?.key === 'issue';
-  const canApply = availableActions.forwardAction?.key === 'apply';
+  const availableActions = resolveTransactionActions({
+    type: "debitNote",
+    state: workflowState,
+    remainingAmount,
+  });
+  const canIssue = availableActions.forwardAction?.key === "issue";
+  const canApply = availableActions.forwardAction?.key === "apply";
   const canVoid = Boolean(availableActions.voidAction);
 
   // Loading state
@@ -219,7 +357,9 @@ export default function DebitNoteDetail() {
         />
         <ContentCard>
           <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading debit note details...</div>
+            <div className="text-sm text-slate-500">
+              Loading debit note details...
+            </div>
           </div>
         </ContentCard>
       </div>
@@ -243,9 +383,17 @@ export default function DebitNoteDetail() {
         <ContentCard>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load debit note</div>
-            <div className="text-sm text-slate-500">{error?.message ?? 'Debit note not found'}</div>
-            <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
+            <div className="text-sm font-medium text-slate-900">
+              Failed to load debit note
+            </div>
+            <div className="text-sm text-slate-500">
+              {error?.message ?? "Debit note not found"}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="mt-2"
+            >
               Retry
             </Button>
           </div>
@@ -256,13 +404,13 @@ export default function DebitNoteDetail() {
 
   // Use properties similar to credit note structure
   const debitNoteNumber = note?.debit_note_no ?? note?.code ?? id;
-  const vendorName = note?.vendor_name ?? note?.vendor_id ?? '—';
+  const vendorName = note?.vendor_name ?? note?.vendor_id ?? "—";
   const debitNoteDate = note?.debit_note_date;
   const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
   const subtotal = parseFloat(note?.subtotal ?? 0);
   const taxTotal = parseFloat(note?.tax_total ?? 0);
   const memo = note?.memo;
-  const currencyCode = note?.currency_code || 'USD';
+  const currencyCode = note?.currency_code || "USD";
 
   return (
     <div className="space-y-6">
@@ -271,9 +419,9 @@ export default function DebitNoteDetail() {
         subtitle={`Debit note • ${formatDate(debitNoteDate)}`}
         icon={FileMinus2}
         actions={
-          <Button 
-            variant="outline" 
-            leftIcon={ArrowLeft} 
+          <Button
+            variant="outline"
+            leftIcon={ArrowLeft}
             onClick={handleBack}
             aria-label="Go back"
           >
@@ -282,7 +430,10 @@ export default function DebitNoteDetail() {
         }
       />
 
-      <TransactionWorkflowActionBar actions={availableActions} onAction={handleOpenAction} />
+      <TransactionWorkflowActionBar
+        actions={availableActions}
+        onAction={handleOpenAction}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main content */}
@@ -291,8 +442,12 @@ export default function DebitNoteDetail() {
           <ContentCard>
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <div className="text-base font-semibold text-slate-900">Debit Note Summary</div>
-                <div className="mt-1 text-sm text-slate-500">Vendor credit and transaction details</div>
+                <div className="text-base font-semibold text-slate-900">
+                  Debit Note Summary
+                </div>
+                <div className="mt-1 text-sm text-slate-500">
+                  Vendor credit and transaction details
+                </div>
               </div>
               <Badge tone={statusConfig.tone}>
                 <statusConfig.icon className="h-3.5 w-3.5 mr-1.5" />
@@ -307,9 +462,13 @@ export default function DebitNoteDetail() {
                   <Building2 className="h-3.5 w-3.5" />
                   Vendor
                 </div>
-                <div className="text-sm font-semibold text-slate-900">{vendorName}</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {vendorName}
+                </div>
                 {note.vendor_code && (
-                  <div className="text-xs text-slate-500 mt-1">Code: {note.vendor_code}</div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Code: {note.vendor_code}
+                  </div>
                 )}
               </div>
 
@@ -319,7 +478,9 @@ export default function DebitNoteDetail() {
                   <Calendar className="h-3.5 w-3.5" />
                   Debit Note Date
                 </div>
-                <div className="text-sm font-semibold text-slate-900">{formatDate(debitNoteDate)}</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {formatDate(debitNoteDate)}
+                </div>
               </div>
 
               {/* Total Amount */}
@@ -331,8 +492,10 @@ export default function DebitNoteDetail() {
                 <div className="text-lg font-bold text-slate-900 tabular-nums">
                   {formatCurrency(totalAmount, currencyCode)}
                 </div>
-                {currencyCode && currencyCode !== 'USD' && (
-                  <div className="text-xs text-slate-500 mt-1">Currency: {currencyCode}</div>
+                {currencyCode && currencyCode !== "USD" && (
+                  <div className="text-xs text-slate-500 mt-1">
+                    Currency: {currencyCode}
+                  </div>
                 )}
               </div>
 
@@ -351,8 +514,12 @@ export default function DebitNoteDetail() {
             {/* Memo */}
             {memo && (
               <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Memo</div>
-                <div className="text-sm text-slate-700 whitespace-pre-wrap">{memo}</div>
+                <div className="text-xs font-medium text-slate-600 mb-2">
+                  Memo
+                </div>
+                <div className="text-sm text-slate-700 whitespace-pre-wrap">
+                  {memo}
+                </div>
               </div>
             )}
           </ContentCard>
@@ -360,7 +527,9 @@ export default function DebitNoteDetail() {
           {/* Vendor Contact Information */}
           {(note.vendor_email || note.vendor_phone) && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Vendor Contact Information</div>
+              <div className="text-base font-semibold text-slate-900 mb-4">
+                Vendor Contact Information
+              </div>
               <div className="grid gap-4 md:grid-cols-2">
                 {note.vendor_email && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
@@ -392,7 +561,9 @@ export default function DebitNoteDetail() {
           {/* Line Items */}
           {lines.length > 0 && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Line Items</div>
+              <div className="text-base font-semibold text-slate-900 mb-4">
+                Line Items
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-slate-50 border-b border-slate-200">
@@ -418,7 +589,7 @@ export default function DebitNoteDetail() {
                     {lines.map((line, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
                         <td className="px-4 py-3 text-sm text-slate-900">
-                          {line.description || '—'}
+                          {line.description || "—"}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">
                           {parseFloat(line.quantity || 0).toFixed(4)}
@@ -437,7 +608,10 @@ export default function DebitNoteDetail() {
                   </tbody>
                   <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                     <tr>
-                      <td colSpan={3} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td
+                        colSpan={3}
+                        className="px-4 py-3 text-right text-sm font-semibold text-slate-900"
+                      >
                         Subtotal:
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
@@ -448,7 +622,10 @@ export default function DebitNoteDetail() {
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td
+                        colSpan={4}
+                        className="px-4 py-3 text-right text-sm font-semibold text-slate-900"
+                      >
                         Total:
                       </td>
                       <td className="px-4 py-3 text-right text-lg font-bold text-slate-900">
@@ -464,7 +641,9 @@ export default function DebitNoteDetail() {
           {/* Applications */}
           {applications.length > 0 && (
             <ContentCard>
-              <div className="text-base font-semibold text-slate-900 mb-4">Bill Applications</div>
+              <div className="text-base font-semibold text-slate-900 mb-4">
+                Bill Applications
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-slate-50 border-b border-slate-200">
@@ -487,23 +666,39 @@ export default function DebitNoteDetail() {
                     {applications.map((application, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
                         <td className="px-4 py-3 text-sm text-slate-900">
-                          {formatDocumentSummary(application, 'bill', currencyCode)}
+                          {formatDocumentSummary(
+                            application,
+                            "bill",
+                            currencyCode,
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">
-                          {formatDocumentAmount(application, currencyCode)}
+                          {formatDocumentAmount(
+                            application,
+                            currencyCode,
+                            "bill",
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900 text-right">
-                          {formatCurrency(application.amountApplied, currencyCode)}
+                          {formatCurrency(
+                            application.amountApplied,
+                            currencyCode,
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-700">
-                          {formatDate(application.applied_at ?? application.created_at)}
+                          {formatDate(
+                            application.applied_at ?? application.created_at,
+                          )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                     <tr>
-                      <td colSpan={2} className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
+                      <td
+                        colSpan={2}
+                        className="px-4 py-3 text-right text-sm font-semibold text-slate-900"
+                      >
                         Total Applied:
                       </td>
                       <td className="px-4 py-3 text-right text-sm font-bold text-slate-900">
@@ -519,33 +714,46 @@ export default function DebitNoteDetail() {
 
           {/* Balance Summary */}
           <ContentCard>
-            <div className="text-base font-semibold text-slate-900 mb-4">Balance Summary</div>
+            <div className="text-base font-semibold text-slate-900 mb-4">
+              Balance Summary
+            </div>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Total Amount</div>
+                <div className="text-xs font-medium text-slate-600 mb-2">
+                  Total Amount
+                </div>
                 <div className="text-lg font-bold text-slate-900 tabular-nums">
                   {formatCurrency(totalAmount, currencyCode)}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">
-                  {lines.length} line{lines.length !== 1 ? 's' : ''}
+                  {lines.length} line{lines.length !== 1 ? "s" : ""}
                 </div>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Applied Amount</div>
+                <div className="text-xs font-medium text-slate-600 mb-2">
+                  Applied Amount
+                </div>
                 <div className="text-lg font-bold text-slate-900 tabular-nums">
                   {formatCurrency(totalApplied, currencyCode)}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">
-                  {applications.length} application{applications.length !== 1 ? 's' : ''}
+                  {applications.length} application
+                  {applications.length !== 1 ? "s" : ""}
                 </div>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-                <div className="text-xs font-medium text-slate-600 mb-2">Remaining Balance</div>
-                <div className={`text-lg font-bold tabular-nums ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                <div className="text-xs font-medium text-slate-600 mb-2">
+                  Remaining Balance
+                </div>
+                <div
+                  className={`text-lg font-bold tabular-nums ${remainingAmount > 0 ? "text-orange-600" : "text-green-600"}`}
+                >
                   {formatCurrency(remainingAmount, currencyCode)}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">
-                  {remainingAmount > 0 ? 'Available for application' : 'Fully applied'}
+                  {remainingAmount > 0
+                    ? "Available for application"
+                    : "Fully applied"}
                 </div>
               </div>
             </div>
@@ -556,39 +764,65 @@ export default function DebitNoteDetail() {
         <div className="space-y-6">
           {/* Actions Guide */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Quick Actions</div>
+            <div className="text-sm font-semibold text-slate-900 mb-3">
+              Quick Actions
+            </div>
             <div className="space-y-3">
               <div className="flex items-start gap-3 text-xs">
-                <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canIssue ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
-                }`}>
+                <div
+                  className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    canIssue
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-slate-100 text-slate-400"
+                  }`}
+                >
                   1
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Issue debit note</div>
-                  <div className="text-slate-500 mt-0.5">Make the credit available for use</div>
+                  <div className="font-medium text-slate-700">
+                    Issue debit note
+                  </div>
+                  <div className="text-slate-500 mt-0.5">
+                    Make the credit available for use
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-xs">
-                <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canApply ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
-                }`}>
+                <div
+                  className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    canApply
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-slate-100 text-slate-400"
+                  }`}
+                >
                   2
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Apply to bill</div>
-                  <div className="text-slate-500 mt-0.5">Reduce vendor bill balance</div>
+                  <div className="font-medium text-slate-700">
+                    Apply to bill
+                  </div>
+                  <div className="text-slate-500 mt-0.5">
+                    Reduce vendor bill balance
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-xs">
-                <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  canVoid ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-400'
-                }`}>
+                <div
+                  className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    canVoid
+                      ? "bg-red-100 text-red-600"
+                      : "bg-slate-100 text-slate-400"
+                  }`}
+                >
                   3
                 </div>
                 <div>
-                  <div className="font-medium text-slate-700">Void if needed</div>
-                  <div className="text-slate-500 mt-0.5">Cancel the debit note</div>
+                  <div className="font-medium text-slate-700">
+                    Void if needed
+                  </div>
+                  <div className="text-slate-500 mt-0.5">
+                    Cancel the debit note
+                  </div>
                 </div>
               </div>
             </div>
@@ -596,42 +830,58 @@ export default function DebitNoteDetail() {
 
           {/* Status Info */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Status Information</div>
+            <div className="text-sm font-semibold text-slate-900 mb-3">
+              Status Information
+            </div>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-600">Current Status</span>
-                <span className="font-medium text-slate-900 capitalize">{statusConfig.label}</span>
+                <span className="font-medium text-slate-900 capitalize">
+                  {statusConfig.label}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Currency</span>
-                <span className="font-medium text-slate-900">{currencyCode}</span>
+                <span className="font-medium text-slate-900">
+                  {currencyCode}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">FX Rate</span>
-                <span className="font-medium text-slate-900">{parseFloat(note?.fx_rate || 1).toFixed(6)}</span>
+                <span className="font-medium text-slate-900">
+                  {parseFloat(note?.fx_rate || 1).toFixed(6)}
+                </span>
               </div>
               {note?.created_at && (
                 <div className="flex justify-between">
                   <span className="text-slate-600">Created Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.created_at, { includeTime: true })}</span>
+                  <span className="font-medium text-slate-900">
+                    {formatDate(note.created_at, { includeTime: true })}
+                  </span>
                 </div>
               )}
               {note?.issued_at && (
                 <div className="flex justify-between">
                   <span className="text-slate-600">Issued Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.issued_at, { includeTime: true })}</span>
+                  <span className="font-medium text-slate-900">
+                    {formatDate(note.issued_at, { includeTime: true })}
+                  </span>
                 </div>
               )}
               {note?.voided_at && (
                 <div className="flex justify-between">
                   <span className="text-slate-600">Voided Date</span>
-                  <span className="font-medium text-slate-900">{formatDate(note.voided_at, { includeTime: true })}</span>
+                  <span className="font-medium text-slate-900">
+                    {formatDate(note.voided_at, { includeTime: true })}
+                  </span>
                 </div>
               )}
               {note?.void_reason && (
                 <div className="pt-2 border-t border-slate-200">
                   <div className="text-slate-600 mb-1">Void Reason</div>
-                  <div className="text-slate-700 italic">"{note.void_reason}"</div>
+                  <div className="text-slate-700 italic">
+                    "{note.void_reason}"
+                  </div>
                 </div>
               )}
             </div>
@@ -639,15 +889,21 @@ export default function DebitNoteDetail() {
 
           {/* Quick Stats */}
           <ContentCard>
-            <div className="text-sm font-semibold text-slate-900 mb-3">Quick Stats</div>
+            <div className="text-sm font-semibold text-slate-900 mb-3">
+              Quick Stats
+            </div>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-600">Line Items</span>
-                <span className="font-medium text-slate-900">{lines.length}</span>
+                <span className="font-medium text-slate-900">
+                  {lines.length}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Applications</span>
-                <span className="font-medium text-slate-900">{applications.length}</span>
+                <span className="font-medium text-slate-900">
+                  {applications.length}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Subtotal</span>
@@ -662,8 +918,12 @@ export default function DebitNoteDetail() {
                 </span>
               </div>
               <div className="flex justify-between pt-2 border-t border-slate-200">
-                <span className="text-slate-600 font-medium">Remaining Balance</span>
-                <span className={`font-bold ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                <span className="text-slate-600 font-medium">
+                  Remaining Balance
+                </span>
+                <span
+                  className={`font-bold ${remainingAmount > 0 ? "text-orange-600" : "text-green-600"}`}
+                >
                   {formatCurrency(remainingAmount, currencyCode)}
                 </span>
               </div>
@@ -674,26 +934,36 @@ export default function DebitNoteDetail() {
 
       {/* Action Modals */}
 
-      <Modal 
-        open={action === 'submit' || action === 'approve' || action === 'reject'}
+      <Modal
+        open={
+          action === "submit" || action === "approve" || action === "reject"
+        }
         onClose={handleCloseAction}
         title={
-          action === 'submit' ? 'Submit for Approval' :
-          action === 'approve' ? 'Approve Debit Note' :
-          action === 'reject' ? 'Reject Debit Note' : 'Action'
+          action === "submit"
+            ? "Submit for Approval"
+            : action === "approve"
+              ? "Approve Debit Note"
+              : action === "reject"
+                ? "Reject Debit Note"
+                : "Action"
         }
       >
         <div className="space-y-4">
-          {action === 'approve' || action === 'reject' ? (
+          {action === "approve" || action === "reject" ? (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Comment {action === 'reject' ? '(recommended)' : '(optional)'}
+                Comment {action === "reject" ? "(recommended)" : "(optional)"}
               </label>
               <Textarea
                 rows={4}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder={action === 'reject' ? 'Add a reason for rejection...' : 'Add an approval comment...'}
+                placeholder={
+                  action === "reject"
+                    ? "Add a reason for rejection..."
+                    : "Add an approval comment..."
+                }
               />
             </div>
           ) : (
@@ -704,17 +974,22 @@ export default function DebitNoteDetail() {
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCloseAction}>Cancel</Button>
-          <Button onClick={() => runAction.mutate()} loading={runAction.isPending}>
+          <Button variant="outline" onClick={handleCloseAction}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => runAction.mutate()}
+            loading={runAction.isPending}
+          >
             Confirm
           </Button>
         </div>
       </Modal>
 
       {/* Issue Modal */}
-      <Modal 
-        open={action === 'issue'} 
-        onClose={handleCloseAction} 
+      <Modal
+        open={action === "issue"}
+        onClose={handleCloseAction}
         title="Issue Debit Note"
       >
         <div className="space-y-4">
@@ -724,8 +999,8 @@ export default function DebitNoteDetail() {
               <div className="text-sm text-blue-900">
                 <div className="font-medium mb-1">Issue this debit note?</div>
                 <div className="text-blue-700">
-                  Issuing makes the debit note available for application to vendor bills. 
-                  This action cannot be undone.
+                  Issuing makes the debit note available for application to
+                  vendor bills. This action cannot be undone.
                 </div>
               </div>
             </div>
@@ -739,7 +1014,9 @@ export default function DebitNoteDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Total Amount</span>
-                <span className="font-semibold tabular-nums">{formatCurrency(totalAmount, currencyCode)}</span>
+                <span className="font-semibold tabular-nums">
+                  {formatCurrency(totalAmount, currencyCode)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Vendor</span>
@@ -754,11 +1031,15 @@ export default function DebitNoteDetail() {
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCloseAction} disabled={runAction.isPending}>
+          <Button
+            variant="outline"
+            onClick={handleCloseAction}
+            disabled={runAction.isPending}
+          >
             Cancel
           </Button>
-          <Button 
-            loading={runAction.isPending} 
+          <Button
+            loading={runAction.isPending}
             onClick={() => runAction.mutate()}
             leftIcon={Send}
           >
@@ -768,9 +1049,9 @@ export default function DebitNoteDetail() {
       </Modal>
 
       {/* Apply Modal */}
-      <Modal 
-        open={action === 'apply'} 
-        onClose={handleCloseAction} 
+      <Modal
+        open={action === "apply"}
+        onClose={handleCloseAction}
         title="Apply to Bill"
       >
         <div className="space-y-4">
@@ -778,27 +1059,33 @@ export default function DebitNoteDetail() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-900">
-                <div className="font-medium mb-1">Apply credit to a vendor bill</div>
+                <div className="font-medium mb-1">
+                  Apply credit to a vendor bill
+                </div>
                 <div className="text-blue-700">
-                  Select the bill by bill number and total amount, then enter the amount to apply. The bill balance will be reduced by this amount.
+                  Select the bill by bill number and total amount, then enter
+                  the amount to apply. The bill balance will be reduced by this
+                  amount.
                 </div>
               </div>
             </div>
           </div>
 
-          <Select 
-            label="Bill" 
-            value={applyBody.billId} 
-            onChange={(e) => handleApplyBodyChange('billId', e.target.value)}
+          <Select
+            label="Bill"
+            value={applyBody.billId}
+            onChange={(e) => handleApplyBodyChange("billId", e.target.value)}
             options={billOptions}
             required
             aria-label="Bill to apply credit to"
           />
-          
+
           <Input
             label="Amount to Apply"
             value={applyBody.amountApplied}
-            onChange={(e) => handleApplyBodyChange('amountApplied', e.target.value)}
+            onChange={(e) =>
+              handleApplyBodyChange("amountApplied", e.target.value)
+            }
             type="number"
             step="0.01"
             min="0"
@@ -811,11 +1098,15 @@ export default function DebitNoteDetail() {
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCloseAction} disabled={runAction.isPending}>
+          <Button
+            variant="outline"
+            onClick={handleCloseAction}
+            disabled={runAction.isPending}
+          >
             Cancel
           </Button>
-          <Button 
-            loading={runAction.isPending} 
+          <Button
+            loading={runAction.isPending}
             onClick={() => runAction.mutate()}
             disabled={!isApplyFormValid}
           >
@@ -825,9 +1116,9 @@ export default function DebitNoteDetail() {
       </Modal>
 
       {/* Void Modal */}
-      <Modal 
-        open={action === 'void'} 
-        onClose={handleCloseAction} 
+      <Modal
+        open={action === "void"}
+        onClose={handleCloseAction}
         title="Void Debit Note"
       >
         <div className="space-y-4">
@@ -835,9 +1126,12 @@ export default function DebitNoteDetail() {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-red-900">
-                <div className="font-medium mb-1">Warning: This action cannot be undone</div>
+                <div className="font-medium mb-1">
+                  Warning: This action cannot be undone
+                </div>
                 <div className="text-red-700">
-                  Voiding this debit note will permanently cancel it. Any applied amounts will need to be reversed separately.
+                  Voiding this debit note will permanently cancel it. Any
+                  applied amounts will need to be reversed separately.
                 </div>
               </div>
             </div>
@@ -864,7 +1158,9 @@ export default function DebitNoteDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Total Amount</span>
-                <span className="font-semibold tabular-nums">{formatCurrency(totalAmount, currencyCode)}</span>
+                <span className="font-semibold tabular-nums">
+                  {formatCurrency(totalAmount, currencyCode)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Applied Amount</span>
@@ -874,7 +1170,9 @@ export default function DebitNoteDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Remaining Balance</span>
-                <span className={`font-medium tabular-nums ${remainingAmount > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                <span
+                  className={`font-medium tabular-nums ${remainingAmount > 0 ? "text-orange-600" : "text-green-600"}`}
+                >
                   {formatCurrency(remainingAmount, currencyCode)}
                 </span>
               </div>
@@ -882,16 +1180,21 @@ export default function DebitNoteDetail() {
                 <span className="text-slate-600 font-medium">Status</span>
                 <Badge tone={statusConfig.tone}>{statusConfig.label}</Badge>
               </div>
-            </div></div>
+            </div>
+          </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCloseAction} disabled={runAction.isPending}>
+          <Button
+            variant="outline"
+            onClick={handleCloseAction}
+            disabled={runAction.isPending}
+          >
             Cancel
           </Button>
-          <Button 
-            variant="danger" 
-            loading={runAction.isPending} 
+          <Button
+            variant="danger"
+            loading={runAction.isPending}
             onClick={() => runAction.mutate()}
             leftIcon={Trash2}
           >
@@ -901,4 +1204,4 @@ export default function DebitNoteDetail() {
       </Modal>
     </div>
   );
-}   
+}

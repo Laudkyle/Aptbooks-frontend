@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { 
-  ArrowLeft, 
-  HandCoins, 
-  Send, 
+import React, { useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  HandCoins,
+  Send,
   Trash2,
   Calendar,
   Building2,
@@ -12,28 +12,31 @@ import {
   Wallet,
   Mail,
   Phone,
-  MapPin
-} from 'lucide-react';
+  MapPin,
+} from "lucide-react";
 
-import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
-import { makeVendorPaymentsApi } from '../api/vendorPayments.api.js';
-import { formatDate } from '../../../shared/utils/formatDate.js';
-import { buildTaxDetailModel } from '../utils/taxDetail.js';
+import { useApi } from "../../../shared/hooks/useApi.js";
+import { qk } from "../../../shared/query/keys.js";
+import { makeVendorPaymentsApi } from "../api/vendorPayments.api.js";
+import { formatDate } from "../../../shared/utils/formatDate.js";
+import { buildTaxDetailModel } from "../utils/taxDetail.js";
 
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { TransactionWorkflowActionBar } from '../components/TransactionWorkflowActionBar.jsx';
-import { normalizeTransactionWorkflow } from '../workflow/normalizeTransactionWorkflow.js';
-import { resolveTransactionActions } from '../workflow/resolveTransactionActions.js';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
-import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { formatDocumentSummary, formatDocumentAmount } from '../utils/documentDisplay.js';
+import { Button } from "../../../shared/components/ui/Button.jsx";
+import { Modal } from "../../../shared/components/ui/Modal.jsx";
+import { TransactionWorkflowActionBar } from "../components/TransactionWorkflowActionBar.jsx";
+import { normalizeTransactionWorkflow } from "../workflow/normalizeTransactionWorkflow.js";
+import { resolveTransactionActions } from "../workflow/resolveTransactionActions.js";
+import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
+import { useToast } from "../../../shared/components/ui/Toast.jsx";
+import {
+  formatDocumentSummary,
+  formatDocumentAmount,
+} from "../utils/documentDisplay.js";
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -48,7 +51,7 @@ export default function VendorPaymentDetail() {
 
   const { data, isLoading } = useQuery({
     queryKey: qk.vendorPayment(id),
-    queryFn: () => api.get(id)
+    queryFn: () => api.get(id),
   });
 
   // Extract payment from nested structure
@@ -57,78 +60,102 @@ export default function VendorPaymentDetail() {
   const allocations = paymentData?.allocations || payment?.allocations || [];
 
   const [action, setAction] = useState(null);
-  const [comment, setComment] = useState('');
-  const [reason, setReason] = useState('');
+  const [comment, setComment] = useState("");
+  const [reason, setReason] = useState("");
 
   const run = useMutation({
     mutationFn: async () => {
       const idempotencyKey = generateUUID();
-      if (action === 'submit') return api.submitForApproval(id, { idempotencyKey });
-      if (action === 'approve') return api.approve(id, { comment }, { idempotencyKey });
-      if (action === 'reject') return api.reject(id, { comment }, { idempotencyKey });
-      if (action === 'post') return api.post(id, { idempotencyKey });
-      if (action === 'void') return api.void(id, { reason }, { idempotencyKey });
-      throw new Error('Unknown action');
+      if (action === "submit")
+        return api.submitForApproval(id, { idempotencyKey });
+      if (action === "approve")
+        return api.approve(id, { comment }, { idempotencyKey });
+      if (action === "reject")
+        return api.reject(id, { comment }, { idempotencyKey });
+      if (action === "post") return api.post(id, { idempotencyKey });
+      if (action === "void")
+        return api.void(id, { reason }, { idempotencyKey });
+      throw new Error("Unknown action");
     },
     onSuccess: () => {
-      toast.success('Action completed successfully');
+      toast.success("Action completed successfully");
       qc.invalidateQueries({ queryKey: qk.vendorPayment(id) });
       setAction(null);
-      setComment('');
-      setReason('');
+      setComment("");
+      setReason("");
     },
-    onError: (e) => toast.error(e?.message ?? 'Action failed')
+    onError: (e) => toast.error(e?.message ?? "Action failed"),
   });
 
-  const workflowState = normalizeTransactionWorkflow({ type: 'vendorPayment', entity: payment, payload: paymentData });
+  const workflowState = normalizeTransactionWorkflow({
+    type: "vendorPayment",
+    entity: payment,
+    payload: paymentData,
+  });
   const status = workflowState.businessStatus;
-  const availableActions = resolveTransactionActions({ type: 'vendorPayment', state: workflowState });
+  const availableActions = resolveTransactionActions({
+    type: "vendorPayment",
+    state: workflowState,
+  });
   const statusColors = {
-    posted: 'bg-green-100 text-green-800 border-green-200',
-    draft: 'bg-amber-100 text-amber-800 border-amber-200',
-    voided: 'bg-red-100 text-red-800 border-red-200'
+    posted: "bg-green-100 text-green-800 border-green-200",
+    draft: "bg-amber-100 text-amber-800 border-amber-200",
+    voided: "bg-red-100 text-red-800 border-red-200",
   };
 
   const calculateAllocatedTotal = () => {
     if (!allocations || !Array.isArray(allocations)) return 0;
     return allocations.reduce((sum, allocation) => {
-      return sum + (parseFloat(allocation.amount_applied ?? 0));
+      return (
+        sum +
+        parseFloat(allocation.amount_applied ?? allocation.amountApplied ?? 0)
+      );
     }, 0);
   };
 
   const allocatedTotal = calculateAllocatedTotal();
   const paymentTotal = parseFloat(payment?.amount_total ?? 0);
   const unallocated = paymentTotal - allocatedTotal;
-  
+
   // Currency formatting
-  const currencyCode = payment?.currency_code || 'GHS';
-  
-  const taxDetail = useMemo(() => buildTaxDetailModel({ header: payment ?? {}, payload: paymentData ?? data ?? {}, lines: payment?.lines ?? [], pricingMode: payment?.pricing_mode ?? payment?.pricingMode ?? 'exclusive' }), [payment, paymentData, data]);
+  const currencyCode = payment?.currency_code || "GHS";
+
+  const taxDetail = useMemo(
+    () =>
+      buildTaxDetailModel({
+        header: payment ?? {},
+        payload: paymentData ?? data ?? {},
+        lines: payment?.lines ?? [],
+        pricingMode:
+          payment?.pricing_mode ?? payment?.pricingMode ?? "exclusive",
+      }),
+    [payment, paymentData, data],
+  );
 
   const formatCurrency = (amount) => {
     const numAmount = parseFloat(amount) || 0;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
       currency: currencyCode,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(numAmount);
   };
 
   // Format vendor address
   const formatVendorAddress = () => {
     if (!payment) return null;
-    
+
     const addressParts = [
       payment.vendor_address_line1,
       payment.vendor_address_line2,
       payment.vendor_address_city,
       payment.vendor_address_region,
       payment.vendor_address_postal_code,
-      payment.vendor_address_country
+      payment.vendor_address_country,
     ].filter(Boolean);
-    
-    return addressParts.join(', ');
+
+    return addressParts.join(", ");
   };
 
   return (
@@ -141,18 +168,19 @@ export default function VendorPaymentDetail() {
               <div className="flex items-center gap-3 mb-2">
                 <HandCoins className="h-7 w-7 text-gray-700" />
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {payment?.payment_no ?? (isLoading ? 'Loading...' : 'Payment')}
+                  {payment?.payment_no ??
+                    (isLoading ? "Loading..." : "Payment")}
                 </h1>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}
+                >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">
-                Payment ID: {id}
-              </p>
+              <p className="text-sm text-gray-600">Payment ID: {id}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => navigate(-1)}
                 className="border-gray-300"
@@ -165,56 +193,77 @@ export default function VendorPaymentDetail() {
         </div>
 
         {/* Action Buttons */}
-        <TransactionWorkflowActionBar actions={availableActions} onAction={setAction} documentType="payment_out" documentId={id} />
+        <TransactionWorkflowActionBar
+          actions={availableActions}
+          onAction={setAction}
+          documentType="payment_out"
+          documentId={id}
+        />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Payment Summary */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-5">Payment Summary</h3>
-              
+              <h3 className="text-base font-semibold text-gray-900 mb-5">
+                Payment Summary
+              </h3>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Building2 className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Vendor</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      Vendor
+                    </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {payment?.vendor_name ?? '—'}
+                    {payment?.vendor_name ?? "—"}
                     {payment?.vendor_code && (
-                      <span className="text-xs text-gray-500 ml-2">({payment.vendor_code})</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({payment.vendor_code})
+                      </span>
                     )}
                   </div>
                   {payment?.vendor_address_label && (
-                    <div className="text-xs text-gray-500 mt-1">{payment.vendor_address_label}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {payment.vendor_address_label}
+                    </div>
                   )}
                 </div>
 
                 <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Payment Date</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      Payment Date
+                    </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {formatDate(payment?.payment_date) ?? '—'}
+                    {formatDate(payment?.payment_date) ?? "—"}
                   </div>
                 </div>
 
                 <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Wallet className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Cash Account</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      Cash Account
+                    </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900 font-mono ">
-                    {payment?.cash_account_name ? `${payment.cash_account_name.substring(0, 12)}...` : '—'}
+                    {payment?.cash_account_name
+                      ? `${payment.cash_account_name.substring(0, 12)}...`
+                      : "—"}
                   </div>
                 </div>
 
                 <div className=" rounded-lg border border-gray-200 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-500">Total Amount</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      Total Amount
+                    </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
                     {formatCurrency(payment?.amount_total ?? 0)}
@@ -224,7 +273,9 @@ export default function VendorPaymentDetail() {
                 {/* Payment Method */}
                 {payment?.payment_method_name && (
                   <div className=" rounded-lg border border-gray-200 p-4">
-                    <div className="text-xs font-medium text-gray-500 mb-2">Payment Method</div>
+                    <div className="text-xs font-medium text-gray-500 mb-2">
+                      Payment Method
+                    </div>
                     <div className="text-sm font-semibold text-gray-900 font-mono text-xs">
                       {payment.payment_method_name}
                     </div>
@@ -233,11 +284,15 @@ export default function VendorPaymentDetail() {
 
                 {/* Currency and FX Rate */}
                 <div className=" rounded-lg border border-gray-200 p-4">
-                  <div className="text-xs font-medium text-gray-500 mb-2">Currency</div>
+                  <div className="text-xs font-medium text-gray-500 mb-2">
+                    Currency
+                  </div>
                   <div className="text-sm font-semibold text-gray-900">
                     {currencyCode}
                     {payment?.fx_rate && parseFloat(payment.fx_rate) !== 1 && (
-                      <span className="text-xs text-gray-500 ml-2">(FX: {parseFloat(payment.fx_rate).toFixed(6)})</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        (FX: {parseFloat(payment.fx_rate).toFixed(6)})
+                      </span>
                     )}
                   </div>
                 </div>
@@ -245,16 +300,22 @@ export default function VendorPaymentDetail() {
             </div>
 
             {/* Vendor Contact Information */}
-            {(payment?.vendor_email || payment?.vendor_phone || payment?.vendor_address_line1) && (
+            {(payment?.vendor_email ||
+              payment?.vendor_phone ||
+              payment?.vendor_address_line1) && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Vendor Contact Information</h3>
-                
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  Vendor Contact Information
+                </h3>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   {payment?.vendor_email && (
                     <div className=" rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Mail className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Email</span>
+                        <span className="text-xs font-medium text-gray-500">
+                          Email
+                        </span>
                       </div>
                       <div className="text-sm text-gray-900 break-all">
                         {payment.vendor_email}
@@ -266,7 +327,9 @@ export default function VendorPaymentDetail() {
                     <div className=" rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Phone className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Phone</span>
+                        <span className="text-xs font-medium text-gray-500">
+                          Phone
+                        </span>
                       </div>
                       <div className="text-sm text-gray-900">
                         {payment.vendor_phone}
@@ -278,16 +341,30 @@ export default function VendorPaymentDetail() {
                     <div className="md:col-span-2  rounded-lg border border-gray-200 p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <MapPin className="h-4 w-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-500">Address</span>
+                        <span className="text-xs font-medium text-gray-500">
+                          Address
+                        </span>
                       </div>
                       <div className="text-sm text-gray-900 space-y-1">
-                        {payment.vendor_address_line1 && <div>{payment.vendor_address_line1}</div>}
-                        {payment.vendor_address_line2 && <div>{payment.vendor_address_line2}</div>}
+                        {payment.vendor_address_line1 && (
+                          <div>{payment.vendor_address_line1}</div>
+                        )}
+                        {payment.vendor_address_line2 && (
+                          <div>{payment.vendor_address_line2}</div>
+                        )}
                         <div className="flex flex-wrap gap-2">
-                          {payment.vendor_address_city && <span>{payment.vendor_address_city}</span>}
-                          {payment.vendor_address_region && <span>{payment.vendor_address_region}</span>}
-                          {payment.vendor_address_postal_code && <span>{payment.vendor_address_postal_code}</span>}
-                          {payment.vendor_address_country && <span>{payment.vendor_address_country}</span>}
+                          {payment.vendor_address_city && (
+                            <span>{payment.vendor_address_city}</span>
+                          )}
+                          {payment.vendor_address_region && (
+                            <span>{payment.vendor_address_region}</span>
+                          )}
+                          {payment.vendor_address_postal_code && (
+                            <span>{payment.vendor_address_postal_code}</span>
+                          )}
+                          {payment.vendor_address_country && (
+                            <span>{payment.vendor_address_country}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -300,13 +377,16 @@ export default function VendorPaymentDetail() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="px-6 py-4  border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-gray-900">Invoice Allocations</h3>
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Invoice Allocations
+                  </h3>
                   <span className="text-sm text-gray-600">
-                    {allocations.length} allocation{allocations.length !== 1 ? 's' : ''}
+                    {allocations.length} allocation
+                    {allocations.length !== 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
-              
+
               {allocations.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -327,20 +407,27 @@ export default function VendorPaymentDetail() {
                       {allocations.map((allocation, idx) => (
                         <tr key={idx} className="hover:bg-slate-50">
                           <td className="px-6 py-4 text-sm text-gray-900">
-                            {formatDocumentSummary(allocation, 'bill')}
+                            {formatDocumentSummary(allocation, "bill")}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
                             {formatDocumentAmount(allocation)}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            {formatCurrency(allocation.amount_applied ?? 0)}
+                            {formatCurrency(
+                              allocation.amount_applied ??
+                                allocation.amountApplied ??
+                                0,
+                            )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot className=" border-t-2 border-gray-200">
                       <tr>
-                        <td colSpan={2} className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                        <td
+                          colSpan={2}
+                          className="px-6 py-4 text-right text-sm font-semibold text-gray-900"
+                        >
                           Total Allocated:
                         </td>
                         <td className="px-6 py-4 text-right text-sm font-bold text-gray-900">
@@ -353,11 +440,16 @@ export default function VendorPaymentDetail() {
               ) : (
                 <div className="px-6 py-12 text-center">
                   <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h4 className="text-lg font-medium text-gray-900 mb-2">No Allocations Yet</h4>
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">
+                    No Allocations Yet
+                  </h4>
                   <p className="text-sm text-gray-600 mb-4">
                     This payment hasn't been applied to any bills yet.
                   </p>
-                  <p className="text-xs text-gray-500">Allocate this payment from the payables workspace after posting if needed.</p>
+                  <p className="text-xs text-gray-500">
+                    Allocate this payment from the payables workspace after
+                    posting if needed.
+                  </p>
                 </div>
               )}
             </div>
@@ -369,13 +461,17 @@ export default function VendorPaymentDetail() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="h-5 w-5 text-green-600" />
-                <h3 className="text-base font-semibold text-gray-900">Payment Summary</h3>
+                <h3 className="text-base font-semibold text-gray-900">
+                  Payment Summary
+                </h3>
               </div>
 
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Currency</span>
-                  <span className="font-medium text-gray-900">{currencyCode}</span>
+                  <span className="font-medium text-gray-900">
+                    {currencyCode}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Total Amount</span>
@@ -403,59 +499,77 @@ export default function VendorPaymentDetail() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Unallocated</span>
-                  <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : unallocated > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
+                  <span
+                    className={`font-semibold ${unallocated < 0 ? "text-red-600" : unallocated > 0 ? "text-yellow-600" : "text-green-600"}`}
+                  >
                     {formatCurrency(unallocated)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-3 border-t border-gray-200">
                   <span className="text-gray-600">Status</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusColors[status] || statusColors.draft}`}
+                  >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Allocations</span>
-                  <span className="font-medium text-gray-900">{allocations.length}</span>
+                  <span className="font-medium text-gray-900">
+                    {allocations.length}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Timeline / Audit Info */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Timeline</h3>
-              
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Timeline
+              </h3>
+
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">Created</div>
+                  <div className="text-xs font-medium text-gray-500 mb-1">
+                    Created
+                  </div>
                   <div className="text-sm text-gray-900">
                     {formatDate(payment?.created_at, { includeTime: true })}
                   </div>
                 </div>
-                
+
                 <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1">Last Updated</div>
+                  <div className="text-xs font-medium text-gray-500 mb-1">
+                    Last Updated
+                  </div>
                   <div className="text-sm text-gray-900">
                     {formatDate(payment?.updated_at, { includeTime: true })}
                   </div>
                 </div>
-                
+
                 {payment?.posted_at && (
                   <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">Posted</div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      Posted
+                    </div>
                     <div className="text-sm text-gray-900">
                       {formatDate(payment.posted_at, { includeTime: true })}
                     </div>
                   </div>
                 )}
-                
+
                 {payment?.voided_at && (
                   <div>
-                    <div className="text-xs font-medium text-gray-500 mb-1">Voided</div>
+                    <div className="text-xs font-medium text-gray-500 mb-1">
+                      Voided
+                    </div>
                     <div className="text-sm text-gray-900">
                       {formatDate(payment.voided_at, { includeTime: true })}
                     </div>
                     {payment.void_reason && (
-                      <div className="text-sm text-gray-700 mt-1 italic">"{payment.void_reason}"</div>
+                      <div className="text-sm text-gray-700 mt-1 italic">
+                        "{payment.void_reason}"
+                      </div>
                     )}
                   </div>
                 )}
@@ -463,73 +577,126 @@ export default function VendorPaymentDetail() {
             </div>
             {taxDetail.hasTax ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Tax Summary</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  Tax Summary
+                </h3>
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between"><span className="text-gray-600">Pricing Mode</span><span className="font-medium text-gray-900 capitalize">{taxDetail.pricingMode}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.subtotal)}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-600">Tax</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.taxTotal)}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-600">Withholding</span><span className="font-medium text-gray-900">{formatCurrency(taxDetail.summary.withholdingTotal)}</span></div>
-                  <div className="flex justify-between border-t border-gray-200 pt-2"><span className="font-semibold text-gray-900">Gross total</span><span className="font-semibold text-gray-900">{formatCurrency(taxDetail.summary.grandTotal)}</span></div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Pricing Mode</span>
+                    <span className="font-medium text-gray-900 capitalize">
+                      {taxDetail.pricingMode}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium text-gray-900">
+                      {formatCurrency(taxDetail.summary.subtotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tax</span>
+                    <span className="font-medium text-gray-900">
+                      {formatCurrency(taxDetail.summary.taxTotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Withholding</span>
+                    <span className="font-medium text-gray-900">
+                      {formatCurrency(taxDetail.summary.withholdingTotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 pt-2">
+                    <span className="font-semibold text-gray-900">
+                      Gross total
+                    </span>
+                    <span className="font-semibold text-gray-900">
+                      {formatCurrency(taxDetail.summary.grandTotal)}
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : null}
-
           </div>
         </div>
       </div>
 
       {/* Action Modals */}
-      <Modal 
-        open={!!action} 
-        onClose={() => setAction(null)} 
+      <Modal
+        open={!!action}
+        onClose={() => setAction(null)}
         title={
-          action === 'submit' ? 'Submit for Approval' :
-          action === 'approve' ? 'Approve Payment' :
-          action === 'reject' ? 'Reject Payment' :
-          action === 'post' ? 'Post Payment' :
-          action === 'void' ? 'Void Payment' : 'Action'
+          action === "submit"
+            ? "Submit for Approval"
+            : action === "approve"
+              ? "Approve Payment"
+              : action === "reject"
+                ? "Reject Payment"
+                : action === "post"
+                  ? "Post Payment"
+                  : action === "void"
+                    ? "Void Payment"
+                    : "Action"
         }
       >
         <div className="space-y-4">
-          {(action === 'submit' || action === 'approve' || action === 'reject') && (
+          {(action === "submit" ||
+            action === "approve" ||
+            action === "reject") && (
             <div>
-              {action === 'submit' ? (
+              {action === "submit" ? (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">This will send the payment into the approval workflow.</p>
+                  <p className="text-sm text-blue-800">
+                    This will send the payment into the approval workflow.
+                  </p>
                 </div>
               ) : (
                 <>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Comment {action === 'reject' ? '(recommended)' : '(optional)'}
+                    Comment{" "}
+                    {action === "reject" ? "(recommended)" : "(optional)"}
                   </label>
                   <Textarea
                     rows={4}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder={action === 'reject' ? 'Explain why this payment is being rejected...' : 'Add an approval comment...'}
+                    placeholder={
+                      action === "reject"
+                        ? "Explain why this payment is being rejected..."
+                        : "Add an approval comment..."
+                    }
                   />
                 </>
               )}
             </div>
           )}
 
-          {action === 'post' && (
+          {action === "post" && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> Posting finalizes the payment and books it to the general ledger. This action cannot be undone (but the payment can be voided later if needed).
+                <strong>Note:</strong> Posting finalizes the payment and books
+                it to the general ledger. This action cannot be undone (but the
+                payment can be voided later if needed).
               </p>
               <div className="mt-3 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-blue-800">Payment Amount:</span>
-                  <span className="font-semibold text-blue-900">{formatCurrency(paymentTotal)}</span>
+                  <span className="font-semibold text-blue-900">
+                    {formatCurrency(paymentTotal)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-blue-800">Allocated Amount:</span>
-                  <span className="font-semibold text-blue-900">{formatCurrency(allocatedTotal)}</span>
+                  <span className="font-semibold text-blue-900">
+                    {formatCurrency(allocatedTotal)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-blue-200">
-                  <span className="text-blue-800 font-semibold">Unallocated Amount:</span>
-                  <span className={`font-bold ${unallocated < 0 ? 'text-red-600' : 'text-blue-900'}`}>
+                  <span className="text-blue-800 font-semibold">
+                    Unallocated Amount:
+                  </span>
+                  <span
+                    className={`font-bold ${unallocated < 0 ? "text-red-600" : "text-blue-900"}`}
+                  >
                     {formatCurrency(unallocated)}
                   </span>
                 </div>
@@ -537,7 +704,7 @@ export default function VendorPaymentDetail() {
             </div>
           )}
 
-          {action === 'void' && (
+          {action === "void" && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Reason <span className="text-red-500">*</span>
@@ -550,7 +717,8 @@ export default function VendorPaymentDetail() {
               />
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <strong>Warning:</strong> Voiding this payment will reverse all accounting entries. This action cannot be undone.
+                  <strong>Warning:</strong> Voiding this payment will reverse
+                  all accounting entries. This action cannot be undone.
                 </p>
               </div>
             </div>
@@ -558,19 +726,29 @@ export default function VendorPaymentDetail() {
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button 
-            variant="outline" 
-            onClick={() => { setAction(null); setComment(''); setReason(''); }}
+          <Button
+            variant="outline"
+            onClick={() => {
+              setAction(null);
+              setComment("");
+              setReason("");
+            }}
             className="border-gray-300"
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={() => run.mutate()}
-            disabled={run.isPending || (action === 'void' && reason.trim().length < 2)}
-            className={action === 'void' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}
+            disabled={
+              run.isPending || (action === "void" && reason.trim().length < 2)
+            }
+            className={
+              action === "void"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-green-600 hover:bg-green-700"
+            }
           >
-            {run.isPending ? 'Processing...' : 'Confirm'}
+            {run.isPending ? "Processing..." : "Confirm"}
           </Button>
         </div>
       </Modal>
