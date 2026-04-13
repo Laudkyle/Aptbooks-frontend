@@ -114,9 +114,13 @@ export const qk = {
   reportTaxTransactions: (qs) => ['reports', 'tax', 'transactions', qs ?? {}],
   reportTaxReconciliation: (qs) => ['reports', 'tax', 'reconciliation', qs ?? {}],
   reportTaxDiagnostics: (qs) => ['reports', 'tax', 'diagnostics', qs ?? {}],
-  taxAdjustments: (qs) => ['tax', 'adjustments', qs ?? {}]
-
-,
+  taxAdjustments: (qs) => ['tax', 'adjustments', qs ?? {}],
+  withholdingDashboard: (qs) => ['tax', 'withholding', 'dashboard', qs ?? {}],
+  withholdingOpenItems: (qs) => ['tax', 'withholding', 'openItems', qs ?? {}],
+  withholdingRemittances: (qs) => ['tax', 'withholding', 'remittances', qs ?? {}],
+  withholdingRemittance: (id) => ['tax', 'withholding', 'remittances', id],
+  withholdingCertificates: (qs) => ['tax', 'withholding', 'certificates', qs ?? {}],
+  withholdingCertificate: (id) => ['tax', 'withholding', 'certificates', id],
   // Phase 6 — Assets
   assetCategories: ['assets', 'categories'],
   assetCategory: (id) => ['assets', 'categories', id],

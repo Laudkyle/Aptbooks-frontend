@@ -37,5 +37,28 @@ export function makeTaxApi(http) {
     listCountryPacks: async (qs) => (await http.get(endpoints.accounting.tax.countryPacks(qs))).data,
     listAutomationRules: async (qs) => (await http.get(endpoints.accounting.tax.automationRules(qs))).data,
     listFilingAdapters: async (qs) => (await http.get(endpoints.accounting.tax.filingAdapters(qs))).data,
+
+    getWithholdingDashboard: async (qs) => (await http.get(endpoints.accounting.tax.withholdingDashboard(qs))).data?.data ?? {},
+    listWithholdingOpenItems: async (qs) => (await http.get(endpoints.accounting.tax.withholdingOpenItems(qs))).data,
+
+    listWithholdingRemittances: async (qs) => (await http.get(endpoints.accounting.tax.withholdingRemittances(qs))).data,
+    createWithholdingRemittance: async (body) => (await http.post(endpoints.accounting.tax.withholdingRemittances({}), body, { headers: ensureIdempotencyKey() })).data,
+    getWithholdingRemittance: async (id) => (await http.get(endpoints.accounting.tax.withholdingRemittanceDetail(id))).data,
+    updateWithholdingRemittance: async (id, body) => (await http.patch(endpoints.accounting.tax.withholdingRemittanceDetail(id), body)).data,
+    submitWithholdingRemittance: async (id) => (await http.post(endpoints.accounting.tax.withholdingRemittanceSubmit(id), {}, { headers: ensureIdempotencyKey() })).data,
+    approveWithholdingRemittance: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingRemittanceApprove(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    rejectWithholdingRemittance: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingRemittanceReject(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    postWithholdingRemittance: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingRemittancePost(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    voidWithholdingRemittance: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingRemittanceVoid(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+
+    listWithholdingCertificates: async (qs) => (await http.get(endpoints.accounting.tax.withholdingCertificates(qs))).data,
+    createWithholdingCertificate: async (body) => (await http.post(endpoints.accounting.tax.withholdingCertificates({}), body, { headers: ensureIdempotencyKey() })).data,
+    getWithholdingCertificate: async (id) => (await http.get(endpoints.accounting.tax.withholdingCertificateDetail(id))).data,
+    updateWithholdingCertificate: async (id, body) => (await http.patch(endpoints.accounting.tax.withholdingCertificateDetail(id), body)).data,
+    submitWithholdingCertificate: async (id) => (await http.post(endpoints.accounting.tax.withholdingCertificateSubmit(id), {}, { headers: ensureIdempotencyKey() })).data,
+    approveWithholdingCertificate: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingCertificateApprove(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    rejectWithholdingCertificate: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingCertificateReject(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    postWithholdingCertificate: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingCertificatePost(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
+    voidWithholdingCertificate: async (id, body) => (await http.post(endpoints.accounting.tax.withholdingCertificateVoid(id), body ?? {}, { headers: ensureIdempotencyKey() })).data,
   };
 }

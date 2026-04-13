@@ -506,6 +506,14 @@ export default function InvoiceDetail() {
                   </span>
                 </div>
               </div>
+              {withholdingTotal > 0 ? (
+                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Customer receipts settle the net collectible only. The withheld portion should be cleared later from the withholding workspace through a certificate or reconciliation.
+                  <div className="mt-3">
+                    <Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>
+                  </div>
+                </div>
+              ) : null}
               <div className="mt-4 grid gap-2">
                 <Button
                   onClick={() => navigate(ROUTES.customerReceiptNew)}

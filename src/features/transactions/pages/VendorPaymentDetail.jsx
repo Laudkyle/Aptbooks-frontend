@@ -19,6 +19,7 @@ import { useApi } from "../../../shared/hooks/useApi.js";
 import { qk } from "../../../shared/query/keys.js";
 import { makeVendorPaymentsApi } from "../api/vendorPayments.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
+import { ROUTES } from "../../../app/constants/routes.js";
 import { buildTaxDetailModel } from "../utils/taxDetail.js";
 
 import { Button } from "../../../shared/components/ui/Button.jsx";
@@ -605,6 +606,16 @@ export default function VendorPaymentDetail() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            ) : null}
+
+            {allocations.some((allocation) => Number(allocation?.invoice?.withholding_total ?? allocation?.invoice?.withholdingTotal ?? allocation?.bill?.withholding_total ?? allocation?.bill?.withholdingTotal ?? 0) > 0) ? (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-3">Withholding follow-up</h3>
+                <p className="text-sm text-gray-600">This vendor payment settled net document balances. Any withheld vendor tax still needs remittance processing in the withholding workspace.</p>
+                <div className="mt-4">
+                  <Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>
                 </div>
               </div>
             ) : null}

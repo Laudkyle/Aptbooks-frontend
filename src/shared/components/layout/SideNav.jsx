@@ -259,6 +259,12 @@ export function SideNav() {
               label="Tax"
               collapsed={!sidebarOpen}
             />
+            <Item
+              to={ROUTES.accountingTaxWithholding}
+              icon={ReceiptIndianRupee}
+              label="Withholding"
+              collapsed={!sidebarOpen}
+            />
           </PermissionGate>
           <Item
             to={ROUTES.accountingAccruals}

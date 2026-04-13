@@ -56,6 +56,11 @@ export const ROUTES = {
   accountingImports: '/accounting/imports',
   accountingFx: '/accounting/fx',
   accountingTax: '/accounting/tax',
+  accountingTaxWithholding: '/accounting/tax/withholding',
+  accountingTaxWithholdingRemittanceNew: '/accounting/tax/withholding/remittances/new',
+  accountingTaxWithholdingRemittanceDetail: (id=':id') => `/accounting/tax/withholding/remittances/${id}`,
+  accountingTaxWithholdingCertificateNew: '/accounting/tax/withholding/certificates/new',
+  accountingTaxWithholdingCertificateDetail: (id=':id') => `/accounting/tax/withholding/certificates/${id}`,
   accountingAccruals: '/accounting/accruals',
   accountingAccrualNew: '/accounting/accruals/new',
   accountingReconciliation: '/accounting/reconciliation'

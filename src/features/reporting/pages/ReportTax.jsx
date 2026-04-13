@@ -15,6 +15,8 @@ import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { ROUTES } from '../../../app/constants/routes.js';
+import { useNavigate } from 'react-router-dom';
 
 function formatLabel(value) {
   return String(value ?? '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').replace(/^./, (c) => c.toUpperCase());
@@ -28,6 +30,7 @@ function today() { return new Date().toISOString().slice(0, 10); }
 function startOfMonth() { const d = new Date(); d.setDate(1); return d.toISOString().slice(0, 10); }
 
 export default function ReportTax() {
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeReportingApi(http), [http]);
   const [tab, setTab] = useState('summary');
@@ -68,7 +71,7 @@ export default function ReportTax() {
 
   return (
     <div className="space-y-6 pb-8">
-      <PageHeader title="Tax reporting" subtitle="Cross-module reporting for wave 1–3 capabilities: reconciliation, withholding, recoverability, e-invoicing, jurisdiction returns, real-time filings, and country-pack readiness." icon={ReceiptText} />
+      <PageHeader title="Tax reporting" subtitle="Cross-module reporting for wave 1–3 capabilities: reconciliation, withholding, recoverability, e-invoicing, jurisdiction returns, real-time filings, and country-pack readiness." icon={ReceiptText} actions={<Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>} />
       <Tabs value={tab} onChange={setTab} tabs={[{ value: 'summary', label: 'Summary' }, { value: 'returns', label: 'Returns' }, { value: 'transactions', label: 'Transactions' }, { value: 'reconciliation', label: 'Reconciliation' }, { value: 'withholding', label: 'Withholding' }, { value: 'recoverability', label: 'Recoverability' }, { value: 'einvoicing', label: 'E-invoicing' }, { value: 'jurisdictionReturns', label: 'Jurisdiction returns' }, { value: 'realtimeFilings', label: 'Real-time filings' }, { value: 'countryPacks', label: 'Country packs' }]} />
       <ContentCard title="Filters">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -89,6 +92,7 @@ export default function ReportTax() {
           <ContentCard title="Highlights">
             <div className="space-y-2 text-sm text-text-body">
               <p>This workspace now includes withholding tax, recoverability and non-deductible tax analytics.</p>
+              <p>Withholding workflow status now distinguishes draft, submitted, approved, posted, rejected, and voided lifecycle states.</p>
               <p>E-invoicing readiness and near-real-time filing visibility are exposed on dedicated tabs.</p>
               <p>Jurisdiction-specific return output and country-pack readiness can be reviewed without leaving reporting.</p>
             </div>

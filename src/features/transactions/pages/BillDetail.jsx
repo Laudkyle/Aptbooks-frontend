@@ -516,6 +516,14 @@ export default function BillDetail() {
                   </span>
                 </div>
               </div>
+              {withholdingTotal > 0 ? (
+                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Vendor payments settle the net payable only. The withheld portion should be remitted later from the withholding workspace.
+                  <div className="mt-3">
+                    <Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>
+                  </div>
+                </div>
+              ) : null}
               <div className="mt-4 grid gap-2">
                 <Button
                   onClick={() => navigate(ROUTES.vendorPaymentNew)}

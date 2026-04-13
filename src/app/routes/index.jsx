@@ -272,6 +272,21 @@ const FxRates = lazy(() =>
 const TaxAdmin = lazy(() =>
   import("../../features/accounting/tax/pages/TaxAdmin.jsx")
 );
+const WithholdingWorkspace = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingWorkspace.jsx")
+);
+const WithholdingRemittanceCreate = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingRemittanceCreate.jsx")
+);
+const WithholdingRemittanceDetail = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingRemittanceDetail.jsx")
+);
+const WithholdingCertificateCreate = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingCertificateCreate.jsx")
+);
+const WithholdingCertificateDetail = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingCertificateDetail.jsx")
+);
 
 const AccrualsHub = lazy(() =>
   import("../../features/accounting/accruals/pages/AccrualsHub.jsx")
@@ -820,6 +835,56 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.taxRead]}>
                 <Lazy>
                   <TaxAdmin />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholding,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <WithholdingWorkspace />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholdingRemittanceNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxManage]}>
+                <Lazy>
+                  <WithholdingRemittanceCreate />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholdingRemittanceDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <WithholdingRemittanceDetail />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholdingCertificateNew,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxManage]}>
+                <Lazy>
+                  <WithholdingCertificateCreate />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholdingCertificateDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <WithholdingCertificateDetail />
                 </Lazy>
               </RequirePermission>
             ),
