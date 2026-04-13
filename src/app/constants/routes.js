@@ -57,6 +57,7 @@ export const ROUTES = {
   accountingFx: '/accounting/fx',
   accountingTax: '/accounting/tax',
   accountingTaxWithholding: '/accounting/tax/withholding',
+  accountingTaxWithholdingOpenItemDetail: (direction=':direction', sourceType=':sourceType', sourceId=':sourceId') => `/accounting/tax/withholding/open-items/${direction}/${sourceType}/${sourceId}`,
   accountingTaxWithholdingRemittanceNew: '/accounting/tax/withholding/remittances/new',
   accountingTaxWithholdingRemittanceDetail: (id=':id') => `/accounting/tax/withholding/remittances/${id}`,
   accountingTaxWithholdingCertificateNew: '/accounting/tax/withholding/certificates/new',

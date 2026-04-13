@@ -275,6 +275,9 @@ const TaxAdmin = lazy(() =>
 const WithholdingWorkspace = lazy(() =>
   import("../../features/accounting/tax/pages/WithholdingWorkspace.jsx")
 );
+const WithholdingOpenItemDetail = lazy(() =>
+  import("../../features/accounting/tax/pages/WithholdingOpenItemDetail.jsx")
+);
 const WithholdingRemittanceCreate = lazy(() =>
   import("../../features/accounting/tax/pages/WithholdingRemittanceCreate.jsx")
 );
@@ -845,6 +848,16 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.taxRead]}>
                 <Lazy>
                   <WithholdingWorkspace />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxWithholdingOpenItemDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <WithholdingOpenItemDetail />
                 </Lazy>
               </RequirePermission>
             ),

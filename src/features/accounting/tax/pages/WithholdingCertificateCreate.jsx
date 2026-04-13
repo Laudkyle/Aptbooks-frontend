@@ -1,63 +1,51 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileCheck2 } from 'lucide-react';
 
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { qk } from '../../../../shared/query/keys.js';
 import { makeTaxApi } from '../api/tax.api.js';
-import { makeCoaApi } from '../../chartOfAccounts/api/coa.api.js';
 import { ROUTES } from '../../../../app/constants/routes.js';
 import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../../shared/components/ui/Textarea.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { normalizeRows } from '../../../../shared/tax/frontendTax.js';
+import { AccountSelect } from '../../../../shared/components/forms/AccountSelect.jsx';
+import { JurisdictionSelect } from '../../../../shared/components/forms/JurisdictionSelect.jsx';
+import { TaxCodeSelect } from '../../../../shared/components/forms/TaxCodeSelect.jsx';
+import { PartnerSelect } from '../../../../shared/components/forms/PartnerSelect.jsx';
 
 export default function WithholdingCertificateCreate() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { http } = useApi();
   const api = useMemo(() => makeTaxApi(http), [http]);
-  const coaApi = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
+  const preset = location.state?.preselectedOpenItem;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     certificateNo: '',
-    customerId: '',
-    jurisdictionId: '',
-    taxCodeId: '',
+    customerId: preset?.partner_id || '',
+    jurisdictionId: preset?.jurisdiction_id || '',
+    taxCodeId: preset?.tax_code_id || '',
     certificateDate: new Date().toISOString().slice(0, 10),
     counterAccountId: '',
     issuedBy: '',
     reference: '',
     memo: '',
-  });
-  const [selectedIds, setSelectedIds] = useState([]);
+  }));
+  const [selectedIds, setSelectedIds] = useState(() => (preset ? [preset.source_id || preset.id] : []));
 
   const openItemsQ = useQuery({
     queryKey: qk.withholdingOpenItems({ direction: 'receivable' }),
     queryFn: () => api.listWithholdingOpenItems({ direction: 'receivable' }),
   });
-  const accountsQ = useQuery({
-    queryKey: qk.coaAccounts({ includeArchived: 'false', group: 'certificate' }),
-    queryFn: () => coaApi.list({ includeArchived: 'false', limit: 500 }),
-  });
-  const jurisdictionsQ = useQuery({
-    queryKey: ['tax-juris', 'withholding-certificate-create'],
-    queryFn: api.listJurisdictions,
-  });
-  const codesQ = useQuery({
-    queryKey: ['tax-codes-admin', 'withholding-certificate-create'],
-    queryFn: () => api.listCodes({ taxCategory: 'withholding' }),
-  });
 
   const openItems = normalizeRows(openItemsQ.data);
-  const accounts = normalizeRows(accountsQ.data);
-  const jurisdictions = normalizeRows(jurisdictionsQ.data);
-  const codes = normalizeRows(codesQ.data);
 
   const eligibleItems = openItems.filter((item) => {
     if (form.customerId && item.partner_id && item.partner_id !== form.customerId) return false;
@@ -94,10 +82,6 @@ export default function WithholdingCertificateCreate() {
     onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to create certificate'),
   });
 
-  const accountOptions = [{ value: '', label: 'Select counter account' }].concat(accounts.map((account) => ({ value: account.id, label: `${account.code || ''} ${account.name || account.accountName || ''}`.trim() })));
-  const jurisdictionOptions = [{ value: '', label: 'All jurisdictions' }].concat(jurisdictions.map((row) => ({ value: row.id, label: `${row.code} — ${row.name}` })));
-  const codeOptions = [{ value: '', label: 'All withholding codes' }].concat(codes.map((row) => ({ value: row.id, label: `${row.code} — ${row.name}` })));
-
   return (
     <div className="space-y-6 pb-8">
       <PageHeader
@@ -111,11 +95,11 @@ export default function WithholdingCertificateCreate() {
         <ContentCard title="Certificate details">
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Certificate number" value={form.certificateNo} onChange={(e) => setForm((s) => ({ ...s, certificateNo: e.target.value }))} />
-            <Input label="Customer ID" value={form.customerId} onChange={(e) => setForm((s) => ({ ...s, customerId: e.target.value }))} />
-            <Select label="Jurisdiction" value={form.jurisdictionId} onChange={(e) => setForm((s) => ({ ...s, jurisdictionId: e.target.value }))} options={jurisdictionOptions} />
-            <Select label="Tax code" value={form.taxCodeId} onChange={(e) => setForm((s) => ({ ...s, taxCodeId: e.target.value }))} options={codeOptions} />
+            <PartnerSelect label="Customer" type="customer" value={form.customerId} onChange={(e) => setForm((s) => ({ ...s, customerId: e.target.value }))} allowEmpty />
+            <JurisdictionSelect label="Jurisdiction" value={form.jurisdictionId} onChange={(e) => setForm((s) => ({ ...s, jurisdictionId: e.target.value }))} allowEmpty />
+            <TaxCodeSelect label="Tax code" value={form.taxCodeId} onChange={(e) => setForm((s) => ({ ...s, taxCodeId: e.target.value }))} query={{ status: 'active', taxCategory: 'withholding' }} allowEmpty />
             <Input label="Certificate date" type="date" value={form.certificateDate} onChange={(e) => setForm((s) => ({ ...s, certificateDate: e.target.value }))} />
-            <Select label="Counter account" value={form.counterAccountId} onChange={(e) => setForm((s) => ({ ...s, counterAccountId: e.target.value }))} options={accountOptions} />
+            <AccountSelect label="Counter account" value={form.counterAccountId} onChange={(e) => setForm((s) => ({ ...s, counterAccountId: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'LIABILITY', 'EQUITY'] }} />
             <Input label="Issued by" value={form.issuedBy} onChange={(e) => setForm((s) => ({ ...s, issuedBy: e.target.value }))} />
             <Input label="Reference" value={form.reference} onChange={(e) => setForm((s) => ({ ...s, reference: e.target.value }))} />
             <div className="md:col-span-2"><Textarea label="Memo" value={form.memo} onChange={(e) => setForm((s) => ({ ...s, memo: e.target.value }))} rows={4} /></div>

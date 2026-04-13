@@ -176,7 +176,7 @@ export default function WithholdingWorkspace() {
 
       {tab === 'openItems' ? (
         <ContentCard title="Open withholding items" actions={<Badge tone="success">{openItems.length} rows</Badge>}>
-          <DataTable columns={openItemColumns} rows={activeRows} isLoading={activeLoading} emptyTitle="No open withholding items" emptyDescription="Try widening your filters or post more source documents." onRowClick={(row) => { const t = String(row.source_type || '').toLowerCase(); if (t === 'invoice' && row.source_id) navigate(ROUTES.salesInvoiceDetail ? ROUTES.salesInvoiceDetail(row.source_id) : ROUTES.accountingTaxWithholding); if (t === 'bill' && row.source_id) navigate(ROUTES.purchaseBillDetail ? ROUTES.purchaseBillDetail(row.source_id) : ROUTES.accountingTaxWithholding); }} />
+          <DataTable columns={openItemColumns} rows={activeRows} isLoading={activeLoading} emptyTitle="No open withholding items" emptyDescription="Open items appear here until you create and complete the remittance or certificate workflow." onRowClick={(row) => navigate(ROUTES.accountingTaxWithholdingOpenItemDetail(String(row.direction || 'payable').toLowerCase(), String(row.source_type || 'document').toLowerCase(), row.source_id || row.id))} />
         </ContentCard>
       ) : null}
 
