@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Landmark } from 'lucide-react';
@@ -57,6 +57,13 @@ export default function WithholdingRemittanceCreate() {
   });
 
   const selectedItems = eligibleItems.filter((item) => selectedIds.includes(item.source_id || item.id));
+
+  useEffect(() => {
+    setSelectedIds((current) =>
+      current.filter((id) => eligibleItems.some((item) => (item.source_id || item.id) === id))
+    );
+  }, [eligibleItems]);
+
   const totalAmount = selectedItems.reduce((sum, item) => sum + Number(item.outstanding_amount ?? item.available_amount ?? 0), 0);
 
   const create = useMutation({
@@ -111,7 +118,7 @@ export default function WithholdingRemittanceCreate() {
           </div>
         </ContentCard>
 
-        <ContentCard title="Eligible items" actions={<div className="text-sm font-medium text-text-strong">{selectedItems.length} selected</div>}>
+        <ContentCard title="Eligible items" actions={<div className="flex items-center gap-3"><button type="button" className="text-xs text-brand-600 hover:text-brand-700" onClick={() => setSelectedIds(eligibleItems.map((item) => item.source_id || item.id))}>Select all visible</button><button type="button" className="text-xs text-text-muted hover:text-text-strong" onClick={() => setSelectedIds([])}>Clear</button><div className="text-sm font-medium text-text-strong">{selectedItems.length} selected</div></div>}>
           <div className="space-y-3 max-h-[34rem] overflow-auto pr-1">
             {eligibleItems.map((item) => {
               const key = item.source_id || item.id;

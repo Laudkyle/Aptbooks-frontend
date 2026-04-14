@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Building2, Save, ShieldCheck } from 'lucide-react';
@@ -20,56 +20,7 @@ import { TaxCodeSelect } from '../../../shared/components/forms/TaxCodeSelect.js
 import { JurisdictionSelect } from '../../../shared/components/forms/JurisdictionSelect.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
-import { buildPartnerTaxProfilePayload } from '../../../shared/tax/frontendTax.js';
-
-const TAX_TREATMENT_OPTIONS = {
-  customer: [
-    { value: 'standard_output', label: 'Standard output tax' },
-    { value: 'reverse_charge', label: 'Reverse charge' },
-    { value: 'exempt', label: 'Exempt' },
-    { value: 'zero_rated', label: 'Zero rated' }
-  ],
-  vendor: [
-    { value: 'standard_input', label: 'Standard input tax' },
-    { value: 'reverse_charge', label: 'Reverse charge' },
-    { value: 'exempt', label: 'Exempt' },
-    { value: 'zero_rated', label: 'Zero rated' }
-  ]
-};
-
-function normalizeFormForSubmit(form) {
-  const isCustomer = form.type === 'customer';
-  const isVendor = form.type === 'vendor';
-  const isExempt = form.taxTreatment === 'exempt';
-  const isReverseCharge = form.taxTreatment === 'reverse_charge';
-  const withholdingEnabled = !!form.withholdingEnabled;
-
-  return {
-    ...form,
-
-    defaultReceivableAccountId: isCustomer ? form.defaultReceivableAccountId : '',
-    defaultPayableAccountId: isVendor ? form.defaultPayableAccountId : '',
-
-    salesTaxCodeId: isCustomer && !isExempt ? form.salesTaxCodeId : '',
-    purchaseTaxCodeId: isVendor && !isExempt ? form.purchaseTaxCodeId : '',
-
-    defaultTaxCodeId: isExempt ? '' : form.defaultTaxCodeId,
-
-    withholdingTaxCodeId: withholdingEnabled ? form.withholdingTaxCodeId : '',
-    withholdingRate: withholdingEnabled ? form.withholdingRate : '',
-
-    recoverabilityPercent: isVendor && !isExempt ? form.recoverabilityPercent : '',
-
-    exemptionReasonCode: isExempt ? form.exemptionReasonCode : '',
-    exemptionCertificateNumber: isExempt ? form.exemptionCertificateNumber : '',
-    exemptionExpiryDate: isExempt ? form.exemptionExpiryDate : '',
-
-    reverseChargeEligible:
-      isVendor || isReverseCharge ? !!form.reverseChargeEligible : false,
-
-    buyerReference: isCustomer ? form.buyerReference : ''
-  };
-}
+import { PARTNER_TAX_TREATMENT_OPTIONS, buildPartnerTaxProfilePayload, getPartnerTaxFormVisibility, normalizePartnerTaxFormForSubmit, normalizePartnerTaxFormState } from '../../../shared/tax/frontendTax.js';
 
 export default function PartnerCreate() {
   const { http } = useApi();
@@ -81,7 +32,7 @@ export default function PartnerCreate() {
   const initialType = searchParams.get('type') === 'vendor' ? 'vendor' : 'customer';
   const [tab, setTab] = useState('core');
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => normalizePartnerTaxFormState({
     type: initialType,
     name: '',
     code: '',
@@ -115,98 +66,30 @@ export default function PartnerCreate() {
     eInvoiceScheme: '',
     buyerReference: '',
     filingCurrency: 'USD'
-  });
+  }));
 
   const set = (key, value) => {
-    setForm((s) => ({ ...s, [key]: value }));
+    setForm((s) => normalizePartnerTaxFormState({ ...s, [key]: value }));
   };
 
-  const isCustomer = form.type === 'customer';
-  const isVendor = form.type === 'vendor';
-  const isExempt = form.taxTreatment === 'exempt';
-  const isReverseCharge = form.taxTreatment === 'reverse_charge';
-  const showDefaultReceivable = isCustomer;
-  const showDefaultPayable = isVendor;
-  const showSalesTaxCode = isCustomer && !isExempt;
-  const showPurchaseTaxCode = isVendor && !isExempt;
-  const showDefaultTaxCode = !isExempt;
-  const showRecoverability = isVendor && !isExempt;
-  const showWithholdingSection = form.withholdingEnabled;
-  const showReverseChargeEligible = isVendor || isReverseCharge;
-  const showExemptionFields = isExempt;
-  const showBuyerReference = isCustomer;
-
-  useEffect(() => {
-    setForm((s) => {
-      const next = { ...s };
-
-      if (s.type === 'customer') {
-        next.defaultPayableAccountId = '';
-        next.purchaseTaxCodeId = '';
-        next.recoverabilityPercent = '';
-        if (s.taxTreatment === 'standard_input') {
-          next.taxTreatment = 'standard_output';
-        }
-        if (!isReverseCharge) {
-          next.reverseChargeEligible = false;
-        }
-      }
-
-      if (s.type === 'vendor') {
-        next.defaultReceivableAccountId = '';
-        next.salesTaxCodeId = '';
-        next.buyerReference = '';
-        if (!next.recoverabilityPercent) next.recoverabilityPercent = '100';
-        if (s.taxTreatment === 'standard_output') {
-          next.taxTreatment = 'standard_input';
-        }
-      }
-
-      return next;
-    });
-  }, [form.type]);
-
-  useEffect(() => {
-    if (!form.withholdingEnabled) {
-      setForm((s) => ({
-        ...s,
-        withholdingTaxCodeId: '',
-        withholdingRate: ''
-      }));
-    }
-  }, [form.withholdingEnabled]);
-
-  useEffect(() => {
-    if (!isExempt) {
-      setForm((s) => ({
-        ...s,
-        exemptionReasonCode: '',
-        exemptionCertificateNumber: '',
-        exemptionExpiryDate: ''
-      }));
-    } else {
-      setForm((s) => ({
-        ...s,
-        defaultTaxCodeId: '',
-        purchaseTaxCodeId: '',
-        salesTaxCodeId: '',
-        recoverabilityPercent: ''
-      }));
-    }
-  }, [isExempt]);
-
-  useEffect(() => {
-    if (!(isVendor || isReverseCharge)) {
-      setForm((s) => ({
-        ...s,
-        reverseChargeEligible: false
-      }));
-    }
-  }, [isVendor, isReverseCharge]);
+  const {
+    isCustomer,
+    isVendor,
+    showDefaultReceivable,
+    showDefaultPayable,
+    showSalesTaxCode,
+    showPurchaseTaxCode,
+    showDefaultTaxCode,
+    showRecoverability,
+    showWithholdingSection,
+    showReverseChargeEligible,
+    showExemptionFields,
+    showBuyerReference
+  } = getPartnerTaxFormVisibility(form);
 
   const create = useMutation({
     mutationFn: async () => {
-      const clean = normalizeFormForSubmit(form);
+      const clean = normalizePartnerTaxFormForSubmit(form);
 
       const created = await api.create({
         type: clean.type,
@@ -428,7 +311,7 @@ export default function PartnerCreate() {
                 label="Tax treatment"
                 value={form.taxTreatment}
                 onChange={(e) => set('taxTreatment', e.target.value)}
-                options={TAX_TREATMENT_OPTIONS[form.type]}
+                options={PARTNER_TAX_TREATMENT_OPTIONS[form.type]}
               />
 
               {showDefaultTaxCode ? (

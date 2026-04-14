@@ -301,3 +301,84 @@ export function buildPartnerTaxProfilePayload(state = {}) {
     }
   };
 }
+
+
+export const PARTNER_TAX_TREATMENT_OPTIONS = {
+  customer: [
+    { value: 'standard_output', label: 'Standard output tax' },
+    { value: 'reverse_charge', label: 'Reverse charge' },
+    { value: 'exempt', label: 'Exempt' },
+    { value: 'zero_rated', label: 'Zero rated' }
+  ],
+  vendor: [
+    { value: 'standard_input', label: 'Standard input tax' },
+    { value: 'reverse_charge', label: 'Reverse charge' },
+    { value: 'exempt', label: 'Exempt' },
+    { value: 'zero_rated', label: 'Zero rated' }
+  ]
+};
+
+export function getPartnerTaxFormVisibility({ type = 'customer', taxTreatment = '', withholdingEnabled = false } = {}) {
+  const isCustomer = type === 'customer';
+  const isVendor = type === 'vendor';
+  const isExempt = taxTreatment === 'exempt';
+  const isReverseCharge = taxTreatment === 'reverse_charge';
+  return {
+    isCustomer,
+    isVendor,
+    isExempt,
+    isReverseCharge,
+    showDefaultReceivable: isCustomer,
+    showDefaultPayable: isVendor,
+    showSalesTaxCode: isCustomer && !isExempt,
+    showPurchaseTaxCode: isVendor && !isExempt,
+    showDefaultTaxCode: !isExempt,
+    showRecoverability: isVendor && !isExempt,
+    showWithholdingSection: !!withholdingEnabled,
+    showReverseChargeEligible: isVendor || isReverseCharge,
+    showExemptionFields: isExempt,
+    showBuyerReference: isCustomer,
+  };
+}
+
+export function normalizePartnerTaxFormState(form = {}) {
+  const type = form.type === 'vendor' ? 'vendor' : 'customer';
+  let taxTreatment = form.taxTreatment || (type === 'vendor' ? 'standard_input' : 'standard_output');
+  if (type === 'customer' && taxTreatment === 'standard_input') taxTreatment = 'standard_output';
+  if (type === 'vendor' && taxTreatment === 'standard_output') taxTreatment = 'standard_input';
+
+  const next = {
+    filingCurrency: 'USD',
+    taxRegistrationStatus: 'registered',
+    placeOfSupplyBasis: 'customer_location',
+    ...form,
+    type,
+    taxTreatment,
+  };
+
+  const visibility = getPartnerTaxFormVisibility(next);
+
+  if (!visibility.showDefaultReceivable) next.defaultReceivableAccountId = '';
+  if (!visibility.showDefaultPayable) next.defaultPayableAccountId = '';
+  if (!visibility.showSalesTaxCode) next.salesTaxCodeId = '';
+  if (!visibility.showPurchaseTaxCode) next.purchaseTaxCodeId = '';
+  if (!visibility.showDefaultTaxCode) next.defaultTaxCodeId = '';
+  if (!visibility.showRecoverability) next.recoverabilityPercent = visibility.isVendor && !visibility.isExempt ? (next.recoverabilityPercent || '100') : '';
+  if (!visibility.showWithholdingSection) {
+    next.withholdingTaxCodeId = '';
+    next.withholdingRate = '';
+  }
+  if (!visibility.showExemptionFields) {
+    next.exemptionReasonCode = '';
+    next.exemptionCertificateNumber = '';
+    next.exemptionExpiryDate = '';
+  }
+  if (!visibility.showReverseChargeEligible) next.reverseChargeEligible = false;
+  if (!visibility.showBuyerReference) next.buyerReference = '';
+
+  return next;
+}
+
+export function normalizePartnerTaxFormForSubmit(form = {}) {
+  return normalizePartnerTaxFormState(form);
+}

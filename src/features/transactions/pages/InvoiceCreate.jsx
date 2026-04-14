@@ -91,6 +91,7 @@ export default function InvoiceCreate() {
   );
 
   const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes, pricingMode: payload.pricingMode }), [payload.lines, payload.pricingMode, taxCodes]);
+  const showDocumentReferenceField = !!payload.customerId;
   const selectedCustomer = partners.find((p) => p.id === payload.customerId);
   const lastAppliedCustomerTaxProfileRef = useRef('');
   const apiPayload = useMemo(
@@ -189,7 +190,7 @@ export default function InvoiceCreate() {
               <Select label="Pricing mode" value={payload.pricingMode} onChange={(e) => setField('pricingMode', e.target.value)} options={[{ value: 'exclusive', label: 'Tax exclusive' }, { value: 'inclusive', label: 'Tax inclusive' }]} />
               <Select label="Supply type" value={payload.supplyType} onChange={(e) => setField('supplyType', e.target.value)} options={[{ value: 'goods', label: 'Goods' }, { value: 'services', label: 'Services' }, { value: 'mixed', label: 'Mixed supply' }, { value: 'export', label: 'Export' }]} />
               <CurrencySelect label="Currency" value={payload.currencyCode} onChange={(e) => setField('currencyCode', e.target.value)} />
-              <Input label="Buyer reference" value={payload.buyerReference} onChange={(e) => setField('buyerReference', e.target.value)} placeholder="Needed for e-invoicing" />
+              {showDocumentReferenceField ? <Input label="Buyer reference" value={payload.buyerReference} onChange={(e) => setField('buyerReference', e.target.value)} placeholder="Needed for e-invoicing" /> : null}
               <div className="md:col-span-2">
                 <Textarea label="Memo" rows={3} value={payload.memo} onChange={(e) => setField('memo', e.target.value)} placeholder="Commercial memo, supply notes, or filing references" />
               </div>
@@ -217,10 +218,9 @@ export default function InvoiceCreate() {
                         <input type="checkbox" checked={!!line.withholdingApplicable} onChange={(e) => updateLine(index, 'withholdingApplicable', e.target.checked)} />
                         Withholding applies
                       </label>
-                      <Select label="Withholding tax code" value={line.withholdingTaxCodeId || ''} onChange={(e) => updateLine(index, 'withholdingTaxCodeId', e.target.value)} options={[{ value: '', label: 'No withholding tax code' }, ...withholdingTaxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
-                      <Input label="Withholding rate override (%)" type="number" value={line.withholdingRate} onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))} />
-                      <Input label="Recoverable tax (%)" type="number" value={line.recoverablePercent} onChange={(e) => updateLine(index, 'recoverablePercent', Number(e.target.value))} />
-                      <Input label="Exemption reason" value={line.exemptionReasonCode} onChange={(e) => updateLine(index, 'exemptionReasonCode', e.target.value)} placeholder="optional" />
+                      {line.withholdingApplicable ? <Select label="Withholding tax code" value={line.withholdingTaxCodeId || ''} onChange={(e) => updateLine(index, 'withholdingTaxCodeId', e.target.value)} options={[{ value: '', label: 'No withholding tax code' }, ...withholdingTaxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} /> : null}
+                      {line.withholdingApplicable ? <Input label="Withholding rate override (%)" type="number" value={line.withholdingRate} onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))} /> : null}
+                      {!line.taxCodeId ? <Input label="Exemption reason" value={line.exemptionReasonCode} onChange={(e) => updateLine(index, 'exemptionReasonCode', e.target.value)} placeholder="optional" /> : null}
                     </div>
                     <div className="grid gap-3 md:grid-cols-5 text-xs">
                       <div className="rounded-xl bg-white p-3 border border-border-subtle"><div className="text-text-muted">Taxable base</div><div className="mt-1 font-semibold text-text-strong">{calc ? calc.taxableBase.toFixed(2) : '0.00'}</div></div>

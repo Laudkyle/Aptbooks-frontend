@@ -11,6 +11,7 @@ import { makeTaxApi } from '../../accounting/tax/api/tax.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
@@ -44,7 +45,12 @@ export default function DebitNoteCreate() {
         unitPrice: 0,
         expenseAccountId: '',
         taxCodeId: '',
-        taxAmount: 0
+        taxAmount: 0,
+        withholdingApplicable: false,
+        withholdingTaxCodeId: '',
+        withholdingRate: '',
+        recoverablePercent: 100,
+        exemptionReasonCode: ''
       }
     ]
   });
@@ -89,6 +95,7 @@ export default function DebitNoteCreate() {
 
   // Filter active tax codes
   const activeTaxCodes = taxCodes.filter(tax => tax.status === 'active' || tax.is_active);
+  const withholdingTaxCodes = activeTaxCodes.filter((tax) => String(tax.tax_category || tax.taxCategory || '').toLowerCase() === 'withholding');
 
   const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes: activeTaxCodes, pricingMode: 'exclusive' }), [payload.lines, activeTaxCodes]);
   const lastAppliedVendorTaxProfileRef = useRef('');
@@ -156,8 +163,24 @@ export default function DebitNoteCreate() {
     setPayload(prev => {
       const newLines = [...prev.lines];
       newLines[index] = { ...newLines[index], [field]: value };
-      
-      // Auto-calculate tax amount if tax code is selected and tax rate exists
+
+      if (field === 'withholdingApplicable' && !value) {
+        newLines[index].withholdingTaxCodeId = '';
+        newLines[index].withholdingRate = '';
+      }
+
+      if (field === 'withholdingTaxCodeId') {
+        newLines[index].withholdingApplicable = !!value;
+      }
+
+      if (field === 'taxCodeId' && value) {
+        newLines[index].exemptionReasonCode = '';
+      }
+
+      if (field === 'taxCodeId' && !value) {
+        newLines[index].taxAmount = 0;
+      }
+
       if (field === 'taxCodeId' && value) {
         const selectedTaxCode = activeTaxCodes.find(tax => tax.id === value);
         if (selectedTaxCode && selectedTaxCode.rate) {
@@ -169,8 +192,7 @@ export default function DebitNoteCreate() {
           newLines[index].taxAmount = taxAmount.toFixed(2);
         }
       }
-      
-      // Recalculate tax amount if quantity or unit price changes and tax code is selected
+
       if ((field === 'quantity' || field === 'unitPrice') && newLines[index].taxCodeId) {
         const selectedTaxCode = activeTaxCodes.find(tax => tax.id === newLines[index].taxCodeId);
         if (selectedTaxCode && selectedTaxCode.rate) {
@@ -182,7 +204,7 @@ export default function DebitNoteCreate() {
           newLines[index].taxAmount = taxAmount.toFixed(2);
         }
       }
-      
+
       return { ...prev, lines: newLines };
     });
   }, [activeTaxCodes]);
@@ -194,7 +216,9 @@ export default function DebitNoteCreate() {
 
   const subtotal = summary.subtotal;
   const totalTax = summary.taxTotal;
+  const totalWithholding = summary.withholdingTotal;
   const total = summary.grandTotal;
+  const netTotal = summary.payableTotal;
 
   const selectedVendor = vendors.find(v => v.id === payload.vendorId);
 
@@ -227,6 +251,11 @@ export default function DebitNoteCreate() {
     
     if (payload.lines.some(line => line.unitPrice < 0)) {
       toast.error('Unit price cannot be negative');
+      return;
+    }
+
+    if (payload.lines.some((line) => line.withholdingApplicable && !line.withholdingTaxCodeId)) {
+      toast.error('Please select a withholding tax code for each line where withholding applies');
       return;
     }
     
@@ -332,6 +361,18 @@ export default function DebitNoteCreate() {
                     <span className="text-gray-600">Tax</span>
                     <span className="font-medium text-gray-900">
                       ${totalTax.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Withholding</span>
+                    <span className="font-medium text-gray-900">
+                      ${totalWithholding.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Net amount</span>
+                    <span className="font-medium text-gray-900">
+                      ${netTotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="pt-2 border-t border-gray-200">
@@ -517,23 +558,60 @@ export default function DebitNoteCreate() {
                                 <option value="">No tax</option>
                                 {activeTaxCodes.map((tax) => {
                                   const taxRate = parseFloat(tax.rate) || 0;
-                                  const displayName = tax.name 
-                                    ? `${tax.name} (${taxRate}%)`
-                                    : tax.code 
-                                      ? `${tax.code} (${taxRate}%)`
-                                      : tax.id;
+                                  const displayName = tax.name || tax.code || 'Unknown tax code';
                                   return (
                                     <option key={tax.id} value={tax.id}>
-                                      {displayName}
+                                      {displayName} {taxRate > 0 ? `(${taxRate}%)` : ''}
                                     </option>
                                   );
                                 })}
                               </select>
-                              {line.taxCodeId && (
-                                <Percent className="h-4 w-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                              )}
                             </div>
                           )}
+                        </div>
+
+                        <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
+                          <label className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={!!line.withholdingApplicable}
+                              onChange={(e) => updateLine(index, 'withholdingApplicable', e.target.checked)}
+                            />
+                            Withholding applies
+                          </label>
+
+                          {line.withholdingApplicable ? (
+                            <Select
+                              label="Withholding tax code"
+                              value={line.withholdingTaxCodeId || ''}
+                              onChange={(e) => updateLine(index, 'withholdingTaxCodeId', e.target.value)}
+                              options={[{ value: '', label: 'No withholding tax code' }, ...withholdingTaxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]}
+                            />
+                          ) : null}
+
+                          {line.withholdingApplicable ? (
+                            <Input
+                              label="Withholding rate override (%)"
+                              type="number"
+                              value={line.withholdingRate}
+                              onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))}
+                            />
+                          ) : null}
+                          <Input
+                            label="Recoverable tax (%)"
+                            type="number"
+                            value={line.recoverablePercent}
+                            onChange={(e) => updateLine(index, 'recoverablePercent', Number(e.target.value))}
+                          />
+
+                          {!line.taxCodeId ? (
+                            <Input
+                              label="Exemption reason"
+                              value={line.exemptionReasonCode}
+                              onChange={(e) => updateLine(index, 'exemptionReasonCode', e.target.value)}
+                              placeholder="optional"
+                            />
+                          ) : null}
                         </div>
                       </div>
 

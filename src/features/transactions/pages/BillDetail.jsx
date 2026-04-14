@@ -212,9 +212,6 @@ export default function BillDetail() {
       String(status).toLowerCase(),
     ) && outstandingAmount > 0;
 
-  // Debug logging to help troubleshoot
-  console.log("Bill Data:", { paid, debitApplied, outstanding, total, status });
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -509,6 +506,22 @@ export default function BillDetail() {
                     {formatCurrency(paidAmount + debitAppliedAmount)}
                   </span>
                 </div>
+                {withholdingTotal > 0 ? (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Withholding</span>
+                      <span className="font-medium text-gray-900">
+                        {formatCurrency(withholdingTotal)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Settlement basis</span>
+                      <span className="font-medium text-gray-900">
+                        {formatCurrency(settlementBasisTotal)}
+                      </span>
+                    </div>
+                  </>
+                ) : null}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Outstanding</span>
                   <span className="font-medium text-gray-900">
@@ -518,9 +531,26 @@ export default function BillDetail() {
               </div>
               {withholdingTotal > 0 ? (
                 <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                  Vendor payments settle the net payable only. The withheld portion should be remitted later from the withholding workspace.
-                  <div className="mt-3">
-                    <Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>
+                  <div className="font-semibold">Withholding affects settlement</div>
+                  <p className="mt-1">
+                    Vendor payments should settle the net payable only. The withheld portion should be remitted later from the withholding workspace.
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    <div className="flex items-center justify-between rounded-md bg-white/70 px-3 py-2 text-xs">
+                      <span>Gross bill total</span>
+                      <span className="font-semibold">{formatCurrency(total)}</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-md bg-white/70 px-3 py-2 text-xs">
+                      <span>Less withholding</span>
+                      <span className="font-semibold">{formatCurrency(withholdingTotal)}</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-md bg-white px-3 py-2 text-xs font-semibold">
+                      <span>Expected cash payment</span>
+                      <span>{formatCurrency(settlementBasisTotal)}</span>
+                    </div>
+                    <div>
+                      <Button variant="outline" onClick={() => navigate(ROUTES.accountingTaxWithholding)}>Open withholding workspace</Button>
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -530,7 +560,7 @@ export default function BillDetail() {
                   className="bg-green-600 hover:bg-green-700"
                   disabled={outstandingAmount <= 0}
                 >
-                  Pay Vendor
+                  {withholdingTotal > 0 ? "Pay Net Amount" : "Pay Vendor"}
                 </Button>
                 <Button
                   variant="outline"
