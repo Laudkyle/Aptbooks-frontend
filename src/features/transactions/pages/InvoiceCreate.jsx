@@ -37,6 +37,8 @@ function emptyLine() {
     revenueAccountId: '',
     taxCodeId: '',
     taxRate: 0,
+    withholdingApplicable: false,
+    withholdingTaxCodeId: '',
     withholdingRate: 0,
     recoverablePercent: 100,
     exemptionReasonCode: ''
@@ -81,6 +83,8 @@ export default function InvoiceCreate() {
   const partners = normalizeRows(partnersQuery.data).filter((p) => String(p.type ?? '').toLowerCase() === 'customer');
   const accounts = normalizeRows(coaQuery.data);
   const taxCodes = normalizeRows(taxCodesQuery.data);
+  const primaryTaxCodes = taxCodes.filter((code) => String(code.tax_type ?? code.taxType ?? '').toUpperCase() !== 'WITHHOLDING');
+  const withholdingTaxCodes = taxCodes.filter((code) => String(code.tax_type ?? code.taxType ?? '').toUpperCase() === 'WITHHOLDING');
   const jurisdictions = normalizeRows(jurisdictionsQuery.data);
   const revenueAccounts = accounts.filter((acc) =>
     String(acc.account_type_code ?? acc.accountType ?? acc.category ?? '').toLowerCase().includes('revenue')
@@ -136,10 +140,23 @@ export default function InvoiceCreate() {
     setPayload((s) => {
       const lines = [...s.lines];
       lines[index] = { ...lines[index], [key]: value };
+
       if (key === 'taxCodeId') {
-        const code = taxCodes.find((item) => item.id === value);
-        if (code) lines[index].taxRate = Number(code.rate ?? code.tax_rate ?? 0);
+        const code = primaryTaxCodes.find((item) => item.id === value);
+        lines[index].taxRate = Number(code?.rate ?? code?.tax_rate ?? 0);
       }
+
+      if (key === 'withholdingApplicable' && !value) {
+        lines[index].withholdingTaxCodeId = '';
+        lines[index].withholdingRate = 0;
+      }
+
+      if (key === 'withholdingTaxCodeId') {
+        const code = withholdingTaxCodes.find((item) => item.id === value);
+        lines[index].withholdingApplicable = !!value;
+        lines[index].withholdingRate = Number(code?.rate ?? code?.tax_rate ?? 0);
+      }
+
       return { ...s, lines };
     });
   };
@@ -150,6 +167,9 @@ export default function InvoiceCreate() {
     if (!payload.customerId) return toast.error('Select a customer');
     if (!payload.invoiceDate || !payload.dueDate) return toast.error('Invoice date and due date are required');
     if (payload.lines.some((line) => !line.description || !line.revenueAccountId)) return toast.error('Complete all invoice lines');
+    if (payload.lines.some((line) => line.withholdingApplicable && !line.withholdingTaxCodeId)) {
+      return toast.error('Select a withholding tax code for each line where withholding applies');
+    }
     create.mutate();
   };
 
@@ -189,11 +209,16 @@ export default function InvoiceCreate() {
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       <Input label="Description" value={line.description} onChange={(e) => updateLine(index, 'description', e.target.value)} />
                       <AccountSelect label="Revenue account" value={line.revenueAccountId} onChange={(e) => updateLine(index, 'revenueAccountId', e.target.value)} filters={{ accountTypeCodes: ['REVENUE'] }} allowEmpty />
-                      <Select label="Tax code" value={line.taxCodeId} onChange={(e) => updateLine(index, 'taxCodeId', e.target.value)} options={[{ value: '', label: 'No tax code' }, ...taxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
+                      <Select label="Tax code" value={line.taxCodeId} onChange={(e) => updateLine(index, 'taxCodeId', e.target.value)} options={[{ value: '', label: 'No tax code' }, ...primaryTaxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
                       <Input label="Quantity" type="number" value={line.quantity} onChange={(e) => updateLine(index, 'quantity', Number(e.target.value))} />
                       <Input label="Unit price" type="number" value={line.unitPrice} onChange={(e) => updateLine(index, 'unitPrice', Number(e.target.value))} />
                       <Input label="Tax rate (%)" type="number" value={line.taxRate} onChange={(e) => updateLine(index, 'taxRate', Number(e.target.value))} />
-                      <Input label="Withholding rate (%)" type="number" value={line.withholdingRate} onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))} />
+                      <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm">
+                        <input type="checkbox" checked={!!line.withholdingApplicable} onChange={(e) => updateLine(index, 'withholdingApplicable', e.target.checked)} />
+                        Withholding applies
+                      </label>
+                      <Select label="Withholding tax code" value={line.withholdingTaxCodeId || ''} onChange={(e) => updateLine(index, 'withholdingTaxCodeId', e.target.value)} options={[{ value: '', label: 'No withholding tax code' }, ...withholdingTaxCodes.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` }))]} />
+                      <Input label="Withholding rate override (%)" type="number" value={line.withholdingRate} onChange={(e) => updateLine(index, 'withholdingRate', Number(e.target.value))} />
                       <Input label="Recoverable tax (%)" type="number" value={line.recoverablePercent} onChange={(e) => updateLine(index, 'recoverablePercent', Number(e.target.value))} />
                       <Input label="Exemption reason" value={line.exemptionReasonCode} onChange={(e) => updateLine(index, 'exemptionReasonCode', e.target.value)} placeholder="optional" />
                     </div>

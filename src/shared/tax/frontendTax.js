@@ -128,9 +128,14 @@ export function computeLineAmounts(line = {}, taxCodeMap = {}, pricingMode = 'ex
 
   const explicitRate = line.taxRate ?? line.tax_rate;
   const taxCodeId = line.taxCodeId ?? line.tax_code_id;
+  const withholdingTaxCodeId = line.withholdingTaxCodeId ?? line.withholding_tax_code_id;
   const fallbackCode = taxCodeMap[taxCodeId] ?? {};
+  const withholdingCode = taxCodeMap[withholdingTaxCodeId] ?? {};
   const taxRate = normalizeFractionOrPercent(pickFirst(explicitRate, fallbackCode.rate, fallbackCode.tax_rate), 0);
-  const withholdingRate = normalizeFractionOrPercent(line.withholdingRate ?? line.withholding_rate ?? 0, 0);
+  const withholdingRate = normalizeFractionOrPercent(
+    pickFirst(line.withholdingRateOverride, line.withholding_rate_override, line.withholdingRate, line.withholding_rate, withholdingCode.rate, withholdingCode.tax_rate),
+    0
+  );
   const recoverableFraction = normalizeFractionOrPercent(line.recoverablePercent ?? line.recoverable_percent ?? 1, 1);
 
   let taxableBase = baseBeforeTax;
@@ -209,8 +214,12 @@ export function buildTaxSubmissionLines(lines = [], taxCodes = [], pricingMode =
     taxCodeId: line.taxCodeId || undefined,
     taxAmount: roundCurrency(line._calc?.taxAmount ?? line.taxAmount),
     taxableAmount: roundCurrency(line._calc?.taxableBase),
-    withholdingApplicable: !!line.withholdingApplicable,
+    withholdingApplicable: !!(line.withholdingApplicable || line.withholdingTaxCodeId),
     withholdingTaxCodeId: line.withholdingTaxCodeId || undefined,
+    withholdingRateOverride:
+      line.withholdingRate === '' || line.withholdingRate == null
+        ? undefined
+        : normalizeFractionOrPercent(line.withholdingRate),
     recoverablePercentOverride:
       line.recoverablePercent === '' || line.recoverablePercent == null
         ? undefined
