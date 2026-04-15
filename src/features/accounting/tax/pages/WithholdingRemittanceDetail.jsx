@@ -69,7 +69,7 @@ export default function WithholdingRemittanceDetail() {
             <div className="rounded-2xl border border-border-subtle bg-slate-50 p-4 text-sm text-text-body">Approval can be enforced before posting. Once posted, the withholding payable is cleared against the selected settlement account.</div>
             <div className="flex flex-wrap gap-2">
               <Button disabled={!['draft','rejected'].includes(status)} loading={submitMutation.isPending} onClick={() => submitMutation.mutate()}>Submit</Button>
-              <Button variant="outline" disabled={status !== 'submitted'} loading={approveMutation.isPending} onClick={() => approveMutation.mutate()}>Approve</Button>
+              <Button variant="outline" disabled={status !== 'approved'} loading={approveMutation.isPending} onClick={() => approveMutation.mutate()}>Approve</Button>
               <Button variant="outline" disabled={status !== 'submitted'} loading={postMutation.isPending} onClick={() => postMutation.mutate()}>Post</Button>
             </div>
             <Textarea label="Reject reason" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} rows={3} />
