@@ -105,16 +105,16 @@ export default function WithholdingRemittanceCreate() {
       <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
         <ContentCard title="Remittance details">
           <div className="grid gap-4 md:grid-cols-2">
-            <PartnerSelect label="Authority partner" type="vendor" value={form.authorityPartnerId} onChange={(e) => setForm((s) => ({ ...s, authorityPartnerId: e.target.value }))} allowEmpty />
-            <CurrencySelect label="Currency" value={form.currencyCode} onChange={(e) => setForm((s) => ({ ...s, currencyCode: e.target.value }))} allowEmpty />
-            <JurisdictionSelect label="Jurisdiction" value={form.jurisdictionId} onChange={(e) => setForm((s) => ({ ...s, jurisdictionId: e.target.value }))} allowEmpty />
-            <TaxCodeSelect label="Tax code" value={form.taxCodeId} onChange={(e) => setForm((s) => ({ ...s, taxCodeId: e.target.value }))} query={{ status: 'active', taxCategory: 'withholding' }} allowEmpty />
-            <Input label="Period start" type="date" value={form.periodStart} onChange={(e) => setForm((s) => ({ ...s, periodStart: e.target.value }))} />
-            <Input label="Period end" type="date" value={form.periodEnd} onChange={(e) => setForm((s) => ({ ...s, periodEnd: e.target.value }))} />
-            <Input label="Remittance date" type="date" value={form.remittanceDate} onChange={(e) => setForm((s) => ({ ...s, remittanceDate: e.target.value }))} />
-            <AccountSelect label="Settlement account" value={form.settlementAccountId} onChange={(e) => setForm((s) => ({ ...s, settlementAccountId: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'LIABILITY', 'EQUITY'] }} />
-            <Input label="Reference" value={form.reference} onChange={(e) => setForm((s) => ({ ...s, reference: e.target.value }))} />
-            <div className="md:col-span-2"><Textarea label="Memo" value={form.memo} onChange={(e) => setForm((s) => ({ ...s, memo: e.target.value }))} rows={4} /></div>
+            <PartnerSelect name="authorityPartnerId" label="Authority partner" type="vendor" value={form.authorityPartnerId} onChange={(e) => setForm((s) => ({ ...s, authorityPartnerId: e.target.value }))} allowEmpty />
+            <CurrencySelect name="currencyCode" label="Currency" value={form.currencyCode} onChange={(e) => setForm((s) => ({ ...s, currencyCode: e.target.value }))} allowEmpty />
+            <JurisdictionSelect name="jurisdictionId" label="Jurisdiction" value={form.jurisdictionId} onChange={(e) => setForm((s) => ({ ...s, jurisdictionId: e.target.value }))} allowEmpty />
+            <TaxCodeSelect name="taxCodeId" label="Tax code" value={form.taxCodeId} onChange={(e) => setForm((s) => ({ ...s, taxCodeId: e.target.value }))} query={{ status: 'active', taxCategory: 'withholding' }} allowEmpty />
+            <Input name="periodStart" label="Period start" type="date" value={form.periodStart} onChange={(e) => setForm((s) => ({ ...s, periodStart: e.target.value }))} />
+            <Input name="periodEnd" label="Period end" type="date" value={form.periodEnd} onChange={(e) => setForm((s) => ({ ...s, periodEnd: e.target.value }))} />
+            <Input name="remittanceDate" label="Remittance date" type="date" value={form.remittanceDate} onChange={(e) => setForm((s) => ({ ...s, remittanceDate: e.target.value }))} />
+            <AccountSelect name="settlementAccountId" label="Settlement account" value={form.settlementAccountId} onChange={(e) => setForm((s) => ({ ...s, settlementAccountId: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'LIABILITY', 'EQUITY'] }} />
+            <Input name="reference" label="Reference" value={form.reference} onChange={(e) => setForm((s) => ({ ...s, reference: e.target.value }))} />
+            <div className="md:col-span-2"><Textarea name="memo" label="Memo" value={form.memo} onChange={(e) => setForm((s) => ({ ...s, memo: e.target.value }))} rows={4} /></div>
           </div>
         </ContentCard>
 

@@ -8,6 +8,7 @@ import { OrgProvider } from './OrgProvider.jsx';
 import { AbilityProvider } from './AbilityProvider.jsx';
 import { ToastProvider } from '../../shared/components/ui/Toast.jsx';
 import { uiStore } from '../store/ui.store.js';
+import { ValidationEffects } from '../../shared/forms/ValidationEffects.jsx';
 
 export const ConfigContext = createContext(null);
 export const ApiContext = createContext(null);
@@ -46,6 +47,7 @@ export function AppProviders({ children }) {
         <QueryClientProvider client={queryClient}>
           <ThemeSync>
             <ToastProvider>
+              <ValidationEffects />
               <AuthProvider>
                 <OrgProvider>
                   <AbilityProvider>{children}</AbilityProvider>

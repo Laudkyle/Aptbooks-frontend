@@ -38,7 +38,19 @@ export default function WithholdingRemittanceDetail() {
   const submitMutation = useMutation({ mutationFn: () => api.submitWithholdingRemittance(id), onSuccess: () => { toast.success('Remittance submitted for approval.'); refresh(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to submit remittance') });
   const approveMutation = useMutation({ mutationFn: () => api.approveWithholdingRemittance(id, {}), onSuccess: () => { toast.success('Remittance approved.'); refresh(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to approve remittance') });
   const rejectMutation = useMutation({ mutationFn: () => api.rejectWithholdingRemittance(id, { reason: rejectReason || 'Rejected' }), onSuccess: () => { toast.success('Remittance rejected.'); refresh(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to reject remittance') });
-  const postMutation = useMutation({ mutationFn: () => api.postWithholdingRemittance(id, { settlementAccountId: remittance.settlement_account_id || remittance.settlementAccountId, remittanceDate: remittance.remittance_date || remittance.remittanceDate, reference: remittance.reference || null, memo: remittance.memo || null }), onSuccess: () => { toast.success('Remittance posted.'); refresh(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to post remittance') });
+const postMutation = useMutation({ 
+  mutationFn: () => api.postWithholdingRemittance(id, { 
+    settlementAccountId: remittance.settlement_account_id || remittance.settlementAccountId, 
+    remittanceDate: (remittance.remittance_date || remittance.remittanceDate)?.split('T')[0] || null, 
+    reference: remittance.reference || null, 
+    memo: remittance.memo || null 
+  }), 
+  onSuccess: () => { 
+    toast.success('Remittance posted.'); 
+    refresh(); 
+  }, 
+  onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to post remittance') 
+});
   const voidMutation = useMutation({ mutationFn: () => api.voidWithholdingRemittance(id, { reason: voidReason || null }), onSuccess: () => { toast.success('Remittance voided.'); refresh(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to void remittance') });
 
   const columns = [

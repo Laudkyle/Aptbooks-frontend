@@ -44,6 +44,7 @@ export default function PartnerCreate() {
     paymentTermsId: '',
     notes: '',
 
+    legalName: '',
     taxIdNumber: '',
     vatRegistrationNumber: '',
     taxRegistrationStatus: 'registered',
@@ -64,6 +65,11 @@ export default function PartnerCreate() {
     taxRegionCode: '',
     placeOfSupplyBasis: 'customer_location',
     eInvoiceScheme: '',
+    eInvoiceEndpoint: '',
+    filingContactEmail: '',
+    customerTaxIdentifierType: '',
+    vendorTaxIdentifierType: '',
+    inputTaxRecoveryMode: initialType === 'vendor' ? 'fully_recoverable' : 'default',
     buyerReference: '',
     filingCurrency: 'USD'
   }));
@@ -167,6 +173,7 @@ export default function PartnerCreate() {
           <div className="grid gap-4 md:grid-cols-2">
             <Select
               label="Type"
+              name="type"
               value={form.type}
               onChange={(e) => set('type', e.target.value)}
               options={[
@@ -177,6 +184,7 @@ export default function PartnerCreate() {
 
             <Select
               label="Status"
+              name="status"
               value={form.status}
               onChange={(e) => set('status', e.target.value)}
               options={[
@@ -187,30 +195,35 @@ export default function PartnerCreate() {
 
             <Input
               label="Business name"
+              name="name"
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
             />
 
             <Input
               label="Partner code"
+              name="code"
               value={form.code}
               onChange={(e) => set('code', e.target.value)}
             />
 
             <Input
               label="Email"
+              name="email"
               value={form.email}
               onChange={(e) => set('email', e.target.value)}
             />
 
             <Input
               label="Phone"
+              name="phone"
               value={form.phone}
               onChange={(e) => set('phone', e.target.value)}
             />
 
             <PaymentTermsSelect
               label="Payment terms"
+              name="paymentTermsId"
               value={form.paymentTermsId}
               onChange={(e) => set('paymentTermsId', e.target.value)}
               allowEmpty
@@ -219,6 +232,7 @@ export default function PartnerCreate() {
             {showDefaultReceivable ? (
               <AccountSelect
                 label="Default receivable account"
+                name="defaultReceivableAccountId"
                 value={form.defaultReceivableAccountId}
                 onChange={(e) =>
                   set('defaultReceivableAccountId', e.target.value)
@@ -231,6 +245,7 @@ export default function PartnerCreate() {
             {showDefaultPayable ? (
               <AccountSelect
                 label="Default payable account"
+                name="defaultPayableAccountId"
                 value={form.defaultPayableAccountId}
                 onChange={(e) =>
                   set('defaultPayableAccountId', e.target.value)
@@ -243,6 +258,7 @@ export default function PartnerCreate() {
             <div className="md:col-span-2">
               <Textarea
                 label="Notes"
+                name="notes"
                 rows={4}
                 value={form.notes}
                 onChange={(e) => set('notes', e.target.value)}
@@ -263,17 +279,26 @@ export default function PartnerCreate() {
           >
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <Input
+                label="Legal name"
+                name="legalName"
+                value={form.legalName}
+                onChange={(e) => set('legalName', e.target.value)}
+              />
+              <Input
                 label="Tax ID number"
+                name="taxregistrationNumber"
                 value={form.taxIdNumber}
                 onChange={(e) => set('taxIdNumber', e.target.value)}
               />
               <Input
                 label="VAT registration number"
+                name="taxregistrationNumber"
                 value={form.vatRegistrationNumber}
                 onChange={(e) => set('vatRegistrationNumber', e.target.value)}
               />
               <Select
                 label="Registration status"
+                name="registrationStatus"
                 value={form.taxRegistrationStatus}
                 onChange={(e) => set('taxRegistrationStatus', e.target.value)}
                 options={[
@@ -285,12 +310,14 @@ export default function PartnerCreate() {
               />
               <JurisdictionSelect
                 label="Jurisdiction"
+                name="jurisdictionId"
                 value={form.jurisdictionId}
                 onChange={(e) => set('jurisdictionId', e.target.value)}
                 allowEmpty
               />
               <Input
                 label="Tax country code"
+                name="destinationCountryCode"
                 value={form.taxCountryCode}
                 onChange={(e) =>
                   set('taxCountryCode', e.target.value.toUpperCase())
@@ -299,6 +326,7 @@ export default function PartnerCreate() {
               />
               <Input
                 label="Tax region code"
+                name="taxRegionCode"
                 value={form.taxRegionCode}
                 onChange={(e) => set('taxRegionCode', e.target.value)}
               />
@@ -309,6 +337,7 @@ export default function PartnerCreate() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <Select
                 label="Tax treatment"
+                name="taxClass"
                 value={form.taxTreatment}
                 onChange={(e) => set('taxTreatment', e.target.value)}
                 options={PARTNER_TAX_TREATMENT_OPTIONS[form.type]}
@@ -317,6 +346,7 @@ export default function PartnerCreate() {
               {showDefaultTaxCode ? (
                 <TaxCodeSelect
                   label="Default tax code"
+                  name="defaultTaxCodeId"
                   value={form.defaultTaxCodeId}
                   onChange={(e) => set('defaultTaxCodeId', e.target.value)}
                   allowEmpty
@@ -325,6 +355,7 @@ export default function PartnerCreate() {
 
               <Select
                 label="Place of supply basis"
+                name="placeOfSupply"
                 value={form.placeOfSupplyBasis}
                 onChange={(e) => set('placeOfSupplyBasis', e.target.value)}
                 options={[
@@ -341,6 +372,7 @@ export default function PartnerCreate() {
               {showSalesTaxCode ? (
                 <TaxCodeSelect
                   label="Sales tax code"
+                  name="salesTaxCodeId"
                   value={form.salesTaxCodeId}
                   onChange={(e) => set('salesTaxCodeId', e.target.value)}
                   allowEmpty
@@ -350,6 +382,7 @@ export default function PartnerCreate() {
               {showPurchaseTaxCode ? (
                 <TaxCodeSelect
                   label="Purchase tax code"
+                  name="purchaseTaxCodeId"
                   value={form.purchaseTaxCodeId}
                   onChange={(e) => set('purchaseTaxCodeId', e.target.value)}
                   allowEmpty
@@ -359,6 +392,7 @@ export default function PartnerCreate() {
               {showRecoverability ? (
                 <Input
                   label="Recoverability (%)"
+                  name="recoverablePercentOverride"
                   type="number"
                   value={form.recoverabilityPercent}
                   onChange={(e) =>
@@ -384,12 +418,14 @@ export default function PartnerCreate() {
                 <>
                   <TaxCodeSelect
                     label="Withholding tax code"
+                    name="withholdingTaxCodeId"
                     value={form.withholdingTaxCodeId}
                     onChange={(e) => set('withholdingTaxCodeId', e.target.value)}
                     allowEmpty
                   />
                   <Input
                     label="Withholding rate (%)"
+                    name="withholdingRateOverride"
                     type="number"
                     value={form.withholdingRate}
                     onChange={(e) => set('withholdingRate', e.target.value)}
@@ -418,6 +454,7 @@ export default function PartnerCreate() {
                 <>
                   <Input
                     label="Exemption reason"
+                    name="exemptionReasonCode"
                     value={form.exemptionReasonCode}
                     onChange={(e) =>
                       set('exemptionReasonCode', e.target.value)
@@ -425,6 +462,7 @@ export default function PartnerCreate() {
                   />
                   <Input
                     label="Exemption certificate"
+                    name="certificateReference"
                     value={form.exemptionCertificateNumber}
                     onChange={(e) =>
                       set('exemptionCertificateNumber', e.target.value)
@@ -432,6 +470,7 @@ export default function PartnerCreate() {
                   />
                   <Input
                     label="Exemption expiry"
+                    name="certificateExpiry"
                     type="date"
                     value={form.exemptionExpiryDate}
                     onChange={(e) =>
@@ -442,7 +481,50 @@ export default function PartnerCreate() {
               ) : null}
 
               <Input
+                label="Filing contact email"
+                name="filingContactEmail"
+                type="email"
+                value={form.filingContactEmail}
+                onChange={(e) => set('filingContactEmail', e.target.value)}
+              />
+
+              <Input
+                label="E-invoice endpoint"
+                name="eInvoiceEndpoint"
+                value={form.eInvoiceEndpoint}
+                onChange={(e) => set('eInvoiceEndpoint', e.target.value)}
+              />
+
+              <Input
+                label="Customer tax identifier type"
+                name="customerTaxIdentifierType"
+                value={form.customerTaxIdentifierType}
+                onChange={(e) => set('customerTaxIdentifierType', e.target.value)}
+              />
+
+              <Input
+                label="Vendor tax identifier type"
+                name="vendorTaxIdentifierType"
+                value={form.vendorTaxIdentifierType}
+                onChange={(e) => set('vendorTaxIdentifierType', e.target.value)}
+              />
+
+              <Select
+                label="Input tax recovery mode"
+                name="inputTaxRecoveryMode"
+                value={form.inputTaxRecoveryMode}
+                onChange={(e) => set('inputTaxRecoveryMode', e.target.value)}
+                options={[
+                  { value: 'default', label: 'Default' },
+                  { value: 'fully_recoverable', label: 'Fully recoverable' },
+                  { value: 'partially_recoverable', label: 'Partially recoverable' },
+                  { value: 'non_recoverable', label: 'Non-recoverable' }
+                ]}
+              />
+
+              <Input
                 label="E-invoice scheme"
+                name="eInvoiceNetwork"
                 value={form.eInvoiceScheme}
                 onChange={(e) => set('eInvoiceScheme', e.target.value)}
                 placeholder="PEPPOL / GRA / etc."
@@ -451,6 +533,7 @@ export default function PartnerCreate() {
               {showBuyerReference ? (
                 <Input
                   label="Buyer reference"
+                  name="buyerReference"
                   value={form.buyerReference}
                   onChange={(e) => set('buyerReference', e.target.value)}
                 />
@@ -458,6 +541,7 @@ export default function PartnerCreate() {
 
               <CurrencySelect
                 label="Filing currency"
+                name="filingCurrency"
                 value={form.filingCurrency}
                 onChange={(e) => set('filingCurrency', e.target.value)}
                 allowEmpty

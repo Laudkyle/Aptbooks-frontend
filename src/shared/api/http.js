@@ -3,6 +3,7 @@ import { authStore } from '../../app/store/auth.store.js';
 import { generateRequestId } from './request-id.js';
 import { createAuthRefresher } from './auth-refresh.js';
 import { toUserFacingError } from './errors.js';
+import { clearValidationErrors, publishValidationErrors } from '../forms/validationStore.js';
 
 export function createHttpClient({ baseURL, cookieRefreshMode }) {
   const http = axios.create({
@@ -26,7 +27,10 @@ export function createHttpClient({ baseURL, cookieRefreshMode }) {
   });
 
   http.interceptors.response.use(
-    (res) => res,
+    (res) => {
+      clearValidationErrors();
+      return res;
+    },
     async (error) => {
       const status = error.response?.status;
       const original = error.config;
@@ -43,7 +47,13 @@ export function createHttpClient({ baseURL, cookieRefreshMode }) {
           throw toUserFacingError(e);
         }
       }
-      throw toUserFacingError(error);
+      const normalized = toUserFacingError(error);
+      if (normalized?.code === 'validation_error' || normalized?.status === 422 || normalized?.details?.fields) {
+        publishValidationErrors(normalized.details || {}, normalized.requestId || null);
+      } else {
+        clearValidationErrors();
+      }
+      throw normalized;
     }
   );
 

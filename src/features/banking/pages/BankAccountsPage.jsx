@@ -239,12 +239,14 @@ export default function BankAccountsPage() {
         <div className="px-6 py-5">
           <div className="grid gap-4 md:grid-cols-2">
             <Input
+              name="code"
               label="Account Code"
               placeholder="e.g., GCB-001"
               value={form.code}
               onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))}
             />
             <CurrencySelect
+              name="currencyCode"
               label="Currency"
               value={form.currencyCode}
               onChange={(e) => setForm((p) => ({ ...p, currencyCode: e.target.value }))}
@@ -252,6 +254,7 @@ export default function BankAccountsPage() {
             />
             <div className="md:col-span-2">
               <Input
+                name="name"
                 label="Account Name"
                 placeholder="e.g., GCB Main Account"
                 value={form.name}
@@ -260,6 +263,7 @@ export default function BankAccountsPage() {
             </div>
             <div className="md:col-span-2">
               <Select
+                name="glAccountId"
                 label="GL Account"
                 value={form.glAccountId}
                 onChange={(e) => setForm((p) => ({ ...p, glAccountId: e.target.value }))}
