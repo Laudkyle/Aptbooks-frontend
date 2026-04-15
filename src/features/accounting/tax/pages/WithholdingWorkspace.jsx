@@ -44,10 +44,10 @@ export default function WithholdingWorkspace() {
   const [runToken, setRunToken] = useState(1);
 
   const qs = useMemo(() => ({
-    direction: direction || undefined,
-    status: status || undefined,
-    periodStart: periodStart || undefined,
-    periodEnd: periodEnd || undefined,
+    direction: direction || "",
+    status: status || "",
+    periodStart: periodStart || "",
+    periodEnd: periodEnd || "",
   }), [direction, status, periodStart, periodEnd]);
 
   const dashboardQ = useQuery({
