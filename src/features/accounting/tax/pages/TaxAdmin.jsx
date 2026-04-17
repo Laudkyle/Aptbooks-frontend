@@ -205,7 +205,7 @@ console.log(rules)
   const [tName, setTName] = useState("");
   const [rate, setRate] = useState("");
   const [direction, setDirection] = useState("");
-  const [taxCategory, setTaxCategory] = useState("STANDARD");
+  const [taxCategory, setTaxCategory] = useState("standard");
 
   const createCode = useMutation({
     mutationFn: () =>
@@ -214,11 +214,9 @@ console.log(rules)
         code: tCode,
         name: tName,
         taxType,
-        categoryCode: taxCategory,
-        taxScope: taxType === 'WITHHOLDING' ? 'transaction' : 'general',
-        calculationMethod: 'rate',
+        taxCategory,
         rate: Number(rate),
-        direction: direction || (taxType === 'WITHHOLDING' ? 'withholding' : null),
+        direction: direction || null,
       }),
     onSuccess: () => {
       toast.success("Tax code created.");
@@ -616,11 +614,11 @@ console.log(rules)
                 value={taxCategory}
                 onChange={(e) => setTaxCategory(e.target.value)}
                 options={[
-                  { value: "STANDARD", label: "Standard" },
+                  { value: "standard", label: "Standard" },
                   { value: "zero_rated", label: "Zero rated" },
                   { value: "exempt", label: "Exempt" },
                   { value: "reverse_charge", label: "Reverse charge" },
-                  { value: "WITHHOLDING", label: "Withholding" },
+                  { value: "withholding", label: "Withholding" },
                 ]}
               />
               <Input

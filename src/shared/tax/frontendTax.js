@@ -14,24 +14,7 @@ export function normalizeRows(data) {
   if (Array.isArray(data?.rows)) return data.rows;
   if (Array.isArray(data?.items)) return data.items;
   if (Array.isArray(data?.results)) return data.results;
-  if (data && typeof data === 'object') return [data];
   return [];
-}
-
-export function normalizeTaxCodeShape(code = {}) {
-  const normalized = { ...code };
-  const taxType = normalized.taxType ?? normalized.tax_type ?? normalized.type ?? '';
-  const categoryCode = normalized.categoryCode ?? normalized.category_code ?? normalized.taxCategory ?? normalized.tax_category ?? '';
-  const taxScope = normalized.taxScope ?? normalized.tax_scope ?? '';
-  normalized.taxType = taxType;
-  normalized.tax_type = normalized.tax_type ?? taxType;
-  normalized.categoryCode = categoryCode;
-  normalized.category_code = normalized.category_code ?? categoryCode;
-  normalized.taxCategory = normalized.taxCategory ?? categoryCode;
-  normalized.tax_category = normalized.tax_category ?? categoryCode;
-  normalized.taxScope = taxScope;
-  normalized.tax_scope = normalized.tax_scope ?? taxScope;
-  return normalized;
 }
 
 function normalizeFractionOrPercent(value, fallback = 0) {
