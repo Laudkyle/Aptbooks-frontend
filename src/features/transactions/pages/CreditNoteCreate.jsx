@@ -97,7 +97,7 @@ export default function CreditNoteCreate() {
 
   // Filter active tax codes
   const activeTaxCodes = taxCodes.filter(tax => tax.status === 'active' || tax.is_active);
-  const withholdingTaxCodes = activeTaxCodes.filter((tax) => String(tax.tax_category || tax.taxCategory || '').toLowerCase() === 'withholding');
+  const withholdingTaxCodes = activeTaxCodes.filter((tax) => String(tax.tax_type || tax.taxType || tax.tax_category || tax.taxCategory || '').toUpperCase() === 'WITHHOLDING');
 
   const summary = useMemo(() => computeDocumentSummary({ lines: payload.lines, taxCodes: activeTaxCodes, pricingMode: 'exclusive' }), [payload.lines, activeTaxCodes]);
   const lastAppliedCustomerTaxProfileRef = useRef('');

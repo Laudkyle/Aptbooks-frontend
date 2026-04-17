@@ -41,7 +41,7 @@ export default function ReportTax() {
   const [status, setStatus] = useState('');
   const [runToken, setRunToken] = useState(0);
 
-  const qs = useMemo(() => ({ dateFrom, dateTo, jurisdictionCode: jurisdictionCode || undefined, taxType: taxType || undefined, status: status || undefined }), [dateFrom, dateTo, jurisdictionCode, taxType, status]);
+  const qs = useMemo(() => ({ from: dateFrom, to: dateTo, jurisdictionCode: jurisdictionCode || undefined, taxType: taxType || undefined, status: status || undefined }), [dateFrom, dateTo, jurisdictionCode, taxType, status]);
   const enabled = runToken > 0;
 
   const queryMap = {
@@ -78,7 +78,7 @@ export default function ReportTax() {
           <Input label="Date from" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           <Input label="Date to" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           <Input label="Jurisdiction code" value={jurisdictionCode} onChange={(e) => setJurisdictionCode(e.target.value.toUpperCase())} />
-          <Select label="Tax type" value={taxType} onChange={(e) => setTaxType(e.target.value)} options={[{ value: '', label: 'All' }, { value: 'VAT', label: 'VAT' }, { value: 'GST', label: 'GST' }, { value: 'WHT', label: 'Withholding' }]} />
+          <Select label="Tax type" value={taxType} onChange={(e) => setTaxType(e.target.value)} options={[{ value: '', label: 'All' }, { value: 'VAT', label: 'VAT' }, { value: 'GST', label: 'GST' }, { value: 'WITHHOLDING', label: 'Withholding' }]} />
           <Select label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={[{ value: '', label: 'All' }, { value: 'draft', label: 'Draft' }, { value: 'submitted', label: 'Submitted' }, { value: 'posted', label: 'Posted' }, { value: 'accepted', label: 'Accepted' }]} />
         </div>
         <div className="mt-4 flex justify-end gap-2"><Button variant="outline" onClick={() => { setDateFrom(startOfMonth()); setDateTo(today()); setJurisdictionCode(''); setTaxType(''); setStatus(''); }}>Clear</Button><Button leftIcon={FileSearch} onClick={() => setRunToken((v) => v + 1)} loading={active?.isLoading}>Run report</Button></div>
