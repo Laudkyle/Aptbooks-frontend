@@ -662,6 +662,8 @@ export const endpoints = {
         create: "/compliance/ifrs9/ecl-models",
         addBucket: (modelId) =>
           `/compliance/ifrs9/ecl-models/${modelId}/buckets`,
+        addParameter: (modelId) =>
+          `/compliance/ifrs9/ecl-models/${modelId}/parameters`,
       },
       counterparties: {
         upsertProfile: "/compliance/ifrs9/counterparties/profile",
