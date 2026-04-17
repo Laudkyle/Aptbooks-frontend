@@ -28,6 +28,17 @@ function formatDate(dateString) {
   });
 }
 
+function normalizeCashflowLines(lines = []) {
+  return lines.map((line, idx) => ({
+    id: line.id || line.category?.id || `cf-${idx}`,
+    activity: line.activity || line.category?.section || 'operating',
+    label: line.label || line.category?.name || line.category?.code || 'Unclassified',
+    amount: Number(line.amount || 0),
+    line_type: line.line_type || 'line',
+    children: Array.isArray(line.children) ? normalizeCashflowLines(line.children) : []
+  }));
+}
+
 function getActivityIcon(activity) {
   switch (activity) {
     case 'operating':
@@ -185,6 +196,8 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
     totals
   } = data;
 
+  const normalizedLines = normalizeCashflowLines(lines);
+
   const [expandedActivities, setExpandedActivities] = useState(new Set(['operating', 'investing', 'financing']));
   
   const toggleActivity = (activity) => {
@@ -207,8 +220,8 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
   } = totals || {};
 
   // Calculate opening and closing balances if available
-  const openingBalance = lines.find(l => l.line_type === 'opening_balance')?.amount || 0;
-  const closingBalance = lines.find(l => l.line_type === 'closing_balance')?.amount || 0;
+  const openingBalance = normalizedLines.find(l => l.line_type === 'opening_balance')?.amount || 0;
+  const closingBalance = normalizedLines.find(l => l.line_type === 'closing_balance')?.amount || 0;
 
   return (
     <div className={`flex-1 ${isCompare ? 'border-l border-gray-200 pl-4 md:pl-6' : ''}`}>
@@ -248,7 +261,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
         <ActivitySummary 
           activity="operating"
           total={operating}
-          lines={lines}
+          lines={normalizedLines}
           isExpanded={expandedActivities.has('operating')}
           onToggle={() => toggleActivity('operating')}
         />
@@ -257,7 +270,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
         <ActivitySummary 
           activity="investing"
           total={investing}
-          lines={lines}
+          lines={normalizedLines}
           isExpanded={expandedActivities.has('investing')}
           onToggle={() => toggleActivity('investing')}
         />
@@ -266,7 +279,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
         <ActivitySummary 
           activity="financing"
           total={financing}
-          lines={lines}
+          lines={normalizedLines}
           isExpanded={expandedActivities.has('financing')}
           onToggle={() => toggleActivity('financing')}
         />
@@ -297,7 +310,7 @@ function CashFlowStatementCard({ title, data, isCompare = false }) {
       </div>
 
       {/* Empty State */}
-      {lines.length === 0 && (
+      {normalizedLines.length === 0 && (
         <div className="text-center py-8  rounded-lg">
           <p className="text-sm text-gray-500">
             No cash flow transactions for this period

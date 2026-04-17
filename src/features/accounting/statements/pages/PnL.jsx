@@ -254,9 +254,8 @@ export default function PnL() {
   const hasComparison = !!compareLines && comparePeriodId;
 
   // Calculate key metrics based on the data structure
-  const revenueSection = findSectionByCode(lines, 'REV');
-  const cogsSection = findSectionByCode(lines, 'COGS');
-  const opexSection = findSectionByCode(lines, 'OPEX');
+  const revenueSection = findSectionByCode(lines, 'REVENUE');
+  const expensesSection = findSectionByCode(lines, 'EXPENSES');
   const otherSection = findSectionByCode(lines, 'OTHER');
   
   // Find specific accounts within the Other section
@@ -270,15 +269,14 @@ export default function PnL() {
   const netIncomeLine = findSectionByCode(lines, 'NET_INCOME');
 
   const revenueAmount = revenueSection ? calculateSectionTotal(revenueSection) : 0;
-  const cogsAmount = cogsSection ? calculateSectionTotal(cogsSection) : 0;
-  const opexAmount = opexSection ? calculateSectionTotal(opexSection) : 0;
+  const expensesAmount = expensesSection ? calculateSectionTotal(expensesSection) : 0;
   const otherIncomeAmount = otherIncomeAccount ? (parseFloat(otherIncomeAccount.amount) || 0) : 0;
   const otherExpenseAmount = otherExpenseAccount ? (parseFloat(otherExpenseAccount.amount) || 0) : 0;
   const netIncomeAmount = netIncomeLine ? (parseFloat(netIncomeLine.amount) || 0) : 0;
   
-  const grossProfit = revenueAmount - cogsAmount;
+  const grossProfit = revenueAmount - expensesAmount;
   const grossMargin = revenueAmount !== 0 ? (grossProfit / revenueAmount) * 100 : 0;
-  const operatingProfit = grossProfit - opexAmount;
+  const operatingProfit = grossProfit;
   const operatingMargin = revenueAmount !== 0 ? (operatingProfit / revenueAmount) * 100 : 0;
   const totalOtherIncome = otherIncomeAmount - otherExpenseAmount;
   const netMargin = revenueAmount !== 0 ? (netIncomeAmount / revenueAmount) * 100 : 0;
@@ -377,7 +375,7 @@ export default function PnL() {
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
                 <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Revenue</div>
                 <div className="text-2xl font-bold text-slate-900">{formatMoney(revenueAmount, 'GHS')}</div>
-                <div className="text-xs text-slate-600 mt-1">Gross sales</div>
+                <div className="text-xs text-slate-600 mt-1">Mapped revenue accounts</div>
               </div>
               
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
@@ -403,7 +401,7 @@ export default function PnL() {
                   Margin: {netMargin.toFixed(1)}%
                   {totalOtherIncome !== 0 && (
                     <span className="block mt-1">
-                      {totalOtherIncome > 0 ? '+' : ''}{formatMoney(totalOtherIncome, 'GHS')} from other
+                      {totalOtherIncome > 0 ? '+' : ''}{formatMoney(totalOtherIncome, 'GHS')} adjustments
                     </span>
                   )}
                 </div>

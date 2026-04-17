@@ -133,31 +133,33 @@ export default function BalanceSheet() {
     });
   };
 
+  const statementData = q.data?.data || q.data;
+
   // Group lines by section for better organization
   const groupedLines = useMemo(() => {
-    if (!q.data?.data?.lines) return {};
-    
+    if (!statementData?.lines) return {};
+
     const sections = {
       ASSETS: { label: 'Assets', lines: [], total: 0 },
       LIABILITIES: { label: 'Liabilities', lines: [], total: 0 },
       EQUITY: { label: 'Equity', lines: [], total: 0 }
     };
 
-    q.data.data.lines.forEach(line => {
+    statementData.lines.forEach(line => {
       if (line.section_code === 'ASSETS') {
         sections.ASSETS.lines.push(line);
-        sections.ASSETS.total += line.amount;
+        sections.ASSETS.total = Number(line.amount || 0);
       } else if (line.section_code === 'LIABILITIES') {
         sections.LIABILITIES.lines.push(line);
-        sections.LIABILITIES.total += line.amount;
+        sections.LIABILITIES.total = Number(line.amount || 0);
       } else if (line.section_code === 'EQUITY') {
         sections.EQUITY.lines.push(line);
-        sections.EQUITY.total += line.amount;
+        sections.EQUITY.total = Number(line.amount || 0);
       }
     });
 
     return sections;
-  }, [q.data]);
+  }, [statementData]);
 
   const totalAssets = groupedLines.ASSETS?.total || 0;
   const totalLiabilities = groupedLines.LIABILITIES?.total || 0;
@@ -254,7 +256,7 @@ export default function BalanceSheet() {
           )}
 
           {/* Balance Sheet Content */}
-          {periodId && q.data?.data?.lines && (
+          {periodId && statementData?.lines && (
             <div>
               {/* Assets Section */}
               <div className="mb-6 md:mb-10">
