@@ -12,6 +12,7 @@ function formatCurrency(amount, currency = 'GHS') {
     maximumFractionDigits: 2,
   }).format(Math.abs(amount));
   
+  
   return amount < 0 
     ? `-${currency} ${formattedAmount}`
     : `${currency} ${formattedAmount}`;

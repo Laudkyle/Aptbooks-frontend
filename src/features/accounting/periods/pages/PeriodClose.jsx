@@ -37,6 +37,7 @@ export default function PeriodClose() {
         force: force === 'true',
         autoRunAccruals: autoRunAccruals === 'true'
       }),
+      
     onSuccess: () => {
       toast.success('Period close executed.');
       navigate('/accounting/periods');

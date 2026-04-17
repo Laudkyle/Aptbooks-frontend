@@ -9,6 +9,7 @@ import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { Printer, Download, ChevronDown, ChevronRight } from 'lucide-react';
 
+
 function formatCurrency(amount, currency = 'GHS') {
   const formattedAmount = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,

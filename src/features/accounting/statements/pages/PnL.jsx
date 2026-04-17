@@ -10,6 +10,7 @@ import { formatMoney } from '../../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../../shared/utils/formatDate.js';
 import { TrendingUp, TrendingDown, Download, Printer, Calendar, FileText, ChevronDown, ChevronRight } from 'lucide-react';
 
+
 export default function PnL() {
   const { http } = useApi();
   const api = useMemo(() => makeStatementsApi(http), [http]);
