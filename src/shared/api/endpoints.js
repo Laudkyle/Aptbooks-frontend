@@ -186,6 +186,12 @@ export const endpoints = {
         `/core/accounting/reconciliation/discrepancy-details?${new URLSearchParams(qs ?? {}).toString()}`,
 
       autoCorrect: "/core/accounting/reconciliation/auto-correct",
+      rebuildBalances: "/core/accounting/reconciliation/rebuild-balances",
+      history: (qs) =>
+        `/core/accounting/reconciliation/history?${new URLSearchParams(qs ?? {}).toString()}`,
+      policy: "/core/accounting/reconciliation/policy",
+      export: (qs) =>
+        `/core/accounting/reconciliation/export?${new URLSearchParams(qs ?? {}).toString()}`,
     },
     tax: {
       jurisdictions: "/core/accounting/tax/jurisdictions",
