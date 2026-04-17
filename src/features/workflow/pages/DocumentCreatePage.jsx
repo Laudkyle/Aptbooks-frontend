@@ -12,7 +12,6 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
-
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;

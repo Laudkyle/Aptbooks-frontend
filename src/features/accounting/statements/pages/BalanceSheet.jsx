@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeStatementsApi } from '../api/statements.api.js';
@@ -8,7 +8,6 @@ import { ContentCard } from '../../../../shared/components/layout/ContentCard.js
 import { FilterBar } from '../../../../shared/components/data/FilterBar.jsx';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { Printer, Download, ChevronDown, ChevronRight } from 'lucide-react';
-
 
 function formatCurrency(amount, currency = 'GHS') {
   const formattedAmount = new Intl.NumberFormat('en-US', {
@@ -133,37 +132,34 @@ export default function BalanceSheet() {
     });
   };
 
-  const statementData = q.data?.data || q.data;
-
-  // Group lines by section for better organization
-  const groupedLines = useMemo(() => {
-    if (!statementData?.lines) return {};
-
-    const sections = {
-      ASSETS: { label: 'Assets', lines: [], total: 0 },
-      LIABILITIES: { label: 'Liabilities', lines: [], total: 0 },
-      EQUITY: { label: 'Equity', lines: [], total: 0 }
+  const statementRoots = useMemo(() => {
+    const roots = q.data?.data?.lines ?? [];
+    return {
+      assets: roots.find((line) => line.section_code === 'ASSETS') || null,
+      liabilities: roots.find((line) => line.section_code === 'LIABILITIES') || null,
+      equity: roots.find((line) => line.section_code === 'EQUITY') || null,
+      check: roots.find((line) => line.section_code === 'CHECK') || null,
     };
+  }, [q.data]);
 
-    statementData.lines.forEach(line => {
-      if (line.section_code === 'ASSETS') {
-        sections.ASSETS.lines.push(line);
-        sections.ASSETS.total = Number(line.amount || 0);
-      } else if (line.section_code === 'LIABILITIES') {
-        sections.LIABILITIES.lines.push(line);
-        sections.LIABILITIES.total = Number(line.amount || 0);
-      } else if (line.section_code === 'EQUITY') {
-        sections.EQUITY.lines.push(line);
-        sections.EQUITY.total = Number(line.amount || 0);
+  useEffect(() => {
+    const allSectionIds = new Set();
+    const walk = (line) => {
+      if (!line) return;
+      if (line.line_type === 'section' && Array.isArray(line.children) && line.children.length) {
+        allSectionIds.add(line.id);
       }
-    });
+      (line.children || []).forEach(walk);
+    };
+    walk(statementRoots.assets);
+    walk(statementRoots.liabilities);
+    walk(statementRoots.equity);
+    setExpandedSections(allSectionIds);
+  }, [statementRoots.assets, statementRoots.liabilities, statementRoots.equity]);
 
-    return sections;
-  }, [statementData]);
-
-  const totalAssets = groupedLines.ASSETS?.total || 0;
-  const totalLiabilities = groupedLines.LIABILITIES?.total || 0;
-  const totalEquity = groupedLines.EQUITY?.total || 0;
+  const totalAssets = statementRoots.assets?.amount || 0;
+  const totalLiabilities = statementRoots.liabilities?.amount || 0;
+  const totalEquity = statementRoots.equity?.amount || 0;
   const totalLiabilitiesEquity = totalLiabilities + totalEquity;
 
   const handlePrint = () => {
@@ -256,7 +252,7 @@ export default function BalanceSheet() {
           )}
 
           {/* Balance Sheet Content */}
-          {periodId && statementData?.lines && (
+          {periodId && q.data?.data?.lines && (
             <div>
               {/* Assets Section */}
               <div className="mb-6 md:mb-10">
@@ -264,7 +260,7 @@ export default function BalanceSheet() {
                   Assets
                 </h3>
                 <div className="overflow-x-auto">
-                  {groupedLines.ASSETS?.lines.map((line) => (
+                  {(statementRoots.assets?.children || []).map((line) => (
                     <StatementLine 
                       key={line.id}
                       line={line}
@@ -294,7 +290,7 @@ export default function BalanceSheet() {
                 </h3>
                 <div className="overflow-x-auto">
                   {/* Liabilities */}
-                  {groupedLines.LIABILITIES?.lines.map((line) => (
+                  {(statementRoots.liabilities?.children || []).map((line) => (
                     <StatementLine 
                       key={line.id}
                       line={line}
@@ -314,7 +310,7 @@ export default function BalanceSheet() {
                   </div>
 
                   {/* Equity */}
-                  {groupedLines.EQUITY?.lines.map((line) => (
+                  {(statementRoots.equity?.children || []).map((line) => (
                     <StatementLine 
                       key={line.id}
                       line={line}
@@ -342,6 +338,17 @@ export default function BalanceSheet() {
                       {formatCurrency(totalLiabilitiesEquity)}
                     </span>
                   </div>
+
+                  {statementRoots.check && (
+                    <div className="flex items-center py-3 mt-3 border-t border-gray-300 px-2 md:px-4 text-sm md:text-base">
+                      <span className="flex-1 font-medium text-gray-700">
+                        {statementRoots.check.label}
+                      </span>
+                      <span className="font-medium text-gray-700">
+                        {formatCurrency(statementRoots.check.amount)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

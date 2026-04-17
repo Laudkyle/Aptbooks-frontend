@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from"../../
 import { Button } from"../../../shared/components/ui/Button.jsx";
 
 export default function ApprovalLevelsPage() {
-  
   return (
     <div className="space-y-6">
       <PageHeader title="Approval Levels" subtitle="Define and manage approval sequences" />

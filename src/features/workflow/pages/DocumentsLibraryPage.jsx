@@ -13,7 +13,6 @@ import { Badge } from "../../../shared/components/ui/Badge.jsx";
 import { Input } from "../../../shared/components/ui/Input.jsx";
 import { ROUTES } from '../../../app/constants/routes.js';
 
-
 export default function DocumentsLibraryPage() {
   const navigate = useNavigate();
   const { http } = useApi();

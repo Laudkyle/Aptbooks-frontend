@@ -7,7 +7,6 @@ import { makePeriodsApi } from '../../periods/api/periods.api.js';
 import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 
-
 export default function Reconciliation() {
   const { http } = useApi();
   const api = useMemo(() => makeReconciliationApi(http), [http]);
