@@ -552,57 +552,57 @@ export default function IFRS16LeasesPage() {
             </div>
           </div>
 
-          {/* Account Mappings Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Landmark className="h-4 w-4 text-slate-500" />
-              Account Mappings
-            </h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <AccountSelect
-                label="ROU Asset Account"
-                value={formData.rou_asset_account_id}
-                onChange={(e) => handleFieldChange(\'ROU Asset Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={BookOpen}
-                allowEmpty
-              />
-              <AccountSelect
-                label="Lease Liability Account"
-                value={formData.lease_liability_account_id}
-                onChange={(e) => handleFieldChange(\'Lease Liability Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={CreditCard}
-                allowEmpty
-              />
-              <AccountSelect
-                label="Interest Expense Account"
-                value={formData.interest_expense_account_id}
-                onChange={(e) => handleFieldChange(\'Interest Expense Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={Percent}
-                allowEmpty
-              />
-              <AccountSelect
-                label="Depreciation Expense Account"
-                value={formData.depreciation_expense_account_id}
-                onChange={(e) => handleFieldChange(\'Depreciation Expense Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={Receipt}
-                allowEmpty
-              />
-              <AccountSelect
-                label="Accumulated Depreciation Account"
-                value={formData.accumulated_depreciation_account_id}
-                onChange={(e) => handleFieldChange(\'Accumulated Depreciation Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={BookOpen}
-                allowEmpty
-              />
-              <AccountSelect
-                label="Cash / Bank Account"
-                value={formData.cash_account_id}
-                onChange={(e) => handleFieldChange(\'Cash / Bank Account\'.replace(/ /g, \"_\").toLowerCase(), e.target.value)}
-                leftIcon={PiggyBank}
-                allowEmpty
-              />
-            </div>
-          </div>
+   {/* Account Mappings Section */}
+<div>
+  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+    <Landmark className="h-4 w-4 text-slate-500" />
+    Account Mappings
+  </h3>
+  <div className="grid gap-4 md:grid-cols-2">
+    <AccountSelect
+      label="ROU Asset Account"
+      value={formData.rou_asset_account_id}
+      onChange={(e) => handleFieldChange('rou_asset_account_id', e.target.value)}
+      leftIcon={BookOpen}
+      allowEmpty
+    />
+    <AccountSelect
+      label="Lease Liability Account"
+      value={formData.lease_liability_account_id}
+      onChange={(e) => handleFieldChange('lease_liability_account_id', e.target.value)}
+      leftIcon={CreditCard}
+      allowEmpty
+    />
+    <AccountSelect
+      label="Interest Expense Account"
+      value={formData.interest_expense_account_id}
+      onChange={(e) => handleFieldChange('interest_expense_account_id', e.target.value)}
+      leftIcon={Percent}
+      allowEmpty
+    />
+    <AccountSelect
+      label="Depreciation Expense Account"
+      value={formData.depreciation_expense_account_id}
+      onChange={(e) => handleFieldChange('depreciation_expense_account_id', e.target.value)}
+      leftIcon={Receipt}
+      allowEmpty
+    />
+    <AccountSelect
+      label="Accumulated Depreciation Account"
+      value={formData.accumulated_depreciation_account_id}
+      onChange={(e) => handleFieldChange('accumulated_depreciation_account_id', e.target.value)}
+      leftIcon={BookOpen}
+      allowEmpty
+    />
+    <AccountSelect
+      label="Cash / Bank Account"
+      value={formData.cash_account_id}
+      onChange={(e) => handleFieldChange('cash_account_id', e.target.value)}
+      leftIcon={PiggyBank}
+      allowEmpty
+    />
+  </div>
+</div>
 
           {/* Notes Section */}
           <div>

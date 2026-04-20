@@ -12,7 +12,6 @@ import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
-import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 function rowsOf(d){ return Array.isArray(d?.items) ? d.items : Array.isArray(d) ? d : []; }
