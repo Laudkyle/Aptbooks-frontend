@@ -22,6 +22,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -425,7 +426,7 @@ export default function IFRS15RevenuePage() {
               { value: 'NONE', label: 'None' },
             ]}
           />
-          <Input label="Billing account ID" value={form.billing_account_id} onChange={(e) => setForm((s) => ({ ...s, billing_account_id: e.target.value }))} className="md:col-span-2" />
+          <AccountSelect label="Billing account" value={form.billing_account_id} onChange={(e) => setForm((s) => ({ ...s, billing_account_id: e.target.value }))} className="md:col-span-2" allowEmpty />
         </div>
       </Modal>
 
@@ -443,14 +444,14 @@ export default function IFRS15RevenuePage() {
         }
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <Input label="Revenue account ID" value={settingsForm.revenue_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, revenue_account_id: e.target.value }))} />
-          <Input label="Billing account ID" value={settingsForm.billing_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, billing_account_id: e.target.value }))} />
-          <Input label="Contract asset account ID" value={settingsForm.contract_asset_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, contract_asset_account_id: e.target.value }))} />
-          <Input label="Contract liability account ID" value={settingsForm.contract_liability_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, contract_liability_account_id: e.target.value }))} />
-          <Input label="Financing interest income account ID" value={settingsForm.financing_interest_income_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, financing_interest_income_account_id: e.target.value }))} />
-          <Input label="Financing interest expense account ID" value={settingsForm.financing_interest_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, financing_interest_expense_account_id: e.target.value }))} />
-          <Input label="Default cost asset account ID" value={settingsForm.default_cost_asset_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_cost_asset_account_id: e.target.value }))} />
-          <Input label="Default cost amort. expense account ID" value={settingsForm.default_cost_amort_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_cost_amort_expense_account_id: e.target.value }))} />
+          <AccountSelect label="Revenue account" value={settingsForm.revenue_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, revenue_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['REVENUE'] }} />
+          <AccountSelect label="Billing account" value={settingsForm.billing_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, billing_account_id: e.target.value }))} allowEmpty />
+          <AccountSelect label="Contract asset account" value={settingsForm.contract_asset_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, contract_asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
+          <AccountSelect label="Contract liability account" value={settingsForm.contract_liability_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, contract_liability_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['LIABILITY'] }} />
+          <AccountSelect label="Financing interest income account" value={settingsForm.financing_interest_income_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, financing_interest_income_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['REVENUE', 'INCOME'] }} />
+          <AccountSelect label="Financing interest expense account" value={settingsForm.financing_interest_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, financing_interest_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
+          <AccountSelect label="Default cost asset account" value={settingsForm.default_cost_asset_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_cost_asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
+          <AccountSelect label="Default cost amort. expense account" value={settingsForm.default_cost_amort_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_cost_amort_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
           <Input label="Rounding decimals" type="number" value={settingsForm.rounding_decimals} onChange={(e) => setSettingsForm((s) => ({ ...s, rounding_decimals: e.target.value }))} />
         </div>
         <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">

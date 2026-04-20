@@ -24,6 +24,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -720,8 +721,8 @@ export default function IFRS15ContractDetailPage() {
           <Select label="Cost type" value={costForm.cost_type} onChange={(e) => setCostForm((s) => ({ ...s, cost_type: e.target.value }))} options={[{ value: 'ACQUISITION', label: 'Acquisition' }, { value: 'FULFILMENT', label: 'Fulfilment' }]} />
           <Input label="Amount" type="number" value={costForm.amount} error={errors.amount} onChange={(e) => setCostForm((s) => ({ ...s, amount: e.target.value }))} />
           <Textarea label="Description" value={costForm.description} onChange={(e) => setCostForm((s) => ({ ...s, description: e.target.value }))} className="md:col-span-2" />
-          <Input label="Asset account ID" value={costForm.asset_account_id} onChange={(e) => setCostForm((s) => ({ ...s, asset_account_id: e.target.value }))} />
-          <Input label="Amortisation expense account ID" value={costForm.amort_expense_account_id} onChange={(e) => setCostForm((s) => ({ ...s, amort_expense_account_id: e.target.value }))} />
+          <AccountSelect label="Asset account" value={costForm.asset_account_id} onChange={(e) => setCostForm((s) => ({ ...s, asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
+          <AccountSelect label="Amortisation expense account" value={costForm.amort_expense_account_id} onChange={(e) => setCostForm((s) => ({ ...s, amort_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
           <Input label="Amortisation start date" type="date" value={costForm.amort_start_date} error={errors.amort_start_date} onChange={(e) => setCostForm((s) => ({ ...s, amort_start_date: e.target.value }))} />
           <Input label="Amortisation end date" type="date" value={costForm.amort_end_date} error={errors.amort_end_date} onChange={(e) => setCostForm((s) => ({ ...s, amort_end_date: e.target.value }))} />
         </div>
