@@ -15,7 +15,8 @@ import {
   Workflow,
   CheckCircle2,
   XCircle,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
@@ -47,14 +48,78 @@ const percent = (value) => {
 
 const numberOrUndefined = (value) => (value === '' || value === null || value === undefined ? undefined : Number(value));
 const numberOrNull = (value) => (value === '' || value === null || value === undefined ? null : Number(value));
-const parseJsonSafe = (value, fallback = {}) => {
-  if (!value || !String(value).trim()) return fallback;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
+const boolFromValue = (value) => value === true || value === 'true' || value === 1 || value === '1';
+
+const emptyKeyValueRow = () => ({ key: '', value: '', valueType: 'string' });
+
+const pairRowsToObject = (rows = []) => rows.reduce((acc, row) => {
+  const key = String(row?.key ?? '').trim();
+  if (!key) return acc;
+  if (row.valueType === 'number') {
+    acc[key] = row.value === '' ? 0 : Number(row.value);
+  } else if (row.valueType === 'boolean') {
+    acc[key] = boolFromValue(row.value);
+  } else {
+    acc[key] = row.value ?? '';
   }
-};
+  return acc;
+}, {});
+
+function setPairRowsFromObject(obj = {}) {
+  const entries = Object.entries(obj || {});
+  if (!entries.length) return [emptyKeyValueRow()];
+  return entries.map(([key, value]) => ({
+    key,
+    value: typeof value === 'boolean' ? String(value) : value ?? '',
+    valueType: typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'
+  }));
+}
+
+
+const isBlank = (value) => value === '' || value === null || value === undefined;
+const isPositiveNumber = (value) => !isBlank(value) && !Number.isNaN(Number(value)) && Number(value) > 0;
+const isNonNegativeNumber = (value) => !isBlank(value) && !Number.isNaN(Number(value)) && Number(value) >= 0;
+
+function validateKeyValueRows(rows = [], { requireAtLeastOne = false } = {}) {
+  const errors = {};
+  const used = new Map();
+  let populated = 0;
+  rows.forEach((row, index) => {
+    const key = String(row?.key ?? '').trim();
+    const value = row?.value;
+    const hasAny = key || !isBlank(value);
+    if (!hasAny) return;
+    populated += 1;
+    if (!key) errors[`row_${index}_key`] = 'Key is required.';
+    if (key) {
+      if (used.has(key)) {
+        errors[`row_${index}_key`] = 'Key must be unique.';
+        errors[`row_${used.get(key)}_key`] = 'Key must be unique.';
+      } else {
+        used.set(key, index);
+      }
+    }
+    if (row?.valueType === 'number' && (isBlank(value) || Number.isNaN(Number(value)))) {
+      errors[`row_${index}_value`] = 'Enter a valid number.';
+    }
+    if (row?.valueType === 'boolean' && !['true', 'false'].includes(String(value).toLowerCase())) {
+      errors[`row_${index}_value`] = 'Select true or false.';
+    }
+  });
+  if (requireAtLeastOne && populated === 0) errors._rows = 'Add at least one row.';
+  return errors;
+}
+
+function ValidationNotice({ errors }) {
+  if (!errors?.length) return null;
+  return (
+    <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+      {errors.map((error) => (
+        <div key={error}>{error}</div>
+      ))}
+    </div>
+  );
+}
 
 function StatCard({ label, value, hint }) {
   return (
@@ -76,6 +141,74 @@ function Pill({ tone = 'slate', children }) {
     slate: 'bg-slate-50 text-slate-700 border-slate-200'
   };
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${tones[tone] ?? tones.slate}`}>{children}</span>;
+}
+
+function KeyValueEditor({ label, rows, setRows, helperText, errors = {} }) {
+  const updateRow = (index, patch) => {
+    setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  };
+
+  const addRow = () => setRows((current) => [...current, emptyKeyValueRow()]);
+  const removeRow = (index) => setRows((current) => (current.length === 1 ? [emptyKeyValueRow()] : current.filter((_, i) => i !== index)));
+
+  return (
+    <div className="mt-3 rounded-2xl border border-border-subtle p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-brand-deep">{label}</div>
+          {helperText ? <div className="text-xs text-slate-500">{helperText}</div> : null}
+        </div>
+        <Button type="button" size="sm" variant="secondary" onClick={addRow} leftIcon={Plus}>Add row</Button>
+      </div>
+      {errors?._rows ? <div className="mt-2 text-xs text-red-600">{errors._rows}</div> : null}
+      <div className="mt-3 space-y-3">
+        {rows.map((row, index) => (
+          <div key={`${index}-${row.key}`} className="grid gap-3 md:grid-cols-12">
+            <div className="md:col-span-4">
+              <Input label={index === 0 ? 'Key' : undefined} value={row.key} error={errors[`row_${index}_key`]} onChange={(e) => updateRow(index, { key: e.target.value })} />
+            </div>
+            <div className="md:col-span-3">
+              <Select
+                label={index === 0 ? 'Type' : undefined}
+                value={row.valueType}
+                onChange={(e) => updateRow(index, { valueType: e.target.value, value: e.target.value === 'boolean' ? 'false' : '' })}
+                options={[
+                  { value: 'string', label: 'Text' },
+                  { value: 'number', label: 'Number' },
+                  { value: 'boolean', label: 'Boolean' }
+                ]}
+              />
+            </div>
+            <div className="md:col-span-4">
+              {row.valueType === 'boolean' ? (
+                <Select
+                  label={index === 0 ? 'Value' : undefined}
+                  value={String(row.value ?? 'false')}
+                  error={errors[`row_${index}_value`]}
+                  onChange={(e) => updateRow(index, { value: e.target.value })}
+                  options={[
+                    { value: 'true', label: 'True' },
+                    { value: 'false', label: 'False' }
+                  ]}
+                />
+              ) : (
+                <Input
+                  label={index === 0 ? 'Value' : undefined}
+                  type={row.valueType === 'number' ? 'number' : 'text'}
+                  value={row.value}
+                  error={errors[`row_${index}_value`]}
+                  onChange={(e) => updateRow(index, { value: e.target.value })}
+                />
+              )}
+            </div>
+            <div className="md:col-span-1 flex items-end justify-end">
+              <Button type="button" size="sm" variant="secondary" leftIcon={Trash2} onClick={() => removeRow(index)}>Remove</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function IFRS9ECLPage() {
@@ -337,9 +470,12 @@ export default function IFRS9ECLPage() {
     probability_weight: '1',
     status: 'active',
     effective_from: '',
-    effective_to: '',
-    variable_set_json: '{\n  "gdp_growth": 0.03,\n  "inflation": 0.12\n}'
+    effective_to: ''
   });
+  const [scenarioVariableRows, setScenarioVariableRows] = useState([
+    { key: 'gdp_growth', value: '0.03', valueType: 'number' },
+    { key: 'inflation', value: '0.12', valueType: 'number' }
+  ]);
   const createScenario = useMutation({
     mutationFn: () => api.createMacroScenario({
       code: scenarioForm.code || undefined,
@@ -350,12 +486,16 @@ export default function IFRS9ECLPage() {
       status: scenarioForm.status,
       effective_from: scenarioForm.effective_from || undefined,
       effective_to: scenarioForm.effective_to || undefined,
-      variable_set: parseJsonSafe(scenarioForm.variable_set_json, {})
+      variable_set: pairRowsToObject(scenarioVariableRows)
     }),
     onSuccess: async () => {
       toast.push({ tone: 'success', title: 'Scenario created', message: 'Macro scenario saved.' });
       setScenarioOpen(false);
-      setScenarioForm({ code: '', name: '', description: '', scenario_type: 'BASE', probability_weight: '1', status: 'active', effective_from: '', effective_to: '', variable_set_json: '{\n  "gdp_growth": 0.03,\n  "inflation": 0.12\n}' });
+      setScenarioForm({ code: '', name: '', description: '', scenario_type: 'BASE', probability_weight: '1', status: 'active', effective_from: '', effective_to: '' });
+      setScenarioVariableRows([
+        { key: 'gdp_growth', value: '0.03', valueType: 'number' },
+        { key: 'inflation', value: '0.12', valueType: 'number' }
+      ]);
       await qc.invalidateQueries({ queryKey: ['compliance', 'ifrs9', 'macroScenarios'] });
     },
     onError: (e) => toast.push({ tone: 'danger', title: 'Scenario save failed', message: String(e?.response?.data?.message ?? e?.message ?? e) })
@@ -386,7 +526,8 @@ export default function IFRS9ECLPage() {
   });
 
   const [sicrOpen, setSicrOpen] = useState(false);
-  const [sicrForm, setSicrForm] = useState({ business_partner_id: '', segment: '', trigger_code: '', trigger_name: '', severity: 'medium', force_stage_min: '', pd_multiplier: '1', lgd_multiplier: '1', status: 'active', valid_from: '', valid_to: '', source: '', notes: '', metadata_json: '{\n  "basis": "qualitative review"\n}' });
+  const [sicrForm, setSicrForm] = useState({ business_partner_id: '', segment: '', trigger_code: '', trigger_name: '', severity: 'medium', force_stage_min: '', pd_multiplier: '1', lgd_multiplier: '1', status: 'active', valid_from: '', valid_to: '', source: '', notes: '' });
+  const [sicrMetadataRows, setSicrMetadataRows] = useState([{ key: 'basis', value: 'qualitative review', valueType: 'string' }]);
   const createSicr = useMutation({
     mutationFn: () => api.createSicrTrigger({
       business_partner_id: sicrForm.business_partner_id || undefined,
@@ -402,12 +543,13 @@ export default function IFRS9ECLPage() {
       valid_to: sicrForm.valid_to || undefined,
       source: sicrForm.source || undefined,
       notes: sicrForm.notes || undefined,
-      metadata: parseJsonSafe(sicrForm.metadata_json, {})
+      metadata: pairRowsToObject(sicrMetadataRows)
     }),
     onSuccess: async () => {
       toast.push({ tone: 'success', title: 'SICR trigger saved', message: 'Qualitative SICR trigger created.' });
       setSicrOpen(false);
-      setSicrForm({ business_partner_id: '', segment: '', trigger_code: '', trigger_name: '', severity: 'medium', force_stage_min: '', pd_multiplier: '1', lgd_multiplier: '1', status: 'active', valid_from: '', valid_to: '', source: '', notes: '', metadata_json: '{\n  "basis": "qualitative review"\n}' });
+      setSicrForm({ business_partner_id: '', segment: '', trigger_code: '', trigger_name: '', severity: 'medium', force_stage_min: '', pd_multiplier: '1', lgd_multiplier: '1', status: 'active', valid_from: '', valid_to: '', source: '', notes: '' });
+      setSicrMetadataRows([{ key: 'basis', value: 'qualitative review', valueType: 'string' }]);
       await qc.invalidateQueries({ queryKey: ['compliance', 'ifrs9', 'sicrTriggers'] });
     },
     onError: (e) => toast.push({ tone: 'danger', title: 'SICR save failed', message: String(e?.response?.data?.message ?? e?.message ?? e) })
@@ -425,19 +567,128 @@ export default function IFRS9ECLPage() {
   });
 
   const [changeOpen, setChangeOpen] = useState(false);
-  const [changeForm, setChangeForm] = useState({ model_id: '', change_type: 'SETTINGS_UPSERT', title: '', reason: '', payload_json: '{\n  \n}' });
+  const [changeForm, setChangeForm] = useState({ model_id: '', change_type: 'SETTINGS_UPSERT', title: '', reason: '' });
+  const [changePayloadSettings, setChangePayloadSettings] = useState({
+    impairment_expense_account_id: '',
+    loss_allowance_account_id: '',
+    default_model_id: '',
+    rounding_decimals: 2,
+    stage2_threshold_days: 30,
+    stage3_threshold_days: 90,
+    default_lgd: 0.45,
+    annual_discount_rate: 0.10,
+    model_change_approval_required: false
+  });
+  const [changePayloadModel, setChangePayloadModel] = useState({ code: '', name: '', description: '', model_type: 'SIMPLIFIED', status: 'active' });
+  const [changePayloadBucket, setChangePayloadBucket] = useState({ model_id: '', label: '', days_past_due_from: 0, days_past_due_to: '', loss_rate: '' });
+  const [changePayloadParameter, setChangePayloadParameter] = useState({ model_id: '', stage: '1', label: '', days_past_due_from: 0, days_past_due_to: '', pd_12m: '', pd_lifetime: '', lgd: '' });
+  const [changePayloadScenario, setChangePayloadScenario] = useState({ code: '', name: '', description: '', scenario_type: 'BASE', probability_weight: '1', status: 'active', effective_from: '', effective_to: '' });
+  const [changePayloadScenarioVariables, setChangePayloadScenarioVariables] = useState([emptyKeyValueRow()]);
+  const [changePayloadOverlay, setChangePayloadOverlay] = useState({ scenario_id: '', model_id: '', segment: '', stage: '', days_past_due_from: '', days_past_due_to: '', pd_multiplier: '1', lgd_multiplier: '1', loss_rate_multiplier: '1', ecl_multiplier: '1', notes: '' });
+  const [changePayloadSicr, setChangePayloadSicr] = useState({ business_partner_id: '', segment: '', trigger_code: '', trigger_name: '', severity: 'medium', force_stage_min: '', pd_multiplier: '1', lgd_multiplier: '1', status: 'active', valid_from: '', valid_to: '', source: '', notes: '' });
+  const [changePayloadSicrMetadata, setChangePayloadSicrMetadata] = useState([emptyKeyValueRow()]);
+
+  const buildChangePayload = () => {
+    switch (changeForm.change_type) {
+      case 'SETTINGS_UPSERT':
+        return {
+          impairment_expense_account_id: changePayloadSettings.impairment_expense_account_id || undefined,
+          loss_allowance_account_id: changePayloadSettings.loss_allowance_account_id || undefined,
+          default_model_id: changePayloadSettings.default_model_id || null,
+          rounding_decimals: Number(changePayloadSettings.rounding_decimals),
+          stage2_threshold_days: Number(changePayloadSettings.stage2_threshold_days),
+          stage3_threshold_days: Number(changePayloadSettings.stage3_threshold_days),
+          default_lgd: Number(changePayloadSettings.default_lgd),
+          annual_discount_rate: Number(changePayloadSettings.annual_discount_rate),
+          model_change_approval_required: !!changePayloadSettings.model_change_approval_required
+        };
+      case 'MODEL_CREATE':
+        return {
+          code: changePayloadModel.code || undefined,
+          name: changePayloadModel.name,
+          description: changePayloadModel.description || undefined,
+          model_type: changePayloadModel.model_type,
+          status: changePayloadModel.status
+        };
+      case 'BUCKET_ADD':
+        return {
+          model_id: changeForm.model_id || changePayloadBucket.model_id || undefined,
+          label: changePayloadBucket.label,
+          days_past_due_from: Number(changePayloadBucket.days_past_due_from),
+          days_past_due_to: numberOrNull(changePayloadBucket.days_past_due_to),
+          loss_rate: Number(changePayloadBucket.loss_rate)
+        };
+      case 'PARAMETER_ADD':
+        return {
+          model_id: changeForm.model_id || changePayloadParameter.model_id || undefined,
+          stage: Number(changePayloadParameter.stage),
+          label: changePayloadParameter.label,
+          days_past_due_from: Number(changePayloadParameter.days_past_due_from),
+          days_past_due_to: numberOrNull(changePayloadParameter.days_past_due_to),
+          pd_12m: Number(changePayloadParameter.pd_12m),
+          pd_lifetime: Number(changePayloadParameter.pd_lifetime),
+          lgd: numberOrNull(changePayloadParameter.lgd)
+        };
+      case 'SCENARIO_CREATE':
+        return {
+          code: changePayloadScenario.code || undefined,
+          name: changePayloadScenario.name,
+          description: changePayloadScenario.description || undefined,
+          scenario_type: changePayloadScenario.scenario_type,
+          probability_weight: Number(changePayloadScenario.probability_weight || 1),
+          status: changePayloadScenario.status,
+          effective_from: changePayloadScenario.effective_from || undefined,
+          effective_to: changePayloadScenario.effective_to || undefined,
+          variable_set: pairRowsToObject(changePayloadScenarioVariables)
+        };
+      case 'SCENARIO_OVERLAY_UPSERT':
+        return {
+          scenario_id: changePayloadOverlay.scenario_id,
+          model_id: changePayloadOverlay.model_id || null,
+          segment: changePayloadOverlay.segment || undefined,
+          stage: numberOrNull(changePayloadOverlay.stage),
+          days_past_due_from: numberOrNull(changePayloadOverlay.days_past_due_from),
+          days_past_due_to: numberOrNull(changePayloadOverlay.days_past_due_to),
+          pd_multiplier: Number(changePayloadOverlay.pd_multiplier || 1),
+          lgd_multiplier: Number(changePayloadOverlay.lgd_multiplier || 1),
+          loss_rate_multiplier: Number(changePayloadOverlay.loss_rate_multiplier || 1),
+          ecl_multiplier: Number(changePayloadOverlay.ecl_multiplier || 1),
+          notes: changePayloadOverlay.notes || undefined
+        };
+      case 'SICR_TRIGGER_UPSERT':
+        return {
+          business_partner_id: changePayloadSicr.business_partner_id || undefined,
+          segment: changePayloadSicr.segment || undefined,
+          trigger_code: changePayloadSicr.trigger_code,
+          trigger_name: changePayloadSicr.trigger_name,
+          severity: changePayloadSicr.severity,
+          force_stage_min: numberOrNull(changePayloadSicr.force_stage_min),
+          pd_multiplier: Number(changePayloadSicr.pd_multiplier || 1),
+          lgd_multiplier: Number(changePayloadSicr.lgd_multiplier || 1),
+          status: changePayloadSicr.status,
+          valid_from: changePayloadSicr.valid_from || undefined,
+          valid_to: changePayloadSicr.valid_to || undefined,
+          source: changePayloadSicr.source || undefined,
+          notes: changePayloadSicr.notes || undefined,
+          metadata: pairRowsToObject(changePayloadSicrMetadata)
+        };
+      default:
+        return {};
+    }
+  };
+
   const createModelChange = useMutation({
     mutationFn: () => api.createModelChange({
-      model_id: changeForm.model_id || undefined,
+      model_id: ['BUCKET_ADD', 'PARAMETER_ADD'].includes(changeForm.change_type) ? (changeForm.model_id || undefined) : undefined,
       change_type: changeForm.change_type,
       title: changeForm.title,
       reason: changeForm.reason || undefined,
-      payload: parseJsonSafe(changeForm.payload_json, {})
+      payload: buildChangePayload()
     }),
     onSuccess: async () => {
       toast.push({ tone: 'success', title: 'Change request created', message: 'IFRS 9 model change draft saved.' });
       setChangeOpen(false);
-      setChangeForm({ model_id: '', change_type: 'SETTINGS_UPSERT', title: '', reason: '', payload_json: '{\n  \n}' });
+      setChangeForm({ model_id: '', change_type: 'SETTINGS_UPSERT', title: '', reason: '' });
       await qc.invalidateQueries({ queryKey: ['compliance', 'ifrs9', 'modelChanges', changeStatusFilter || 'all'] });
     },
     onError: (e) => toast.push({ tone: 'danger', title: 'Change request failed', message: String(e?.response?.data?.message ?? e?.message ?? e) })
@@ -491,6 +742,107 @@ export default function IFRS9ECLPage() {
     sicrTriggers: sicrRows.length,
     pendingChanges: modelChangeRows.filter((r) => ['draft', 'submitted', 'approved'].includes(r.status)).length
   };
+
+
+  const scenarioValidation = useMemo(() => {
+    const errors = {};
+    if (!scenarioForm.name?.trim()) errors.name = 'Scenario name is required.';
+    if (!isPositiveNumber(scenarioForm.probability_weight) || Number(scenarioForm.probability_weight) > 1) {
+      errors.probability_weight = 'Enter a probability weight between 0 and 1.';
+    }
+    if (scenarioForm.effective_from && scenarioForm.effective_to && scenarioForm.effective_to < scenarioForm.effective_from) {
+      errors.effective_to = 'Effective to cannot be earlier than effective from.';
+    }
+    errors.variable_set = validateKeyValueRows(scenarioVariableRows, { requireAtLeastOne: false });
+    return { errors, isValid: !errors.name && !errors.probability_weight && !errors.effective_to && Object.keys(errors.variable_set).length === 0 };
+  }, [scenarioForm, scenarioVariableRows]);
+
+  const overlayValidation = useMemo(() => {
+    const errors = {};
+    if (!overlayForm.scenario_id) errors.scenario_id = 'Scenario is required.';
+    if (!isPositiveNumber(overlayForm.pd_multiplier)) errors.pd_multiplier = 'PD multiplier must be greater than 0.';
+    if (!isPositiveNumber(overlayForm.lgd_multiplier)) errors.lgd_multiplier = 'LGD multiplier must be greater than 0.';
+    if (!isPositiveNumber(overlayForm.loss_rate_multiplier)) errors.loss_rate_multiplier = 'Loss-rate multiplier must be greater than 0.';
+    if (!isPositiveNumber(overlayForm.ecl_multiplier)) errors.ecl_multiplier = 'ECL multiplier must be greater than 0.';
+    if (!isBlank(overlayForm.days_past_due_from) && !isNonNegativeNumber(overlayForm.days_past_due_from)) errors.days_past_due_from = 'Use 0 or a positive number.';
+    if (!isBlank(overlayForm.days_past_due_to) && !isNonNegativeNumber(overlayForm.days_past_due_to)) errors.days_past_due_to = 'Use 0 or a positive number.';
+    if (!isBlank(overlayForm.days_past_due_from) && !isBlank(overlayForm.days_past_due_to) && Number(overlayForm.days_past_due_to) < Number(overlayForm.days_past_due_from)) errors.days_past_due_to = 'Days past due to cannot be less than from.';
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [overlayForm]);
+
+  const sicrValidation = useMemo(() => {
+    const errors = {};
+    if (!sicrForm.trigger_code?.trim()) errors.trigger_code = 'Trigger code is required.';
+    if (!sicrForm.trigger_name?.trim()) errors.trigger_name = 'Trigger name is required.';
+    if (!isPositiveNumber(sicrForm.pd_multiplier)) errors.pd_multiplier = 'PD multiplier must be greater than 0.';
+    if (!isPositiveNumber(sicrForm.lgd_multiplier)) errors.lgd_multiplier = 'LGD multiplier must be greater than 0.';
+    if (sicrForm.valid_from && sicrForm.valid_to && sicrForm.valid_to < sicrForm.valid_from) errors.valid_to = 'Valid to cannot be earlier than valid from.';
+    errors.metadata = validateKeyValueRows(sicrMetadataRows, { requireAtLeastOne: false });
+    return { errors, isValid: !errors.trigger_code && !errors.trigger_name && !errors.pd_multiplier && !errors.lgd_multiplier && !errors.valid_to && Object.keys(errors.metadata).length === 0 };
+  }, [sicrForm, sicrMetadataRows]);
+
+  const changeValidation = useMemo(() => {
+    const errors = {};
+    if (!changeForm.title?.trim()) errors.title = 'Title is required.';
+    switch (changeForm.change_type) {
+      case 'MODEL_CREATE':
+        if (!changePayloadModel.name?.trim()) errors.payload = 'Model name is required.';
+        break;
+      case 'BUCKET_ADD':
+        if (!(changeForm.model_id || changePayloadBucket.model_id)) errors.payload = 'Model is required.';
+        else if (!((modelRows.find((m) => String(m.id) === String(changeForm.model_id || changePayloadBucket.model_id)) || {}).model_type === 'SIMPLIFIED')) errors.payload = 'Bucket changes apply only to simplified models.';
+        else if (!changePayloadBucket.label?.trim()) errors.payload = 'Bucket label is required.';
+        else if (!isNonNegativeNumber(changePayloadBucket.days_past_due_from)) errors.payload = 'Bucket start days must be 0 or more.';
+        else if (!isBlank(changePayloadBucket.days_past_due_to) && !isNonNegativeNumber(changePayloadBucket.days_past_due_to)) errors.payload = 'Bucket end days must be 0 or more.';
+        else if (!isBlank(changePayloadBucket.days_past_due_to) && Number(changePayloadBucket.days_past_due_to) < Number(changePayloadBucket.days_past_due_from)) errors.payload = 'Bucket end days cannot be less than start days.';
+        else if (!isNonNegativeNumber(changePayloadBucket.loss_rate)) errors.payload = 'Loss rate is required.';
+        break;
+      case 'PARAMETER_ADD':
+        if (!(changeForm.model_id || changePayloadParameter.model_id)) errors.payload = 'Model is required.';
+        else if (!((modelRows.find((m) => String(m.id) === String(changeForm.model_id || changePayloadParameter.model_id)) || {}).model_type === 'GENERAL')) errors.payload = 'Parameter changes apply only to general models.';
+        else if (!changePayloadParameter.label?.trim()) errors.payload = 'Parameter label is required.';
+        else if (!isNonNegativeNumber(changePayloadParameter.days_past_due_from)) errors.payload = 'Parameter start days must be 0 or more.';
+        else if (!isBlank(changePayloadParameter.days_past_due_to) && !isNonNegativeNumber(changePayloadParameter.days_past_due_to)) errors.payload = 'Parameter end days must be 0 or more.';
+        else if (!isBlank(changePayloadParameter.days_past_due_to) && Number(changePayloadParameter.days_past_due_to) < Number(changePayloadParameter.days_past_due_from)) errors.payload = 'Parameter end days cannot be less than start days.';
+        else if (!isNonNegativeNumber(changePayloadParameter.pd_12m)) errors.payload = '12-month PD is required.';
+        else if (!isNonNegativeNumber(changePayloadParameter.pd_lifetime)) errors.payload = 'Lifetime PD is required.';
+        break;
+      case 'SCENARIO_CREATE': {
+        if (!changePayloadScenario.name?.trim()) errors.payload = 'Scenario name is required.';
+        else if (!isPositiveNumber(changePayloadScenario.probability_weight) || Number(changePayloadScenario.probability_weight) > 1) errors.payload = 'Probability weight must be between 0 and 1.';
+        else if (changePayloadScenario.effective_from && changePayloadScenario.effective_to && changePayloadScenario.effective_to < changePayloadScenario.effective_from) errors.payload = 'Scenario end date cannot be earlier than start date.';
+        const rowErrors = validateKeyValueRows(changePayloadScenarioVariables, { requireAtLeastOne: false });
+        if (Object.keys(rowErrors).length) errors.payload = 'Fix the scenario variable rows.';
+        errors.variable_set = rowErrors;
+        break;
+      }
+      case 'SCENARIO_OVERLAY_UPSERT':
+        if (!changePayloadOverlay.scenario_id) errors.payload = 'Scenario is required.';
+        else if (!isPositiveNumber(changePayloadOverlay.pd_multiplier) || !isPositiveNumber(changePayloadOverlay.lgd_multiplier) || !isPositiveNumber(changePayloadOverlay.loss_rate_multiplier) || !isPositiveNumber(changePayloadOverlay.ecl_multiplier)) errors.payload = 'All overlay multipliers must be greater than 0.';
+        else if (!isBlank(changePayloadOverlay.days_past_due_from) && !isNonNegativeNumber(changePayloadOverlay.days_past_due_from)) errors.payload = 'Overlay start days must be 0 or more.';
+        else if (!isBlank(changePayloadOverlay.days_past_due_to) && !isNonNegativeNumber(changePayloadOverlay.days_past_due_to)) errors.payload = 'Overlay end days must be 0 or more.';
+        else if (!isBlank(changePayloadOverlay.days_past_due_from) && !isBlank(changePayloadOverlay.days_past_due_to) && Number(changePayloadOverlay.days_past_due_to) < Number(changePayloadOverlay.days_past_due_from)) errors.payload = 'Overlay end days cannot be less than start days.';
+        break;
+      case 'SICR_TRIGGER_UPSERT': {
+        if (!changePayloadSicr.trigger_code?.trim()) errors.payload = 'Trigger code is required.';
+        else if (!changePayloadSicr.trigger_name?.trim()) errors.payload = 'Trigger name is required.';
+        else if (!isPositiveNumber(changePayloadSicr.pd_multiplier) || !isPositiveNumber(changePayloadSicr.lgd_multiplier)) errors.payload = 'PD and LGD multipliers must be greater than 0.';
+        else if (changePayloadSicr.valid_from && changePayloadSicr.valid_to && changePayloadSicr.valid_to < changePayloadSicr.valid_from) errors.payload = 'Valid to cannot be earlier than valid from.';
+        const rowErrors = validateKeyValueRows(changePayloadSicrMetadata, { requireAtLeastOne: false });
+        if (Object.keys(rowErrors).length) errors.payload = 'Fix the trigger metadata rows.';
+        errors.metadata = rowErrors;
+        break;
+      }
+      default:
+        break;
+    }
+    return { errors, isValid: Object.keys(errors).filter((k) => k !== 'variable_set' && k !== 'metadata').length === 0 && Object.keys(errors.variable_set || {}).length === 0 && Object.keys(errors.metadata || {}).length === 0 };
+  }, [changeForm, changePayloadSettings, changePayloadModel, changePayloadBucket, changePayloadParameter, changePayloadScenario, changePayloadScenarioVariables, changePayloadOverlay, changePayloadSicr, changePayloadSicrMetadata, modelRows]);
+
+  const selectedBucketModel = useMemo(() => modelRows.find((m) => String(m.id) === String(changeForm.model_id || changePayloadBucket.model_id || '')), [modelRows, changeForm.model_id, changePayloadBucket.model_id]);
+  const selectedParameterModel = useMemo(() => modelRows.find((m) => String(m.id) === String(changeForm.model_id || changePayloadParameter.model_id || '')), [modelRows, changeForm.model_id, changePayloadParameter.model_id]);
+  const shouldShowBucketFields = changeForm.change_type === 'BUCKET_ADD' && (!selectedBucketModel || selectedBucketModel.model_type === 'SIMPLIFIED');
+  const shouldShowParameterFields = changeForm.change_type === 'PARAMETER_ADD' && (!selectedParameterModel || selectedParameterModel.model_type === 'GENERAL');
 
   const modelColumns = useMemo(() => [
     { header: 'Model', render: (m) => <div><div className="font-medium text-slate-900">{m.name}</div><div className="text-xs text-slate-500">{m.code}</div></div> },
@@ -604,6 +956,114 @@ export default function IFRS9ECLPage() {
 
   const behavioralResult = behavioralAnalytics.data;
 
+  const renderChangePayloadFields = () => {
+    switch (changeForm.change_type) {
+      case 'SETTINGS_UPSERT':
+        return (
+          <div className="grid gap-3 md:grid-cols-2">
+            <AccountSelect label="Impairment expense account" value={changePayloadSettings.impairment_expense_account_id} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, impairment_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
+            <AccountSelect label="Loss allowance account" value={changePayloadSettings.loss_allowance_account_id} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, loss_allowance_account_id: e.target.value }))} allowEmpty />
+            <Select label="Default model" value={changePayloadSettings.default_model_id} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, default_model_id: e.target.value }))} options={modelOptions} />
+            <Input label="Rounding decimals" type="number" value={changePayloadSettings.rounding_decimals} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, rounding_decimals: e.target.value }))} />
+            <Input label="Stage 2 threshold days" type="number" value={changePayloadSettings.stage2_threshold_days} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, stage2_threshold_days: e.target.value }))} />
+            <Input label="Stage 3 threshold days" type="number" value={changePayloadSettings.stage3_threshold_days} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, stage3_threshold_days: e.target.value }))} />
+            <Input label="Default LGD" type="number" step="0.0001" value={changePayloadSettings.default_lgd} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, default_lgd: e.target.value }))} />
+            <Input label="Annual discount rate" type="number" step="0.0001" value={changePayloadSettings.annual_discount_rate} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, annual_discount_rate: e.target.value }))} />
+            <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm md:col-span-2">
+              <input type="checkbox" checked={changePayloadSettings.model_change_approval_required} onChange={(e) => setChangePayloadSettings((s) => ({ ...s, model_change_approval_required: e.target.checked }))} />
+              Require approval before IFRS 9 changes are applied
+            </label>
+          </div>
+        );
+      case 'MODEL_CREATE':
+        return (
+          <div className="grid gap-3 md:grid-cols-2">
+            <Input label="Code (optional)" value={changePayloadModel.code} onChange={(e) => setChangePayloadModel((s) => ({ ...s, code: e.target.value }))} />
+            <Input label="Name" value={changePayloadModel.name} onChange={(e) => setChangePayloadModel((s) => ({ ...s, name: e.target.value }))} />
+            <Select label="Model type" value={changePayloadModel.model_type} onChange={(e) => setChangePayloadModel((s) => ({ ...s, model_type: e.target.value }))} options={[{ value: 'SIMPLIFIED', label: 'Simplified' }, { value: 'GENERAL', label: 'General' }]} />
+            <Select label="Status" value={changePayloadModel.status} onChange={(e) => setChangePayloadModel((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+            <Textarea className="md:col-span-2" label="Description" value={changePayloadModel.description} onChange={(e) => setChangePayloadModel((s) => ({ ...s, description: e.target.value }))} />
+          </div>
+        );
+      case 'BUCKET_ADD':
+        return (
+          <div className="space-y-3">
+            <Select label="Model" value={changeForm.model_id || changePayloadBucket.model_id} onChange={(e) => { setChangeForm((s) => ({ ...s, model_id: e.target.value })); setChangePayloadBucket((s) => ({ ...s, model_id: e.target.value })); }} options={modelOptions} />
+            {selectedBucketModel && selectedBucketModel.model_type !== 'SIMPLIFIED' ? <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">Only simplified models accept bucket rows. Select a simplified model to continue.</div> : null}
+            {shouldShowBucketFields ? <div className="grid gap-3 md:grid-cols-2"><Input label="Label" value={changePayloadBucket.label} onChange={(e) => setChangePayloadBucket((s) => ({ ...s, label: e.target.value }))} /><Input label="Days past due from" type="number" value={changePayloadBucket.days_past_due_from} onChange={(e) => setChangePayloadBucket((s) => ({ ...s, days_past_due_from: e.target.value }))} /><Input label="Days past due to" type="number" value={changePayloadBucket.days_past_due_to} onChange={(e) => setChangePayloadBucket((s) => ({ ...s, days_past_due_to: e.target.value }))} /><Input label="Loss rate" type="number" step="0.0001" value={changePayloadBucket.loss_rate} onChange={(e) => setChangePayloadBucket((s) => ({ ...s, loss_rate: e.target.value }))} /></div> : null}
+          </div>
+        );
+      case 'PARAMETER_ADD':
+        return (
+          <div className="grid gap-3 md:grid-cols-2">
+            <Select label="Model" value={changeForm.model_id || changePayloadParameter.model_id} onChange={(e) => { setChangeForm((s) => ({ ...s, model_id: e.target.value })); setChangePayloadParameter((s) => ({ ...s, model_id: e.target.value })); }} options={modelOptions} />
+            <Select label="Stage" value={changePayloadParameter.stage} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
+            <Input label="Label" value={changePayloadParameter.label} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, label: e.target.value }))} />
+            <Input label="Days past due from" type="number" value={changePayloadParameter.days_past_due_from} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, days_past_due_from: e.target.value }))} />
+            <Input label="Days past due to" type="number" value={changePayloadParameter.days_past_due_to} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, days_past_due_to: e.target.value }))} />
+            <Input label="12-month PD" type="number" step="0.0001" value={changePayloadParameter.pd_12m} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, pd_12m: e.target.value }))} />
+            <Input label="Lifetime PD" type="number" step="0.0001" value={changePayloadParameter.pd_lifetime} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, pd_lifetime: e.target.value }))} />
+            <Input label="LGD (optional)" type="number" step="0.0001" value={changePayloadParameter.lgd} onChange={(e) => setChangePayloadParameter((s) => ({ ...s, lgd: e.target.value }))} />
+          </div>
+        );
+      case 'SCENARIO_CREATE':
+        return (
+          <>
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input label="Code (optional)" value={changePayloadScenario.code} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, code: e.target.value }))} />
+              <Input label="Name" value={changePayloadScenario.name} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, name: e.target.value }))} />
+              <Select label="Scenario type" value={changePayloadScenario.scenario_type} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, scenario_type: e.target.value }))} options={[{ value: 'BASE', label: 'Base' }, { value: 'UPSIDE', label: 'Upside' }, { value: 'DOWNSIDE', label: 'Downside' }, { value: 'CUSTOM', label: 'Custom' }]} />
+              <Input label="Probability weight" type="number" step="0.0001" value={changePayloadScenario.probability_weight} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, probability_weight: e.target.value }))} />
+              <Input label="Effective from" type="date" value={changePayloadScenario.effective_from} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, effective_from: e.target.value }))} />
+              <Input label="Effective to" type="date" value={changePayloadScenario.effective_to} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, effective_to: e.target.value }))} />
+              <Select label="Status" value={changePayloadScenario.status} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+            </div>
+            <Textarea className="mt-3" label="Description" value={changePayloadScenario.description} onChange={(e) => setChangePayloadScenario((s) => ({ ...s, description: e.target.value }))} />
+            <KeyValueEditor label="Scenario variables" rows={changePayloadScenarioVariables} setRows={setChangePayloadScenarioVariables} helperText="This maps to backend field variable_set." />
+          </>
+        );
+      case 'SCENARIO_OVERLAY_UPSERT':
+        return (
+          <div className="grid gap-3 md:grid-cols-2">
+            <Select label="Scenario" value={changePayloadOverlay.scenario_id} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, scenario_id: e.target.value }))} options={scenarioOptions} />
+            <Select label="Model (optional)" value={changePayloadOverlay.model_id} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} />
+            <Input label="Segment (optional)" value={changePayloadOverlay.segment} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, segment: e.target.value }))} />
+            <Select label="Stage (optional)" value={changePayloadOverlay.stage} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '', label: 'Any' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
+            <Input label="Days past due from" type="number" value={changePayloadOverlay.days_past_due_from} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, days_past_due_from: e.target.value }))} />
+            <Input label="Days past due to" type="number" value={changePayloadOverlay.days_past_due_to} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, days_past_due_to: e.target.value }))} />
+            <Input label="PD multiplier" type="number" step="0.0001" value={changePayloadOverlay.pd_multiplier} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, pd_multiplier: e.target.value }))} />
+            <Input label="LGD multiplier" type="number" step="0.0001" value={changePayloadOverlay.lgd_multiplier} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, lgd_multiplier: e.target.value }))} />
+            <Input label="Loss-rate multiplier" type="number" step="0.0001" value={changePayloadOverlay.loss_rate_multiplier} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, loss_rate_multiplier: e.target.value }))} />
+            <Input label="ECL multiplier" type="number" step="0.0001" value={changePayloadOverlay.ecl_multiplier} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, ecl_multiplier: e.target.value }))} />
+            <Textarea className="md:col-span-2" label="Notes" value={changePayloadOverlay.notes} onChange={(e) => setChangePayloadOverlay((s) => ({ ...s, notes: e.target.value }))} />
+          </div>
+        );
+      case 'SICR_TRIGGER_UPSERT':
+        return (
+          <>
+            <div className="grid gap-3 md:grid-cols-2">
+              <PartnerSelect label="Partner (optional)" type="customer" value={changePayloadSicr.business_partner_id} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, business_partner_id: e.target.value }))} />
+              <Input label="Segment (optional)" value={changePayloadSicr.segment} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, segment: e.target.value }))} />
+              <Input label="Trigger code" value={changePayloadSicr.trigger_code} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, trigger_code: e.target.value }))} />
+              <Input label="Trigger name" value={changePayloadSicr.trigger_name} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, trigger_name: e.target.value }))} />
+              <Select label="Severity" value={changePayloadSicr.severity} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, severity: e.target.value }))} options={[{ value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }, { value: 'critical', label: 'Critical' }]} />
+              <Select label="Force minimum stage" value={changePayloadSicr.force_stage_min} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, force_stage_min: e.target.value }))} options={[{ value: '', label: 'No forced stage' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
+              <Input label="PD multiplier" type="number" step="0.0001" value={changePayloadSicr.pd_multiplier} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, pd_multiplier: e.target.value }))} />
+              <Input label="LGD multiplier" type="number" step="0.0001" value={changePayloadSicr.lgd_multiplier} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, lgd_multiplier: e.target.value }))} />
+              <Input label="Valid from" type="date" value={changePayloadSicr.valid_from} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, valid_from: e.target.value }))} />
+              <Input label="Valid to" type="date" value={changePayloadSicr.valid_to} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, valid_to: e.target.value }))} />
+              <Input label="Source" value={changePayloadSicr.source} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, source: e.target.value }))} />
+              <Select label="Status" value={changePayloadSicr.status} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
+            </div>
+            <Textarea className="mt-3" label="Notes" value={changePayloadSicr.notes} onChange={(e) => setChangePayloadSicr((s) => ({ ...s, notes: e.target.value }))} />
+            <KeyValueEditor label="Trigger metadata" rows={changePayloadSicrMetadata} setRows={setChangePayloadSicrMetadata} helperText="This maps to backend field metadata." />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -635,403 +1095,46 @@ export default function IFRS9ECLPage() {
         <StatCard label="Governance" value={dashboard.pendingChanges} hint="Open model-change requests" />
       </div>
 
-      <ContentCard>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          tabs={[
-            {
-              value: 'dashboard',
-              label: 'Dashboard',
-              icon: BarChart3,
-              content: (
-                <div className="space-y-4">
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-border-subtle p-4">
-                      <div className="text-sm font-semibold text-brand-deep">Current run snapshot</div>
-                      {run ? (
-                        <div className="mt-3 grid gap-3 md:grid-cols-2">
-                          <StatCard label="Model" value={run.model_name ?? '—'} hint={run.model_code ?? ''} />
-                          <StatCard label="Approach" value={run.approach ?? '—'} hint={run.period_code ?? run.period_name ?? ''} />
-                          <StatCard label="Exposure" value={formatMoney(run.total_exposure)} hint={`As of ${formatDate(run.as_of_date)}`} />
-                          <StatCard label="Total ECL" value={formatMoney(run.total_ecl)} hint={`Delta ${formatMoney(run.delta_allowance)}`} />
-                        </div>
-                      ) : <div className="mt-3 text-sm text-slate-500">No run selected.</div>}
-                    </div>
-                    <div className="rounded-2xl border border-border-subtle p-4">
-                      <div className="text-sm font-semibold text-brand-deep">Allowance movement</div>
-                      <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <Select label="Period" value={runsPeriodId} onChange={(e) => setRunsPeriodId(e.target.value)} options={periodOptions} />
-                        <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Pick a period to load opening, movement and closing allowance.</div>
-                      </div>
-                      {allowanceQuery.data ? (
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                          <StatCard label="Opening allowance" value={formatMoney(allowanceQuery.data.opening_allowance)} />
-                          <StatCard label="Closing allowance" value={formatMoney(allowanceQuery.data.closing_allowance)} />
-                          <StatCard label="Additions" value={formatMoney(allowanceQuery.data.additions)} />
-                          <StatCard label="Releases" value={formatMoney(allowanceQuery.data.releases)} />
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    <ContentCard title="Macro scenarios"><div className="text-2xl font-semibold text-brand-deep">{scenarioRows.length}</div><p className="mt-1 text-sm text-slate-600">Probability-weighted overlays available for forward-looking ECL adjustments.</p></ContentCard>
-                    <ContentCard title="Qualitative SICR"><div className="text-2xl font-semibold text-brand-deep">{sicrRows.filter((r) => r.status === 'active').length}</div><p className="mt-1 text-sm text-slate-600">Active qualitative stage migration controls beyond days-past-due thresholds.</p></ContentCard>
-                    <ContentCard title="Model governance"><div className="text-2xl font-semibold text-brand-deep">{modelChangeRows.length}</div><p className="mt-1 text-sm text-slate-600">Approval-controlled configuration changes for auditability.</p></ContentCard>
-                  </div>
-                </div>
-              )
-            },
-            {
-              value: 'settings',
-              label: 'Settings',
-              icon: ShieldCheck,
-              content: (
-                <div className="grid gap-4 lg:grid-cols-3">
-                  <div className="lg:col-span-2 rounded-2xl border border-border-subtle p-4">
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <AccountSelect label="Loss allowance account" value={settingsForm.loss_allowance_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, loss_allowance_account_id: e.target.value }))} allowEmpty />
-                      <AccountSelect label="Impairment expense account" value={settingsForm.impairment_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, impairment_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
-                      <Select label="Default ECL model" value={settingsForm.default_model_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_model_id: e.target.value }))} options={modelOptions} />
-                      <Input label="Rounding decimals" type="number" value={settingsForm.rounding_decimals} onChange={(e) => setSettingsForm((s) => ({ ...s, rounding_decimals: e.target.value }))} />
-                      <Input label="Stage 2 threshold (days past due)" type="number" value={settingsForm.stage2_threshold_days} onChange={(e) => setSettingsForm((s) => ({ ...s, stage2_threshold_days: e.target.value }))} />
-                      <Input label="Stage 3 threshold (days past due)" type="number" value={settingsForm.stage3_threshold_days} onChange={(e) => setSettingsForm((s) => ({ ...s, stage3_threshold_days: e.target.value }))} />
-                      <Input label="Default LGD" type="number" step="0.0001" value={settingsForm.default_lgd} onChange={(e) => setSettingsForm((s) => ({ ...s, default_lgd: e.target.value }))} />
-                      <Input label="Annual discount rate" type="number" step="0.0001" value={settingsForm.annual_discount_rate} onChange={(e) => setSettingsForm((s) => ({ ...s, annual_discount_rate: e.target.value }))} />
-                      <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm md:col-span-2">
-                        <input type="checkbox" checked={settingsForm.model_change_approval_required} onChange={(e) => setSettingsForm((s) => ({ ...s, model_change_approval_required: e.target.checked }))} />
-                        Require formal approval before IFRS 9 model/configuration changes are applied
-                      </label>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <Button variant="primary" onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending || settingsLoading}>Save settings</Button>
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-border-subtle bg-slate-50 p-4 text-sm text-slate-600">
-                    These settings govern stage migration thresholds, fallback LGD, posting accounts, default model selection, and whether model changes follow an approval-controlled workflow.
-                  </div>
-                </div>
-              )
-            },
-            {
-              value: 'models',
-              label: 'Models',
-              icon: BookOpenCheck,
-              content: (
-                <div className="space-y-3">
-                  <div className="flex justify-end">
-                    <Button leftIcon={Plus} variant="primary" onClick={() => setModelOpen(true)}>New model</Button>
-                  </div>
-                  <DataTable columns={modelColumns} rows={modelRows} isLoading={modelsLoading} empty={{ title: 'No IFRS 9 models', description: 'Create simplified or general ECL models to begin.' }} />
-                </div>
-              )
-            },
-            {
-              value: 'counterparties',
-              label: 'Counterparties',
-              icon: Users,
-              content: (
-                <div className="grid gap-4 lg:grid-cols-3">
-                  <div className="lg:col-span-2 rounded-2xl border border-border-subtle p-4">
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <PartnerSelect label="Customer / counterparty" type="customer" value={selectedPartnerId} onChange={(e) => setSelectedPartnerId(e.target.value)} />
-                      <Input label="Segment" value={profileForm.segment} onChange={(e) => setProfileForm((s) => ({ ...s, segment: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} />
-                      <Select label="Stage override" value={String(profileForm.stage_override ?? '')} onChange={(e) => setProfileForm((s) => ({ ...s, stage_override: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} options={[{ value: '', label: 'No override' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
-                      <Select label="Status" value={profileForm.status} onChange={(e) => setProfileForm((s) => ({ ...s, status: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
-                    </div>
-                    <Textarea className="mt-3" label="Override reason" value={profileForm.override_reason} onChange={(e) => setProfileForm((s) => ({ ...s, override_reason: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} />
-                    <div className="mt-4 flex justify-end">
-                      <Button variant="primary" onClick={() => upsertCounterpartyProfile.mutate()} disabled={!selectedPartnerId || upsertCounterpartyProfile.isPending}>Save profile</Button>
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-border-subtle bg-slate-50 p-4 text-sm text-slate-600">
-                    Use counterparty-level staging overrides sparingly and always provide rationale. This aligns the frontend with backend profile retrieval and upsert support for partner-specific IFRS 9 treatment.
-                  </div>
-                </div>
-              )
-            },
-            {
-              value: 'scenarios',
-              label: 'Macro scenarios',
-              icon: GitBranch,
-              content: (
-                <div className="space-y-4">
-                  <div className="flex flex-wrap justify-end gap-2">
-                    <Button variant="secondary" onClick={() => setOverlayOpen(true)}>Add overlay</Button>
-                    <Button leftIcon={Plus} variant="primary" onClick={() => setScenarioOpen(true)}>New scenario</Button>
-                  </div>
-                  <DataTable columns={scenarioColumns} rows={scenarioRows} isLoading={macroScenariosQuery.isLoading} empty={{ title: 'No macro scenarios', description: 'Create base, upside, downside or custom scenarios for forward-looking ECL.' }} />
-                </div>
-              )
-            },
-            {
-              value: 'sicr',
-              label: 'SICR triggers',
-              icon: AlertTriangle,
-              content: (
-                <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <Button leftIcon={Plus} variant="primary" onClick={() => setSicrOpen(true)}>New trigger</Button>
-                  </div>
-                  <DataTable columns={sicrColumns} rows={sicrRows} isLoading={sicrTriggersQuery.isLoading} empty={{ title: 'No SICR triggers', description: 'Create qualitative significant increase in credit risk triggers.' }} />
-                </div>
-              )
-            },
-            {
-              value: 'behavioral',
-              label: 'Behavioral analytics',
-              icon: Brain,
-              content: (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-border-subtle p-4">
-                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-                      <Input label="As of date" type="date" value={behavioralForm.as_of_date} onChange={(e) => setBehavioralForm((s) => ({ ...s, as_of_date: e.target.value }))} />
-                      <Input label="Horizon months" type="number" value={behavioralForm.horizon_months} onChange={(e) => setBehavioralForm((s) => ({ ...s, horizon_months: e.target.value }))} />
-                      <Input label="Transition window days" type="number" value={behavioralForm.transition_window_days} onChange={(e) => setBehavioralForm((s) => ({ ...s, transition_window_days: e.target.value }))} />
-                      <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm">
-                        <input type="checkbox" checked={behavioralForm.persist_snapshot} onChange={(e) => setBehavioralForm((s) => ({ ...s, persist_snapshot: e.target.checked }))} />
-                        Persist snapshot
-                      </label>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <Button variant="primary" onClick={() => behavioralAnalytics.mutate()} disabled={!behavioralForm.as_of_date || behavioralAnalytics.isPending}>Run analytics</Button>
-                    </div>
-                  </div>
-                  {behavioralResult ? (
-                    <div className="space-y-4">
-                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <StatCard label="Cure rate" value={percent(behavioralResult.cure_rate)} />
-                        <StatCard label="Vintage multiplier" value={Number(behavioralResult.vintage_multiplier ?? 1).toFixed(2)} />
-                        <StatCard label="Transition multiplier" value={Number(behavioralResult.transition_multiplier ?? 1).toFixed(2)} />
-                        <StatCard label="LGD multiplier" value={Number(behavioralResult.lgd_multiplier ?? 1).toFixed(2)} />
-                        <StatCard label="Loss-rate multiplier" value={Number(behavioralResult.loss_rate_multiplier ?? 1).toFixed(2)} />
-                      </div>
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <ContentCard title="Cohorts">
-                          <DataTable columns={cohortColumns} rows={behavioralResult.cohorts ?? []} empty={{ title: 'No cohort rows', description: 'No invoice history matched the selected window.' }} />
-                        </ContentCard>
-                        <ContentCard title="Transition matrix">
-                          <DataTable columns={transitionColumns} rows={behavioralResult.transition_matrix ?? []} empty={{ title: 'No transitions', description: 'No transitions were generated.' }} />
-                        </ContentCard>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              )
-            },
-            {
-              value: 'changes',
-              label: 'Model changes',
-              icon: Workflow,
-              content: (
-                <div className="space-y-4">
-                  <div className="grid gap-3 lg:grid-cols-4">
-                    <Select label="Status filter" value={changeStatusFilter} onChange={(e) => setChangeStatusFilter(e.target.value)} options={[{ value: '', label: 'All statuses' }, { value: 'draft', label: 'Draft' }, { value: 'submitted', label: 'Submitted' }, { value: 'approved', label: 'Approved' }, { value: 'rejected', label: 'Rejected' }, { value: 'applied', label: 'Applied' }]} />
-                    <div className="lg:col-span-3 flex items-end justify-end">
-                      <Button leftIcon={Plus} variant="primary" onClick={() => setChangeOpen(true)}>New change request</Button>
-                    </div>
-                  </div>
-                  <DataTable columns={modelChangeColumns} rows={modelChangeRows} isLoading={modelChangesQuery.isLoading} empty={{ title: 'No change requests', description: 'Draft settings, model, scenario or SICR changes for approval.' }} />
-                </div>
-              )
-            },
-            {
-              value: 'runs',
-              label: 'Runs',
-              icon: Calculator,
-              content: (
-                <div className="space-y-4">
-                  <div className="grid gap-3 lg:grid-cols-3">
-                    <Select label="Filter by period" value={runsPeriodId} onChange={(e) => setRunsPeriodId(e.target.value)} options={periodOptions} />
-                    <div className="lg:col-span-2 rounded-2xl border border-border-subtle p-3 text-sm text-slate-600">Select a run to view line-level exposure, disclosure breakdowns, posting status and audit actions.</div>
-                  </div>
-                  <DataTable columns={runColumns} rows={runRows} isLoading={runsLoading} empty={{ title: 'No runs', description: 'Compute an ECL run for an open period.' }} />
-                  <div className="rounded-2xl border border-border-subtle p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-semibold text-brand-deep">Run detail</div>
-                        <div className="text-xs text-slate-500">Detailed view for the selected run.</div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="secondary" onClick={() => setFinalizeOpen(true)} disabled={!selectedRunId || !run || run.status !== 'computed'}>Finalize</Button>
-                        <Button variant="primary" onClick={() => setPostOpen(true)} disabled={!selectedRunId || !run || !['finalized', 'posted'].includes(run.status)}>Post</Button>
-                        <Button variant="secondary" leftIcon={RotateCcw} onClick={() => setReverseOpen(true)} disabled={!selectedRunId || !run || run.status !== 'posted'}>Reverse</Button>
-                      </div>
-                    </div>
-
-                    {runDetailLoading ? <div className="mt-3 text-sm text-slate-500">Loading run detail…</div> : run ? (
-                      <div className="mt-4 space-y-4">
-                        <div className="grid gap-3 md:grid-cols-4">
-                          <StatCard label="Status" value={run.status} hint={run.model_name ?? ''} />
-                          <StatCard label="Exposure" value={formatMoney(run.total_exposure)} hint={`As of ${formatDate(run.as_of_date)}`} />
-                          <StatCard label="Total ECL" value={formatMoney(run.total_ecl)} hint={`Prior ${formatMoney(run.prior_posted_ecl)}`} />
-                          <StatCard label="Delta allowance" value={formatMoney(run.delta_allowance)} hint={run.journal_entry_id ? `Journal ${run.journal_entry_id}` : 'Not yet posted'} />
-                        </div>
-                        <DataTable columns={lineColumns} rows={runLines} empty={{ title: 'No line detail', description: 'No aggregated exposures were produced for this run.' }} />
-                      </div>
-                    ) : <div className="mt-3 text-sm text-slate-500">Select a run to inspect.</div>}
-                  </div>
-                </div>
-              )
-            },
-            {
-              value: 'reports',
-              label: 'Disclosures',
-              icon: BarChart3,
-              content: (
-                <div className="space-y-4">
-                  <div className="rounded-2xl border border-border-subtle p-4 text-sm text-slate-600">
-                    Disclosure reports are derived from the selected run and the currently selected allowance-movement period.
-                  </div>
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-4">
-                      <ContentCard title="Breakdown by stage">
-                        <DataTable columns={stageColumns} rows={disclosureQuery.data?.breakdown?.by_stage ?? []} empty={{ title: 'No stage breakdown', description: 'Select a run to load disclosure analytics.' }} />
-                      </ContentCard>
-                      <ContentCard title="Breakdown by bucket">
-                        <DataTable columns={bucketColumns} rows={disclosureQuery.data?.breakdown?.by_bucket ?? []} empty={{ title: 'No bucket breakdown', description: 'This run may use general staging only, or no run is selected.' }} />
-                      </ContentCard>
-                    </div>
-                    <div>
-                      <ContentCard title="Top counterparties">
-                        <DataTable columns={topCounterpartyColumns} rows={disclosureQuery.data?.breakdown?.top_counterparties ?? []} empty={{ title: 'No counterparties', description: 'Compute or select a run first.' }} />
-                      </ContentCard>
-                    </div>
-                  </div>
-                </div>
-              )
-            }
-          ]}
-        />
+      <ContentCard>{/* Tabs content unchanged structure from pasted file, retained below */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} tabs={[
+          { value: 'dashboard', label: 'Dashboard', icon: BarChart3, content: <div className="space-y-4"><div className="grid gap-4 lg:grid-cols-2"><div className="rounded-2xl border border-border-subtle p-4"><div className="text-sm font-semibold text-brand-deep">Current run snapshot</div>{run ? <div className="mt-3 grid gap-3 md:grid-cols-2"><StatCard label="Model" value={run.model_name ?? '—'} hint={run.model_code ?? ''} /><StatCard label="Approach" value={run.approach ?? '—'} hint={run.period_code ?? run.period_name ?? ''} /><StatCard label="Exposure" value={formatMoney(run.total_exposure)} hint={`As of ${formatDate(run.as_of_date)}`} /><StatCard label="Total ECL" value={formatMoney(run.total_ecl)} hint={`Delta ${formatMoney(run.delta_allowance)}`} /></div> : <div className="mt-3 text-sm text-slate-500">No run selected.</div>}</div><div className="rounded-2xl border border-border-subtle p-4"><div className="text-sm font-semibold text-brand-deep">Allowance movement</div><div className="mt-3 grid gap-3 md:grid-cols-2"><Select label="Period" value={runsPeriodId} onChange={(e) => setRunsPeriodId(e.target.value)} options={periodOptions} /><div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Pick a period to load opening, movement and closing allowance.</div></div>{allowanceQuery.data ? <div className="mt-4 grid gap-3 md:grid-cols-2"><StatCard label="Opening allowance" value={formatMoney(allowanceQuery.data.opening_allowance)} /><StatCard label="Closing allowance" value={formatMoney(allowanceQuery.data.closing_allowance)} /><StatCard label="Additions" value={formatMoney(allowanceQuery.data.additions)} /><StatCard label="Releases" value={formatMoney(allowanceQuery.data.releases)} /></div> : null}</div></div><div className="grid gap-4 lg:grid-cols-3"><ContentCard title="Macro scenarios"><div className="text-2xl font-semibold text-brand-deep">{scenarioRows.length}</div><p className="mt-1 text-sm text-slate-600">Probability-weighted overlays available for forward-looking ECL adjustments.</p></ContentCard><ContentCard title="Qualitative SICR"><div className="text-2xl font-semibold text-brand-deep">{sicrRows.filter((r) => r.status === 'active').length}</div><p className="mt-1 text-sm text-slate-600">Active qualitative stage migration controls beyond days-past-due thresholds.</p></ContentCard><ContentCard title="Model governance"><div className="text-2xl font-semibold text-brand-deep">{modelChangeRows.length}</div><p className="mt-1 text-sm text-slate-600">Approval-controlled configuration changes for auditability.</p></ContentCard></div></div> },
+          { value: 'settings', label: 'Settings', icon: ShieldCheck, content: <div className="grid gap-4 lg:grid-cols-3"><div className="lg:col-span-2 rounded-2xl border border-border-subtle p-4"><div className="grid gap-3 md:grid-cols-2"><AccountSelect label="Loss allowance account" value={settingsForm.loss_allowance_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, loss_allowance_account_id: e.target.value }))} allowEmpty /><AccountSelect label="Impairment expense account" value={settingsForm.impairment_expense_account_id} onChange={(e) => setSettingsForm((s) => ({ ...s, impairment_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} /><Select label="Default ECL model" value={settingsForm.default_model_id} onChange={(e) => setSettingsForm((s) => ({ ...s, default_model_id: e.target.value }))} options={modelOptions} /><Input label="Rounding decimals" type="number" value={settingsForm.rounding_decimals} onChange={(e) => setSettingsForm((s) => ({ ...s, rounding_decimals: e.target.value }))} /><Input label="Stage 2 threshold (days past due)" type="number" value={settingsForm.stage2_threshold_days} onChange={(e) => setSettingsForm((s) => ({ ...s, stage2_threshold_days: e.target.value }))} /><Input label="Stage 3 threshold (days past due)" type="number" value={settingsForm.stage3_threshold_days} onChange={(e) => setSettingsForm((s) => ({ ...s, stage3_threshold_days: e.target.value }))} /><Input label="Default LGD" type="number" step="0.0001" value={settingsForm.default_lgd} onChange={(e) => setSettingsForm((s) => ({ ...s, default_lgd: e.target.value }))} /><Input label="Annual discount rate" type="number" step="0.0001" value={settingsForm.annual_discount_rate} onChange={(e) => setSettingsForm((s) => ({ ...s, annual_discount_rate: e.target.value }))} /><label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm md:col-span-2"><input type="checkbox" checked={settingsForm.model_change_approval_required} onChange={(e) => setSettingsForm((s) => ({ ...s, model_change_approval_required: e.target.checked }))} />Require formal approval before IFRS 9 model/configuration changes are applied</label></div><div className="mt-4 flex justify-end"><Button variant="primary" onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending || settingsLoading}>Save settings</Button></div></div><div className="rounded-2xl border border-border-subtle bg-slate-50 p-4 text-sm text-slate-600">These settings govern stage migration thresholds, fallback LGD, posting accounts, default model selection, and whether model changes follow an approval-controlled workflow.</div></div> },
+          { value: 'models', label: 'Models', icon: BookOpenCheck, content: <div className="space-y-3"><div className="flex justify-end"><Button leftIcon={Plus} variant="primary" onClick={() => setModelOpen(true)}>New model</Button></div><DataTable columns={modelColumns} rows={modelRows} isLoading={modelsLoading} empty={{ title: 'No IFRS 9 models', description: 'Create simplified or general ECL models to begin.' }} /></div> },
+          { value: 'counterparties', label: 'Counterparties', icon: Users, content: <div className="grid gap-4 lg:grid-cols-3"><div className="lg:col-span-2 rounded-2xl border border-border-subtle p-4"><div className="grid gap-3 md:grid-cols-2"><PartnerSelect label="Customer / counterparty" type="customer" value={selectedPartnerId} onChange={(e) => setSelectedPartnerId(e.target.value)} /><Input label="Segment" value={profileForm.segment} onChange={(e) => setProfileForm((s) => ({ ...s, segment: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} /><Select label="Stage override" value={String(profileForm.stage_override ?? '')} onChange={(e) => setProfileForm((s) => ({ ...s, stage_override: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} options={[{ value: '', label: 'No override' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} /><Select label="Status" value={profileForm.status} onChange={(e) => setProfileForm((s) => ({ ...s, status: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} /></div><Textarea className="mt-3" label="Override reason" value={profileForm.override_reason} onChange={(e) => setProfileForm((s) => ({ ...s, override_reason: e.target.value, business_partner_id: selectedPartnerId || s.business_partner_id }))} /><div className="mt-4 flex justify-end"><Button variant="primary" onClick={() => upsertCounterpartyProfile.mutate()} disabled={!selectedPartnerId || upsertCounterpartyProfile.isPending}>Save profile</Button></div></div><div className="rounded-2xl border border-border-subtle bg-slate-50 p-4 text-sm text-slate-600">Use counterparty-level staging overrides sparingly and always provide rationale. This aligns the frontend with backend profile retrieval and upsert support for partner-specific IFRS 9 treatment.</div></div> },
+          { value: 'scenarios', label: 'Macro scenarios', icon: GitBranch, content: <div className="space-y-4"><div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={() => setOverlayOpen(true)}>Add overlay</Button><Button leftIcon={Plus} variant="primary" onClick={() => setScenarioOpen(true)}>New scenario</Button></div><DataTable columns={scenarioColumns} rows={scenarioRows} isLoading={macroScenariosQuery.isLoading} empty={{ title: 'No macro scenarios', description: 'Create base, upside, downside or custom scenarios for forward-looking ECL.' }} /></div> },
+          { value: 'sicr', label: 'SICR triggers', icon: AlertTriangle, content: <div className="space-y-4"><div className="flex justify-end"><Button leftIcon={Plus} variant="primary" onClick={() => setSicrOpen(true)}>New trigger</Button></div><DataTable columns={sicrColumns} rows={sicrRows} isLoading={sicrTriggersQuery.isLoading} empty={{ title: 'No SICR triggers', description: 'Create qualitative significant increase in credit risk triggers.' }} /></div> },
+          { value: 'behavioral', label: 'Behavioral analytics', icon: Brain, content: <div className="space-y-4"><div className="rounded-2xl border border-border-subtle p-4"><div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4"><Input label="As of date" type="date" value={behavioralForm.as_of_date} onChange={(e) => setBehavioralForm((s) => ({ ...s, as_of_date: e.target.value }))} /><Input label="Horizon months" type="number" value={behavioralForm.horizon_months} onChange={(e) => setBehavioralForm((s) => ({ ...s, horizon_months: e.target.value }))} /><Input label="Transition window days" type="number" value={behavioralForm.transition_window_days} onChange={(e) => setBehavioralForm((s) => ({ ...s, transition_window_days: e.target.value }))} /><label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm"><input type="checkbox" checked={behavioralForm.persist_snapshot} onChange={(e) => setBehavioralForm((s) => ({ ...s, persist_snapshot: e.target.checked }))} />Persist snapshot</label></div><div className="mt-4 flex justify-end"><Button variant="primary" onClick={() => behavioralAnalytics.mutate()} disabled={!behavioralForm.as_of_date || behavioralAnalytics.isPending}>Run analytics</Button></div></div>{behavioralResult ? <div className="space-y-4"><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"><StatCard label="Cure rate" value={percent(behavioralResult.cure_rate)} /><StatCard label="Vintage multiplier" value={Number(behavioralResult.vintage_multiplier ?? 1).toFixed(2)} /><StatCard label="Transition multiplier" value={Number(behavioralResult.transition_multiplier ?? 1).toFixed(2)} /><StatCard label="LGD multiplier" value={Number(behavioralResult.lgd_multiplier ?? 1).toFixed(2)} /><StatCard label="Loss-rate multiplier" value={Number(behavioralResult.loss_rate_multiplier ?? 1).toFixed(2)} /></div><div className="grid gap-4 lg:grid-cols-2"><ContentCard title="Cohorts"><DataTable columns={cohortColumns} rows={behavioralResult.cohorts ?? []} empty={{ title: 'No cohort rows', description: 'No invoice history matched the selected window.' }} /></ContentCard><ContentCard title="Transition matrix"><DataTable columns={transitionColumns} rows={behavioralResult.transition_matrix ?? []} empty={{ title: 'No transitions', description: 'No transitions were generated.' }} /></ContentCard></div></div> : null}</div> },
+          { value: 'changes', label: 'Model changes', icon: Workflow, content: <div className="space-y-4"><div className="grid gap-3 lg:grid-cols-4"><Select label="Status filter" value={changeStatusFilter} onChange={(e) => setChangeStatusFilter(e.target.value)} options={[{ value: '', label: 'All statuses' }, { value: 'draft', label: 'Draft' }, { value: 'submitted', label: 'Submitted' }, { value: 'approved', label: 'Approved' }, { value: 'rejected', label: 'Rejected' }, { value: 'applied', label: 'Applied' }]} /><div className="lg:col-span-3 flex items-end justify-end"><Button leftIcon={Plus} variant="primary" onClick={() => setChangeOpen(true)}>New change request</Button></div></div><DataTable columns={modelChangeColumns} rows={modelChangeRows} isLoading={modelChangesQuery.isLoading} empty={{ title: 'No change requests', description: 'Draft settings, model, scenario or SICR changes for approval.' }} /></div> },
+          { value: 'runs', label: 'Runs', icon: Calculator, content: <div className="space-y-4"><div className="grid gap-3 lg:grid-cols-3"><Select label="Filter by period" value={runsPeriodId} onChange={(e) => setRunsPeriodId(e.target.value)} options={periodOptions} /><div className="lg:col-span-2 rounded-2xl border border-border-subtle p-3 text-sm text-slate-600">Select a run to view line-level exposure, disclosure breakdowns, posting status and audit actions.</div></div><DataTable columns={runColumns} rows={runRows} isLoading={runsLoading} empty={{ title: 'No runs', description: 'Compute an ECL run for an open period.' }} /><div className="rounded-2xl border border-border-subtle p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-sm font-semibold text-brand-deep">Run detail</div><div className="text-xs text-slate-500">Detailed view for the selected run.</div></div><div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={() => setFinalizeOpen(true)} disabled={!selectedRunId || !run || run.status !== 'computed'}>Finalize</Button><Button variant="primary" onClick={() => setPostOpen(true)} disabled={!selectedRunId || !run || !['finalized', 'posted'].includes(run.status)}>Post</Button><Button variant="secondary" leftIcon={RotateCcw} onClick={() => setReverseOpen(true)} disabled={!selectedRunId || !run || run.status !== 'posted'}>Reverse</Button></div></div>{runDetailLoading ? <div className="mt-3 text-sm text-slate-500">Loading run detail…</div> : run ? <div className="mt-4 space-y-4"><div className="grid gap-3 md:grid-cols-4"><StatCard label="Status" value={run.status} hint={run.model_name ?? ''} /><StatCard label="Exposure" value={formatMoney(run.total_exposure)} hint={`As of ${formatDate(run.as_of_date)}`} /><StatCard label="Total ECL" value={formatMoney(run.total_ecl)} hint={`Prior ${formatMoney(run.prior_posted_ecl)}`} /><StatCard label="Delta allowance" value={formatMoney(run.delta_allowance)} hint={run.journal_entry_id ? `Journal ${run.journal_entry_id}` : 'Not yet posted'} /></div><DataTable columns={lineColumns} rows={runLines} empty={{ title: 'No line detail', description: 'No aggregated exposures were produced for this run.' }} /></div> : <div className="mt-3 text-sm text-slate-500">Select a run to inspect.</div>}</div></div> },
+          { value: 'reports', label: 'Disclosures', icon: BarChart3, content: <div className="space-y-4"><div className="rounded-2xl border border-border-subtle p-4 text-sm text-slate-600">Disclosure reports are derived from the selected run and the currently selected allowance-movement period.</div><div className="grid gap-4 lg:grid-cols-3"><div className="lg:col-span-2 space-y-4"><ContentCard title="Breakdown by stage"><DataTable columns={stageColumns} rows={disclosureQuery.data?.breakdown?.by_stage ?? []} empty={{ title: 'No stage breakdown', description: 'Select a run to load disclosure analytics.' }} /></ContentCard><ContentCard title="Breakdown by bucket"><DataTable columns={bucketColumns} rows={disclosureQuery.data?.breakdown?.by_bucket ?? []} empty={{ title: 'No bucket breakdown', description: 'This run may use general staging only, or no run is selected.' }} /></ContentCard></div><div><ContentCard title="Top counterparties"><DataTable columns={topCounterpartyColumns} rows={disclosureQuery.data?.breakdown?.top_counterparties ?? []} empty={{ title: 'No counterparties', description: 'Compute or select a run first.' }} /></ContentCard></div></div></div> }
+        ]} />
       </ContentCard>
 
-      <Modal open={modelOpen} title="New ECL model" onClose={() => setModelOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setModelOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createModel.mutate()} disabled={createModel.isPending}>Create</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Input label="Code (optional)" value={modelForm.code} onChange={(e) => setModelForm((s) => ({ ...s, code: e.target.value }))} />
-          <Input label="Name" value={modelForm.name} onChange={(e) => setModelForm((s) => ({ ...s, name: e.target.value }))} />
-          <Select label="Model type" value={modelForm.model_type} onChange={(e) => setModelForm((s) => ({ ...s, model_type: e.target.value }))} options={[{ value: 'SIMPLIFIED', label: 'Simplified' }, { value: 'GENERAL', label: 'General' }]} />
-        </div>
-        <Textarea className="mt-3" label="Description" value={modelForm.description} onChange={(e) => setModelForm((s) => ({ ...s, description: e.target.value }))} />
-      </Modal>
+      <Modal open={modelOpen} title="New ECL model" onClose={() => setModelOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setModelOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createModel.mutate()} disabled={createModel.isPending}>Create</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Input label="Code (optional)" value={modelForm.code} onChange={(e) => setModelForm((s) => ({ ...s, code: e.target.value }))} /><Input label="Name" value={modelForm.name} onChange={(e) => setModelForm((s) => ({ ...s, name: e.target.value }))} /><Select label="Model type" value={modelForm.model_type} onChange={(e) => setModelForm((s) => ({ ...s, model_type: e.target.value }))} options={[{ value: 'SIMPLIFIED', label: 'Simplified' }, { value: 'GENERAL', label: 'General' }]} /></div><Textarea className="mt-3" label="Description" value={modelForm.description} onChange={(e) => setModelForm((s) => ({ ...s, description: e.target.value }))} /></Modal>
 
-      <Modal open={bucketOpen} title={`Add simplified bucket — ${bucketTarget?.name ?? ''}`} onClose={() => setBucketOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setBucketOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addBucket.mutate()} disabled={addBucket.isPending}>Save bucket</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Input label="Label" value={bucketForm.label} onChange={(e) => setBucketForm((s) => ({ ...s, label: e.target.value }))} />
-          <Input label="Days past due from" type="number" value={bucketForm.days_past_due_from} onChange={(e) => setBucketForm((s) => ({ ...s, days_past_due_from: e.target.value }))} />
-          <Input label="Days past due to" type="number" value={bucketForm.days_past_due_to} onChange={(e) => setBucketForm((s) => ({ ...s, days_past_due_to: e.target.value }))} />
-          <Input label="Loss rate" type="number" step="0.0001" value={bucketForm.loss_rate} onChange={(e) => setBucketForm((s) => ({ ...s, loss_rate: e.target.value }))} />
-        </div>
-      </Modal>
+      <Modal open={bucketOpen} title={`Add simplified bucket — ${bucketTarget?.name ?? ''}`} onClose={() => setBucketOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setBucketOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addBucket.mutate()} disabled={addBucket.isPending}>Save bucket</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Input label="Label" value={bucketForm.label} onChange={(e) => setBucketForm((s) => ({ ...s, label: e.target.value }))} /><Input label="Days past due from" type="number" value={bucketForm.days_past_due_from} onChange={(e) => setBucketForm((s) => ({ ...s, days_past_due_from: e.target.value }))} /><Input label="Days past due to" type="number" value={bucketForm.days_past_due_to} onChange={(e) => setBucketForm((s) => ({ ...s, days_past_due_to: e.target.value }))} /><Input label="Loss rate" type="number" step="0.0001" value={bucketForm.loss_rate} onChange={(e) => setBucketForm((s) => ({ ...s, loss_rate: e.target.value }))} /></div></Modal>
 
-      <Modal open={parameterOpen} title={`Add general parameter — ${parameterTarget?.name ?? ''}`} onClose={() => setParameterOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setParameterOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addParameter.mutate()} disabled={addParameter.isPending}>Save parameter</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Stage" value={String(parameterForm.stage)} onChange={(e) => setParameterForm((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
-          <Input label="Label" value={parameterForm.label} onChange={(e) => setParameterForm((s) => ({ ...s, label: e.target.value }))} />
-          <Input label="Days past due from" type="number" value={parameterForm.days_past_due_from} onChange={(e) => setParameterForm((s) => ({ ...s, days_past_due_from: e.target.value }))} />
-          <Input label="Days past due to" type="number" value={parameterForm.days_past_due_to} onChange={(e) => setParameterForm((s) => ({ ...s, days_past_due_to: e.target.value }))} />
-          <Input label="12-month PD" type="number" step="0.0001" value={parameterForm.pd_12m} onChange={(e) => setParameterForm((s) => ({ ...s, pd_12m: e.target.value }))} />
-          <Input label="Lifetime PD" type="number" step="0.0001" value={parameterForm.pd_lifetime} onChange={(e) => setParameterForm((s) => ({ ...s, pd_lifetime: e.target.value }))} />
-          <Input label="LGD (optional)" type="number" step="0.0001" value={parameterForm.lgd} onChange={(e) => setParameterForm((s) => ({ ...s, lgd: e.target.value }))} />
-        </div>
-      </Modal>
+      <Modal open={parameterOpen} title={`Add general parameter — ${parameterTarget?.name ?? ''}`} onClose={() => setParameterOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setParameterOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addParameter.mutate()} disabled={addParameter.isPending}>Save parameter</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Select label="Stage" value={String(parameterForm.stage)} onChange={(e) => setParameterForm((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} /><Input label="Label" value={parameterForm.label} onChange={(e) => setParameterForm((s) => ({ ...s, label: e.target.value }))} /><Input label="Days past due from" type="number" value={parameterForm.days_past_due_from} onChange={(e) => setParameterForm((s) => ({ ...s, days_past_due_from: e.target.value }))} /><Input label="Days past due to" type="number" value={parameterForm.days_past_due_to} onChange={(e) => setParameterForm((s) => ({ ...s, days_past_due_to: e.target.value }))} /><Input label="12-month PD" type="number" step="0.0001" value={parameterForm.pd_12m} onChange={(e) => setParameterForm((s) => ({ ...s, pd_12m: e.target.value }))} /><Input label="Lifetime PD" type="number" step="0.0001" value={parameterForm.pd_lifetime} onChange={(e) => setParameterForm((s) => ({ ...s, pd_lifetime: e.target.value }))} /><Input label="LGD (optional)" type="number" step="0.0001" value={parameterForm.lgd} onChange={(e) => setParameterForm((s) => ({ ...s, lgd: e.target.value }))} /></div></Modal>
 
-      <Modal open={computeOpen} title="Compute ECL" onClose={() => setComputeOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setComputeOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => computeRun.mutate()} disabled={computeRun.isPending}>Compute</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Period" value={computeForm.period_id} onChange={(e) => setComputeForm((s) => ({ ...s, period_id: e.target.value }))} options={periodOptions} />
-          <Select label="Model" value={computeForm.model_id} onChange={(e) => setComputeForm((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} />
-          <Input label="As of date (optional)" type="date" value={computeForm.as_of_date} onChange={(e) => setComputeForm((s) => ({ ...s, as_of_date: e.target.value }))} />
-          <Select label="Primary scenario (optional)" value={computeForm.scenario_ids[0] ?? ''} onChange={(e) => setComputeForm((s) => ({ ...s, scenario_ids: e.target.value ? [e.target.value] : [] }))} options={scenarioOptions} />
-          <label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm md:col-span-2">
-            <input type="checkbox" checked={computeForm.use_behavioral_metrics} onChange={(e) => setComputeForm((s) => ({ ...s, use_behavioral_metrics: e.target.checked }))} />
-            Apply behavioral analytics multipliers during compute
-          </label>
-        </div>
-        <Textarea className="mt-3" label="Memo (optional)" value={computeForm.memo} onChange={(e) => setComputeForm((s) => ({ ...s, memo: e.target.value }))} />
-      </Modal>
+      <Modal open={computeOpen} title="Compute ECL" onClose={() => setComputeOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setComputeOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => computeRun.mutate()} disabled={computeRun.isPending}>Compute</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Select label="Period" value={computeForm.period_id} onChange={(e) => setComputeForm((s) => ({ ...s, period_id: e.target.value }))} options={periodOptions} /><Select label="Model" value={computeForm.model_id} onChange={(e) => setComputeForm((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} /><Input label="As of date (optional)" type="date" value={computeForm.as_of_date} onChange={(e) => setComputeForm((s) => ({ ...s, as_of_date: e.target.value }))} /><Select label="Primary scenario (optional)" value={computeForm.scenario_ids[0] ?? ''} onChange={(e) => setComputeForm((s) => ({ ...s, scenario_ids: e.target.value ? [e.target.value] : [] }))} options={scenarioOptions} /><label className="flex items-center gap-2 rounded-xl border border-border-subtle px-3 py-2 text-sm md:col-span-2"><input type="checkbox" checked={computeForm.use_behavioral_metrics} onChange={(e) => setComputeForm((s) => ({ ...s, use_behavioral_metrics: e.target.checked }))} />Apply behavioral analytics multipliers during compute</label></div><Textarea className="mt-3" label="Memo (optional)" value={computeForm.memo} onChange={(e) => setComputeForm((s) => ({ ...s, memo: e.target.value }))} /></Modal>
 
       <ConfirmDialog open={finalizeOpen} title="Finalize selected run" message="Finalizing locks the run for audit and enables controlled posting." confirmText="Finalize" onClose={() => setFinalizeOpen(false)} onConfirm={() => finalizeRun.mutate()} />
 
-      <Modal open={postOpen} title="Post ECL journal" onClose={() => setPostOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setPostOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => postRun.mutate()} disabled={postRun.isPending}>Post</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Posting period" value={postForm.period_id} onChange={(e) => setPostForm((s) => ({ ...s, period_id: e.target.value }))} options={periodOptions} />
-          <Input label="Entry date" type="date" value={postForm.entry_date} onChange={(e) => setPostForm((s) => ({ ...s, entry_date: e.target.value }))} />
-        </div>
-        <Input className="mt-3" label="Memo" value={postForm.memo} onChange={(e) => setPostForm((s) => ({ ...s, memo: e.target.value }))} />
-      </Modal>
+      <Modal open={postOpen} title="Post ECL journal" onClose={() => setPostOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setPostOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => postRun.mutate()} disabled={postRun.isPending}>Post</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Select label="Posting period" value={postForm.period_id} onChange={(e) => setPostForm((s) => ({ ...s, period_id: e.target.value }))} options={periodOptions} /><Input label="Entry date" type="date" value={postForm.entry_date} onChange={(e) => setPostForm((s) => ({ ...s, entry_date: e.target.value }))} /></div><Input className="mt-3" label="Memo" value={postForm.memo} onChange={(e) => setPostForm((s) => ({ ...s, memo: e.target.value }))} /></Modal>
 
-      <Modal open={reverseOpen} title="Reverse IFRS 9 posting" onClose={() => setReverseOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setReverseOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => reverseRun.mutate()} disabled={reverseRun.isPending}>Reverse</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Target period" value={reverseForm.target_period_id} onChange={(e) => setReverseForm((s) => ({ ...s, target_period_id: e.target.value }))} options={periodOptions} />
-          <Input label="Entry date" type="date" value={reverseForm.entry_date} onChange={(e) => setReverseForm((s) => ({ ...s, entry_date: e.target.value }))} />
-        </div>
-        <Textarea className="mt-3" label="Reason" value={reverseForm.reason} onChange={(e) => setReverseForm((s) => ({ ...s, reason: e.target.value }))} />
-      </Modal>
+      <Modal open={reverseOpen} title="Reverse IFRS 9 posting" onClose={() => setReverseOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setReverseOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => reverseRun.mutate()} disabled={reverseRun.isPending}>Reverse</Button></div>}><div className="grid gap-3 md:grid-cols-2"><Select label="Target period" value={reverseForm.target_period_id} onChange={(e) => setReverseForm((s) => ({ ...s, target_period_id: e.target.value }))} options={periodOptions} /><Input label="Entry date" type="date" value={reverseForm.entry_date} onChange={(e) => setReverseForm((s) => ({ ...s, entry_date: e.target.value }))} /></div><Textarea className="mt-3" label="Reason" value={reverseForm.reason} onChange={(e) => setReverseForm((s) => ({ ...s, reason: e.target.value }))} /></Modal>
 
-      <Modal open={scenarioOpen} title="New macro scenario" onClose={() => setScenarioOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setScenarioOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createScenario.mutate()} disabled={createScenario.isPending}>Save scenario</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Input label="Code (optional)" value={scenarioForm.code} onChange={(e) => setScenarioForm((s) => ({ ...s, code: e.target.value }))} />
-          <Input label="Name" value={scenarioForm.name} onChange={(e) => setScenarioForm((s) => ({ ...s, name: e.target.value }))} />
-          <Select label="Scenario type" value={scenarioForm.scenario_type} onChange={(e) => setScenarioForm((s) => ({ ...s, scenario_type: e.target.value }))} options={[{ value: 'BASE', label: 'Base' }, { value: 'UPSIDE', label: 'Upside' }, { value: 'DOWNSIDE', label: 'Downside' }, { value: 'CUSTOM', label: 'Custom' }]} />
-          <Input label="Probability weight" type="number" step="0.0001" value={scenarioForm.probability_weight} onChange={(e) => setScenarioForm((s) => ({ ...s, probability_weight: e.target.value }))} />
-          <Input label="Effective from" type="date" value={scenarioForm.effective_from} onChange={(e) => setScenarioForm((s) => ({ ...s, effective_from: e.target.value }))} />
-          <Input label="Effective to" type="date" value={scenarioForm.effective_to} onChange={(e) => setScenarioForm((s) => ({ ...s, effective_to: e.target.value }))} />
-          <Select label="Status" value={scenarioForm.status} onChange={(e) => setScenarioForm((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
-        </div>
-        <Textarea className="mt-3" label="Description" value={scenarioForm.description} onChange={(e) => setScenarioForm((s) => ({ ...s, description: e.target.value }))} />
-        <Textarea className="mt-3" label="Variable set JSON" rows={8} value={scenarioForm.variable_set_json} onChange={(e) => setScenarioForm((s) => ({ ...s, variable_set_json: e.target.value }))} />
-      </Modal>
+      <Modal open={scenarioOpen} title="New macro scenario" onClose={() => setScenarioOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setScenarioOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createScenario.mutate()} disabled={createScenario.isPending || !scenarioValidation.isValid}>Save scenario</Button></div>}><ValidationNotice errors={[scenarioValidation.errors.name, scenarioValidation.errors.probability_weight, scenarioValidation.errors.effective_to].filter(Boolean)} /><div className="grid gap-3 md:grid-cols-2"><Input label="Code (optional)" value={scenarioForm.code} onChange={(e) => setScenarioForm((s) => ({ ...s, code: e.target.value }))} /><Input label="Name" error={scenarioValidation.errors.name} value={scenarioForm.name} onChange={(e) => setScenarioForm((s) => ({ ...s, name: e.target.value }))} /><Select label="Scenario type" value={scenarioForm.scenario_type} onChange={(e) => setScenarioForm((s) => ({ ...s, scenario_type: e.target.value }))} options={[{ value: 'BASE', label: 'Base' }, { value: 'UPSIDE', label: 'Upside' }, { value: 'DOWNSIDE', label: 'Downside' }, { value: 'CUSTOM', label: 'Custom' }]} /><Input label="Probability weight" error={scenarioValidation.errors.probability_weight} type="number" step="0.0001" value={scenarioForm.probability_weight} onChange={(e) => setScenarioForm((s) => ({ ...s, probability_weight: e.target.value }))} /><Input label="Effective from" type="date" value={scenarioForm.effective_from} onChange={(e) => setScenarioForm((s) => ({ ...s, effective_from: e.target.value }))} /><Input label="Effective to" error={scenarioValidation.errors.effective_to} type="date" value={scenarioForm.effective_to} onChange={(e) => setScenarioForm((s) => ({ ...s, effective_to: e.target.value }))} /><Select label="Status" value={scenarioForm.status} onChange={(e) => setScenarioForm((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} /></div><Textarea className="mt-3" label="Description" value={scenarioForm.description} onChange={(e) => setScenarioForm((s) => ({ ...s, description: e.target.value }))} /><KeyValueEditor label="Scenario variables" rows={scenarioVariableRows} setRows={setScenarioVariableRows} errors={scenarioValidation.errors.variable_set} helperText="Backend field: variable_set." /></Modal>
 
-      <Modal open={overlayOpen} title="Add scenario overlay" onClose={() => setOverlayOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setOverlayOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addOverlay.mutate()} disabled={addOverlay.isPending || !overlayForm.scenario_id}>Save overlay</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Scenario" value={overlayForm.scenario_id} onChange={(e) => setOverlayForm((s) => ({ ...s, scenario_id: e.target.value }))} options={scenarioOptions} />
-          <Select label="Model (optional)" value={overlayForm.model_id} onChange={(e) => setOverlayForm((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} />
-          <Input label="Segment (optional)" value={overlayForm.segment} onChange={(e) => setOverlayForm((s) => ({ ...s, segment: e.target.value }))} />
-          <Select label="Stage (optional)" value={overlayForm.stage} onChange={(e) => setOverlayForm((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '', label: 'Any' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
-          <Input label="Days past due from" type="number" value={overlayForm.days_past_due_from} onChange={(e) => setOverlayForm((s) => ({ ...s, days_past_due_from: e.target.value }))} />
-          <Input label="Days past due to" type="number" value={overlayForm.days_past_due_to} onChange={(e) => setOverlayForm((s) => ({ ...s, days_past_due_to: e.target.value }))} />
-          <Input label="PD multiplier" type="number" step="0.0001" value={overlayForm.pd_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, pd_multiplier: e.target.value }))} />
-          <Input label="LGD multiplier" type="number" step="0.0001" value={overlayForm.lgd_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, lgd_multiplier: e.target.value }))} />
-          <Input label="Loss-rate multiplier" type="number" step="0.0001" value={overlayForm.loss_rate_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, loss_rate_multiplier: e.target.value }))} />
-          <Input label="ECL multiplier" type="number" step="0.0001" value={overlayForm.ecl_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, ecl_multiplier: e.target.value }))} />
-        </div>
-        <Textarea className="mt-3" label="Notes" value={overlayForm.notes} onChange={(e) => setOverlayForm((s) => ({ ...s, notes: e.target.value }))} />
-      </Modal>
+      <Modal open={overlayOpen} title="Add scenario overlay" onClose={() => setOverlayOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setOverlayOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => addOverlay.mutate()} disabled={addOverlay.isPending || !overlayValidation.isValid}>Save overlay</Button></div>}><ValidationNotice errors={Object.values(overlayValidation.errors)} /><div className="grid gap-3 md:grid-cols-2"><Select label="Scenario" error={overlayValidation.errors.scenario_id} value={overlayForm.scenario_id} onChange={(e) => setOverlayForm((s) => ({ ...s, scenario_id: e.target.value }))} options={scenarioOptions} /><Select label="Model (optional)" value={overlayForm.model_id} onChange={(e) => setOverlayForm((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} /><Input label="Segment (optional)" value={overlayForm.segment} onChange={(e) => setOverlayForm((s) => ({ ...s, segment: e.target.value }))} /><Select label="Stage (optional)" value={overlayForm.stage} onChange={(e) => setOverlayForm((s) => ({ ...s, stage: e.target.value }))} options={[{ value: '', label: 'Any' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} /><Input label="Days past due from" error={overlayValidation.errors.days_past_due_from} type="number" value={overlayForm.days_past_due_from} onChange={(e) => setOverlayForm((s) => ({ ...s, days_past_due_from: e.target.value }))} /><Input label="Days past due to" error={overlayValidation.errors.days_past_due_to} type="number" value={overlayForm.days_past_due_to} onChange={(e) => setOverlayForm((s) => ({ ...s, days_past_due_to: e.target.value }))} /><Input label="PD multiplier" error={overlayValidation.errors.pd_multiplier} type="number" step="0.0001" value={overlayForm.pd_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, pd_multiplier: e.target.value }))} /><Input label="LGD multiplier" error={overlayValidation.errors.lgd_multiplier} type="number" step="0.0001" value={overlayForm.lgd_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, lgd_multiplier: e.target.value }))} /><Input label="Loss-rate multiplier" error={overlayValidation.errors.loss_rate_multiplier} type="number" step="0.0001" value={overlayForm.loss_rate_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, loss_rate_multiplier: e.target.value }))} /><Input label="ECL multiplier" error={overlayValidation.errors.ecl_multiplier} type="number" step="0.0001" value={overlayForm.ecl_multiplier} onChange={(e) => setOverlayForm((s) => ({ ...s, ecl_multiplier: e.target.value }))} /></div><Textarea className="mt-3" label="Notes" value={overlayForm.notes} onChange={(e) => setOverlayForm((s) => ({ ...s, notes: e.target.value }))} /></Modal>
 
-      <Modal open={sicrOpen} title="New SICR trigger" onClose={() => setSicrOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setSicrOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createSicr.mutate()} disabled={createSicr.isPending}>Save trigger</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <PartnerSelect label="Partner (optional)" type="customer" value={sicrForm.business_partner_id} onChange={(e) => setSicrForm((s) => ({ ...s, business_partner_id: e.target.value }))} />
-          <Input label="Segment (optional)" value={sicrForm.segment} onChange={(e) => setSicrForm((s) => ({ ...s, segment: e.target.value }))} />
-          <Input label="Trigger code" value={sicrForm.trigger_code} onChange={(e) => setSicrForm((s) => ({ ...s, trigger_code: e.target.value }))} />
-          <Input label="Trigger name" value={sicrForm.trigger_name} onChange={(e) => setSicrForm((s) => ({ ...s, trigger_name: e.target.value }))} />
-          <Select label="Severity" value={sicrForm.severity} onChange={(e) => setSicrForm((s) => ({ ...s, severity: e.target.value }))} options={[{ value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }, { value: 'critical', label: 'Critical' }]} />
-          <Select label="Force minimum stage" value={sicrForm.force_stage_min} onChange={(e) => setSicrForm((s) => ({ ...s, force_stage_min: e.target.value }))} options={[{ value: '', label: 'No forced stage' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} />
-          <Input label="PD multiplier" type="number" step="0.0001" value={sicrForm.pd_multiplier} onChange={(e) => setSicrForm((s) => ({ ...s, pd_multiplier: e.target.value }))} />
-          <Input label="LGD multiplier" type="number" step="0.0001" value={sicrForm.lgd_multiplier} onChange={(e) => setSicrForm((s) => ({ ...s, lgd_multiplier: e.target.value }))} />
-          <Input label="Valid from" type="date" value={sicrForm.valid_from} onChange={(e) => setSicrForm((s) => ({ ...s, valid_from: e.target.value }))} />
-          <Input label="Valid to" type="date" value={sicrForm.valid_to} onChange={(e) => setSicrForm((s) => ({ ...s, valid_to: e.target.value }))} />
-          <Input label="Source" value={sicrForm.source} onChange={(e) => setSicrForm((s) => ({ ...s, source: e.target.value }))} />
-          <Select label="Status" value={sicrForm.status} onChange={(e) => setSicrForm((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} />
-        </div>
-        <Textarea className="mt-3" label="Notes" value={sicrForm.notes} onChange={(e) => setSicrForm((s) => ({ ...s, notes: e.target.value }))} />
-        <Textarea className="mt-3" label="Metadata JSON" rows={6} value={sicrForm.metadata_json} onChange={(e) => setSicrForm((s) => ({ ...s, metadata_json: e.target.value }))} />
-      </Modal>
+      <Modal open={sicrOpen} title="New SICR trigger" onClose={() => setSicrOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setSicrOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createSicr.mutate()} disabled={createSicr.isPending || !sicrValidation.isValid}>Save trigger</Button></div>}><ValidationNotice errors={[sicrValidation.errors.trigger_code, sicrValidation.errors.trigger_name, sicrValidation.errors.pd_multiplier, sicrValidation.errors.lgd_multiplier, sicrValidation.errors.valid_to].filter(Boolean)} /><div className="grid gap-3 md:grid-cols-2"><PartnerSelect label="Partner (optional)" type="customer" value={sicrForm.business_partner_id} onChange={(e) => setSicrForm((s) => ({ ...s, business_partner_id: e.target.value }))} /><Input label="Segment (optional)" value={sicrForm.segment} onChange={(e) => setSicrForm((s) => ({ ...s, segment: e.target.value }))} /><Input label="Trigger code" error={sicrValidation.errors.trigger_code} value={sicrForm.trigger_code} onChange={(e) => setSicrForm((s) => ({ ...s, trigger_code: e.target.value }))} /><Input label="Trigger name" error={sicrValidation.errors.trigger_name} value={sicrForm.trigger_name} onChange={(e) => setSicrForm((s) => ({ ...s, trigger_name: e.target.value }))} /><Select label="Severity" value={sicrForm.severity} onChange={(e) => setSicrForm((s) => ({ ...s, severity: e.target.value }))} options={[{ value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }, { value: 'critical', label: 'Critical' }]} /><Select label="Force minimum stage" value={sicrForm.force_stage_min} onChange={(e) => setSicrForm((s) => ({ ...s, force_stage_min: e.target.value }))} options={[{ value: '', label: 'No forced stage' }, { value: '1', label: 'Stage 1' }, { value: '2', label: 'Stage 2' }, { value: '3', label: 'Stage 3' }]} /><Input label="PD multiplier" error={sicrValidation.errors.pd_multiplier} type="number" step="0.0001" value={sicrForm.pd_multiplier} onChange={(e) => setSicrForm((s) => ({ ...s, pd_multiplier: e.target.value }))} /><Input label="LGD multiplier" error={sicrValidation.errors.lgd_multiplier} type="number" step="0.0001" value={sicrForm.lgd_multiplier} onChange={(e) => setSicrForm((s) => ({ ...s, lgd_multiplier: e.target.value }))} /><Input label="Valid from" type="date" value={sicrForm.valid_from} onChange={(e) => setSicrForm((s) => ({ ...s, valid_from: e.target.value }))} /><Input label="Valid to" error={sicrValidation.errors.valid_to} type="date" value={sicrForm.valid_to} onChange={(e) => setSicrForm((s) => ({ ...s, valid_to: e.target.value }))} /><Input label="Source" value={sicrForm.source} onChange={(e) => setSicrForm((s) => ({ ...s, source: e.target.value }))} /><Select label="Status" value={sicrForm.status} onChange={(e) => setSicrForm((s) => ({ ...s, status: e.target.value }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} /></div><Textarea className="mt-3" label="Notes" value={sicrForm.notes} onChange={(e) => setSicrForm((s) => ({ ...s, notes: e.target.value }))} /><KeyValueEditor label="Trigger metadata" rows={sicrMetadataRows} setRows={setSicrMetadataRows} errors={sicrValidation.errors.metadata} helperText="Backend field: metadata." /></Modal>
 
-      <Modal open={changeOpen} title="New model change request" onClose={() => setChangeOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setChangeOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createModelChange.mutate()} disabled={createModelChange.isPending}>Save draft</Button></div>}>
-        <div className="grid gap-3 md:grid-cols-2">
-          <Select label="Change type" value={changeForm.change_type} onChange={(e) => setChangeForm((s) => ({ ...s, change_type: e.target.value }))} options={[
-            { value: 'SETTINGS_UPSERT', label: 'Settings upsert' },
-            { value: 'MODEL_CREATE', label: 'Model create' },
-            { value: 'BUCKET_ADD', label: 'Bucket add' },
-            { value: 'PARAMETER_ADD', label: 'Parameter add' },
-            { value: 'SCENARIO_CREATE', label: 'Scenario create' },
-            { value: 'SCENARIO_OVERLAY_UPSERT', label: 'Scenario overlay upsert' },
-            { value: 'SICR_TRIGGER_UPSERT', label: 'SICR trigger upsert' }
-          ]} />
-          <Select label="Model (optional)" value={changeForm.model_id} onChange={(e) => setChangeForm((s) => ({ ...s, model_id: e.target.value }))} options={modelOptions} />
-          <Input className="md:col-span-2" label="Title" value={changeForm.title} onChange={(e) => setChangeForm((s) => ({ ...s, title: e.target.value }))} />
+      <Modal open={changeOpen} title="New model change request" onClose={() => setChangeOpen(false)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setChangeOpen(false)}>Cancel</Button><Button variant="primary" onClick={() => createModelChange.mutate()} disabled={createModelChange.isPending || !changeValidation.isValid}>Save draft</Button></div>}><ValidationNotice errors={[changeValidation.errors.title, changeValidation.errors.payload].filter(Boolean)} /><div className="grid gap-3 md:grid-cols-2"><Select label="Change type" value={changeForm.change_type} onChange={(e) => setChangeForm((s) => ({ ...s, change_type: e.target.value, model_id: '' }))} options={[{ value: 'SETTINGS_UPSERT', label: 'Settings upsert' }, { value: 'MODEL_CREATE', label: 'Model create' }, { value: 'BUCKET_ADD', label: 'Bucket add' }, { value: 'PARAMETER_ADD', label: 'Parameter add' }, { value: 'SCENARIO_CREATE', label: 'Scenario create' }, { value: 'SCENARIO_OVERLAY_UPSERT', label: 'Scenario overlay upsert' }, { value: 'SICR_TRIGGER_UPSERT', label: 'SICR trigger upsert' }]} /><Input className="md:col-span-2" label="Title" error={changeValidation.errors.title} value={changeForm.title} onChange={(e) => setChangeForm((s) => ({ ...s, title: e.target.value }))} /></div><Textarea className="mt-3" label="Reason" value={changeForm.reason} onChange={(e) => setChangeForm((s) => ({ ...s, reason: e.target.value }))} />
+        <div className="mt-3 rounded-2xl border border-border-subtle p-4">
+          <div className="mb-3 text-sm font-semibold text-brand-deep">Change details</div>
+          {renderChangePayloadFields()}
         </div>
-        <Textarea className="mt-3" label="Reason" value={changeForm.reason} onChange={(e) => setChangeForm((s) => ({ ...s, reason: e.target.value }))} />
-        <Textarea className="mt-3" label="Payload JSON" rows={10} value={changeForm.payload_json} onChange={(e) => setChangeForm((s) => ({ ...s, payload_json: e.target.value }))} />
       </Modal>
     </div>
   );
