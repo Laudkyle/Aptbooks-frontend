@@ -585,6 +585,10 @@ export const endpoints = {
           `/compliance/ifrs15/contracts?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/compliance/ifrs15/contracts",
         detail: (contractId) => `/compliance/ifrs15/contracts/${contractId}`,
+        lifecycle: (contractId) => `/compliance/ifrs15/contracts/${contractId}/lifecycle`,
+        submitForApproval: (contractId) => `/compliance/ifrs15/contracts/${contractId}/submit-for-approval`,
+        approve: (contractId) => `/compliance/ifrs15/contracts/${contractId}/approve`,
+        reject: (contractId) => `/compliance/ifrs15/contracts/${contractId}/reject`,
         activate: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/activate`,
         obligations: (contractId) =>
@@ -594,12 +598,36 @@ export const endpoints = {
         schedule: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/schedule`,
         post: (contractId) => `/compliance/ifrs15/contracts/${contractId}/post`,
+        modifications: (contractId) => `/compliance/ifrs15/contracts/${contractId}/modifications`,
+        applyModification: (contractId, modificationId) =>
+          `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}/apply`,
+        variableConsideration: (contractId) =>
+          `/compliance/ifrs15/contracts/${contractId}/variable-consideration`,
+        reviewVariableConsideration: (contractId, variableConsiderationId) =>
+          `/compliance/ifrs15/contracts/${contractId}/variable-consideration/${variableConsiderationId}/review`,
+        approveVariableConsideration: (contractId, variableConsiderationId) =>
+          `/compliance/ifrs15/contracts/${contractId}/variable-consideration/${variableConsiderationId}/approve`,
+        applyVariableConsideration: (contractId) =>
+          `/compliance/ifrs15/contracts/${contractId}/variable-consideration/apply`,
+        financingTerms: (contractId) =>
+          `/compliance/ifrs15/contracts/${contractId}/financing-terms`,
+        financingPost: (contractId) => `/compliance/ifrs15/contracts/${contractId}/financing/post`,
         costs: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/costs`,
         costScheduleGenerate: (contractId, costId) =>
           `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/schedule/generate`,
+        costSchedule: (contractId, costId) =>
+          `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/schedule`,
         costPost: (contractId, costId) =>
           `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/post`,
+        postingLedger: (contractId) => `/compliance/ifrs15/contracts/${contractId}/posting-ledger`,
+        events: (contractId) => `/compliance/ifrs15/contracts/${contractId}/events`,
+      },
+      reports: {
+        contractRollforward: (qs) => `/compliance/ifrs15/reports/contract-rollforward?${new URLSearchParams(qs ?? {}).toString()}`,
+        rpo: (qs) => `/compliance/ifrs15/reports/remaining-performance-obligations?${new URLSearchParams(qs ?? {}).toString()}`,
+        revenueDisaggregation: (qs) => `/compliance/ifrs15/reports/revenue-disaggregation?${new URLSearchParams(qs ?? {}).toString()}`,
+        judgements: (qs) => `/compliance/ifrs15/reports/judgements?${new URLSearchParams(qs ?? {}).toString()}`,
       },
     },
     ias12: {
