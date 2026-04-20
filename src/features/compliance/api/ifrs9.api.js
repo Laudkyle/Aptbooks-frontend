@@ -24,6 +24,22 @@ export function makeIfrs9Api(http) {
     reverseEcl: async (body) => (await http.post(endpoints.compliance.ifrs9.ecl.reverse, body)).data,
 
     reportAllowanceMovement: async (qs) => (await http.get(endpoints.compliance.ifrs9.reports.allowanceMovement(qs))).data,
-    reportDisclosures: async (qs) => (await http.get(endpoints.compliance.ifrs9.reports.disclosures(qs))).data
+    reportDisclosures: async (qs) => (await http.get(endpoints.compliance.ifrs9.reports.disclosures(qs))).data,
+
+    listMacroScenarios: async () => (await http.get(endpoints.compliance.ifrs9.macroScenarios.list)).data,
+    createMacroScenario: async (body) => (await http.post(endpoints.compliance.ifrs9.macroScenarios.create, body)).data,
+    addMacroOverlay: async (scenarioId, body) => (await http.post(endpoints.compliance.ifrs9.macroScenarios.addOverlay(scenarioId), body)).data,
+
+    listSicrTriggers: async () => (await http.get(endpoints.compliance.ifrs9.sicrTriggers.list)).data,
+    createSicrTrigger: async (body) => (await http.post(endpoints.compliance.ifrs9.sicrTriggers.create, body)).data,
+
+    getBehavioralAnalytics: async (body) => (await http.post(endpoints.compliance.ifrs9.analytics.behavioral, body)).data,
+
+    listModelChanges: async (qs) => (await http.get(endpoints.compliance.ifrs9.modelChanges.list(qs))).data,
+    createModelChange: async (body) => (await http.post(endpoints.compliance.ifrs9.modelChanges.create, body)).data,
+    submitModelChange: async (changeId, body = {}) => (await http.post(endpoints.compliance.ifrs9.modelChanges.submit(changeId), body)).data,
+    approveModelChange: async (changeId, body = {}) => (await http.post(endpoints.compliance.ifrs9.modelChanges.approve(changeId), body)).data,
+    rejectModelChange: async (changeId, body = {}) => (await http.post(endpoints.compliance.ifrs9.modelChanges.reject(changeId), body)).data,
+    applyModelChange: async (changeId) => (await http.post(endpoints.compliance.ifrs9.modelChanges.apply(changeId))).data
   };
 }

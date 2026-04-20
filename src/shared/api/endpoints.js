@@ -685,6 +685,27 @@ export const endpoints = {
         disclosures: (qs) =>
           `/compliance/ifrs9/reports/disclosures?${new URLSearchParams(qs ?? {}).toString()}`,
       },
+
+      macroScenarios: {
+        list: "/compliance/ifrs9/macro-scenarios",
+        create: "/compliance/ifrs9/macro-scenarios",
+        addOverlay: (scenarioId) => `/compliance/ifrs9/macro-scenarios/${scenarioId}/overlays`,
+      },
+      sicrTriggers: {
+        list: "/compliance/ifrs9/sicr-triggers",
+        create: "/compliance/ifrs9/sicr-triggers",
+      },
+      analytics: {
+        behavioral: "/compliance/ifrs9/analytics/behavioral",
+      },
+      modelChanges: {
+        list: (qs) => `/compliance/ifrs9/model-changes?${new URLSearchParams(qs ?? {}).toString()}`,
+        create: "/compliance/ifrs9/model-changes",
+        submit: (changeId) => `/compliance/ifrs9/model-changes/${changeId}/submit`,
+        approve: (changeId) => `/compliance/ifrs9/model-changes/${changeId}/approve`,
+        reject: (changeId) => `/compliance/ifrs9/model-changes/${changeId}/reject`,
+        apply: (changeId) => `/compliance/ifrs9/model-changes/${changeId}/apply`,
+      },
     },
   },
   reporting: {
