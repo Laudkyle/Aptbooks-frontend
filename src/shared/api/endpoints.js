@@ -561,6 +561,10 @@ export const endpoints = {
   compliance: {
     health: "/compliance/health",
     ifrs16: {
+      settings: {
+        get: "/compliance/ifrs16/settings",
+        put: "/compliance/ifrs16/settings",
+      },
       leases: {
         list: (qs) =>
           `/compliance/ifrs16/leases?${new URLSearchParams(qs ?? {}).toString()}`,

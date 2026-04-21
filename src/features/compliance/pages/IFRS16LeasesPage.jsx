@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -7,10 +7,13 @@ import {
   FileText,
   Search,
   CheckCircle2,
-  AlertCircle,
   FolderKanban,
   BarChart3,
   Landmark,
+  Settings,
+  ListTree,
+  PencilLine,
+  Save,
 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
@@ -24,8 +27,8 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatMoney } from '../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
@@ -54,24 +57,194 @@ function statusTone(status) {
   return 'muted';
 }
 
-function defaultLeaseForm() {
+function defaultSettingsForm() {
   return {
-    code: '',
-    name: '',
-    commencement_date: '',
-    term_months: '12',
-    payment_amount: '',
-    payments_per_year: '12',
-    annual_discount_rate: '',
-    payment_timing: 'arrears',
+    default_term_months: '12',
+    default_payments_per_year: '12',
+    default_annual_discount_rate: '',
+    default_payment_timing: 'arrears',
     rou_asset_account_id: '',
     lease_liability_account_id: '',
     interest_expense_account_id: '',
     depreciation_expense_account_id: '',
     accumulated_depreciation_account_id: '',
     cash_account_id: '',
-    notes: '',
+    default_notes_template: '',
   };
+}
+
+function mapSettingsToForm(data) {
+  const source = data?.data ?? data ?? {};
+  return {
+    default_term_months: source.default_term_months != null ? String(source.default_term_months) : '12',
+    default_payments_per_year: source.default_payments_per_year != null ? String(source.default_payments_per_year) : '12',
+    default_annual_discount_rate:
+      source.default_annual_discount_rate != null && source.default_annual_discount_rate !== ''
+        ? String(source.default_annual_discount_rate)
+        : '',
+    default_payment_timing: source.default_payment_timing || 'arrears',
+    rou_asset_account_id: source.rou_asset_account_id || '',
+    lease_liability_account_id: source.lease_liability_account_id || '',
+    interest_expense_account_id: source.interest_expense_account_id || '',
+    depreciation_expense_account_id: source.depreciation_expense_account_id || '',
+    accumulated_depreciation_account_id: source.accumulated_depreciation_account_id || '',
+    cash_account_id: source.cash_account_id || '',
+    default_notes_template: source.default_notes_template || '',
+  };
+}
+
+function defaultLeaseForm(settings = defaultSettingsForm()) {
+  return {
+    code: '',
+    name: '',
+    commencement_date: '',
+    term_months: settings.default_term_months || '12',
+    payment_amount: '',
+    payments_per_year: settings.default_payments_per_year || '12',
+    annual_discount_rate: settings.default_annual_discount_rate || '',
+    payment_timing: settings.default_payment_timing || 'arrears',
+    rou_asset_account_id: settings.rou_asset_account_id || '',
+    lease_liability_account_id: settings.lease_liability_account_id || '',
+    interest_expense_account_id: settings.interest_expense_account_id || '',
+    depreciation_expense_account_id: settings.depreciation_expense_account_id || '',
+    accumulated_depreciation_account_id: settings.accumulated_depreciation_account_id || '',
+    cash_account_id: settings.cash_account_id || '',
+    notes: settings.default_notes_template || '',
+  };
+}
+
+function IFRS16SettingsForm({ settingsForm, setSettingsForm, settingsErrors, saveMutation, settingsQ }) {
+  return (
+    <div className="space-y-6">
+      <ContentCard
+        title="Settings & defaults"
+        subtitle="Maintain IFRS 16 default measurement inputs and posting accounts. New leases will inherit these values unless you override them."
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" leftIcon={RefreshCw} onClick={() => settingsQ.refetch()}>
+              Reload
+            </Button>
+            <Button leftIcon={Save} loading={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+              Save settings
+            </Button>
+          </div>
+        }
+      >
+        {settingsQ.isLoading ? (
+          <div className="py-10 text-sm text-slate-500">Loading IFRS 16 settings…</div>
+        ) : settingsQ.isError ? (
+          <div className="py-10 text-sm text-red-600">
+            {settingsQ.error?.response?.data?.message ?? 'Failed to load IFRS 16 settings'}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Input
+              label="Default term (months)"
+              type="number"
+              value={settingsForm.default_term_months}
+              error={settingsErrors.default_term_months}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, default_term_months: e.target.value }))}
+            />
+            <Input
+              label="Default payments per year"
+              type="number"
+              value={settingsForm.default_payments_per_year}
+              error={settingsErrors.default_payments_per_year}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, default_payments_per_year: e.target.value }))}
+            />
+            <Input
+              label="Default annual discount rate"
+              type="number"
+              step="0.0001"
+              value={settingsForm.default_annual_discount_rate}
+              error={settingsErrors.default_annual_discount_rate}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, default_annual_discount_rate: e.target.value }))}
+            />
+            <Select
+              label="Default payment timing"
+              value={settingsForm.default_payment_timing}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, default_payment_timing: e.target.value }))}
+              options={[
+                { value: 'arrears', label: 'Arrears (end of period)' },
+                { value: 'advance', label: 'Advance (start of period)' },
+              ]}
+            />
+            <AccountSelect
+              label="ROU asset account"
+              value={settingsForm.rou_asset_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, rou_asset_account_id: e.target.value }))}
+              allowEmpty
+              filters={{ accountTypeCodes: ['ASSET'] }}
+            />
+            <AccountSelect
+              label="Lease liability account"
+              value={settingsForm.lease_liability_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, lease_liability_account_id: e.target.value }))}
+              allowEmpty
+              filters={{ accountTypeCodes: ['LIABILITY'] }}
+            />
+            <AccountSelect
+              label="Interest expense account"
+              value={settingsForm.interest_expense_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, interest_expense_account_id: e.target.value }))}
+              allowEmpty
+              filters={{ accountTypeCodes: ['EXPENSE'] }}
+            />
+            <AccountSelect
+              label="Depreciation expense account"
+              value={settingsForm.depreciation_expense_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, depreciation_expense_account_id: e.target.value }))}
+              allowEmpty
+              filters={{ accountTypeCodes: ['EXPENSE'] }}
+            />
+            <AccountSelect
+              label="Accumulated depreciation account"
+              value={settingsForm.accumulated_depreciation_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, accumulated_depreciation_account_id: e.target.value }))}
+              allowEmpty
+              filters={{ accountTypeCodes: ['ASSET', 'CONTRA_ASSET'] }}
+            />
+            <AccountSelect
+              label="Cash / bank account"
+              value={settingsForm.cash_account_id}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, cash_account_id: e.target.value }))}
+              allowEmpty
+            />
+            <Textarea
+              label="Default notes template"
+              value={settingsForm.default_notes_template}
+              onChange={(e) => setSettingsForm((s) => ({ ...s, default_notes_template: e.target.value }))}
+              rows={6}
+              className="md:col-span-2 xl:col-span-3"
+            />
+          </div>
+        )}
+      </ContentCard>
+
+      <ContentCard>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-900">How this now works</div>
+            <div className="mt-2 text-sm text-slate-600">
+              This page saves directly to <code>/compliance/ifrs16/settings</code>. Lease creation will use these saved defaults whenever lease-level accounts are not provided.
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-900">Best use</div>
+            <div className="mt-2 text-sm text-slate-600">
+              Set your standard accounts once, then only override lease-level mappings for unusual contracts.
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-900">Backend dependency</div>
+            <div className="mt-2 text-sm text-slate-600">
+              This requires the updated IFRS 16 backend with the new settings endpoints and settings table already installed.
+            </div>
+          </div>
+        </div>
+      </ContentCard>
+    </div>
+  );
 }
 
 export default function IFRS16LeasesPage() {
@@ -82,11 +255,19 @@ export default function IFRS16LeasesPage() {
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
-  const [createOpen, setCreateOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('register');
   const [form, setForm] = useState(defaultLeaseForm());
   const [errors, setErrors] = useState({});
+  const [settingsForm, setSettingsForm] = useState(defaultSettingsForm());
+  const [settingsErrors, setSettingsErrors] = useState({});
 
   const queryParams = useMemo(() => ({ status: status || undefined }), [status]);
+
+  const settingsQ = useQuery({
+    queryKey: qk.ifrs16Settings,
+    queryFn: () => api.getSettings(),
+    staleTime: 60_000,
+  });
 
   const leasesQ = useQuery({
     queryKey: qk.ifrs16Leases(queryParams),
@@ -94,22 +275,59 @@ export default function IFRS16LeasesPage() {
     staleTime: 30_000,
   });
 
+  useEffect(() => {
+    if (!settingsQ.data) return;
+    const mapped = mapSettingsToForm(settingsQ.data);
+    setSettingsForm(mapped);
+    setForm((current) => {
+      const isUntouched =
+        !current.code &&
+        !current.name &&
+        !current.commencement_date &&
+        !current.payment_amount &&
+        !current.notes &&
+        !current.rou_asset_account_id &&
+        !current.lease_liability_account_id &&
+        !current.interest_expense_account_id &&
+        !current.depreciation_expense_account_id &&
+        !current.accumulated_depreciation_account_id &&
+        !current.cash_account_id;
+      return isUntouched ? defaultLeaseForm(mapped) : current;
+    });
+  }, [settingsQ.data]);
+
   const leases = useMemo(() => rowsOf(leasesQ.data), [leasesQ.data]);
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leases.filter((lease) => {
-      const haystack = [
-        lease.code,
-        lease.name,
-        lease.status,
-        lease.payment_timing,
-      ]
+      const haystack = [lease.code, lease.name, lease.status, lease.payment_timing]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
       return !q || haystack.includes(q);
     });
   }, [leases, search]);
+
+  const validateSettings = useCallback(() => {
+    const next = {};
+    const term = Number(settingsForm.default_term_months);
+    if (!Number.isInteger(term) || term <= 0) next.default_term_months = 'Default term must be a positive whole number';
+
+    const ppy = Number(settingsForm.default_payments_per_year);
+    if (!Number.isInteger(ppy) || ppy <= 0 || ppy > 366) {
+      next.default_payments_per_year = 'Default payments per year must be a valid positive whole number';
+    }
+
+    if (settingsForm.default_annual_discount_rate !== '') {
+      const rate = Number(settingsForm.default_annual_discount_rate);
+      if (Number.isNaN(rate) || rate < 0 || rate > 1) {
+        next.default_annual_discount_rate = 'Default discount rate must be between 0 and 1';
+      }
+    }
+
+    setSettingsErrors(next);
+    return Object.keys(next).length === 0;
+  }, [settingsForm]);
 
   const validateLease = useCallback(() => {
     const next = {};
@@ -134,67 +352,99 @@ export default function IFRS16LeasesPage() {
     return Object.keys(next).length === 0;
   }, [form]);
 
+  const saveSettingsMutation = useMutation({
+    mutationFn: () => {
+      if (!validateSettings()) throw new Error('validation_failed');
+      return api.updateSettings({
+        default_term_months: Number(settingsForm.default_term_months || 0),
+        default_payments_per_year: Number(settingsForm.default_payments_per_year || 0),
+        default_annual_discount_rate:
+          settingsForm.default_annual_discount_rate === '' ? null : Number(settingsForm.default_annual_discount_rate),
+        default_payment_timing: settingsForm.default_payment_timing || 'arrears',
+        rou_asset_account_id: settingsForm.rou_asset_account_id || null,
+        lease_liability_account_id: settingsForm.lease_liability_account_id || null,
+        interest_expense_account_id: settingsForm.interest_expense_account_id || null,
+        depreciation_expense_account_id: settingsForm.depreciation_expense_account_id || null,
+        accumulated_depreciation_account_id: settingsForm.accumulated_depreciation_account_id || null,
+        cash_account_id: settingsForm.cash_account_id || null,
+        default_notes_template: settingsForm.default_notes_template?.trim() || null,
+      });
+    },
+    onSuccess: async (data) => {
+      toast.success('IFRS 16 settings saved');
+      await qc.invalidateQueries({ queryKey: qk.ifrs16Settings });
+      const mapped = mapSettingsToForm(data);
+      setSettingsForm(mapped);
+      setForm((current) => ({
+        ...current,
+        term_months: current.term_months || mapped.default_term_months,
+        payments_per_year: current.payments_per_year || mapped.default_payments_per_year,
+        annual_discount_rate: current.annual_discount_rate || mapped.default_annual_discount_rate,
+        payment_timing: current.payment_timing || mapped.default_payment_timing,
+        rou_asset_account_id: current.rou_asset_account_id || mapped.rou_asset_account_id,
+        lease_liability_account_id: current.lease_liability_account_id || mapped.lease_liability_account_id,
+        interest_expense_account_id: current.interest_expense_account_id || mapped.interest_expense_account_id,
+        depreciation_expense_account_id: current.depreciation_expense_account_id || mapped.depreciation_expense_account_id,
+        accumulated_depreciation_account_id: current.accumulated_depreciation_account_id || mapped.accumulated_depreciation_account_id,
+        cash_account_id: current.cash_account_id || mapped.cash_account_id,
+        notes: current.notes || mapped.default_notes_template,
+      }));
+    },
+    onError: (e) => {
+      if (e?.message === 'validation_failed') return;
+      toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to save IFRS 16 settings');
+    },
+  });
+
   const createMutation = useMutation({
-    mutationFn: () => api.createLease({
-      code: form.code.trim() || undefined,
-      name: form.name.trim(),
-      commencement_date: form.commencement_date,
-      term_months: Number(form.term_months || 0),
-      payment_amount: Number(form.payment_amount || 0),
-      payments_per_year: Number(form.payments_per_year || 0),
-      annual_discount_rate: Number(form.annual_discount_rate || 0),
-      payment_timing: form.payment_timing || 'arrears',
-      rou_asset_account_id: form.rou_asset_account_id || undefined,
-      lease_liability_account_id: form.lease_liability_account_id || undefined,
-      interest_expense_account_id: form.interest_expense_account_id || undefined,
-      depreciation_expense_account_id: form.depreciation_expense_account_id || undefined,
-      accumulated_depreciation_account_id: form.accumulated_depreciation_account_id || undefined,
-      cash_account_id: form.cash_account_id || undefined,
-      notes: form.notes.trim() || undefined,
-    }),
+    mutationFn: () =>
+      api.createLease({
+        code: form.code.trim() || undefined,
+        name: form.name.trim(),
+        commencement_date: form.commencement_date,
+        term_months: Number(form.term_months || 0),
+        payment_amount: Number(form.payment_amount || 0),
+        payments_per_year: Number(form.payments_per_year || 0),
+        annual_discount_rate: Number(form.annual_discount_rate || 0),
+        payment_timing: form.payment_timing || 'arrears',
+        rou_asset_account_id: form.rou_asset_account_id || undefined,
+        lease_liability_account_id: form.lease_liability_account_id || undefined,
+        interest_expense_account_id: form.interest_expense_account_id || undefined,
+        depreciation_expense_account_id: form.depreciation_expense_account_id || undefined,
+        accumulated_depreciation_account_id: form.accumulated_depreciation_account_id || undefined,
+        cash_account_id: form.cash_account_id || undefined,
+        notes: form.notes.trim() || undefined,
+      }),
     onSuccess: async () => {
       toast.success('IFRS 16 lease created');
-      setCreateOpen(false);
-      setForm(defaultLeaseForm());
+      setForm(defaultLeaseForm(settingsForm));
+      setErrors({});
+      setActiveTab('register');
       await qc.invalidateQueries({ queryKey: ['compliance', 'ifrs16', 'leases'] });
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to create lease'),
   });
 
-  const metrics = useMemo(() => {
-    return filtered.reduce(
-      (acc, row) => {
-        acc.total += 1;
-        const st = String(row.status || '').toLowerCase();
-        if (st === 'active') acc.active += 1;
-        if (st === 'draft') acc.draft += 1;
-        if (['closed', 'terminated'].includes(st)) acc.closed += 1;
-        acc.paymentBase += firstNumber(row.payment_amount);
-        acc.discountedBase += firstNumber(row.present_value, row.initial_lease_liability, row.lease_liability_balance);
-        return acc;
-      },
-      { total: 0, active: 0, draft: 0, closed: 0, paymentBase: 0, discountedBase: 0 }
-    );
-  }, [filtered]);
+  const metrics = useMemo(
+    () =>
+      filtered.reduce(
+        (acc, row) => {
+          acc.total += 1;
+          const st = String(row.status || '').toLowerCase();
+          if (st === 'active') acc.active += 1;
+          if (st === 'draft') acc.draft += 1;
+          if (['closed', 'terminated'].includes(st)) acc.closed += 1;
+          acc.paymentBase += firstNumber(row.payment_amount);
+          acc.discountedBase += firstNumber(row.present_value, row.initial_lease_liability, row.lease_liability_balance);
+          return acc;
+        },
+        { total: 0, active: 0, draft: 0, closed: 0, paymentBase: 0, discountedBase: 0 }
+      ),
+    [filtered]
+  );
 
-  return (
+  const registerContent = (
     <div className="space-y-6">
-      <PageHeader
-        title="IFRS 16 Leases"
-        subtitle="Manage lease register, measurement inputs, and posting readiness in a controlled workflow."
-        icon={FolderKanban}
-        actions={
-          <>
-            <Button variant="outline" leftIcon={RefreshCw} onClick={() => leasesQ.refetch()}>
-              Refresh
-            </Button>
-            <Button leftIcon={Plus} onClick={() => setCreateOpen(true)}>
-              New lease
-            </Button>
-          </>
-        }
-      />
-
       <div className="grid gap-4 xl:grid-cols-4 md:grid-cols-2">
         <ContentCard>
           <div className="flex items-start justify-between gap-4">
@@ -259,6 +509,11 @@ export default function IFRS16LeasesPage() {
               Refresh results
             </Button>
           </div>
+          <div className="flex items-end">
+            <Button className="w-full" leftIcon={Plus} onClick={() => setActiveTab('new-lease')}>
+              New lease
+            </Button>
+          </div>
         </div>
       </ContentCard>
 
@@ -308,15 +563,21 @@ export default function IFRS16LeasesPage() {
           </div>
         )}
       </ContentCard>
+    </div>
+  );
 
-      <Modal
-        open={createOpen}
-        title="Create IFRS 16 lease"
-        onClose={() => setCreateOpen(false)}
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
+  const createContent = (
+    <div className="space-y-6">
+      <ContentCard
+        title="New lease"
+        subtitle="Create a lease with default IFRS 16 values already pulled from the backend settings. Override any field only where the contract needs it."
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setForm(defaultLeaseForm(settingsForm))}>
+              Reset to defaults
+            </Button>
             <Button
+              leftIcon={Save}
               loading={createMutation.isPending}
               onClick={() => {
                 if (!validateLease()) return;
@@ -328,7 +589,7 @@ export default function IFRS16LeasesPage() {
           </div>
         }
       >
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <Input label="Lease code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} />
           <Input label="Lease name" value={form.name} error={errors.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
           <Input label="Commencement date" type="date" value={form.commencement_date} error={errors.commencement_date} onChange={(e) => setForm((s) => ({ ...s, commencement_date: e.target.value }))} />
@@ -345,18 +606,85 @@ export default function IFRS16LeasesPage() {
               { value: 'advance', label: 'Advance (start of period)' },
             ]}
           />
+          <div className="hidden xl:block" />
           <AccountSelect label="ROU asset account" value={form.rou_asset_account_id} onChange={(e) => setForm((s) => ({ ...s, rou_asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
           <AccountSelect label="Lease liability account" value={form.lease_liability_account_id} onChange={(e) => setForm((s) => ({ ...s, lease_liability_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['LIABILITY'] }} />
           <AccountSelect label="Interest expense account" value={form.interest_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, interest_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
           <AccountSelect label="Depreciation expense account" value={form.depreciation_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, depreciation_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
-          <AccountSelect label="Accumulated depreciation account" value={form.accumulated_depreciation_account_id} onChange={(e) => setForm((s) => ({ ...s, accumulated_depreciation_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'CONTRA_ASSET'] }} className="md:col-span-2" />
-          <AccountSelect label="Cash / bank account" value={form.cash_account_id} onChange={(e) => setForm((s) => ({ ...s, cash_account_id: e.target.value }))} allowEmpty className="md:col-span-2" />
-          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} className="md:col-span-2" rows={4} />
+          <AccountSelect label="Accumulated depreciation account" value={form.accumulated_depreciation_account_id} onChange={(e) => setForm((s) => ({ ...s, accumulated_depreciation_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'CONTRA_ASSET'] }} />
+          <AccountSelect label="Cash / bank account" value={form.cash_account_id} onChange={(e) => setForm((s) => ({ ...s, cash_account_id: e.target.value }))} allowEmpty />
+          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} rows={5} className="md:col-span-2 xl:col-span-3" />
         </div>
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-          Use this form to create the lease master record and the core accounting mappings required for subsequent measurement and journal posting.
+      </ContentCard>
+
+      <ContentCard>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="text-sm font-medium text-emerald-900">Pulled from settings</div>
+            <div className="mt-2 text-sm text-emerald-800">
+              Default term, payment frequency, discount rate, payment timing, notes template, and posting accounts now come from the IFRS 16 settings endpoint.
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-900">Override only when needed</div>
+            <div className="mt-2 text-sm text-slate-600">
+              Leave inherited accounts in place for standard leases. Change them here only for contract-specific accounting treatment.
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-sm font-medium text-slate-900">Cleaner workflow</div>
+            <div className="mt-2 text-sm text-slate-600">
+              This matches the IFRS 15 pattern better: one tab for setup, one tab for transaction creation, one tab for the working register.
+            </div>
+          </div>
         </div>
-      </Modal>
+      </ContentCard>
+    </div>
+  );
+
+  const settingsContent = (
+    <IFRS16SettingsForm
+      settingsForm={settingsForm}
+      setSettingsForm={setSettingsForm}
+      settingsErrors={settingsErrors}
+      saveMutation={saveSettingsMutation}
+      settingsQ={settingsQ}
+    />
+  );
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="IFRS 16 Leases"
+        subtitle="Manage lease defaults, create leases in a cleaner workflow, and keep the register separate from settings just like IFRS 15."
+        icon={FolderKanban}
+        actions={
+          <>
+            <Button variant="outline" leftIcon={RefreshCw} onClick={() => {
+              settingsQ.refetch();
+              leasesQ.refetch();
+            }}>
+              Refresh
+            </Button>
+            <Button variant="outline" leftIcon={Settings} onClick={() => setActiveTab('settings')}>
+              Settings
+            </Button>
+            <Button leftIcon={Plus} onClick={() => setActiveTab('new-lease')}>
+              New lease
+            </Button>
+          </>
+        }
+      />
+
+      <Tabs
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { value: 'register', label: 'Lease register', icon: ListTree, content: registerContent },
+          { value: 'new-lease', label: 'New lease', icon: PencilLine, content: createContent },
+          { value: 'settings', label: 'Settings & defaults', icon: Settings, content: settingsContent },
+        ]}
+      />
     </div>
   );
 }

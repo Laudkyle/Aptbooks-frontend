@@ -155,6 +155,7 @@ export const qk = {
   inventoryReorderSuggestions: (qs) => ['inventory', 'reorder', 'suggestions', qs ?? {}],
 
   // Phase 8 — Compliance
+  ifrs16Settings: ['compliance', 'ifrs16', 'settings'],
   ifrs16Leases: (qs) => ['compliance', 'ifrs16', 'leases', qs ?? {}],
   ifrs16Lease: (id) => ['compliance', 'ifrs16', 'leases', id],
   ifrs16LeaseSchedule: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'schedule'],
