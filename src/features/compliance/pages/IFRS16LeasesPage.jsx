@@ -1,45 +1,57 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
   RefreshCw,
   FileText,
   Search,
-  X,
+  CheckCircle2,
   AlertCircle,
-  Calendar,
-  DollarSign,
-  Percent,
-  Clock,
-  FileSignature,
+  FolderKanban,
+  BarChart3,
   Landmark,
-  BookOpen,
-  CreditCard,
-  Receipt,
-  PiggyBank,
-  Edit2
 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
-import { qk } from '../../../shared/query/keys.js';
 import { ROUTES } from '../../../app/constants/routes.js';
+import { qk } from '../../../shared/query/keys.js';
 import { makeIfrs16Api } from '../api/ifrs16.api.js';
-import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { formatMoney } from '../../../shared/utils/formatMoney.js';
+import { formatDate } from '../../../shared/utils/formatDate.js';
 
-function normalizeRows(data) {
-  if (Array.isArray(data?.items)) return data.items;
+function rowsOf(data, keys = ['items', 'data', 'rows', 'leases']) {
   if (Array.isArray(data)) return data;
-  return data?.data ?? [];
+  for (const key of keys) {
+    if (Array.isArray(data?.[key])) return data[key];
+  }
+  return [];
+}
+
+function firstNumber(...values) {
+  for (const value of values) {
+    const n = Number(value);
+    if (!Number.isNaN(n)) return n;
+  }
+  return 0;
+}
+
+function statusTone(status) {
+  const s = String(status || '').toLowerCase();
+  if (['active', 'approved', 'posted'].includes(s)) return 'success';
+  if (['draft', 'pending', 'submitted'].includes(s)) return 'warning';
+  if (['cancelled', 'rejected', 'closed', 'terminated'].includes(s)) return 'danger';
+  return 'muted';
 }
 
 function defaultLeaseForm() {
@@ -58,383 +70,235 @@ function defaultLeaseForm() {
     depreciation_expense_account_id: '',
     accumulated_depreciation_account_id: '',
     cash_account_id: '',
-    notes: ''
+    notes: '',
   };
 }
 
-// ─── Timing options ───────────────────────────────────────────────────────
-const timingOptions = [
-  { value: 'arrears', label: 'Arrears (end of period)' },
-  { value: 'advance', label: 'Advance (start of period)' },
-];
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function IFRS16LeasesPage() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
   const { http } = useApi();
-
   const api = useMemo(() => makeIfrs16Api(http), [http]);
-  const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const qc = useQueryClient();
+  const toast = useToast();
 
-  // State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [formData, setFormData] = useState(defaultLeaseForm());
-  const [formErrors, setFormErrors] = useState({});
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [form, setForm] = useState(defaultLeaseForm());
+  const [errors, setErrors] = useState({});
 
-  /* Accounts for dropdowns */
-  const { data: accountsRaw } = useQuery({
-    queryKey: qk.coaAccounts({}),
-    queryFn: () => coaApi.list({}),
-    staleTime: 60_000,
+  const queryParams = useMemo(() => ({ status: status || undefined }), [status]);
+
+  const leasesQ = useQuery({
+    queryKey: qk.ifrs16Leases(queryParams),
+    queryFn: () => api.listLeases(queryParams),
+    staleTime: 30_000,
   });
 
-  const accounts = useMemo(() => {
-    if (Array.isArray(accountsRaw)) return accountsRaw;
-    return accountsRaw?.data ?? [];
-  }, [accountsRaw]);
-
-  const accountOptions = useMemo(
-    () => accounts.map((a) => ({
-      value: a.id,
-      label: `${a.code ?? ''} ${a.name ?? ''}`.trim(),
-    })),
-    [accounts]
-  );
-
-  /* Leases list */
-  const listQs = useMemo(() => ({ status: statusFilter || '' }), [statusFilter]);
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
-    queryKey: qk.ifrs16Leases(listQs),
-    queryFn: () => api.listLeases(listQs),
-    staleTime: 30000,
-    retry: 2
-  });
-
-  const rows = useMemo(() => normalizeRows(data), [data]);
-
-  // Filter leases
-  const filteredLeases = useMemo(() => {
-    const searchLower = searchQuery.trim().toLowerCase();
-    return rows.filter((lease) => {
-      const matchesSearch = !searchLower || 
-        (lease.name ?? '').toLowerCase().includes(searchLower) ||
-        (lease.code ?? '').toLowerCase().includes(searchLower);
-      const matchesStatus = !statusFilter || lease.status === statusFilter;
-      return matchesSearch && matchesStatus;
+  const leases = useMemo(() => rowsOf(leasesQ.data), [leasesQ.data]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return leases.filter((lease) => {
+      const haystack = [
+        lease.code,
+        lease.name,
+        lease.status,
+        lease.payment_timing,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return !q || haystack.includes(q);
     });
-  }, [rows, searchQuery, statusFilter]);
+  }, [leases, search]);
 
-  // Form validation
-  const validateForm = useCallback(() => {
-    const errors = {};
+  const validateLease = useCallback(() => {
+    const next = {};
+    if (!form.name.trim()) next.name = 'Lease name is required';
+    if (!form.commencement_date) next.commencement_date = 'Commencement date is required';
 
-    if (!formData.name.trim()) {
-      errors.name = 'Lease name is required';
+    const term = Number(form.term_months);
+    if (!Number.isInteger(term) || term <= 0) next.term_months = 'Term must be a positive whole number';
+
+    const payment = Number(form.payment_amount);
+    if (form.payment_amount === '' || Number.isNaN(payment) || payment < 0) next.payment_amount = 'Payment amount must be a valid non-negative number';
+
+    const ppy = Number(form.payments_per_year);
+    if (!Number.isInteger(ppy) || ppy <= 0 || ppy > 366) next.payments_per_year = 'Payments per year must be a valid positive whole number';
+
+    const rate = Number(form.annual_discount_rate);
+    if (form.annual_discount_rate === '' || Number.isNaN(rate) || rate < 0 || rate > 1) {
+      next.annual_discount_rate = 'Discount rate must be between 0 and 1';
     }
 
-    if (!formData.commencement_date) {
-      errors.commencement_date = 'Commencement date is required';
-    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }, [form]);
 
-    const term = Number(formData.term_months);
-    if (isNaN(term) || term < 1 || !Number.isInteger(term)) {
-      errors.term_months = 'Must be a positive integer';
-    }
-
-    const payment = Number(formData.payment_amount);
-    if (isNaN(payment) || payment < 0) {
-      errors.payment_amount = 'Must be a non-negative number';
-    }
-
-    const paymentsPerYear = Number(formData.payments_per_year);
-    if (isNaN(paymentsPerYear) || paymentsPerYear < 1 || paymentsPerYear > 52) {
-      errors.payments_per_year = 'Must be between 1 and 52';
-    }
-
-    const rate = Number(formData.annual_discount_rate);
-    if (isNaN(rate) || rate < 0 || rate > 1) {
-      errors.annual_discount_rate = 'Must be between 0 and 1';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [formData]);
-
-  // Handlers
-  const handleOpenCreateModal = useCallback(() => {
-    setFormData(defaultLeaseForm());
-    setFormErrors({});
-    setCreateModalOpen(true);
-  }, []);
-
-  const handleCloseCreateModal = useCallback(() => {
-    setCreateModalOpen(false);
-    setFormData(defaultLeaseForm());
-    setFormErrors({});
-  }, []);
-
-  const handleFieldChange = useCallback((field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (formErrors[field]) {
-      setFormErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  }, [formErrors]);
-
-  const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  // Build submission payload
-  const buildPayload = useCallback(() => ({
-    code: formData.code.trim() || undefined,
-    name: formData.name.trim(),
-    commencement_date: formData.commencement_date,
-    term_months: Number(formData.term_months),
-    payment_amount: Number(formData.payment_amount),
-    payments_per_year: Number(formData.payments_per_year),
-    annual_discount_rate: Number(formData.annual_discount_rate),
-    payment_timing: formData.payment_timing,
-    rou_asset_account_id: formData.rou_asset_account_id || undefined,
-    lease_liability_account_id: formData.lease_liability_account_id || undefined,
-    interest_expense_account_id: formData.interest_expense_account_id || undefined,
-    depreciation_expense_account_id: formData.depreciation_expense_account_id || undefined,
-    accumulated_depreciation_account_id: formData.accumulated_depreciation_account_id || undefined,
-    cash_account_id: formData.cash_account_id || undefined,
-    notes: formData.notes.trim() || undefined
-  }), [formData]);
-
-  // Mutations
   const createMutation = useMutation({
-    mutationFn: async () => {
-      if (!validateForm()) throw new Error('Please fix validation errors');
-      return api.createLease(buildPayload());
+    mutationFn: () => api.createLease({
+      code: form.code.trim() || undefined,
+      name: form.name.trim(),
+      commencement_date: form.commencement_date,
+      term_months: Number(form.term_months || 0),
+      payment_amount: Number(form.payment_amount || 0),
+      payments_per_year: Number(form.payments_per_year || 0),
+      annual_discount_rate: Number(form.annual_discount_rate || 0),
+      payment_timing: form.payment_timing || 'arrears',
+      rou_asset_account_id: form.rou_asset_account_id || undefined,
+      lease_liability_account_id: form.lease_liability_account_id || undefined,
+      interest_expense_account_id: form.interest_expense_account_id || undefined,
+      depreciation_expense_account_id: form.depreciation_expense_account_id || undefined,
+      accumulated_depreciation_account_id: form.accumulated_depreciation_account_id || undefined,
+      cash_account_id: form.cash_account_id || undefined,
+      notes: form.notes.trim() || undefined,
+    }),
+    onSuccess: async () => {
+      toast.success('IFRS 16 lease created');
+      setCreateOpen(false);
+      setForm(defaultLeaseForm());
+      await qc.invalidateQueries({ queryKey: ['compliance', 'ifrs16', 'leases'] });
     },
-    onSuccess: (created) => {
-      handleCloseCreateModal();
-      qc.invalidateQueries({ queryKey: qk.ifrs16Leases(listQs) });
-      if (created?.id) navigate(ROUTES.complianceIFRS16LeaseDetail(created.id));
-    },
-    onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.message ?? 'Failed to create lease';
-      alert(message); // In production, use proper toast
-    }
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to create lease'),
   });
 
-  const handleCreateLease = useCallback(() => createMutation.mutate(), [createMutation]);
-
-  // Keyboard close
-  useEffect(() => {
-    if (!createModalOpen) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape' && !createMutation.isPending) handleCloseCreateModal();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [createModalOpen, createMutation.isPending, handleCloseCreateModal]);
-
-  // Loading state
-  if (isLoading && rows.length === 0) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="IFRS 16 Leases"
-          subtitle="Lease register and amortization schedules"
-          icon={FileText}
-          actions={
-            <Button leftIcon={Plus} onClick={handleOpenCreateModal}>
-              New Lease
-            </Button>
-          }
-        />
-        <ContentCard>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading leases...</div>
-          </div>
-        </ContentCard>
-      </div>
+  const metrics = useMemo(() => {
+    return filtered.reduce(
+      (acc, row) => {
+        acc.total += 1;
+        const st = String(row.status || '').toLowerCase();
+        if (st === 'active') acc.active += 1;
+        if (st === 'draft') acc.draft += 1;
+        if (['closed', 'terminated'].includes(st)) acc.closed += 1;
+        acc.paymentBase += firstNumber(row.payment_amount);
+        acc.discountedBase += firstNumber(row.present_value, row.initial_lease_liability, row.lease_liability_balance);
+        return acc;
+      },
+      { total: 0, active: 0, draft: 0, closed: 0, paymentBase: 0, discountedBase: 0 }
     );
-  }
+  }, [filtered]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="IFRS 16 Leases"
-        subtitle="Maintain lease register · Generate amortisation schedules · Post journals"
-        icon={FileText}
+        subtitle="Manage lease register, measurement inputs, and posting readiness in a controlled workflow."
+        icon={FolderKanban}
         actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              leftIcon={RefreshCw}
-              onClick={handleRefresh}
-              disabled={isFetching}
-            >
-              {isFetching ? 'Refreshing...' : 'Refresh'}
+          <>
+            <Button variant="outline" leftIcon={RefreshCw} onClick={() => leasesQ.refetch()}>
+              Refresh
             </Button>
-            <Button
-              leftIcon={Plus}
-              onClick={handleOpenCreateModal}
-            >
-              New Lease
+            <Button leftIcon={Plus} onClick={() => setCreateOpen(true)}>
+              New lease
             </Button>
-          </div>
+          </>
         }
       />
 
-      {/* Filters */}
-      <ContentCard>
-        <div className="flex items-center gap-2 mb-4">
-          <Search className="h-4 w-4 text-slate-500" />
-          <span className="text-sm font-semibold text-slate-900">Search & Filter</span>
-        </div>
+      <div className="grid gap-4 xl:grid-cols-4 md:grid-cols-2">
+        <ContentCard>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm text-slate-500">Lease register</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{metrics.total}</div>
+              <div className="mt-2 text-xs text-slate-500">{metrics.active} active · {metrics.draft} draft</div>
+            </div>
+            <FileText className="h-8 w-8 text-slate-300" />
+          </div>
+        </ContentCard>
+        <ContentCard>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm text-slate-500">Recurring lease payments</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{formatMoney(metrics.paymentBase, 'GHS')}</div>
+              <div className="mt-2 text-xs text-slate-500">Current payment inputs across shown leases</div>
+            </div>
+            <Landmark className="h-8 w-8 text-slate-300" />
+          </div>
+        </ContentCard>
+        <ContentCard>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm text-slate-500">Measured liability base</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{formatMoney(metrics.discountedBase, 'GHS')}</div>
+              <div className="mt-2 text-xs text-slate-500">Present-value oriented balances where available</div>
+            </div>
+            <BarChart3 className="h-8 w-8 text-slate-300" />
+          </div>
+        </ContentCard>
+        <ContentCard>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm text-slate-500">Closed / terminated</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{metrics.closed}</div>
+              <div className="mt-2 text-xs text-slate-500">Portfolio lifecycle visibility</div>
+            </div>
+            <CheckCircle2 className="h-8 w-8 text-slate-300" />
+          </div>
+        </ContentCard>
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Input
-            label="Search Leases"
-            placeholder="Search by name or code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            leftIcon={Search}
-          />
+      <ContentCard>
+        <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
+          <Input label="Search" placeholder="Code, lease name, status" value={search} onChange={(e) => setSearch(e.target.value)} />
           <Select
-            label="Status Filter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
             options={[
-              { value: '', label: 'All Statuses' },
+              { value: '', label: 'All statuses' },
               { value: 'draft', label: 'Draft' },
               { value: 'active', label: 'Active' },
-              { value: 'inactive', label: 'Inactive' }
+              { value: 'closed', label: 'Closed' },
+              { value: 'terminated', label: 'Terminated' },
+              { value: 'cancelled', label: 'Cancelled' },
             ]}
           />
           <div className="flex items-end">
-            <div className="text-xs text-slate-500">
-              {filteredLeases.length} of {rows.length} {rows.length === 1 ? 'lease' : 'leases'}
-            </div>
+            <Button variant="outline" leftIcon={Search} onClick={() => leasesQ.refetch()} className="w-full">
+              Refresh results
+            </Button>
           </div>
         </div>
       </ContentCard>
 
-      {/* Leases Table */}
-      <ContentCard>
-        <div className="mb-4">
-          <div className="text-base font-semibold text-slate-900">Lease Register</div>
-          <div className="mt-1 text-sm text-slate-500">
-            View and manage all IFRS 16 leases
-          </div>
-        </div>
-
-        {isError ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load leases</div>
-            <div className="text-sm text-slate-500">{error?.message ?? 'An error occurred'}</div>
-            <Button variant="outline" onClick={handleRefresh} className="mt-2">
-              Retry
-            </Button>
-          </div>
-        ) : filteredLeases.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <div className="text-sm font-medium text-slate-900 mb-1">
-              {searchQuery || statusFilter ? 'No leases match your filters' : 'No leases yet'}
-            </div>
-            <div className="text-sm text-slate-500 mb-4">
-              {searchQuery || statusFilter
-                ? 'Try adjusting your search or filters'
-                : 'Create your first lease to generate schedules and post initial recognition'
-              }
-            </div>
-            <Button leftIcon={Plus} onClick={handleOpenCreateModal} size="sm">
-              Create Lease
-            </Button>
-          </div>
+      <ContentCard title="Leases" actions={<Badge tone="muted">{filtered.length} shown</Badge>}>
+        {leasesQ.isLoading ? (
+          <div className="py-10 text-sm text-slate-500">Loading leases...</div>
+        ) : leasesQ.isError ? (
+          <div className="py-10 text-sm text-red-600">{leasesQ.error?.response?.data?.message ?? 'Failed to load leases'}</div>
+        ) : filtered.length === 0 ? (
+          <div className="py-10 text-sm text-slate-500">No IFRS 16 leases found.</div>
         ) : (
-          <div className="rounded-xl border border-slate-200 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Lease</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Commencement</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Term</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Payment</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-left text-slate-500">
+                  <th className="py-3 pr-4">Code</th>
+                  <th className="py-3 pr-4">Lease</th>
+                  <th className="py-3 pr-4">Status</th>
+                  <th className="py-3 pr-4">Commencement</th>
+                  <th className="py-3 pr-4">Term</th>
+                  <th className="py-3 pr-4">Payment</th>
+                  <th className="py-3 pr-4">Discount rate</th>
+                  <th className="py-3 text-right">Open</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
-                {filteredLeases.map((lease) => (
-                  <tr
-                    key={lease.id}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div>
-                        <Link
-                          to={ROUTES.complianceIFRS16LeaseDetail(lease.id)}
-                          className="font-medium text-blue-600 hover:text-blue-800"
-                        >
-                          {lease.name ?? '—'}
-                        </Link>
-                        {lease.code && (
-                          <div className="text-xs text-slate-500 mt-1">{lease.code}</div>
-                        )}
-                      </div>
+              <tbody>
+                {filtered.map((lease) => (
+                  <tr key={lease.id} className="border-b border-slate-100 align-top">
+                    <td className="py-3 pr-4 font-medium text-slate-900">{lease.code || '—'}</td>
+                    <td className="py-3 pr-4 text-slate-700">{lease.name || '—'}</td>
+                    <td className="py-3 pr-4">
+                      <Badge tone={statusTone(lease.status)}>{lease.status || 'unknown'}</Badge>
                     </td>
-                    <td className="px-6 py-4">
-                      <Badge
-                        tone={
-                          lease.status === 'active' ? 'success' :
-                          lease.status === 'draft' ? 'warning' : 'muted'
-                        }
-                        className="inline-flex items-center gap-1.5"
-                      >
-                        {lease.status ?? 'draft'}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                        <span className="text-sm text-slate-700">
-                          {lease.commencement_date ?? '—'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-slate-400" />
-                        <span className="text-sm text-slate-700">
-                          {lease.term_months ?? '—'} months
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5">
-                        <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                        <span className="text-sm text-slate-700">
-                          {lease.payment_amount ? Number(lease.payment_amount).toFixed(2) : '—'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link
-                        to={ROUTES.complianceIFRS16LeaseDetail(lease.id)}
-                      >
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          leftIcon={Edit2}
-                        >
-                          View
-                        </Button>
+                    <td className="py-3 pr-4 text-slate-700">{formatDate(lease.commencement_date)}</td>
+                    <td className="py-3 pr-4 text-slate-700">{firstNumber(lease.term_months)} months</td>
+                    <td className="py-3 pr-4 text-slate-700">{formatMoney(firstNumber(lease.payment_amount), lease.currency_code || 'GHS')}</td>
+                    <td className="py-3 pr-4 text-slate-700">{(firstNumber(lease.annual_discount_rate) * 100).toFixed(2)}%</td>
+                    <td className="py-3 text-right">
+                      <Link to={ROUTES.complianceIFRS16LeaseDetail(lease.id)}>
+                        <Button size="sm">Open</Button>
                       </Link>
                     </td>
                   </tr>
@@ -445,215 +309,54 @@ export default function IFRS16LeasesPage() {
         )}
       </ContentCard>
 
-      {/* Create Modal */}
       <Modal
-        open={createModalOpen}
-        onClose={handleCloseCreateModal}
-        title="Create IFRS 16 Lease"
+        open={createOpen}
+        title="Create IFRS 16 lease"
+        onClose={() => setCreateOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
+            <Button
+              loading={createMutation.isPending}
+              onClick={() => {
+                if (!validateLease()) return;
+                createMutation.mutate();
+              }}
+            >
+              Create lease
+            </Button>
+          </div>
+        }
       >
-        <div className="space-y-6">
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-start gap-3">
-              <FileText className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900">
-                <div className="font-medium mb-1">New Lease Configuration</div>
-                <div className="text-blue-700">
-                  Enter lease details and account mappings for IFRS 16 compliance
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Lease Details Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <FileSignature className="h-4 w-4 text-slate-500" />
-              Lease Details
-            </h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                label="Lease Code"
-                value={formData.code}
-                onChange={(e) => handleFieldChange('code', e.target.value)}
-                placeholder="e.g., LSE-001"
-                leftIcon={FileText}
-              />
-              <Input
-                label="Lease Name"
-                value={formData.name}
-                onChange={(e) => handleFieldChange('name', e.target.value)}
-                placeholder="e.g., Head Office Lease"
-                required
-                error={formErrors.name}
-                leftIcon={FileSignature}
-              />
-              <Input
-                label="Commencement Date"
-                type="date"
-                value={formData.commencement_date}
-                onChange={(e) => handleFieldChange('commencement_date', e.target.value)}
-                required
-                error={formErrors.commencement_date}
-                leftIcon={Calendar}
-              />
-              <Input
-                label="Term (months)"
-                type="number"
-                min="1"
-                value={formData.term_months}
-                onChange={(e) => handleFieldChange('term_months', e.target.value)}
-                required
-                error={formErrors.term_months}
-                leftIcon={Clock}
-              />
-              <Input
-                label="Payment Amount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.payment_amount}
-                onChange={(e) => handleFieldChange('payment_amount', e.target.value)}
-                required
-                error={formErrors.payment_amount}
-                leftIcon={DollarSign}
-              />
-              <Input
-                label="Payments per Year"
-                type="number"
-                min="1"
-                max="52"
-                value={formData.payments_per_year}
-                onChange={(e) => handleFieldChange('payments_per_year', e.target.value)}
-                required
-                error={formErrors.payments_per_year}
-                helperText="Monthly = 12, Quarterly = 4"
-                leftIcon={Receipt}
-              />
-              <Input
-                label="Annual Discount Rate"
-                type="number"
-                step="0.0001"
-                min="0"
-                max="1"
-                value={formData.annual_discount_rate}
-                onChange={(e) => handleFieldChange('annual_discount_rate', e.target.value)}
-                required
-                error={formErrors.annual_discount_rate}
-                helperText="e.g., 0.05 for 5%"
-                leftIcon={Percent}
-              />
-              <Select
-                label="Payment Timing"
-                value={formData.payment_timing}
-                onChange={(e) => handleFieldChange('payment_timing', e.target.value)}
-                options={timingOptions}
-                leftIcon={Clock}
-              />
-            </div>
-          </div>
-
-   {/* Account Mappings Section */}
-<div>
-  <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-    <Landmark className="h-4 w-4 text-slate-500" />
-    Account Mappings
-  </h3>
-  <div className="grid gap-4 md:grid-cols-2">
-    <AccountSelect
-      label="ROU Asset Account"
-      value={formData.rou_asset_account_id}
-      onChange={(e) => handleFieldChange('rou_asset_account_id', e.target.value)}
-      leftIcon={BookOpen}
-      allowEmpty
-    />
-    <AccountSelect
-      label="Lease Liability Account"
-      value={formData.lease_liability_account_id}
-      onChange={(e) => handleFieldChange('lease_liability_account_id', e.target.value)}
-      leftIcon={CreditCard}
-      allowEmpty
-    />
-    <AccountSelect
-      label="Interest Expense Account"
-      value={formData.interest_expense_account_id}
-      onChange={(e) => handleFieldChange('interest_expense_account_id', e.target.value)}
-      leftIcon={Percent}
-      allowEmpty
-    />
-    <AccountSelect
-      label="Depreciation Expense Account"
-      value={formData.depreciation_expense_account_id}
-      onChange={(e) => handleFieldChange('depreciation_expense_account_id', e.target.value)}
-      leftIcon={Receipt}
-      allowEmpty
-    />
-    <AccountSelect
-      label="Accumulated Depreciation Account"
-      value={formData.accumulated_depreciation_account_id}
-      onChange={(e) => handleFieldChange('accumulated_depreciation_account_id', e.target.value)}
-      leftIcon={BookOpen}
-      allowEmpty
-    />
-    <AccountSelect
-      label="Cash / Bank Account"
-      value={formData.cash_account_id}
-      onChange={(e) => handleFieldChange('cash_account_id', e.target.value)}
-      leftIcon={PiggyBank}
-      allowEmpty
-    />
-  </div>
-</div>
-
-          {/* Notes Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <FileText className="h-4 w-4 text-slate-500" />
-              Notes
-            </h3>
-            <textarea
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows="3"
-              placeholder="Internal description or audit context…"
-              value={formData.notes}
-              onChange={(e) => handleFieldChange('notes', e.target.value)}
-            />
-          </div>
-
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <div className="text-sm text-amber-900">
-              <div className="font-medium mb-2 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                IFRS 16 Guidelines
-              </div>
-              <ul className="text-xs space-y-1 text-amber-800">
-                <li>• All leases with term &gt; 12 months must be recognized on balance sheet</li>
-                <li>• Discount rate should be incremental borrowing rate if implicit rate not available</li>
-                <li>• Payment timing affects present value calculation (advance vs arrears)</li>
-                <li>• Account mappings determine posting of journals during amortization</li>
-              </ul>
-            </div>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input label="Lease code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} />
+          <Input label="Lease name" value={form.name} error={errors.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+          <Input label="Commencement date" type="date" value={form.commencement_date} error={errors.commencement_date} onChange={(e) => setForm((s) => ({ ...s, commencement_date: e.target.value }))} />
+          <Input label="Term (months)" type="number" value={form.term_months} error={errors.term_months} onChange={(e) => setForm((s) => ({ ...s, term_months: e.target.value }))} />
+          <Input label="Payment amount" type="number" value={form.payment_amount} error={errors.payment_amount} onChange={(e) => setForm((s) => ({ ...s, payment_amount: e.target.value }))} />
+          <Input label="Payments per year" type="number" value={form.payments_per_year} error={errors.payments_per_year} onChange={(e) => setForm((s) => ({ ...s, payments_per_year: e.target.value }))} />
+          <Input label="Annual discount rate" type="number" step="0.0001" value={form.annual_discount_rate} error={errors.annual_discount_rate} onChange={(e) => setForm((s) => ({ ...s, annual_discount_rate: e.target.value }))} />
+          <Select
+            label="Payment timing"
+            value={form.payment_timing}
+            onChange={(e) => setForm((s) => ({ ...s, payment_timing: e.target.value }))}
+            options={[
+              { value: 'arrears', label: 'Arrears (end of period)' },
+              { value: 'advance', label: 'Advance (start of period)' },
+            ]}
+          />
+          <AccountSelect label="ROU asset account" value={form.rou_asset_account_id} onChange={(e) => setForm((s) => ({ ...s, rou_asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
+          <AccountSelect label="Lease liability account" value={form.lease_liability_account_id} onChange={(e) => setForm((s) => ({ ...s, lease_liability_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['LIABILITY'] }} />
+          <AccountSelect label="Interest expense account" value={form.interest_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, interest_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
+          <AccountSelect label="Depreciation expense account" value={form.depreciation_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, depreciation_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
+          <AccountSelect label="Accumulated depreciation account" value={form.accumulated_depreciation_account_id} onChange={(e) => setForm((s) => ({ ...s, accumulated_depreciation_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'CONTRA_ASSET'] }} className="md:col-span-2" />
+          <AccountSelect label="Cash / bank account" value={form.cash_account_id} onChange={(e) => setForm((s) => ({ ...s, cash_account_id: e.target.value }))} allowEmpty className="md:col-span-2" />
+          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} className="md:col-span-2" rows={4} />
         </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={handleCloseCreateModal}
-            disabled={createMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateLease}
-            loading={createMutation.isPending}
-            disabled={!formData.name.trim() || !formData.commencement_date}
-            leftIcon={Plus}
-          >
-            Create Lease
-          </Button>
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          Use this form to create the lease master record and the core accounting mappings required for subsequent measurement and journal posting.
         </div>
       </Modal>
     </div>
   );
 }
-

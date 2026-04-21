@@ -1,285 +1,246 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
-  RefreshCw,
-  UploadCloud,
-  AlertCircle,
   Calendar,
-  BookOpen,
-  CheckCircle,
+  CheckCircle2,
+  Clock3,
   FileText,
-  DollarSign,
-  Percent,
-  Clock,
+  RefreshCw,
+  ShieldCheck,
+  Workflow,
   Landmark,
-  CreditCard,
-  Receipt,
-  Edit2,
-  XCircle
+  Wallet,
+  BarChart3,
+  Activity,
+  XCircle,
+  PlayCircle,
 } from 'lucide-react';
 
+import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
+import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
+import { Button } from '../../../shared/components/ui/Button.jsx';
+import { Badge } from '../../../shared/components/ui/Badge.jsx';
+import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
+import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { Modal } from '../../../shared/components/ui/Modal.jsx';
+import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { makeIfrs16Api } from '../api/ifrs16.api.js';
 import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
-
-import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
-import { Button } from '../../../shared/components/ui/Button.jsx';
-import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
-import { Input } from '../../../shared/components/ui/Input.jsx';
-import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Modal } from '../../../shared/components/ui/Modal.jsx';
-import { Badge } from '../../../shared/components/ui/Badge.jsx';
-import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
+import { formatMoney } from '../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function normalizeRows(data) {
+function rowsOf(data, keys = ['items', 'data', 'rows', 'lines']) {
   if (Array.isArray(data)) return data;
-  else if (Array.isArray(data?.data)) return data.data;
-  else if (Array.isArray(data?.data?.data)) return data.data.data;
-  return data?.data ?? [];
+  for (const key of keys) {
+    if (Array.isArray(data?.[key])) return data[key];
+  }
+  return [];
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function oneOf(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null) return value;
+  }
+  return null;
+}
+
+function numberOf(...values) {
+  const value = oneOf(...values);
+  const n = Number(value);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function toneForStatus(status) {
+  const s = String(status || '').toLowerCase();
+  if (['active', 'approved', 'posted'].includes(s)) return 'success';
+  if (['draft', 'pending', 'submitted'].includes(s)) return 'warning';
+  if (['cancelled', 'rejected', 'closed', 'terminated'].includes(s)) return 'danger';
+  return 'muted';
+}
+
+function StatCard({ label, value, subvalue, icon: Icon }) {
+  return (
+    <ContentCard className="p-0">
+      <div className="flex items-start justify-between p-5">
+        <div>
+          <div className="text-sm text-slate-500">{label}</div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
+          {subvalue ? <div className="mt-1 text-xs text-slate-500">{subvalue}</div> : null}
+        </div>
+        {Icon ? <Icon className="h-7 w-7 text-slate-400" /> : null}
+      </div>
+    </ContentCard>
+  );
+}
+
+function DetailRow({ label, value }) {
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+      <div className="text-sm text-slate-500">{label}</div>
+      <div className="text-right text-sm font-medium text-slate-900">{value || '—'}</div>
+    </div>
+  );
+}
 
 export default function IFRS16LeaseDetailPage() {
   const { leaseId } = useParams();
   const navigate = useNavigate();
-  const qc = useQueryClient();
   const { http } = useApi();
-
   const api = useMemo(() => makeIfrs16Api(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
+  const qc = useQueryClient();
+  const toast = useToast();
 
-  // State
-  const [activeTab, setActiveTab] = useState('schedule');
-  const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
-  const [initModalOpen, setInitModalOpen] = useState(false);
-  const [postModalOpen, setPostModalOpen] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
+  const [tab, setTab] = useState('overview');
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [initialOpen, setInitialOpen] = useState(false);
+  const [postOpen, setPostOpen] = useState(false);
+  const [statusForm, setStatusForm] = useState({ status: 'active' });
+  const [initialForm, setInitialForm] = useState({ posting_date: '', period_id: '', memo: '' });
+  const [postForm, setPostForm] = useState({ from_date: '', to_date: '', memo: '' });
 
-  // Forms
-  const [postForm, setPostForm] = useState({ 
-    from_date: '', 
-    to_date: '', 
-    dry_run: true 
-  });
-  
-  const [initForm, setInitForm] = useState({ 
-    posting_date: '', 
-    period_id: '', 
-    memo: '' 
-  });
-
-  // Queries
-  const { 
-    data: lease, 
-    isLoading: leaseLoading, 
-    isError: leaseError, 
-    error: leaseErrorData,
-    refetch: refetchLease 
-  } = useQuery({
+  const leaseQ = useQuery({
     queryKey: qk.ifrs16Lease(leaseId),
     queryFn: () => api.getLease(leaseId),
-    staleTime: 30000,
-    retry: 2
+    enabled: !!leaseId,
+    staleTime: 10_000,
   });
-console.log('Lease details query result:', { lease, leaseError, leaseErrorData });
-  const { 
-    data: scheduleData, 
-    isLoading: scheduleLoading,
-    refetch: refetchSchedule 
-  } = useQuery({
+  const scheduleQ = useQuery({
     queryKey: qk.ifrs16LeaseSchedule(leaseId),
     queryFn: () => api.getSchedule(leaseId),
     enabled: !!leaseId,
-    staleTime: 30000
+    staleTime: 10_000,
+  });
+  const periodsQ = useQuery({
+    queryKey: ['ifrs16', 'periods'],
+    queryFn: () => periodsApi.list({ limit: 500, offset: 0 }),
+    staleTime: 60_000,
   });
 
-  const { data: periods } = useQuery({
-    queryKey: ['periods'],
-    queryFn: () => periodsApi.list(),
-    staleTime: 60000
-  });
+  const lease = useMemo(() => {
+    const data = leaseQ.data || {};
+    return data.lease && typeof data.lease === 'object' ? { ...data.lease, ...data } : data;
+  }, [leaseQ.data]);
+  const scheduleLines = useMemo(() => rowsOf(scheduleQ.data), [scheduleQ.data]);
+  const periods = useMemo(() => rowsOf(periodsQ.data), [periodsQ.data]);
+  const currency = lease.currency_code || 'GHS';
+  const currentStatus = String(lease.status || '').toLowerCase();
 
-  // FIXED: Extract schedule lines correctly from the response
-  const scheduleRows = useMemo(() => {
-    // Based on console.log, scheduleData.lines contains the array
-    if (scheduleData?.lines && Array.isArray(scheduleData.lines)) {
-      return scheduleData.lines;
-    }
-    return [];
-  }, [scheduleData]);
+  React.useEffect(() => {
+    if (!statusForm.status) setStatusForm({ status: currentStatus || 'active' });
+  }, [currentStatus, statusForm.status]);
 
-  const periodOptions = useMemo(() => {
-    const rows = normalizeRows(periods);
-    return [
-      { value: '', label: '— Select period —' },
-      ...rows.map((p) => ({ 
-        value: p.id, 
-        label: `${p.code ?? p.name ?? p.id}` 
-      })),
-    ];
-  }, [periods]);
+  React.useEffect(() => {
+    if (!initialForm.period_id && periods[0]?.id) {
+      setInitialForm((s) => ({ ...s, period_id: periods[0].id }));
+    }
+  }, [periods, initialForm.period_id]);
 
-  // Form validation
-  const validateInitForm = useCallback(() => {
-    const errors = {};
-    if (!initForm.posting_date) {
-      errors.posting_date = 'Posting date is required';
-    }
-    if (!initForm.period_id) {
-      errors.period_id = 'Period is required';
-    }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [initForm]);
+  const invalidateAll = async () => {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: qk.ifrs16Lease(leaseId) }),
+      qc.invalidateQueries({ queryKey: qk.ifrs16LeaseSchedule(leaseId) }),
+      qc.invalidateQueries({ queryKey: ['compliance', 'ifrs16', 'leases'] }),
+    ]);
+  };
 
-  const validatePostForm = useCallback(() => {
-    const errors = {};
-    if (!postForm.from_date) {
-      errors.from_date = 'From date is required';
-    }
-    if (!postForm.to_date) {
-      errors.to_date = 'To date is required';
-    }
-    if (postForm.from_date && postForm.to_date && postForm.from_date > postForm.to_date) {
-      errors.to_date = 'To date must be after from date';
-    }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [postForm]);
-
-  // Handlers
-  const handleFieldChange = useCallback((form, field, value) => {
-    if (form === 'init') {
-      setInitForm(prev => ({ ...prev, [field]: value }));
-    } else {
-      setPostForm(prev => ({ ...prev, [field]: value }));
-    }
-    if (formErrors[field]) {
-      setFormErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  }, [formErrors]);
-
-  const handleRefresh = useCallback(() => {
-    refetchLease();
-    refetchSchedule();
-  }, [refetchLease, refetchSchedule]);
-
-  // Mutations
   const statusMutation = useMutation({
-    mutationFn: (nextStatus) => api.updateLeaseStatus(leaseId, { status: nextStatus }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.ifrs16Lease(leaseId) });
+    mutationFn: () => api.updateLeaseStatus(leaseId, { status: statusForm.status }),
+    onSuccess: async () => {
+      toast.success('Lease status updated');
+      setStatusOpen(false);
+      await invalidateAll();
     },
-    onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.message ?? 'Failed to update status';
-      alert(message);
-    }
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to update lease status'),
   });
 
-  const regenMutation = useMutation({
+  const scheduleMutation = useMutation({
     mutationFn: () => api.generateSchedule(leaseId, {}),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.ifrs16LeaseSchedule(leaseId) });
-      setRegenConfirmOpen(false);
+    onSuccess: async () => {
+      toast.success('Lease schedule generated');
+      setScheduleOpen(false);
+      await invalidateAll();
     },
-    onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.message ?? 'Failed to regenerate schedule';
-      alert(message);
-    }
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to generate schedule'),
   });
 
-  const initMutation = useMutation({
-    mutationFn: async () => {
-      if (!validateInitForm()) throw new Error('Please fix validation errors');
-      return api.postInitialRecognition(leaseId, initForm);
+  const initialMutation = useMutation({
+    mutationFn: () => api.postInitialRecognition(leaseId, {
+      posting_date: initialForm.posting_date || undefined,
+      period_id: initialForm.period_id || undefined,
+      memo: initialForm.memo || undefined,
+    }),
+    onSuccess: async () => {
+      toast.success('Initial recognition posted');
+      setInitialOpen(false);
+      setInitialForm({ posting_date: '', period_id: periods[0]?.id || '', memo: '' });
+      await invalidateAll();
     },
-    onSuccess: () => {
-      setInitModalOpen(false);
-      setInitForm({ posting_date: '', period_id: '', memo: '' });
-      qc.invalidateQueries({ queryKey: qk.ifrs16Lease(leaseId) });
-    },
-    onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.message ?? 'Failed to post initial recognition';
-      alert(message);
-    }
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to post initial recognition'),
   });
 
   const postMutation = useMutation({
-    mutationFn: async () => {
-      if (!validatePostForm()) throw new Error('Please fix validation errors');
-      return api.postForRange(leaseId, { 
-        ...postForm, 
-        dry_run: !!postForm.dry_run 
-      });
+    mutationFn: () => api.postForRange(leaseId, {
+      from_date: postForm.from_date,
+      to_date: postForm.to_date,
+      memo: postForm.memo || undefined,
+    }),
+    onSuccess: async () => {
+      toast.success('Lease period posted');
+      setPostOpen(false);
+      setPostForm({ from_date: '', to_date: '', memo: '' });
+      await invalidateAll();
     },
-    onSuccess: () => {
-      setPostModalOpen(false);
-      setPostForm({ from_date: '', to_date: '', dry_run: true });
-      qc.invalidateQueries({ queryKey: qk.ifrs16Lease(leaseId) });
-    },
-    onError: (err) => {
-      const message = err?.response?.data?.error ?? err?.message ?? 'Failed to post journals';
-      alert(message);
-    }
+    onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to post lease period'),
   });
 
-  // Loading state
-  if (leaseLoading) {
+  const metrics = useMemo(() => {
+    const payments = scheduleLines.reduce((sum, row) => sum + numberOf(row.payment_amount), 0);
+    const interest = scheduleLines.reduce((sum, row) => sum + numberOf(row.interest_amount), 0);
+    const closing = scheduleLines.length ? numberOf(scheduleLines[scheduleLines.length - 1]?.closing_balance) : numberOf(lease.lease_liability_balance, lease.initial_lease_liability);
+    return {
+      payments,
+      interest,
+      closing,
+      lines: scheduleLines.length,
+    };
+  }, [lease, scheduleLines]);
+
+  if (leaseQ.isLoading) {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Loading Lease..."
-          subtitle="Please wait while we load the lease details"
+          title="Loading IFRS 16 lease..."
+          subtitle="Preparing lease workspace"
           icon={FileText}
-          actions={
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.complianceIfrs16)}>
-              Back to Leases
-            </Button>
-          }
+          actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.complianceIFRS16)}>Back to leases</Button>}
         />
         <ContentCard>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-sm text-slate-500">Loading lease details...</div>
-          </div>
+          <div className="py-10 text-sm text-slate-500">Loading lease...</div>
         </ContentCard>
       </div>
     );
   }
 
-  if (leaseError) {
+  if (leaseQ.isError) {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Error Loading Lease"
-          subtitle="There was a problem loading the lease details"
+          title="IFRS 16 lease"
+          subtitle="Unable to load the selected lease"
           icon={FileText}
-          actions={
-            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.complianceIfrs16)}>
-              Back to Leases
-            </Button>
-          }
+          actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.complianceIFRS16)}>Back to leases</Button>}
         />
         <ContentCard>
-          <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <AlertCircle className="h-12 w-12 text-red-500" />
-            <div className="text-sm font-medium text-slate-900">Failed to load lease</div>
-            <div className="text-sm text-slate-500">{leaseErrorData?.message ?? 'An error occurred'}</div>
-            <Button variant="outline" onClick={handleRefresh} className="mt-2">
-              Retry
-            </Button>
-          </div>
+          <div className="py-10 text-sm text-red-600">{leaseQ.error?.response?.data?.message ?? 'Failed to load lease details'}</div>
         </ContentCard>
       </div>
     );
@@ -288,238 +249,125 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
   return (
     <div className="space-y-6">
       <PageHeader
-        title={lease?.name ?? 'Lease Details'}
+        title={lease.name || 'IFRS 16 Lease'}
         subtitle={
-          <div className="flex items-center gap-2">
-            {lease?.code && <span>Code: {lease.code}</span>}
-            {lease?.commencement_date && (
-              <>
-                <span>·</span>
-                <span>Commenced {formatDate(lease.commencement_date)}</span>
-              </>
-            )}
-            {lease?.term_months && (
-              <>
-                <span>·</span>
-                <span>{lease.term_months} months</span>
-              </>
-            )}
+          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <span>{lease.code || 'No code'}</span>
+            {lease.commencement_date ? <><span>·</span><span>Commencement {formatDate(lease.commencement_date)}</span></> : null}
+            {lease.term_months ? <><span>·</span><span>{lease.term_months} months</span></> : null}
           </div>
         }
         icon={FileText}
         actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              leftIcon={ArrowLeft}
-              onClick={() => navigate(ROUTES.complianceIfrs16)}
-            >
-              Back to Leases
+          <>
+            <Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(ROUTES.complianceIFRS16)}>
+              Back to leases
             </Button>
-            <Button
-              variant="outline"
-              leftIcon={RefreshCw}
-              onClick={handleRefresh}
-            >
+            <Button variant="outline" leftIcon={RefreshCw} onClick={() => { leaseQ.refetch(); scheduleQ.refetch(); }}>
               Refresh
             </Button>
-          </div>
+          </>
         }
       />
 
-      {/* Status Bar */}
+      <div className="grid gap-4 xl:grid-cols-4 md:grid-cols-2">
+        <StatCard label="Lease status" value={<Badge tone={toneForStatus(lease.status)}>{lease.status || 'unknown'}</Badge>} subvalue="Current lifecycle state" icon={Workflow} />
+        <StatCard label="Recurring payment" value={formatMoney(numberOf(lease.payment_amount), currency)} subvalue={`${numberOf(lease.payments_per_year)} payments per year`} icon={Wallet} />
+        <StatCard label="Discount rate" value={`${(numberOf(lease.annual_discount_rate) * 100).toFixed(2)}%`} subvalue={lease.payment_timing === 'advance' ? 'Advance timing' : 'Arrears timing'} icon={BarChart3} />
+        <StatCard label="Schedule lines" value={metrics.lines} subvalue={`${formatMoney(metrics.closing, currency)} closing liability`} icon={Activity} />
+      </div>
+
       <ContentCard className="py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Badge
-              tone={
-                lease?.status === 'active' ? 'success' :
-                lease?.status === 'draft' ? 'warning' : 'muted'
-              }
-              className="inline-flex items-center gap-1.5"
-            >
-              {lease?.status === 'active' ? <CheckCircle className="h-3 w-3" /> : 
-               lease?.status === 'draft' ? <FileText className="h-3 w-3" /> : 
-               <XCircle className="h-3 w-3" />}
-              {lease?.status ?? 'draft'}
-            </Badge>
-
-            {lease?.payment_amount && (
-              <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                Payment: ${Number(lease.payment_amount).toFixed(2)}
-              </div>
-            )}
-
-            {lease?.annual_discount_rate && (
-              <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                <Percent className="h-3.5 w-3.5 text-slate-400" />
-                Rate: {(lease.annual_discount_rate * 100).toFixed(2)}%
-              </div>
-            )}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Badge tone={toneForStatus(lease.status)}>{lease.status || 'unknown'}</Badge>
+            <div className="text-sm text-slate-500">Use the actions on the right to progress the lease through schedule generation and posting.</div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => statusMutation.mutate('draft')}
-              disabled={statusMutation.isPending || lease?.status === 'draft'}
-            >
-              Mark Draft
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => statusMutation.mutate('active')}
-              disabled={statusMutation.isPending || lease?.status === 'active'}
-              loading={statusMutation.isPending}
-            >
-              <CheckCircle className="h-4 w-4 mr-1" />
-              Activate
-            </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" leftIcon={ShieldCheck} onClick={() => setStatusOpen(true)}>Update status</Button>
+            <Button variant="outline" leftIcon={PlayCircle} onClick={() => setScheduleOpen(true)}>Generate schedule</Button>
+            <Button variant="outline" leftIcon={Landmark} onClick={() => setInitialOpen(true)}>Post initial recognition</Button>
+            <Button leftIcon={CheckCircle2} onClick={() => setPostOpen(true)}>Post period</Button>
           </div>
         </div>
       </ContentCard>
 
-      {/* Action Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <ContentCard className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setRegenConfirmOpen(true)}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <RefreshCw className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-slate-900">Regenerate Schedule</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Recompute lease schedule based on current parameters
-              </p>
-            </div>
-          </div>
-        </ContentCard>
-
-        <ContentCard className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setInitModalOpen(true)}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <UploadCloud className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-slate-900">Initial Recognition</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Post the initial recognition journals for this lease
-              </p>
-            </div>
-          </div>
-        </ContentCard>
-
-        <ContentCard className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setPostModalOpen(true)}>
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-emerald-50 rounded-lg">
-              <BookOpen className="h-5 w-5 text-emerald-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-slate-900">Post Period</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Post lease journals for a specific date range
-              </p>
-            </div>
-          </div>
-        </ContentCard>
-      </div>
-
-      {/* Tabs */}
       <Tabs
-        value={activeTab}
-        onChange={setActiveTab}
+        value={tab}
+        onChange={setTab}
         tabs={[
-          { value: 'schedule', label: 'Amortization Schedule', icon: Calendar },
-          { value: 'details', label: 'Lease Details', icon: FileText },
+          { value: 'overview', label: 'Overview', icon: FileText },
+          { value: 'schedule', label: 'Measurement schedule', icon: Calendar },
+          { value: 'posting', label: 'Posting readiness', icon: ShieldCheck },
         ]}
       />
 
-      {/* Tab Content */}
-      {activeTab === 'schedule' && (
-        <ContentCard>
-          <div className="mb-4">
-            <div className="text-base font-semibold text-slate-900">Amortization Schedule</div>
-            <div className="mt-1 text-sm text-slate-500">
-              Payment schedule and liability amortization over the lease term
+      {tab === 'overview' ? (
+        <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
+          <ContentCard title="Lease profile">
+            <div className="grid gap-3 md:grid-cols-2">
+              <DetailRow label="Lease code" value={lease.code} />
+              <DetailRow label="Lease name" value={lease.name} />
+              <DetailRow label="Commencement date" value={formatDate(lease.commencement_date)} />
+              <DetailRow label="Term" value={lease.term_months ? `${lease.term_months} months` : '—'} />
+              <DetailRow label="Payment amount" value={formatMoney(numberOf(lease.payment_amount), currency)} />
+              <DetailRow label="Payments per year" value={String(oneOf(lease.payments_per_year, '—'))} />
+              <DetailRow label="Annual discount rate" value={`${(numberOf(lease.annual_discount_rate) * 100).toFixed(2)}%`} />
+              <DetailRow label="Payment timing" value={lease.payment_timing === 'advance' ? 'Advance (start of period)' : 'Arrears (end of period)'} />
             </div>
-          </div>
-
-          {scheduleLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-sm text-slate-500">Loading schedule...</div>
-            </div>
-          ) : scheduleRows.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-              <div className="text-sm font-medium text-slate-900 mb-1">No schedule generated</div>
-              <div className="text-sm text-slate-500 mb-4">
-                Generate a schedule to view payment amortization
+            {lease.notes ? (
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                <div className="mb-1 font-medium text-slate-900">Notes</div>
+                {lease.notes}
               </div>
-              <Button 
-                size="sm" 
-                leftIcon={RefreshCw} 
-                onClick={() => setRegenConfirmOpen(true)}
-              >
-                Generate Schedule
-              </Button>
+            ) : null}
+          </ContentCard>
+
+          <ContentCard title="Account mapping">
+            <div className="grid gap-3">
+              <DetailRow label="ROU asset account" value={lease.rou_asset_account_name || lease.rou_asset_account_id} />
+              <DetailRow label="Lease liability account" value={lease.lease_liability_account_name || lease.lease_liability_account_id} />
+              <DetailRow label="Interest expense account" value={lease.interest_expense_account_name || lease.interest_expense_account_id} />
+              <DetailRow label="Depreciation expense account" value={lease.depreciation_expense_account_name || lease.depreciation_expense_account_id} />
+              <DetailRow label="Accumulated depreciation account" value={lease.accumulated_depreciation_account_name || lease.accumulated_depreciation_account_id} />
+              <DetailRow label="Cash / bank account" value={lease.cash_account_name || lease.cash_account_id} />
             </div>
+          </ContentCard>
+        </div>
+      ) : null}
+
+      {tab === 'schedule' ? (
+        <ContentCard
+          title="Lease measurement schedule"
+          subtitle="Review the amortisation profile generated from the current lease assumptions."
+          actions={<Badge tone="muted">{scheduleLines.length} rows</Badge>}
+        >
+          {scheduleQ.isLoading ? (
+            <div className="py-10 text-sm text-slate-500">Loading schedule...</div>
+          ) : scheduleLines.length === 0 ? (
+            <div className="py-10 text-sm text-slate-500">No schedule has been generated for this lease yet.</div>
           ) : (
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Payment</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Interest</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Principal</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Balance</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left text-slate-500">
+                    <th className="py-3 pr-4">Due date</th>
+                    <th className="py-3 pr-4 text-right">Opening balance</th>
+                    <th className="py-3 pr-4 text-right">Payment</th>
+                    <th className="py-3 pr-4 text-right">Interest</th>
+                    <th className="py-3 pr-4 text-right">Principal</th>
+                    <th className="py-3 text-right">Closing balance</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {scheduleRows.map((row, idx) => (
-                    <tr key={row?.id ?? idx} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-slate-400" />
-                          <span className="text-sm text-slate-700">
-                            {row?.due_date ? formatDate(row.due_date) : '—'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
-                            {row?.payment_amount ? Number(row.payment_amount).toFixed(2) : '—'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Percent className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
-                            {row?.interest_amount ? Number(row.interest_amount).toFixed(2) : '—'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
-                            {row?.principal_amount ? Number(row.principal_amount).toFixed(2) : '—'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
-                          <span className="font-mono text-sm text-slate-700">
-                            {row?.closing_balance ? Number(row.closing_balance).toFixed(2) : '—'}
-                          </span>
-                        </div>
-                      </td>
+                <tbody>
+                  {scheduleLines.map((line, idx) => (
+                    <tr key={line.id || `${line.due_date || 'line'}-${idx}`} className="border-b border-slate-100">
+                      <td className="py-3 pr-4 text-slate-700">{formatDate(line.due_date)}</td>
+                      <td className="py-3 pr-4 text-right text-slate-700">{formatMoney(numberOf(line.opening_balance), currency)}</td>
+                      <td className="py-3 pr-4 text-right text-slate-700">{formatMoney(numberOf(line.payment_amount), currency)}</td>
+                      <td className="py-3 pr-4 text-right text-slate-700">{formatMoney(numberOf(line.interest_amount), currency)}</td>
+                      <td className="py-3 pr-4 text-right text-slate-700">{formatMoney(numberOf(line.principal_amount), currency)}</td>
+                      <td className="py-3 text-right text-slate-700">{formatMoney(numberOf(line.closing_balance), currency)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -527,265 +375,130 @@ console.log('Lease details query result:', { lease, leaseError, leaseErrorData }
             </div>
           )}
         </ContentCard>
-      )}
+      ) : null}
 
-      {activeTab === 'details' && lease && (
-        <ContentCard>
-          <div className="mb-4">
-            <div className="text-base font-semibold text-slate-900">Lease Details</div>
-            <div className="mt-1 text-sm text-slate-500">
-              Complete lease configuration and account mappings
+      {tab === 'posting' ? (
+        <div className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
+          <ContentCard title="Measurement summary">
+            <div className="grid gap-3 md:grid-cols-2">
+              <DetailRow label="Schedule rows" value={String(metrics.lines)} />
+              <DetailRow label="Total undiscounted payments" value={formatMoney(metrics.payments, currency)} />
+              <DetailRow label="Total finance charge" value={formatMoney(metrics.interest, currency)} />
+              <DetailRow label="Closing lease liability" value={formatMoney(metrics.closing, currency)} />
             </div>
-          </div>
+          </ContentCard>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Lease Terms */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                <FileText className="h-4 w-4 text-slate-500" />
-                Lease Terms
-              </h3>
-              
-              <div className="grid gap-3">
-                <DetailRow icon={FileText} label="Code" value={lease.code} />
-                <DetailRow icon={FileText} label="Name" value={lease.name} />
-                <DetailRow icon={Calendar} label="Commencement Date" value={formatDate(lease.commencement_date)} />
-                <DetailRow icon={Clock} label="Term" value={`${lease.term_months} months`} />
-                <DetailRow icon={DollarSign} label="Payment Amount" value={`$${Number(lease.payment_amount).toFixed(2)}`} />
-                <DetailRow icon={Receipt} label="Payments per Year" value={lease.payments_per_year} />
-                <DetailRow icon={Percent} label="Annual Discount Rate" value={`${(lease.annual_discount_rate * 100).toFixed(2)}%`} />
-                <DetailRow icon={Clock} label="Payment Timing" value={lease.payment_timing === 'arrears' ? 'Arrears (end of period)' : 'Advance (start of period)'} />
+          <ContentCard title="Posting readiness">
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-600">
+                <div className="font-medium text-slate-900">Lifecycle checks</div>
+                <ul className="mt-2 space-y-1 list-disc pl-5">
+                  <li>Status: {lease.status || 'unknown'}</li>
+                  <li>Schedule generated: {scheduleLines.length > 0 ? 'Yes' : 'No'}</li>
+                  <li>Lease liability account: {lease.lease_liability_account_id ? 'Configured' : 'Missing'}</li>
+                  <li>ROU asset account: {lease.rou_asset_account_id ? 'Configured' : 'Missing'}</li>
+                  <li>Cash / bank account: {lease.cash_account_id ? 'Configured' : 'Missing'}</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Use <span className="font-medium text-slate-900">Generate schedule</span> after changing lease assumptions, then run <span className="font-medium text-slate-900">Post initial recognition</span> once and <span className="font-medium text-slate-900">Post period</span> for subsequent accounting periods.
               </div>
             </div>
+          </ContentCard>
+        </div>
+      ) : null}
 
-            {/* Account Mappings */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                <Landmark className="h-4 w-4 text-slate-500" />
-                Account Mappings
-              </h3>
-              
-              <div className="grid gap-3">
-                <DetailRow icon={BookOpen} label="ROU Asset Account" value={lease.rou_asset_account_name} />
-                <DetailRow icon={CreditCard} label="Lease Liability Account" value={lease.lease_liability_account_name} />
-                <DetailRow icon={Percent} label="Interest Expense Account" value={lease.interest_expense_account_name} />
-                <DetailRow icon={Receipt} label="Depreciation Expense Account" value={lease.depreciation_expense_account_name} />
-                <DetailRow icon={BookOpen} label="Accumulated Depreciation Account" value={lease.accumulated_depreciation_account_name} />
-                <DetailRow icon={Landmark} label="Cash / Bank Account" value={lease.cash_account_name} />
-              </div>
-
-              {lease.notes && (
-                <div className="mt-4">
-                  <h4 className="text-xs font-medium text-slate-500 mb-2">Notes</h4>
-                  <p className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">{lease.notes}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </ContentCard>
-      )}
-
-      {/* Regenerate Confirmation Modal */}
       <Modal
-        open={regenConfirmOpen}
-        onClose={() => setRegenConfirmOpen(false)}
-        title="Regenerate Schedule"
+        open={statusOpen}
+        title="Update IFRS 16 lease status"
+        onClose={() => setStatusOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setStatusOpen(false)}>Cancel</Button>
+            <Button loading={statusMutation.isPending} onClick={() => statusMutation.mutate()}>
+              Save status
+            </Button>
+          </div>
+        }
       >
-        <div className="space-y-4">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <div className="flex items-start gap-3">
-              <RefreshCw className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-900">
-                <div className="font-medium mb-1">Confirm Schedule Regeneration</div>
-                <div className="text-amber-700">
-                  This will recompute the lease schedule based on current lease parameters. 
-                  Any manually adjusted lines will be overwritten.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-sm text-slate-600">
-            Are you sure you want to regenerate the amortization schedule?
-          </p>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setRegenConfirmOpen(false)}
-            disabled={regenMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => regenMutation.mutate()}
-            loading={regenMutation.isPending}
-            leftIcon={RefreshCw}
-          >
-            Regenerate
-          </Button>
-        </div>
-      </Modal>
-
-      {/* Initial Recognition Modal */}
-      <Modal
-        open={initModalOpen}
-        onClose={() => setInitModalOpen(false)}
-        title="Post Initial Recognition"
-      >
-        <div className="space-y-6">
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-start gap-3">
-              <UploadCloud className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900">
-                <div className="font-medium mb-1">Initial Recognition Journals</div>
-                <div className="text-blue-700">
-                  Post the initial ROU asset and lease liability journals for this lease
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              label="Posting Date"
-              type="date"
-              value={initForm.posting_date}
-              onChange={(e) => handleFieldChange('init', 'posting_date', e.target.value)}
-              required
-              error={formErrors.posting_date}
-              leftIcon={Calendar}
-            />
-            <Select
-              label="Period"
-              value={initForm.period_id}
-              onChange={(e) => handleFieldChange('init', 'period_id', e.target.value)}
-              options={periodOptions}
-              required
-              error={formErrors.period_id}
-              leftIcon={Calendar}
-            />
-          </div>
-
-          <Input
-            label="Memo (Optional)"
-            value={initForm.memo}
-            onChange={(e) => handleFieldChange('init', 'memo', e.target.value)}
-            placeholder="Audit reference or description…"
-            leftIcon={FileText}
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setInitModalOpen(false)}
-            disabled={initMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => initMutation.mutate()}
-            loading={initMutation.isPending}
-            leftIcon={UploadCloud}
-          >
-            Post Initial Recognition
-          </Button>
-        </div>
-      </Modal>
-
-      {/* Post Period Modal */}
-      <Modal
-        open={postModalOpen}
-        onClose={() => setPostModalOpen(false)}
-        title="Post Lease Journals"
-      >
-        <div className="space-y-6">
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-            <div className="flex items-start gap-3">
-              <BookOpen className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-emerald-900">
-                <div className="font-medium mb-1">Post Journals for Date Range</div>
-                <div className="text-emerald-700">
-                  Post lease journals for a specific period. Use preview mode first to validate.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              label="From Date"
-              type="date"
-              value={postForm.from_date}
-              onChange={(e) => handleFieldChange('post', 'from_date', e.target.value)}
-              required
-              error={formErrors.from_date}
-              leftIcon={Calendar}
-            />
-            <Input
-              label="To Date"
-              type="date"
-              value={postForm.to_date}
-              onChange={(e) => handleFieldChange('post', 'to_date', e.target.value)}
-              required
-              error={formErrors.to_date}
-              leftIcon={Calendar}
-            />
-          </div>
-
+        <div className="grid gap-4">
           <Select
-            label="Mode"
-            value={postForm.dry_run ? 'true' : 'false'}
-            onChange={(e) => handleFieldChange('post', 'dry_run', e.target.value === 'true')}
+            label="Status"
+            value={statusForm.status}
+            onChange={(e) => setStatusForm({ status: e.target.value })}
             options={[
-              { value: 'true', label: 'Preview (dry run) - Validate only' },
-              { value: 'false', label: 'Post for real - Create journals' }
+              { value: 'draft', label: 'Draft' },
+              { value: 'active', label: 'Active' },
+              { value: 'closed', label: 'Closed' },
+              { value: 'terminated', label: 'Terminated' },
+              { value: 'cancelled', label: 'Cancelled' },
             ]}
-            leftIcon={BookOpen}
           />
-
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-            <p className="text-xs text-amber-800 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <span>Tip: Always run a preview first with the same date range to validate before posting for real.</span>
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setPostModalOpen(false)}
-            disabled={postMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => postMutation.mutate()}
-            loading={postMutation.isPending}
-            leftIcon={BookOpen}
-          >
-            {postForm.dry_run ? 'Preview' : 'Post Journals'}
-          </Button>
         </div>
       </Modal>
-    </div>
-  );
-}
 
-// Helper component for detail rows
-function DetailRow({ icon: Icon, label, value }) {
-  if (!value) return null;
-  
-  return (
-    <div className="flex items-start gap-2">
-      <Icon className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
-      <div className="flex-1">
-        <span className="text-xs text-slate-500 block">{label}</span>
-        <span className="text-sm text-slate-900 font-medium">{value}</span>
-      </div>
+      <Modal
+        open={scheduleOpen}
+        title="Generate IFRS 16 schedule"
+        onClose={() => setScheduleOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setScheduleOpen(false)}>Cancel</Button>
+            <Button loading={scheduleMutation.isPending} onClick={() => scheduleMutation.mutate()}>
+              Generate schedule
+            </Button>
+          </div>
+        }
+      >
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          This recomputes the lease amortisation schedule using the current lease assumptions and replaces any earlier generated schedule lines.
+        </div>
+      </Modal>
+
+      <Modal
+        open={initialOpen}
+        title="Post initial recognition"
+        onClose={() => setInitialOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setInitialOpen(false)}>Cancel</Button>
+            <Button loading={initialMutation.isPending} onClick={() => initialMutation.mutate()}>
+              Post initial recognition
+            </Button>
+          </div>
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input label="Posting date" type="date" value={initialForm.posting_date} onChange={(e) => setInitialForm((s) => ({ ...s, posting_date: e.target.value }))} />
+          <Select
+            label="Period"
+            value={initialForm.period_id}
+            onChange={(e) => setInitialForm((s) => ({ ...s, period_id: e.target.value }))}
+            options={[{ value: '', label: 'Select period' }, ...periods.map((period) => ({ value: period.id, label: period.name || period.code || period.id }))]}
+          />
+          <Textarea className="md:col-span-2" label="Memo" value={initialForm.memo} onChange={(e) => setInitialForm((s) => ({ ...s, memo: e.target.value }))} rows={4} />
+        </div>
+      </Modal>
+
+      <Modal
+        open={postOpen}
+        title="Post lease period"
+        onClose={() => setPostOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setPostOpen(false)}>Cancel</Button>
+            <Button loading={postMutation.isPending} onClick={() => postMutation.mutate()}>
+              Post lease period
+            </Button>
+          </div>
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input label="From date" type="date" value={postForm.from_date} onChange={(e) => setPostForm((s) => ({ ...s, from_date: e.target.value }))} />
+          <Input label="To date" type="date" value={postForm.to_date} onChange={(e) => setPostForm((s) => ({ ...s, to_date: e.target.value }))} />
+          <Textarea className="md:col-span-2" label="Memo" value={postForm.memo} onChange={(e) => setPostForm((s) => ({ ...s, memo: e.target.value }))} rows={4} />
+        </div>
+      </Modal>
     </div>
   );
 }
