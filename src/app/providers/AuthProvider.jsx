@@ -54,8 +54,11 @@ export function AuthProvider({ children }) {
       const tokens = res.data?.tokens;
       if (tokens?.accessToken) {
         authStore.getState().setTokens({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
-        await qc.invalidateQueries({ queryKey: qk.me });
       }
+      if (res.data?.user) {
+        authStore.getState().setIdentity({ user: res.data.user, roles: [], permissions: [] });
+      }
+      await qc.invalidateQueries({ queryKey: qk.me });
       return res.data;
     },
     [http, qc]

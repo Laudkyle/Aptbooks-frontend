@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ApiContext } from '../app/providers/AppProviders.jsx';
 import { endpoints } from '../shared/api/endpoints.js';
-import { qk } from '../shared/query/keys.js';
 import { ContentCard } from '../shared/components/layout/ContentCard.jsx';
 import { Button } from '../shared/components/ui/Button.jsx';
 import { Input } from '../shared/components/ui/Input.jsx';
 import { useAuth } from '../shared/hooks/useAuth.js';
+import { useOrg } from '../shared/hooks/useOrg.js';
 import { useToast } from '../shared/components/ui/Toast.jsx';
 import { normalizeError } from '../shared/api/errors.js';
 
@@ -14,6 +14,7 @@ export default function Me() {
   const { http } = React.useContext(ApiContext);
   const toast = useToast();
   const auth = useAuth();
+  const { currentOrg } = useOrg();
   const [otp, setOtp] = useState('');
   const [disablePassword, setDisablePassword] = useState('');
 
@@ -33,7 +34,8 @@ export default function Me() {
         <div className="grid gap-2 text-sm">
           <div><span className="text-slate-500">Email:</span> {auth.user?.email}</div>
           <div><span className="text-slate-500">User ID:</span> {auth.user?.id}</div>
-          <div><span className="text-slate-500">Organization:</span> {auth.user?.organization_id}</div>
+          <div><span className="text-slate-500">Active organization:</span> {currentOrg?.name || auth.user?.organization_id}</div>
+          {currentOrg?.base_currency_code ? <div><span className="text-slate-500">Base currency:</span> {currentOrg.base_currency_code}</div> : null}
         </div>
       </ContentCard>
 
@@ -73,12 +75,7 @@ export default function Me() {
               </Button>
             </div>
             <div className="grid gap-2 md:grid-cols-3">
-              <Input
-                label="Password"
-                type="password"
-                value={disablePassword}
-                onChange={(e) => setDisablePassword(e.target.value)}
-              />
+              <Input label="Password" type="password" value={disablePassword} onChange={(e) => setDisablePassword(e.target.value)} />
               <Input label="OTP" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="123456" />
               <Button
                 variant="danger"
