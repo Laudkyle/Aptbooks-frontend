@@ -27,6 +27,7 @@ import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
+import { PartnerSelect } from '../../../shared/components/forms/PartnerSelect.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
@@ -120,6 +121,7 @@ function defaultLeaseForm(settings = defaultSettingsForm()) {
     accumulated_depreciation_account_id: settings.accumulated_depreciation_account_id || '',
     cash_account_id: settings.cash_account_id || '',
     contract_reference: '',
+    counterparty_partner_id: '',
     currency_code: 'GHS',
     indexation: '',
     asset_code: '',
@@ -476,8 +478,13 @@ export default function IFRS16LeasesPage() {
         residual_value_guarantee: form.residual_value_guarantee === '' ? undefined : Number(form.residual_value_guarantee || 0),
         purchase_option_amount: form.purchase_option_amount === '' ? undefined : Number(form.purchase_option_amount || 0),
       }),
-    onSuccess: async () => {
-      toast.success('IFRS 16 lease created');
+    onSuccess: async (data) => {
+      const createdLeaseId = data?.id || data?.lease_id || data?.lease?.id || null;
+      const counterpartyPartnerId = form.counterparty_partner_id || '';
+      if (createdLeaseId && counterpartyPartnerId) {
+        await api.updateContract(createdLeaseId, { counterparty_partner_id: counterpartyPartnerId });
+      }
+      toast.success(counterpartyPartnerId ? 'IFRS 16 lease created and counterparty saved' : 'IFRS 16 lease created');
       setForm(defaultLeaseForm(settingsForm));
       setErrors({});
       setActiveTab('register');
@@ -654,6 +661,7 @@ export default function IFRS16LeasesPage() {
           <Input label="Lease code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} />
           <Input label="Lease name" value={form.name} error={errors.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
           <Input label="Contract reference" value={form.contract_reference} onChange={(e) => setForm((s) => ({ ...s, contract_reference: e.target.value }))} />
+          <PartnerSelect label="Counterparty / lessor" type="vendor" value={form.counterparty_partner_id} onChange={(e) => setForm((s) => ({ ...s, counterparty_partner_id: e.target.value }))} />
           <Input label="Commencement date" type="date" value={form.commencement_date} error={errors.commencement_date} onChange={(e) => setForm((s) => ({ ...s, commencement_date: e.target.value }))} />
           <Input label="Term (months)" type="number" value={form.term_months} error={errors.term_months} onChange={(e) => setForm((s) => ({ ...s, term_months: e.target.value }))} />
           <Input label="Payment amount" type="number" value={form.payment_amount} error={errors.payment_amount} onChange={(e) => setForm((s) => ({ ...s, payment_amount: e.target.value }))} />

@@ -38,6 +38,7 @@ import { makeIfrs16Api } from '../api/ifrs16.api.js';
 import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
 import { formatMoney } from '../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../shared/utils/formatDate.js';
+import { PartnerSelect } from '../../../shared/components/forms/PartnerSelect.jsx';
 
 function rowsOf(data, keys = ['items', 'data', 'rows', 'lines']) {
   if (Array.isArray(data)) return data;
@@ -141,7 +142,7 @@ export default function IFRS16LeaseDetailPage() {
   const [initialForm, setInitialForm] = useState({ entry_date: '', memo: '' });
   const [postForm, setPostForm] = useState({ from_date: '', to_date: '', memo: '' });
   const [contractForm, setContractForm] = useState({
-    contract_reference: '', currency_code: 'GHS', payment_timing: 'arrears', indexation: '',
+    counterparty_partner_id: '', contract_reference: '', currency_code: 'GHS', payment_timing: 'arrears', indexation: '',
     has_purchase_option: 'false', has_extension_option: 'false', has_termination_option: 'false',
     residual_value_guarantee: '', initial_direct_costs: '', lease_incentives: '', restoration_provision: '',
     prepaid_lease_payments: '', accrued_lease_payments: '', purchase_option_amount: '',
@@ -186,6 +187,7 @@ export default function IFRS16LeaseDetailPage() {
   useEffect(() => {
     if (!contract) return;
     setContractForm({
+      counterparty_partner_id: contract.counterparty_partner_id || '',
       contract_reference: contract.contract_reference || lease.contract_reference || '',
       currency_code: contract.currency_code || lease.currency_code || 'GHS',
       payment_timing: contract.payment_timing || lease.payment_timing || 'arrears',
@@ -230,6 +232,7 @@ export default function IFRS16LeaseDetailPage() {
   const initialMutation = useMutation({ mutationFn: () => api.postInitialRecognition(leaseId, { entry_date: initialForm.entry_date || undefined, memo: initialForm.memo || undefined }), onSuccess: async () => { toast.success('Initial recognition posted'); setInitialOpen(false); setInitialForm({ entry_date: '', memo: '' }); await invalidateAll(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to post initial recognition') });
   const postMutation = useMutation({ mutationFn: () => api.postForRange(leaseId, { from_date: postForm.from_date, to_date: postForm.to_date, memo: postForm.memo || undefined }), onSuccess: async () => { toast.success('Lease period posted'); setPostOpen(false); setPostForm({ from_date: '', to_date: '', memo: '' }); await invalidateAll(); }, onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to post lease period') });
   const contractMutation = useMutation({ mutationFn: () => api.updateContract(leaseId, {
+    counterparty_partner_id: contractForm.counterparty_partner_id || undefined,
     contract_reference: contractForm.contract_reference || undefined,
     currency_code: contractForm.currency_code || undefined,
     payment_timing: contractForm.payment_timing || undefined,
