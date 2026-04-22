@@ -14,6 +14,7 @@ import {
   ListTree,
   PencilLine,
   Save,
+  ChevronDown,
 } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
@@ -284,6 +285,7 @@ export default function IFRS16LeasesPage() {
   const [activeTab, setActiveTab] = useState('register');
   const [form, setForm] = useState(defaultLeaseForm());
   const [errors, setErrors] = useState({});
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [settingsForm, setSettingsForm] = useState(defaultSettingsForm());
   const [settingsErrors, setSettingsErrors] = useState({});
 
@@ -717,13 +719,28 @@ export default function IFRS16LeasesPage() {
           <Input label="Asset description" value={form.asset_description} onChange={(e) => setForm((s) => ({ ...s, asset_description: e.target.value }))} />
           <Input label="Asset class" value={form.asset_class} onChange={(e) => setForm((s) => ({ ...s, asset_class: e.target.value }))} />
           <Input label="Useful life (months)" type="number" value={form.useful_life_months} error={errors.useful_life_months} onChange={(e) => setForm((s) => ({ ...s, useful_life_months: e.target.value }))} />
-          <Input label="Initial direct costs" type="number" value={form.initial_direct_costs} error={errors.initial_direct_costs} onChange={(e) => setForm((s) => ({ ...s, initial_direct_costs: e.target.value }))} />
-          <Input label="Lease incentives" type="number" value={form.lease_incentives} error={errors.lease_incentives} onChange={(e) => setForm((s) => ({ ...s, lease_incentives: e.target.value }))} />
-          <Input label="Restoration provision" type="number" value={form.restoration_provision} error={errors.restoration_provision} onChange={(e) => setForm((s) => ({ ...s, restoration_provision: e.target.value }))} />
-          <Input label="Prepaid lease payments" type="number" value={form.prepaid_lease_payments} error={errors.prepaid_lease_payments} onChange={(e) => setForm((s) => ({ ...s, prepaid_lease_payments: e.target.value }))} />
-          <Input label="Accrued lease payments" type="number" value={form.accrued_lease_payments} error={errors.accrued_lease_payments} onChange={(e) => setForm((s) => ({ ...s, accrued_lease_payments: e.target.value }))} />
-          <Input label="Residual value guarantee" type="number" value={form.residual_value_guarantee} error={errors.residual_value_guarantee} onChange={(e) => setForm((s) => ({ ...s, residual_value_guarantee: e.target.value }))} />
-          <Input label="Purchase option amount" type="number" value={form.purchase_option_amount} error={errors.purchase_option_amount} onChange={(e) => setForm((s) => ({ ...s, purchase_option_amount: e.target.value }))} />
+          <div className="md:col-span-2 xl:col-span-3">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
+              Initial measurement adjustments
+              <span className="ml-1 text-xs font-normal text-slate-400">(initial direct costs, incentives, restoration provision, prepaid / accrued payments, residual value guarantee, purchase option amount)</span>
+            </button>
+          </div>
+          {showAdvanced && (
+            <>
+              <Input label="Initial direct costs" type="number" value={form.initial_direct_costs} error={errors.initial_direct_costs} onChange={(e) => setForm((s) => ({ ...s, initial_direct_costs: e.target.value }))} />
+              <Input label="Lease incentives" type="number" value={form.lease_incentives} error={errors.lease_incentives} onChange={(e) => setForm((s) => ({ ...s, lease_incentives: e.target.value }))} />
+              <Input label="Restoration provision" type="number" value={form.restoration_provision} error={errors.restoration_provision} onChange={(e) => setForm((s) => ({ ...s, restoration_provision: e.target.value }))} />
+              <Input label="Prepaid lease payments" type="number" value={form.prepaid_lease_payments} error={errors.prepaid_lease_payments} onChange={(e) => setForm((s) => ({ ...s, prepaid_lease_payments: e.target.value }))} />
+              <Input label="Accrued lease payments" type="number" value={form.accrued_lease_payments} error={errors.accrued_lease_payments} onChange={(e) => setForm((s) => ({ ...s, accrued_lease_payments: e.target.value }))} />
+              <Input label="Residual value guarantee" type="number" value={form.residual_value_guarantee} error={errors.residual_value_guarantee} onChange={(e) => setForm((s) => ({ ...s, residual_value_guarantee: e.target.value }))} />
+              <Input label="Purchase option amount" type="number" value={form.purchase_option_amount} error={errors.purchase_option_amount} onChange={(e) => setForm((s) => ({ ...s, purchase_option_amount: e.target.value }))} />
+            </>
+          )}
           <Textarea label="Working notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} rows={5} className="md:col-span-2 xl:col-span-3" />
         </div>
       </ContentCard>
