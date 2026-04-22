@@ -571,12 +571,37 @@ export const endpoints = {
         create: "/compliance/ifrs16/leases",
         detail: (leaseId) => `/compliance/ifrs16/leases/${leaseId}`,
         status: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/status`,
+        submit: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/submit`,
+        approve: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/approve`,
+        reject: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/reject`,
+        contract: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/contract`,
+        assets: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/assets`,
+        assetDetail: (leaseId, assetId) => `/compliance/ifrs16/leases/${leaseId}/assets/${assetId}`,
+        payments: (leaseId, qs) => {
+          const query = new URLSearchParams(qs ?? {}).toString();
+          return `/compliance/ifrs16/leases/${leaseId}/payments${query ? `?${query}` : ''}`;
+        },
+        modifications: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/modifications`,
+        modificationDetail: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}`,
+        modificationSubmit: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}/submit`,
+        modificationApprove: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}/approve`,
+        modificationReject: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}/reject`,
+        modificationApply: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}/apply`,
+        events: (leaseId, qs) => {
+          const query = new URLSearchParams(qs ?? {}).toString();
+          return `/compliance/ifrs16/leases/${leaseId}/events${query ? `?${query}` : ''}`;
+        },
+        postingLedger: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/posting-ledger`,
         scheduleGenerate: (leaseId) =>
           `/compliance/ifrs16/leases/${leaseId}/schedule/generate`,
         schedule: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/schedule`,
         post: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/post`,
         initialRecognitionPost: (leaseId) =>
           `/compliance/ifrs16/leases/${leaseId}/initial-recognition/post`,
+      },
+      reports: {
+        dashboard: (qs) => `/compliance/ifrs16/reports/dashboard?${new URLSearchParams(qs ?? {}).toString()}`,
+        disclosures: (qs) => `/compliance/ifrs16/reports/disclosures?${new URLSearchParams(qs ?? {}).toString()}`,
       },
     },
     ifrs15: {

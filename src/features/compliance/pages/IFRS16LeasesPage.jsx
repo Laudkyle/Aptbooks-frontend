@@ -104,6 +104,15 @@ function defaultLeaseForm(settings = defaultSettingsForm()) {
     payments_per_year: settings.default_payments_per_year || '12',
     annual_discount_rate: settings.default_annual_discount_rate || '',
     payment_timing: settings.default_payment_timing || 'arrears',
+    recognition_model: 'on_balance_sheet',
+    is_short_term_lease: 'false',
+    is_low_value_lease: 'false',
+    practical_expedient_non_lease_components: 'false',
+    ownership_transfers: 'false',
+    purchase_option_reasonably_certain: 'false',
+    has_purchase_option: 'false',
+    has_extension_option: 'false',
+    has_termination_option: 'false',
     rou_asset_account_id: settings.rou_asset_account_id || '',
     lease_liability_account_id: settings.lease_liability_account_id || '',
     interest_expense_account_id: settings.interest_expense_account_id || '',
@@ -112,6 +121,7 @@ function defaultLeaseForm(settings = defaultSettingsForm()) {
     cash_account_id: settings.cash_account_id || '',
     contract_reference: '',
     currency_code: 'GHS',
+    indexation: '',
     asset_code: '',
     asset_description: '',
     asset_class: '',
@@ -119,6 +129,10 @@ function defaultLeaseForm(settings = defaultSettingsForm()) {
     initial_direct_costs: '',
     lease_incentives: '',
     restoration_provision: '',
+    prepaid_lease_payments: '',
+    accrued_lease_payments: '',
+    residual_value_guarantee: '',
+    purchase_option_amount: '',
     notes: settings.default_notes_template || '',
   };
 }
@@ -324,8 +338,8 @@ export default function IFRS16LeasesPage() {
     if (!Number.isInteger(term) || term <= 0) next.default_term_months = 'Default term must be a positive whole number';
 
     const ppy = Number(settingsForm.default_payments_per_year);
-    if (!Number.isInteger(ppy) || ppy <= 0 || ppy > 366) {
-      next.default_payments_per_year = 'Default payments per year must be a valid positive whole number';
+    if (![1, 2, 4, 12].includes(ppy)) {
+      next.default_payments_per_year = 'Default payments per year must be 1, 2, 4, or 12';
     }
 
     if (settingsForm.default_annual_discount_rate !== '') {
@@ -348,7 +362,7 @@ export default function IFRS16LeasesPage() {
     if (!Number.isInteger(term) || term <= 0) next.term_months = 'Term must be a positive whole number';
 
     const payment = Number(form.payment_amount);
-    if (form.payment_amount === '' || Number.isNaN(payment) || payment < 0) next.payment_amount = 'Payment amount must be a valid non-negative number';
+    if (form.payment_amount === '' || Number.isNaN(payment) || payment <= 0) next.payment_amount = 'Payment amount must be a valid positive number';
 
     const ppy = Number(form.payments_per_year);
     if (![1, 2, 4, 12].includes(ppy)) next.payments_per_year = 'Payments per year must be 1, 2, 4, or 12';
@@ -360,7 +374,7 @@ export default function IFRS16LeasesPage() {
 
     if (!String(form.currency_code || '').trim()) next.currency_code = 'Currency is required';
 
-    const positiveOptionalFields = ['useful_life_months', 'initial_direct_costs', 'lease_incentives', 'restoration_provision'];
+    const positiveOptionalFields = ['useful_life_months', 'initial_direct_costs', 'lease_incentives', 'restoration_provision', 'prepaid_lease_payments', 'accrued_lease_payments', 'residual_value_guarantee', 'purchase_option_amount'];
     for (const field of positiveOptionalFields) {
       const raw = form[field];
       if (raw !== '' && raw !== null && raw !== undefined) {
@@ -376,11 +390,9 @@ export default function IFRS16LeasesPage() {
   const saveSettingsMutation = useMutation({
     mutationFn: () => {
       if (!validateSettings()) throw new Error('validation_failed');
-      return api.updateSettings({
+      const payload = {
         default_term_months: Number(settingsForm.default_term_months || 0),
         default_payments_per_year: Number(settingsForm.default_payments_per_year || 0),
-        default_annual_discount_rate:
-          settingsForm.default_annual_discount_rate === '' ? null : Number(settingsForm.default_annual_discount_rate),
         default_payment_timing: settingsForm.default_payment_timing || 'arrears',
         rou_asset_account_id: settingsForm.rou_asset_account_id || null,
         lease_liability_account_id: settingsForm.lease_liability_account_id || null,
@@ -388,8 +400,13 @@ export default function IFRS16LeasesPage() {
         depreciation_expense_account_id: settingsForm.depreciation_expense_account_id || null,
         accumulated_depreciation_account_id: settingsForm.accumulated_depreciation_account_id || null,
         cash_account_id: settingsForm.cash_account_id || null,
-        default_notes_template: settingsForm.default_notes_template?.trim() || null,
-      });
+      };
+      if (settingsForm.default_annual_discount_rate !== '') {
+        payload.default_annual_discount_rate = Number(settingsForm.default_annual_discount_rate);
+      }
+      const notesTemplate = settingsForm.default_notes_template?.trim();
+      if (notesTemplate) payload.default_notes_template = notesTemplate;
+      return api.updateSettings(payload);
     },
     onSuccess: async (data) => {
       toast.success('IFRS 16 settings saved');
@@ -429,6 +446,15 @@ export default function IFRS16LeasesPage() {
         payments_per_year: Number(form.payments_per_year || 0),
         annual_discount_rate: Number(form.annual_discount_rate || 0),
         payment_timing: form.payment_timing || 'arrears',
+        recognition_model: form.recognition_model || 'on_balance_sheet',
+        is_short_term_lease: form.is_short_term_lease === 'true',
+        is_low_value_lease: form.is_low_value_lease === 'true',
+        practical_expedient_non_lease_components: form.practical_expedient_non_lease_components === 'true',
+        ownership_transfers: form.ownership_transfers === 'true',
+        purchase_option_reasonably_certain: form.purchase_option_reasonably_certain === 'true',
+        has_purchase_option: form.has_purchase_option === 'true',
+        has_extension_option: form.has_extension_option === 'true',
+        has_termination_option: form.has_termination_option === 'true',
         rou_asset_account_id: form.rou_asset_account_id || undefined,
         lease_liability_account_id: form.lease_liability_account_id || undefined,
         interest_expense_account_id: form.interest_expense_account_id || undefined,
@@ -437,6 +463,7 @@ export default function IFRS16LeasesPage() {
         cash_account_id: form.cash_account_id || undefined,
         contract_reference: form.contract_reference.trim() || form.code.trim() || undefined,
         currency_code: form.currency_code || undefined,
+        indexation: form.indexation.trim() || undefined,
         asset_code: form.asset_code.trim() || form.code.trim() || undefined,
         asset_description: form.asset_description.trim() || form.name.trim(),
         asset_class: form.asset_class.trim() || undefined,
@@ -444,6 +471,10 @@ export default function IFRS16LeasesPage() {
         initial_direct_costs: form.initial_direct_costs === '' ? undefined : Number(form.initial_direct_costs || 0),
         lease_incentives: form.lease_incentives === '' ? undefined : Number(form.lease_incentives || 0),
         restoration_provision: form.restoration_provision === '' ? undefined : Number(form.restoration_provision || 0),
+        prepaid_lease_payments: form.prepaid_lease_payments === '' ? undefined : Number(form.prepaid_lease_payments || 0),
+        accrued_lease_payments: form.accrued_lease_payments === '' ? undefined : Number(form.accrued_lease_payments || 0),
+        residual_value_guarantee: form.residual_value_guarantee === '' ? undefined : Number(form.residual_value_guarantee || 0),
+        purchase_option_amount: form.purchase_option_amount === '' ? undefined : Number(form.purchase_option_amount || 0),
       }),
     onSuccess: async () => {
       toast.success('IFRS 16 lease created');
@@ -649,7 +680,25 @@ export default function IFRS16LeasesPage() {
               { value: 'advance', label: 'Advance (start of period)' },
             ]}
           />
-          <div className="hidden xl:block" />
+          <Select
+            label="Recognition model"
+            value={form.recognition_model}
+            onChange={(e) => setForm((s) => ({ ...s, recognition_model: e.target.value }))}
+            options={[
+              { value: 'on_balance_sheet', label: 'On balance sheet' },
+              { value: 'short_term_exempt', label: 'Short-term exempt' },
+              { value: 'low_value_exempt', label: 'Low-value exempt' },
+            ]}
+          />
+          <Input label="Indexation basis" value={form.indexation} onChange={(e) => setForm((s) => ({ ...s, indexation: e.target.value }))} />
+          <Select label="Short-term lease" value={form.is_short_term_lease} onChange={(e) => setForm((s) => ({ ...s, is_short_term_lease: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Low-value lease" value={form.is_low_value_lease} onChange={(e) => setForm((s) => ({ ...s, is_low_value_lease: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Practical expedient: do not separate non-lease components" value={form.practical_expedient_non_lease_components} onChange={(e) => setForm((s) => ({ ...s, practical_expedient_non_lease_components: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Ownership transfers" value={form.ownership_transfers} onChange={(e) => setForm((s) => ({ ...s, ownership_transfers: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Purchase option reasonably certain" value={form.purchase_option_reasonably_certain} onChange={(e) => setForm((s) => ({ ...s, purchase_option_reasonably_certain: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Has purchase option" value={form.has_purchase_option} onChange={(e) => setForm((s) => ({ ...s, has_purchase_option: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Has extension option" value={form.has_extension_option} onChange={(e) => setForm((s) => ({ ...s, has_extension_option: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
+          <Select label="Has termination option" value={form.has_termination_option} onChange={(e) => setForm((s) => ({ ...s, has_termination_option: e.target.value }))} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />
           <AccountSelect label="ROU asset account" value={form.rou_asset_account_id} onChange={(e) => setForm((s) => ({ ...s, rou_asset_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET'] }} />
           <AccountSelect label="Lease liability account" value={form.lease_liability_account_id} onChange={(e) => setForm((s) => ({ ...s, lease_liability_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['LIABILITY'] }} />
           <AccountSelect label="Interest expense account" value={form.interest_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, interest_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
@@ -663,6 +712,10 @@ export default function IFRS16LeasesPage() {
           <Input label="Initial direct costs" type="number" value={form.initial_direct_costs} error={errors.initial_direct_costs} onChange={(e) => setForm((s) => ({ ...s, initial_direct_costs: e.target.value }))} />
           <Input label="Lease incentives" type="number" value={form.lease_incentives} error={errors.lease_incentives} onChange={(e) => setForm((s) => ({ ...s, lease_incentives: e.target.value }))} />
           <Input label="Restoration provision" type="number" value={form.restoration_provision} error={errors.restoration_provision} onChange={(e) => setForm((s) => ({ ...s, restoration_provision: e.target.value }))} />
+          <Input label="Prepaid lease payments" type="number" value={form.prepaid_lease_payments} error={errors.prepaid_lease_payments} onChange={(e) => setForm((s) => ({ ...s, prepaid_lease_payments: e.target.value }))} />
+          <Input label="Accrued lease payments" type="number" value={form.accrued_lease_payments} error={errors.accrued_lease_payments} onChange={(e) => setForm((s) => ({ ...s, accrued_lease_payments: e.target.value }))} />
+          <Input label="Residual value guarantee" type="number" value={form.residual_value_guarantee} error={errors.residual_value_guarantee} onChange={(e) => setForm((s) => ({ ...s, residual_value_guarantee: e.target.value }))} />
+          <Input label="Purchase option amount" type="number" value={form.purchase_option_amount} error={errors.purchase_option_amount} onChange={(e) => setForm((s) => ({ ...s, purchase_option_amount: e.target.value }))} />
           <Textarea label="Working notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} rows={5} className="md:col-span-2 xl:col-span-3" />
         </div>
       </ContentCard>

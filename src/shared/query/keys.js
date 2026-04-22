@@ -159,6 +159,13 @@ export const qk = {
   ifrs16Leases: (qs) => ['compliance', 'ifrs16', 'leases', qs ?? {}],
   ifrs16Lease: (id) => ['compliance', 'ifrs16', 'leases', id],
   ifrs16LeaseSchedule: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'schedule'],
+  ifrs16LeaseAssets: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'assets'],
+  ifrs16LeasePayments: (leaseId, qs) => ['compliance', 'ifrs16', 'lease', leaseId, 'payments', qs ?? {}],
+  ifrs16LeaseModifications: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'modifications'],
+  ifrs16LeaseEvents: (leaseId, qs) => ['compliance', 'ifrs16', 'lease', leaseId, 'events', qs ?? {}],
+  ifrs16LeasePostingLedger: (leaseId) => ['compliance', 'ifrs16', 'lease', leaseId, 'postingLedger'],
+  ifrs16Dashboard: (qs) => ['compliance', 'ifrs16', 'dashboard', qs ?? {}],
+  ifrs16Disclosures: (qs) => ['compliance', 'ifrs16', 'disclosures', qs ?? {}],
 
   ifrs15Settings: ['compliance', 'ifrs15', 'settings'],
   ifrs15Contracts: (qs) => ['compliance', 'ifrs15', 'contracts', qs ?? {}],
