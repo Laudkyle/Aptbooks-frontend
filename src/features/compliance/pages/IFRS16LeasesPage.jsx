@@ -26,6 +26,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Tabs } from '../../../shared/components/ui/Tabs.jsx';
@@ -109,6 +110,15 @@ function defaultLeaseForm(settings = defaultSettingsForm()) {
     depreciation_expense_account_id: settings.depreciation_expense_account_id || '',
     accumulated_depreciation_account_id: settings.accumulated_depreciation_account_id || '',
     cash_account_id: settings.cash_account_id || '',
+    contract_reference: '',
+    currency_code: 'GHS',
+    asset_code: '',
+    asset_description: '',
+    asset_class: '',
+    useful_life_months: settings.default_term_months || '12',
+    initial_direct_costs: '',
+    lease_incentives: '',
+    restoration_provision: '',
     notes: settings.default_notes_template || '',
   };
 }
@@ -341,11 +351,22 @@ export default function IFRS16LeasesPage() {
     if (form.payment_amount === '' || Number.isNaN(payment) || payment < 0) next.payment_amount = 'Payment amount must be a valid non-negative number';
 
     const ppy = Number(form.payments_per_year);
-    if (!Number.isInteger(ppy) || ppy <= 0 || ppy > 366) next.payments_per_year = 'Payments per year must be a valid positive whole number';
+    if (![1, 2, 4, 12].includes(ppy)) next.payments_per_year = 'Payments per year must be 1, 2, 4, or 12';
 
     const rate = Number(form.annual_discount_rate);
     if (form.annual_discount_rate === '' || Number.isNaN(rate) || rate < 0 || rate > 1) {
       next.annual_discount_rate = 'Discount rate must be between 0 and 1';
+    }
+
+    if (!String(form.currency_code || '').trim()) next.currency_code = 'Currency is required';
+
+    const positiveOptionalFields = ['useful_life_months', 'initial_direct_costs', 'lease_incentives', 'restoration_provision'];
+    for (const field of positiveOptionalFields) {
+      const raw = form[field];
+      if (raw !== '' && raw !== null && raw !== undefined) {
+        const n = Number(raw);
+        if (Number.isNaN(n) || n < 0) next[field] = 'Value must be zero or greater';
+      }
     }
 
     setErrors(next);
@@ -387,6 +408,7 @@ export default function IFRS16LeasesPage() {
         depreciation_expense_account_id: current.depreciation_expense_account_id || mapped.depreciation_expense_account_id,
         accumulated_depreciation_account_id: current.accumulated_depreciation_account_id || mapped.accumulated_depreciation_account_id,
         cash_account_id: current.cash_account_id || mapped.cash_account_id,
+        useful_life_months: current.useful_life_months || mapped.default_term_months,
         notes: current.notes || mapped.default_notes_template,
       }));
     },
@@ -413,7 +435,15 @@ export default function IFRS16LeasesPage() {
         depreciation_expense_account_id: form.depreciation_expense_account_id || undefined,
         accumulated_depreciation_account_id: form.accumulated_depreciation_account_id || undefined,
         cash_account_id: form.cash_account_id || undefined,
-        notes: form.notes.trim() || undefined,
+        contract_reference: form.contract_reference.trim() || form.code.trim() || undefined,
+        currency_code: form.currency_code || undefined,
+        asset_code: form.asset_code.trim() || form.code.trim() || undefined,
+        asset_description: form.asset_description.trim() || form.name.trim(),
+        asset_class: form.asset_class.trim() || undefined,
+        useful_life_months: form.useful_life_months === '' ? undefined : Number(form.useful_life_months || 0),
+        initial_direct_costs: form.initial_direct_costs === '' ? undefined : Number(form.initial_direct_costs || 0),
+        lease_incentives: form.lease_incentives === '' ? undefined : Number(form.lease_incentives || 0),
+        restoration_provision: form.restoration_provision === '' ? undefined : Number(form.restoration_provision || 0),
       }),
     onSuccess: async () => {
       toast.success('IFRS 16 lease created');
@@ -592,10 +622,23 @@ export default function IFRS16LeasesPage() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <Input label="Lease code" value={form.code} onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))} />
           <Input label="Lease name" value={form.name} error={errors.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+          <Input label="Contract reference" value={form.contract_reference} onChange={(e) => setForm((s) => ({ ...s, contract_reference: e.target.value }))} />
           <Input label="Commencement date" type="date" value={form.commencement_date} error={errors.commencement_date} onChange={(e) => setForm((s) => ({ ...s, commencement_date: e.target.value }))} />
           <Input label="Term (months)" type="number" value={form.term_months} error={errors.term_months} onChange={(e) => setForm((s) => ({ ...s, term_months: e.target.value }))} />
           <Input label="Payment amount" type="number" value={form.payment_amount} error={errors.payment_amount} onChange={(e) => setForm((s) => ({ ...s, payment_amount: e.target.value }))} />
-          <Input label="Payments per year" type="number" value={form.payments_per_year} error={errors.payments_per_year} onChange={(e) => setForm((s) => ({ ...s, payments_per_year: e.target.value }))} />
+          <Select
+            label="Payments per year"
+            value={form.payments_per_year}
+            error={errors.payments_per_year}
+            onChange={(e) => setForm((s) => ({ ...s, payments_per_year: e.target.value }))}
+            options={[
+              { value: '12', label: '12 · Monthly' },
+              { value: '4', label: '4 · Quarterly' },
+              { value: '2', label: '2 · Semi-annual' },
+              { value: '1', label: '1 · Annual' },
+            ]}
+          />
+          <CurrencySelect label="Currency" value={form.currency_code} error={errors.currency_code} onChange={(e) => setForm((s) => ({ ...s, currency_code: e.target.value }))} allowEmpty={false} />
           <Input label="Annual discount rate" type="number" step="0.0001" value={form.annual_discount_rate} error={errors.annual_discount_rate} onChange={(e) => setForm((s) => ({ ...s, annual_discount_rate: e.target.value }))} />
           <Select
             label="Payment timing"
@@ -613,7 +656,14 @@ export default function IFRS16LeasesPage() {
           <AccountSelect label="Depreciation expense account" value={form.depreciation_expense_account_id} onChange={(e) => setForm((s) => ({ ...s, depreciation_expense_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['EXPENSE'] }} />
           <AccountSelect label="Accumulated depreciation account" value={form.accumulated_depreciation_account_id} onChange={(e) => setForm((s) => ({ ...s, accumulated_depreciation_account_id: e.target.value }))} allowEmpty filters={{ accountTypeCodes: ['ASSET', 'CONTRA_ASSET'] }} />
           <AccountSelect label="Cash / bank account" value={form.cash_account_id} onChange={(e) => setForm((s) => ({ ...s, cash_account_id: e.target.value }))} allowEmpty />
-          <Textarea label="Notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} rows={5} className="md:col-span-2 xl:col-span-3" />
+          <Input label="Asset code" value={form.asset_code} onChange={(e) => setForm((s) => ({ ...s, asset_code: e.target.value }))} />
+          <Input label="Asset description" value={form.asset_description} onChange={(e) => setForm((s) => ({ ...s, asset_description: e.target.value }))} />
+          <Input label="Asset class" value={form.asset_class} onChange={(e) => setForm((s) => ({ ...s, asset_class: e.target.value }))} />
+          <Input label="Useful life (months)" type="number" value={form.useful_life_months} error={errors.useful_life_months} onChange={(e) => setForm((s) => ({ ...s, useful_life_months: e.target.value }))} />
+          <Input label="Initial direct costs" type="number" value={form.initial_direct_costs} error={errors.initial_direct_costs} onChange={(e) => setForm((s) => ({ ...s, initial_direct_costs: e.target.value }))} />
+          <Input label="Lease incentives" type="number" value={form.lease_incentives} error={errors.lease_incentives} onChange={(e) => setForm((s) => ({ ...s, lease_incentives: e.target.value }))} />
+          <Input label="Restoration provision" type="number" value={form.restoration_provision} error={errors.restoration_provision} onChange={(e) => setForm((s) => ({ ...s, restoration_provision: e.target.value }))} />
+          <Textarea label="Working notes" value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} rows={5} className="md:col-span-2 xl:col-span-3" />
         </div>
       </ContentCard>
 

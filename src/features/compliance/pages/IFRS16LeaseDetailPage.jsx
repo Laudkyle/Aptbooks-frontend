@@ -104,7 +104,7 @@ export default function IFRS16LeaseDetailPage() {
   const [initialOpen, setInitialOpen] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
   const [statusForm, setStatusForm] = useState({ status: 'active' });
-  const [initialForm, setInitialForm] = useState({ posting_date: '', period_id: '', memo: '' });
+  const [initialForm, setInitialForm] = useState({ entry_date: '', memo: '' });
   const [postForm, setPostForm] = useState({ from_date: '', to_date: '', memo: '' });
 
   const leaseQ = useQuery({
@@ -131,18 +131,13 @@ export default function IFRS16LeaseDetailPage() {
   }, [leaseQ.data]);
   const scheduleLines = useMemo(() => rowsOf(scheduleQ.data), [scheduleQ.data]);
   const periods = useMemo(() => rowsOf(periodsQ.data), [periodsQ.data]);
-  const currency = lease.currency_code || 'GHS';
+  const contract = leaseQ.data?.contract || null;
+  const currency = lease.currency_code || contract?.currency_code || 'GHS';
   const currentStatus = String(lease.status || '').toLowerCase();
 
   React.useEffect(() => {
     if (!statusForm.status) setStatusForm({ status: currentStatus || 'active' });
   }, [currentStatus, statusForm.status]);
-
-  React.useEffect(() => {
-    if (!initialForm.period_id && periods[0]?.id) {
-      setInitialForm((s) => ({ ...s, period_id: periods[0].id }));
-    }
-  }, [periods, initialForm.period_id]);
 
   const invalidateAll = async () => {
     await Promise.all([
@@ -174,14 +169,13 @@ export default function IFRS16LeaseDetailPage() {
 
   const initialMutation = useMutation({
     mutationFn: () => api.postInitialRecognition(leaseId, {
-      posting_date: initialForm.posting_date || undefined,
-      period_id: initialForm.period_id || undefined,
+      entry_date: initialForm.entry_date || undefined,
       memo: initialForm.memo || undefined,
     }),
     onSuccess: async () => {
       toast.success('Initial recognition posted');
       setInitialOpen(false);
-      setInitialForm({ posting_date: '', period_id: periods[0]?.id || '', memo: '' });
+      setInitialForm({ entry_date: '', memo: '' });
       await invalidateAll();
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? e?.response?.data?.error ?? 'Failed to post initial recognition'),
@@ -469,13 +463,7 @@ export default function IFRS16LeaseDetailPage() {
         }
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <Input label="Posting date" type="date" value={initialForm.posting_date} onChange={(e) => setInitialForm((s) => ({ ...s, posting_date: e.target.value }))} />
-          <Select
-            label="Period"
-            value={initialForm.period_id}
-            onChange={(e) => setInitialForm((s) => ({ ...s, period_id: e.target.value }))}
-            options={[{ value: '', label: 'Select period' }, ...periods.map((period) => ({ value: period.id, label: period.name || period.code || period.id }))]}
-          />
+          <Input label="Posting date" type="date" value={initialForm.entry_date} onChange={(e) => setInitialForm((s) => ({ ...s, entry_date: e.target.value }))} />
           <Textarea className="md:col-span-2" label="Memo" value={initialForm.memo} onChange={(e) => setInitialForm((s) => ({ ...s, memo: e.target.value }))} rows={4} />
         </div>
       </Modal>
