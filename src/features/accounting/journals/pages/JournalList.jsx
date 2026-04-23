@@ -37,7 +37,6 @@ export default function JournalList() {
     staleTime: 5_000,
     enabled: hasSelectedPeriod && !!periodId, // Only enabled when period is selected
   });
-console.log(listQ);
   // Auto-fetch when period changes (if a period is selected)
   useEffect(() => {
     if (periodId && !hasSelectedPeriod) {
@@ -48,7 +47,7 @@ console.log(listQ);
   }, [periodId, hasSelectedPeriod]);
 
   const journals = (listQ.data ?? []).filter((j) => {
-    const s = `${j.entryNo ?? ''} ${j.memo ?? ''} ${j.id ?? ''}`.toLowerCase();
+    const s = `${j.entryNo ?? j.entry_no ?? ''} ${j.memo ?? ''} ${j.id ?? ''}`.toLowerCase();
     return !q || s.includes(q.toLowerCase());
   });
 
@@ -73,7 +72,7 @@ console.log(listQ);
       header: 'Status',
       att: 'status',
       accessor: (r) => (
-        <Badge variant={r.status === 'POSTED' ? 'success' : r.status === 'DRAFT' ? 'default' : 'warning'}>
+        <Badge variant={String(r.status || '').toLowerCase() === 'posted' ? 'success' : String(r.status || '').toLowerCase() === 'draft' ? 'default' : 'warning'}>
           {r.status ?? '—'}
         </Badge>
       )
@@ -87,12 +86,12 @@ console.log(listQ);
 
   const statusOptions = [
     { value: '', label: 'All statuses' },
-    { value: 'Draft', label: 'Draft' },
-    { value: 'Submitted', label: 'Submitted' },
-    { value: 'Approved', label: 'Approved' },
-    { value: 'Rejected', label: 'Rejected' },
-    { value: 'Posted', label: 'Posted' },
-    { value: 'Voided', label: 'Voided' }
+    { value: 'draft', label: 'Draft' },
+    { value: 'submitted', label: 'Submitted' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'posted', label: 'Posted' },
+    { value: 'voided', label: 'Voided' }
   ];
 
   const handleRowClick = (journal) => {

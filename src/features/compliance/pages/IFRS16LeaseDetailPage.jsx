@@ -436,8 +436,8 @@ export default function IFRS16LeaseDetailPage() {
       <ContentCard title="Posting ledger">
         <MiniTable rows={postingLedger} emptyLabel="No posting ledger entries recorded." columns={[
           { key: 'created_at', label: 'When', render: (row) => formatDate(row.created_at) },
-          { key: 'action_type', label: 'Action' },
-          { key: 'journal_id', label: 'Journal' },
+          { key: 'action_type', label: 'Action', render: (row) => row.action_type || row.action || '—' },
+          { key: 'journal_id', label: 'Journal', render: (row) => row.entry_no || row.journal_entry_id || row.journal_id || '—' },
           { key: 'amount', label: 'Amount', render: (row) => formatMoney(numberOf(row.amount), currency) },
           { key: 'idempotency_key', label: 'Idempotency key' },
         ]} />
