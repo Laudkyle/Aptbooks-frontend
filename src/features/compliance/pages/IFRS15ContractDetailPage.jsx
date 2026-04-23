@@ -17,6 +17,8 @@ import {
   BarChart3,
   Activity,
   XCircle,
+  ListChecks,
+  ChevronRight,
 } from 'lucide-react';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
@@ -78,6 +80,68 @@ function StatCard({ label, value, subvalue, icon: Icon }) {
       </div>
     </ContentCard>
   );
+}
+
+function workflowStatusLabel(core) {
+  return core.workflow_status || core.approval_status || 'missing';
+}
+
+function buildJourney({ status, obligations, scheduleLines, workflowStatus }) {
+  const approval = String(workflowStatus || '').toLowerCase();
+  const hasObligations = obligations.length > 0;
+  const hasSchedule = scheduleLines.length > 0;
+  const hasPostedRevenue = scheduleLines.some((line) => String(line.status || '').toLowerCase() === 'posted');
+
+  return [
+    {
+      key: 'setup',
+      title: 'Contract created',
+      done: true,
+      description: 'Header, customer, value, and billing policy captured.',
+      actionLabel: null,
+      action: null,
+    },
+    {
+      key: 'obligations',
+      title: 'Add performance obligations',
+      done: hasObligations,
+      description: hasObligations ? `${obligations.length} obligation(s) recorded.` : 'Define what will be transferred and how revenue will be satisfied.',
+      actionLabel: 'Add obligation',
+      action: 'obligations',
+    },
+    {
+      key: 'approval',
+      title: 'Submit and approve workflow',
+      done: ['approved', 'accepted'].includes(approval),
+      description: ['approved', 'accepted'].includes(approval) ? 'Workflow is approved and ready for activation.' : approval === 'pending' ? 'Waiting for approval before activation.' : 'Submit the contract into workflow before activation.',
+      actionLabel: approval === 'pending' ? 'Open approvals' : 'Workflow action',
+      action: 'approvals',
+    },
+    {
+      key: 'activation',
+      title: 'Activate contract',
+      done: status === 'active' || status === 'completed',
+      description: status === 'active' || status === 'completed' ? 'Allocation is locked and the contract is operational.' : 'Activation allocates transaction price across obligations.',
+      actionLabel: 'Activate contract',
+      action: 'activate',
+    },
+    {
+      key: 'schedule',
+      title: 'Generate schedule',
+      done: hasSchedule,
+      description: hasSchedule ? `${scheduleLines.length} schedule line(s) generated.` : 'Build the revenue recognition schedule from the obligations.',
+      actionLabel: 'Generate schedule',
+      action: 'schedule',
+    },
+    {
+      key: 'posting',
+      title: 'Post revenue',
+      done: hasPostedRevenue,
+      description: hasPostedRevenue ? 'At least one revenue period has been posted.' : 'Post recognized revenue by accounting period.',
+      actionLabel: 'Post revenue',
+      action: 'post',
+    },
+  ];
 }
 
 export default function IFRS15ContractDetailPage() {
@@ -220,6 +284,35 @@ export default function IFRS15ContractDetailPage() {
 
   const currency = core.currency_code || 'GHS';
   const status = String(core.status || '').toLowerCase();
+  const workflowStatus = workflowStatusLabel(core);
+  const journey = useMemo(() => buildJourney({ status, obligations, scheduleLines, workflowStatus }), [status, obligations, scheduleLines, workflowStatus]);
+  const nextJourneyStep = journey.find((step) => !step.done) || null;
+
+  const handleJourneyAction = (action) => {
+    if (action === 'obligations') {
+      setTab('obligations');
+      setObligationOpen(true);
+      return;
+    }
+    if (action === 'approvals') {
+      setTab('approvals');
+      setApprovalOpen(true);
+      return;
+    }
+    if (action === 'activate') {
+      setActivateOpen(true);
+      return;
+    }
+    if (action === 'schedule') {
+      setTab('schedule');
+      setScheduleOpen(true);
+      return;
+    }
+    if (action === 'post') {
+      setTab('schedule');
+      setPostRevenueOpen(true);
+    }
+  };
 
   React.useEffect(() => {
     if (!reportState.period_id && periods[0]?.id) {
@@ -257,22 +350,22 @@ export default function IFRS15ContractDetailPage() {
 
   const activateMutation = useMutation({
     mutationFn: (body) => api.activateContract(contractId, body),
-    onSuccess: async () => { toast.success('Contract activated'); setActivateOpen(false); await invalidateAll(); },
+    onSuccess: async () => { toast.success('Contract activated'); setActivateOpen(false); setTab('schedule'); await invalidateAll(); },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Activation failed'),
   });
   const addObligationMutation = useMutation({
     mutationFn: (body) => api.addObligation(contractId, body),
-    onSuccess: async () => { toast.success('Obligation added'); setObligationOpen(false); await invalidateAll(); },
+    onSuccess: async () => { toast.success('Obligation added'); setObligationOpen(false); setTab('obligations'); await invalidateAll(); },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Failed to add obligation'),
   });
   const generateScheduleMutation = useMutation({
     mutationFn: (body) => api.generateSchedule(contractId, body),
-    onSuccess: async () => { toast.success('Schedule generated'); setScheduleOpen(false); await invalidateAll(); },
+    onSuccess: async () => { toast.success('Schedule generated'); setScheduleOpen(false); setTab('schedule'); await invalidateAll(); },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Failed to generate schedule'),
   });
   const postRevenueMutation = useMutation({
     mutationFn: (body) => api.postRevenue(contractId, body),
-    onSuccess: async () => { toast.success('Revenue posted'); setPostRevenueOpen(false); await invalidateAll(); },
+    onSuccess: async () => { toast.success('Revenue posted'); setPostRevenueOpen(false); setTab('ledger'); await invalidateAll(); },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Failed to post revenue'),
   });
   const costMutation = useMutation({
@@ -307,7 +400,7 @@ export default function IFRS15ContractDetailPage() {
       if (approvalForm.action === 'approve') return api.approveContract(contractId, { comment: approvalForm.comment || undefined });
       return api.rejectContract(contractId, { comment: approvalForm.comment || undefined });
     },
-    onSuccess: async () => { toast.success('Workflow action completed'); setApprovalOpen(false); await invalidateAll(); },
+    onSuccess: async () => { toast.success('Workflow action completed'); setApprovalOpen(false); setTab('approvals'); await invalidateAll(); },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Workflow action failed'),
   });
 
@@ -410,17 +503,17 @@ export default function IFRS15ContractDetailPage() {
   }
 
   const tabItems = [
-    { value: 'overview', label: 'Overview', icon: FileText },
+    { value: 'overview', label: 'Workflow', icon: ListChecks },
     { value: 'obligations', label: 'Obligations', icon: Layers3 },
-    { value: 'schedule', label: 'Schedule', icon: Calendar },
+    { value: 'schedule', label: 'Schedule & posting', icon: Calendar },
+    { value: 'approvals', label: 'Approvals', icon: CheckCircle2 },
+    { value: 'costs', label: 'Costs', icon: Wallet },
     { value: 'modifications', label: 'Modifications', icon: Workflow },
     { value: 'variable', label: 'Variable consideration', icon: ShieldCheck },
     { value: 'financing', label: 'Financing', icon: Landmark },
-    { value: 'costs', label: 'Costs', icon: Wallet },
-    { value: 'approvals', label: 'Approvals', icon: CheckCircle2 },
-    { value: 'ledger', label: 'Ledger', icon: BarChart3 },
-    { value: 'events', label: 'Events', icon: Activity },
-    { value: 'reports', label: 'Reports', icon: FileText },
+    { value: 'ledger', label: 'Posting ledger', icon: Activity },
+    { value: 'events', label: 'Events', icon: Clock3 },
+    { value: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
   return (
@@ -450,30 +543,54 @@ export default function IFRS15ContractDetailPage() {
       </ContentCard>
 
       {tab === 'overview' && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <ContentCard title="Contract summary">
-            <dl className="grid gap-3 text-sm">
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Code</dt><dd className="font-medium text-slate-900">{core.code || '—'}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Customer</dt><dd className="font-medium text-slate-900">{core.customer_name || core.business_partner_name || '—'}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Contract date</dt><dd className="font-medium text-slate-900">{formatDate(core.contract_date)}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Period</dt><dd className="font-medium text-slate-900">{formatDate(core.start_date)} {core.end_date ? `to ${formatDate(core.end_date)}` : ''}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Currency</dt><dd className="font-medium text-slate-900">{currency}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-slate-500">Workflow status</dt><dd className="font-medium text-slate-900">{core.workflow_status || core.approval_status || '—'}</dd></div>
-            </dl>
-          </ContentCard>
-          <ContentCard title="Operational actions">
-            <div className="grid gap-3 md:grid-cols-2">
-              <Button variant="outline" onClick={() => setObligationOpen(true)}>Add obligation</Button>
-              <Button variant="outline" onClick={() => setScheduleOpen(true)}>Generate schedule</Button>
-              <Button variant="outline" onClick={() => setPostRevenueOpen(true)}>Post revenue</Button>
-              <Button variant="outline" onClick={() => setCostOpen(true)}>Add contract cost</Button>
-              <Button variant="outline" onClick={() => setModificationOpen(true)}>Record modification</Button>
-              <Button variant="outline" onClick={() => setVariableOpen(true)}>Add variable consideration</Button>
-              <Button variant="outline" onClick={() => setFinancingOpen(true)}>Set financing terms</Button>
-              <Button variant="outline" onClick={() => setApprovalOpen(true)}>Workflow action</Button>
-              <Button variant="outline" onClick={() => setLifecycleOpen(true)}>Lifecycle update</Button>
+        <div className="space-y-4">
+          <ContentCard title="Guided workflow" actions={nextJourneyStep ? <Badge tone="warning">Next: {nextJourneyStep.title}</Badge> : <Badge tone="success">Workflow complete</Badge>}>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {journey.map((step, index) => (
+                <div key={step.key} className={`rounded-2xl border p-4 ${step.done ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Step {index + 1}</div>
+                      <div className="mt-1 font-semibold text-slate-900">{step.title}</div>
+                      <div className="mt-2 text-sm text-slate-600">{step.description}</div>
+                    </div>
+                    <Badge tone={step.done ? 'success' : 'muted'}>{step.done ? 'Done' : 'Pending'}</Badge>
+                  </div>
+                  {!step.done && step.actionLabel ? (
+                    <div className="mt-4">
+                      <Button size="sm" onClick={() => handleJourneyAction(step.action)} rightIcon={ChevronRight}>{step.actionLabel}</Button>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
             </div>
           </ContentCard>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ContentCard title="Contract summary">
+              <dl className="grid gap-3 text-sm">
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Code</dt><dd className="font-medium text-slate-900">{core.code || '—'}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Customer</dt><dd className="font-medium text-slate-900">{core.customer_name || core.business_partner_name || '—'}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Contract date</dt><dd className="font-medium text-slate-900">{formatDate(core.contract_date)}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Period</dt><dd className="font-medium text-slate-900">{formatDate(core.start_date)} {core.end_date ? `to ${formatDate(core.end_date)}` : ''}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Currency</dt><dd className="font-medium text-slate-900">{currency}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-slate-500">Workflow status</dt><dd className="font-medium text-slate-900">{workflowStatus}</dd></div>
+              </dl>
+            </ContentCard>
+            <ContentCard title="Quick actions">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Button variant="outline" onClick={() => handleJourneyAction('obligations')}>Add obligation</Button>
+                <Button variant="outline" onClick={() => handleJourneyAction('approvals')}>Workflow action</Button>
+                <Button variant="outline" onClick={() => handleJourneyAction('activate')}>Activate</Button>
+                <Button variant="outline" onClick={() => handleJourneyAction('schedule')}>Generate schedule</Button>
+                <Button variant="outline" onClick={() => handleJourneyAction('post')}>Post revenue</Button>
+                <Button variant="outline" onClick={() => setLifecycleOpen(true)}>Lifecycle update</Button>
+              </div>
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                Advanced items such as variable consideration, financing, contract costs, and modifications are still available in their dedicated tabs, but the primary user journey now stays focused on the operational sequence.
+              </div>
+            </ContentCard>
+          </div>
         </div>
       )}
 
@@ -501,7 +618,11 @@ export default function IFRS15ContractDetailPage() {
       )}
 
       {tab === 'schedule' && (
-        <ContentCard title="Revenue schedule" actions={<div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => scheduleQ.refetch()}>Refresh</Button><Button size="sm" leftIcon={RefreshCw} onClick={() => setScheduleOpen(true)}>Generate</Button><Button size="sm" onClick={() => setPostRevenueOpen(true)}>Post revenue</Button></div>}>
+        <div className="space-y-4">
+          <ContentCard className="border-blue-100 bg-blue-50">
+            <div className="text-sm text-blue-900">Generate the schedule after obligations are in place and the contract is approved/activated. Once schedule lines exist, post revenue period by period from the same screen.</div>
+          </ContentCard>
+        <ContentCard title="Revenue schedule and posting" actions={<div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => scheduleQ.refetch()}>Refresh</Button><Button size="sm" leftIcon={RefreshCw} onClick={() => setScheduleOpen(true)}>Generate schedule</Button><Button size="sm" onClick={() => setPostRevenueOpen(true)}>Post revenue</Button></div>}>
           {scheduleLines.length === 0 ? <div className="text-sm text-slate-500">No schedule lines yet.</div> : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -520,6 +641,7 @@ export default function IFRS15ContractDetailPage() {
             </div>
           )}
         </ContentCard>
+        </div>
       )}
 
       {tab === 'modifications' && (

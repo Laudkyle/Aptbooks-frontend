@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
@@ -84,6 +84,7 @@ function defaultSettingsForm() {
 }
 
 export default function IFRS15RevenuePage() {
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeIfrs15Api(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -193,11 +194,14 @@ export default function IFRS15RevenuePage() {
       billing_policy: form.billing_policy || 'UPFRONT',
       billing_account_id: form.billing_account_id || undefined,
     }),
-    onSuccess: async () => {
+    onSuccess: async (created) => {
       toast.success('IFRS 15 contract created');
       setCreateOpen(false);
       setForm(defaultContractForm());
       await qc.invalidateQueries({ queryKey: ['ifrs15', 'contracts'] });
+      if (created?.id) {
+        navigate(ROUTES.complianceIFRS15ContractDetail(created.id));
+      }
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? 'Failed to create contract'),
   });
@@ -427,6 +431,9 @@ export default function IFRS15RevenuePage() {
             ]}
           />
           <AccountSelect label="Billing account" value={form.billing_account_id} onChange={(e) => setForm((s) => ({ ...s, billing_account_id: e.target.value }))} className="md:col-span-2" allowEmpty />
+        </div>
+        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+          After creation, the app opens the contract detail page so the user can continue in sequence: add obligations, activate the contract, generate the schedule, then post revenue.
         </div>
       </Modal>
 
