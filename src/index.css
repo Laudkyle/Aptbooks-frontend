@@ -1,5 +1,6 @@
 /* Tailwind v4 entrypoint */
 @import "tailwindcss";
+@import "./shared/styles/tailwind-helpers.css";
 
 @theme {
   /* Brand colors - using rgb format for opacity modifiers */
@@ -29,8 +30,6 @@
   --animate-slideUp: appSlideUp 220ms ease-out both;
 }
 
-/* Project semantic helpers (uses @layer + @apply) */
-@import "./shared/styles/tailwind-helpers.css";
 
 :root {
   /* Legacy CSS variable references (kept for any direct var() usage) */

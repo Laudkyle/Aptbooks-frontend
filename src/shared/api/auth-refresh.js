@@ -14,7 +14,7 @@ export function createAuthRefresher({ http, cookieRefreshMode }) {
       }
 
       try {
-        const res = await http.post('/auth/refresh', cookieRefreshMode ? undefined : { refreshToken });
+        const res = await http.post('/auth/refresh', cookieRefreshMode ? undefined : { refreshToken }, { skipAuthRefresh: true });
         const { accessToken, refreshToken: nextRefreshToken } = res.data ?? {};
         if (!accessToken) throw new Error('Refresh did not return an access token');
         authStore.getState().setTokens({ accessToken, refreshToken: nextRefreshToken ?? refreshToken });

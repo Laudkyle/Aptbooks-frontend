@@ -49,18 +49,46 @@ export default function JournalCreate() {
     setLines((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  function parseAmountToCents(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return 0n;
+    if (!/^\d+(?:\.\d{0,2})?$/.test(raw)) return null;
+    const [whole, fraction = ''] = raw.split('.');
+    return BigInt(whole) * 100n + BigInt((fraction + '00').slice(0, 2));
+  }
+
+  function formatCents(value) {
+    const amount = value < 0n ? -value : value;
+    const whole = amount / 100n;
+    const fraction = String(amount % 100n).padStart(2, '0');
+    return `${value < 0n ? '-' : ''}${whole}.${fraction}`;
+  }
+
   function totals() {
-    const deb = lines.reduce((s, l) => s + (Number(l.debit) || 0), 0);
-    const cre = lines.reduce((s, l) => s + (Number(l.credit) || 0), 0);
-    return { deb, cre };
+    let deb = 0n;
+    let cre = 0n;
+    let valid = true;
+
+    for (const line of lines) {
+      const debit = parseAmountToCents(line.debit);
+      const credit = parseAmountToCents(line.credit);
+      if (debit === null || credit === null) {
+        valid = false;
+        continue;
+      }
+      deb += debit;
+      cre += credit;
+    }
+
+    return { deb, cre, valid };
   }
 
   function normalizedLines() {
     return lines.map((l) => ({
       accountId: l.accountId,
       description: l.description || null,
-      debit: l.debit !== '' ? Number(l.debit) : undefined,
-      credit: l.credit !== '' ? Number(l.credit) : undefined
+      debit: l.debit !== '' ? l.debit.trim() : undefined,
+      credit: l.credit !== '' ? l.credit.trim() : undefined
     }));
   }
 
@@ -87,8 +115,8 @@ export default function JournalCreate() {
     (accountsQ.data ?? []).map((a) => ({ value: a.id, label: `${a.code} — ${a.name}` }))
   );
 
-  const { deb, cre } = totals();
-  const balanced = Math.abs(deb - cre) < 0.0001 && deb > 0 && cre > 0;
+  const { deb, cre, valid } = totals();
+  const balanced = valid && deb === cre && deb > 0n && cre > 0n;
 
   return (
     <div className="space-y-4">
@@ -141,7 +169,8 @@ export default function JournalCreate() {
                 </TD>
                 <TD className="text-right">
                   <Input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={l.debit}
                     onChange={(e) => setLine(idx, { debit: e.target.value, credit: e.target.value ? '' : l.credit })}
                     placeholder="0.00"
@@ -149,7 +178,8 @@ export default function JournalCreate() {
                 </TD>
                 <TD className="text-right">
                   <Input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={l.credit}
                     onChange={(e) => setLine(idx, { credit: e.target.value, debit: e.target.value ? '' : l.debit })}
                     placeholder="0.00"
@@ -167,7 +197,7 @@ export default function JournalCreate() {
 
         <div className="mt-3 flex items-center justify-between text-sm">
           <div className={balanced ? 'text-emerald-700' : 'text-amber-700'}>
-            Totals — Debit: {deb.toFixed(2)} | Credit: {cre.toFixed(2)} {balanced ? '(Balanced)' : '(Not balanced)'}
+            Totals — Debit: {formatCents(deb)} | Credit: {formatCents(cre)} {balanced ? '(Balanced)' : valid ? '(Not balanced)' : '(Invalid amount)'}
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => navigate(ROUTES.accountingJournals)}>Cancel</Button>

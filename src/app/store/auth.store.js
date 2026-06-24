@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 
 const STORAGE_KEY = 'aptbooks.auth.v1';
+let shouldPersistTokens = true;
+
+export function configureAuthPersistence({ persistTokens = true } = {}) {
+  shouldPersistTokens = Boolean(persistTokens);
+}
 
 export const authStore = create((set, get) => ({
   accessToken: null,
@@ -19,8 +24,8 @@ export const authStore = create((set, get) => ({
       if (!raw) return;
       const parsed = JSON.parse(raw);
       set({
-        accessToken: parsed.accessToken ?? null,
-        refreshToken: parsed.refreshToken ?? null,
+        accessToken: shouldPersistTokens ? parsed.accessToken ?? null : null,
+        refreshToken: shouldPersistTokens ? parsed.refreshToken ?? null : null,
         user: parsed.user ?? null,
         roles: parsed.roles ?? [],
         permissions: parsed.permissions ?? []
@@ -35,8 +40,8 @@ export const authStore = create((set, get) => ({
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        accessToken: s.accessToken,
-        refreshToken: s.refreshToken,
+        accessToken: shouldPersistTokens ? s.accessToken : null,
+        refreshToken: shouldPersistTokens ? s.refreshToken : null,
         user: s.user,
         roles: s.roles,
         permissions: s.permissions

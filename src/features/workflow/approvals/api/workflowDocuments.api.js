@@ -112,8 +112,10 @@ export function makeWorkflowDocumentsApi(http) {
         responseType: 'blob'
       });
       
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data]);
+      
       // Create a download link and trigger it
-      const url = window.URL.createObjectURL(new Blob([response]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       
@@ -128,7 +130,7 @@ export function makeWorkflowDocumentsApi(http) {
       link.remove();
       window.URL.revokeObjectURL(url);
       
-      return response;
+      return blob;
     },
 
     /**

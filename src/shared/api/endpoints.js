@@ -839,25 +839,25 @@ export const endpoints = {
   },
   documentTypes: {
     list: (qs) =>
-      `/workflow/documents/document-types?${new URLSearchParams(qs ?? {}).toString()}`,
-    create: "/workflow/documents/document-types",
-    get: (id) => `/workflow/documents/document-types/${id}`,
-    update: (id) => `/workflow/documents/document-types/${id}`,
-    delete: (id) => `/workflow/documents/document-types/${id}`,
+      `/workflow/documents/types?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: "/workflow/documents/types",
+    get: (id) => `/workflow/documents/types/${id}`,
+    update: (id) => `/workflow/documents/types/${id}`,
+    delete: (id) => `/workflow/documents/types/${id}`,
     approvalLevels: (id) =>
-      `/workflow/documents/document-types/${id}/approval-levels`,
+      `/workflow/documents/types/${id}/approval-levels`,
     updateApprovalLevels: (id) =>
-      `/workflow/documents/document-types/${id}/approval-levels`,
+      `/workflow/documents/types/${id}/approval-levels`,
   },
 
   approvalLevels: {
     list: (qs) =>
-      `/workflow/documents/approval-levels/?${new URLSearchParams(qs ?? {}).toString()}`,
-    create: "/workflow/documents/approval-levels/",
-    get: (id) => `/workflow/documents/approval-levels//${id}`,
-    update: (id) => `/workflow/documents/approval-levels//${id}`,
-    delete: (id) => `/workflow/documents/approval-levels//${id}`,
-    reorder: "/workflow/documents/approval-levels//reorder",
+      `/workflow/documents/approval-levels?${new URLSearchParams(qs ?? {}).toString()}`,
+    create: "/workflow/documents/approval-levels",
+    get: (id) => `/workflow/documents/approval-levels/${id}`,
+    update: (id) => `/workflow/documents/approval-levels/${id}`,
+    delete: (id) => `/workflow/documents/approval-levels/${id}`,
+    reorder: "/workflow/documents/approval-levels/reorder",
   },
 
   approvalMappings: {

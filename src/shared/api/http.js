@@ -35,6 +35,15 @@ export function createHttpClient({ baseURL, cookieRefreshMode }) {
       const status = error.response?.status;
       const original = error.config;
 
+      const isRefreshRequest = original?.skipAuthRefresh || original?.url?.includes('/auth/refresh');
+
+      if (status === 401 && isRefreshRequest) {
+        authStore.getState().clear();
+        const normalized = toUserFacingError(error);
+        clearValidationErrors();
+        throw normalized;
+      }
+
       if (status === 401 && !original?._retry) {
         original._retry = true;
         try {
