@@ -14,6 +14,10 @@ import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
+import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
+import { TaxCodeSelect } from '../../../shared/components/forms/TaxCodeSelect.jsx';
+import { BankAccountSelect } from '../../../shared/components/forms/BankAccountSelect.jsx';
+import { PeriodSelect } from '../../../shared/components/forms/PeriodSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export function rowsOf(data) {
@@ -163,8 +167,24 @@ export function useCrudCreate({ key, createFn, reset }) {
   });
 }
 
-export function AccountField({ label, value, onChange, required = false }) {
-  return <AccountSelect label={label} value={value} onChange={onChange} required={required} />;
+export function AccountField({ label, value, onChange, required = false, allowEmpty = true }) {
+  return <AccountSelect label={label} value={value} onChange={onChange} required={required} allowEmpty={allowEmpty} />;
+}
+
+export function CurrencyField({ label = 'Currency', value, onChange, required = false, allowEmpty = false }) {
+  return <CurrencySelect label={label} value={value} onChange={onChange} required={required} allowEmpty={allowEmpty} />;
+}
+
+export function TaxCodeField({ label = 'Tax code', value, onChange, required = false, query = { status: 'active' } }) {
+  return <TaxCodeSelect label={label} value={value} onChange={onChange} required={required} query={query} allowEmpty emptyLabel="Select tax code" />;
+}
+
+export function BankAccountField({ label = 'Bank account', value, onChange, required = false }) {
+  return <BankAccountSelect label={label} value={value} onChange={onChange} required={required} allowEmpty emptyLabel="Select bank account" />;
+}
+
+export function PeriodField({ label = 'Period', value, onChange, required = false, query = {} }) {
+  return <PeriodSelect label={label} value={value} onChange={onChange} required={required} query={query} allowEmpty emptyLabel="Select period" />;
 }
 
 export { Input, Select, Textarea, Button, ContentCard, Users, Building2, Briefcase, BadgeDollarSign, CalendarDays, HeartHandshake, Landmark, BarChart3, Wallet };

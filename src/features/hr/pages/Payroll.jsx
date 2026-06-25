@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AccountField, Button, ContentCard, ErrorBlock, FormGrid, HrShell, Input, Landmark, Select, SimpleTable, StatusBadge, asNumber, cleanPayload, selectOptions, useCrudCreate, useHr, useLookupData } from './_hrShared.jsx';
+import { AccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Landmark, PeriodField, Select, SimpleTable, StatusBadge, asNumber, cleanPayload, selectOptions, useCrudCreate, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 export default function Payroll() {
@@ -47,9 +47,9 @@ export default function Payroll() {
 
       <ContentCard title="Create payroll run">
         <FormGrid onSubmit={(e) => { e.preventDefault(); createRun.mutate(run); }}>
-          <Input label="Accounting period ID" value={run.period_id} onChange={(e) => setRun({ ...run, period_id: e.target.value })} required />
+          <PeriodField label="Accounting period" value={run.period_id} onChange={(e) => setRun({ ...run, period_id: e.target.value })} required />
           <Input label="Pay date" type="date" value={run.pay_date} onChange={(e) => setRun({ ...run, pay_date: e.target.value })} required />
-          <Input label="Currency" value={run.currency} onChange={(e) => setRun({ ...run, currency: e.target.value.toUpperCase() })} />
+          <CurrencyField label="Currency" value={run.currency} onChange={(e) => setRun({ ...run, currency: e.target.value })} />
           <div className="flex items-end"><Button type="submit" loading={createRun.isPending}>Create run</Button></div>
         </FormGrid>
       </ContentCard>

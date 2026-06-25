@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BadgeDollarSign, Button, ContentCard, ErrorBlock, FormGrid, HrShell, Input, SimpleTable, StatusBadge, asNumber, cleanPayload, useCrudCreate, useHr } from './_hrShared.jsx';
+import { BadgeDollarSign, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, SimpleTable, StatusBadge, asNumber, cleanPayload, useCrudCreate, useHr } from './_hrShared.jsx';
 
 export default function Grades() {
   const api = useHr();
@@ -13,7 +13,7 @@ export default function Grades() {
         <FormGrid onSubmit={(e) => { e.preventDefault(); create.mutate(form); }}>
           <Input label="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
           <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <Input label="Currency" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} />
+          <CurrencyField label="Currency" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} />
           <Input label="Min amount" type="number" step="0.01" value={form.min_amount} onChange={(e) => setForm({ ...form, min_amount: e.target.value })} />
           <Input label="Max amount" type="number" step="0.01" value={form.max_amount} onChange={(e) => setForm({ ...form, max_amount: e.target.value })} />
           <div className="flex items-end"><Button type="submit" loading={create.isPending}>Create</Button></div>
