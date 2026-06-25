@@ -253,4 +253,30 @@ utilitiesA11yRead: 'utilities.a11y.read',
 utilitiesReleaseRead: 'utilities.release.read',
 utilitiesTestsRun: 'utilities.tests.run'
 
+,
+// Phase 11 — HR
+hrDepartmentsRead: 'hr.departments.read',
+hrDepartmentsManage: 'hr.departments.manage',
+hrGradesRead: 'hr.grades.read',
+hrGradesManage: 'hr.grades.manage',
+hrPositionsRead: 'hr.positions.read',
+hrPositionsManage: 'hr.positions.manage',
+hrCompensationBandsRead: 'hr.compensation_bands.read',
+hrCompensationBandsManage: 'hr.compensation_bands.manage',
+hrEmployeesRead: 'hr.employees.read',
+hrEmployeesManage: 'hr.employees.manage',
+hrEmployeesExport: 'hr.employees.export',
+hrEmployeesImport: 'hr.employees.import',
+hrEmployeesImportCsv: 'hr.employees.import_csv',
+hrPayrollRead: 'hr.payroll.read',
+hrPayrollManage: 'hr.payroll.manage',
+hrPayrollPost: 'hr.payroll.post',
+hrLeaveRead: 'hr.leave.read',
+hrLeaveManage: 'hr.leave.manage',
+hrBenefitsRead: 'hr.benefits.read',
+hrBenefitsManage: 'hr.benefits.manage',
+hrStatutoryRead: 'hr.statutory.read',
+hrStatutoryManage: 'hr.statutory.manage',
+hrReportsRead: 'hr.reports.read'
+
 };

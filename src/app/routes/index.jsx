@@ -592,6 +592,20 @@ const ManagementReports = lazy(() =>
   import("../../features/reporting/pages/ManagementReports.jsx")
 );
 
+
+// Phase 11 — HR
+const HrOverview = lazy(() => import("../../features/hr/pages/HrOverview.jsx"));
+const HrEmployees = lazy(() => import("../../features/hr/pages/Employees.jsx"));
+const HrDepartments = lazy(() => import("../../features/hr/pages/Departments.jsx"));
+const HrGrades = lazy(() => import("../../features/hr/pages/Grades.jsx"));
+const HrPositions = lazy(() => import("../../features/hr/pages/Positions.jsx"));
+const HrCompensationBands = lazy(() => import("../../features/hr/pages/CompensationBands.jsx"));
+const HrPayroll = lazy(() => import("../../features/hr/pages/Payroll.jsx"));
+const HrLeave = lazy(() => import("../../features/hr/pages/Leave.jsx"));
+const HrBenefits = lazy(() => import("../../features/hr/pages/Benefits.jsx"));
+const HrStatutory = lazy(() => import("../../features/hr/pages/Statutory.jsx"));
+const HrReports = lazy(() => import("../../features/hr/pages/Reports.jsx"));
+
 function Loader() {
   return <div className="p-4 text-sm text-slate-600">Loading…</div>;
 }
@@ -2049,6 +2063,98 @@ export const router = createBrowserRouter([
                 <Lazy>
                   <ManagementReports />
                 </Lazy>
+              </RequirePermission>
+            ),
+          },
+
+
+
+          // Phase 11 — Human Resources
+          {
+            path: ROUTES.hr,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrEmployeesRead, PERMISSIONS.hrDepartmentsRead, PERMISSIONS.hrPayrollRead, PERMISSIONS.hrReportsRead]}>
+                <Lazy><HrOverview /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrEmployees,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrEmployeesRead, PERMISSIONS.hrEmployeesManage]}>
+                <Lazy><HrEmployees /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrDepartments,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrDepartmentsRead, PERMISSIONS.hrDepartmentsManage]}>
+                <Lazy><HrDepartments /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrGrades,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrGradesRead, PERMISSIONS.hrGradesManage]}>
+                <Lazy><HrGrades /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrPositions,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrPositionsRead, PERMISSIONS.hrPositionsManage]}>
+                <Lazy><HrPositions /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrCompensationBands,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrCompensationBandsRead, PERMISSIONS.hrCompensationBandsManage]}>
+                <Lazy><HrCompensationBands /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrPayroll,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrPayrollRead, PERMISSIONS.hrPayrollManage, PERMISSIONS.hrPayrollPost]}>
+                <Lazy><HrPayroll /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrLeave,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrLeaveRead, PERMISSIONS.hrLeaveManage]}>
+                <Lazy><HrLeave /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrBenefits,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrBenefitsRead, PERMISSIONS.hrBenefitsManage]}>
+                <Lazy><HrBenefits /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrStatutory,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrStatutoryRead, PERMISSIONS.hrStatutoryManage]}>
+                <Lazy><HrStatutory /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.hrReports,
+            element: (
+              <RequirePermission any={[PERMISSIONS.hrReportsRead]}>
+                <Lazy><HrReports /></Lazy>
               </RequirePermission>
             ),
           },

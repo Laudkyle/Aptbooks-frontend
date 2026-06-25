@@ -1174,6 +1174,57 @@ export function SideNav() {
           </nav>
         </div>
 
+
+
+        <PermissionGate
+          any={[
+            PERMISSIONS.hrEmployeesRead,
+            PERMISSIONS.hrDepartmentsRead,
+            PERMISSIONS.hrPayrollRead,
+            PERMISSIONS.hrReportsRead,
+          ]}
+          fallback={null}
+        >
+          <div className="px-2 pt-2">
+            <div className="h-px w-full bg-border-subtle" />
+          </div>
+          <div className="px-2 pt-2 text-[11px] font-semibold tracking-wide text-slate-500">
+            HR
+          </div>
+          <nav className="space-y-1">
+            <PermissionGate any={[PERMISSIONS.hrEmployeesRead, PERMISSIONS.hrEmployeesManage]}>
+              <Item to={ROUTES.hrEmployees} icon={Users} label="Employees" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrDepartmentsRead, PERMISSIONS.hrDepartmentsManage]}>
+              <Item to={ROUTES.hrDepartments} icon={Building2} label="Departments" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrPositionsRead, PERMISSIONS.hrPositionsManage]}>
+              <Item to={ROUTES.hrPositions} icon={Briefcase} label="Positions" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrGradesRead, PERMISSIONS.hrGradesManage]}>
+              <Item to={ROUTES.hrGrades} icon={BadgeDollarSign} label="Grades" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrCompensationBandsRead, PERMISSIONS.hrCompensationBandsManage]}>
+              <Item to={ROUTES.hrCompensationBands} icon={Wallet} label="Compensation Bands" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrPayrollRead, PERMISSIONS.hrPayrollManage, PERMISSIONS.hrPayrollPost]}>
+              <Item to={ROUTES.hrPayroll} icon={Landmark} label="Payroll" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrLeaveRead, PERMISSIONS.hrLeaveManage]}>
+              <Item to={ROUTES.hrLeave} icon={CalendarRange} label="Leave" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrBenefitsRead, PERMISSIONS.hrBenefitsManage]}>
+              <Item to={ROUTES.hrBenefits} icon={HandCoins} label="Benefits" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrStatutoryRead, PERMISSIONS.hrStatutoryManage]}>
+              <Item to={ROUTES.hrStatutory} icon={Scale} label="Statutory" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrReportsRead]}>
+              <Item to={ROUTES.hrReports} icon={BarChart3} label="HR Reports" collapsed={!sidebarOpen} />
+            </PermissionGate>
+          </nav>
+        </PermissionGate>
+
         <PermissionGate
           any={[
             PERMISSIONS.settingsRead,

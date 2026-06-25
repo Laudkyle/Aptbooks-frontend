@@ -58,4 +58,17 @@ export const routeMeta = {
   [ROUTES.printingTemplates]: { title: 'Document Templates', breadcrumbs: ['Admin', 'Document Templates'] },
   [ROUTES.printingAssignments]: { title: 'Print Assignments', breadcrumbs: ['Admin', 'Print Assignments'] },
   [ROUTES.printingPreview()]: { title: 'Document Preview', breadcrumbs: ['Printing', 'Preview'] },
+
+  [ROUTES.hr]: { title: 'Human Resources', breadcrumbs: ['HR'] },
+  [ROUTES.hrEmployees]: { title: 'Employees', breadcrumbs: ['HR', 'Employees'] },
+  [ROUTES.hrDepartments]: { title: 'Departments', breadcrumbs: ['HR', 'Departments'] },
+  [ROUTES.hrGrades]: { title: 'Grades', breadcrumbs: ['HR', 'Grades'] },
+  [ROUTES.hrPositions]: { title: 'Positions', breadcrumbs: ['HR', 'Positions'] },
+  [ROUTES.hrCompensationBands]: { title: 'Compensation Bands', breadcrumbs: ['HR', 'Compensation Bands'] },
+  [ROUTES.hrPayroll]: { title: 'Payroll', breadcrumbs: ['HR', 'Payroll'] },
+  [ROUTES.hrLeave]: { title: 'Leave', breadcrumbs: ['HR', 'Leave'] },
+  [ROUTES.hrBenefits]: { title: 'Benefits', breadcrumbs: ['HR', 'Benefits'] },
+  [ROUTES.hrStatutory]: { title: 'Statutory Rules', breadcrumbs: ['HR', 'Statutory'] },
+  [ROUTES.hrReports]: { title: 'HR Reports', breadcrumbs: ['HR', 'Reports'] },
+
 };

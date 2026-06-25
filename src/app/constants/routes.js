@@ -274,4 +274,18 @@ export const ROUTES = {
   utilitiesRelease: '/utilities/release',
   utilitiesTests: '/utilities/tests'
 
+,
+  // Phase 11 — HR
+  hr: '/hr',
+  hrEmployees: '/hr/employees',
+  hrDepartments: '/hr/departments',
+  hrGrades: '/hr/grades',
+  hrPositions: '/hr/positions',
+  hrCompensationBands: '/hr/compensation-bands',
+  hrPayroll: '/hr/payroll',
+  hrLeave: '/hr/leave',
+  hrBenefits: '/hr/benefits',
+  hrStatutory: '/hr/statutory',
+  hrReports: '/hr/reports'
+
 };
