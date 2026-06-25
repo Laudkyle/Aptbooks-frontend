@@ -153,6 +153,44 @@ export function FormGrid({ children, onSubmit }) {
   return <form onSubmit={onSubmit} className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{children}</form>;
 }
 
+
+export function toFormValues(row, blank) {
+  const next = { ...blank };
+  for (const key of Object.keys(next)) {
+    const value = row?.[key];
+    if (typeof next[key] === 'boolean') next[key] = Boolean(value);
+    else next[key] = value === null || value === undefined ? '' : String(value);
+  }
+  return next;
+}
+
+export function useCrudSave({ key, createFn, updateFn, reset }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation({
+    mutationFn: ({ id, payload }) => id ? updateFn(id, payload) : createFn(payload),
+    onSuccess: () => {
+      toast.success('Saved successfully.');
+      reset?.();
+      qc.invalidateQueries({ queryKey: [key] });
+    },
+    onError: (e) => toast.error(e?.message ?? 'Save failed.')
+  });
+}
+
+export function useCrudRemove({ key, removeFn }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation({
+    mutationFn: removeFn,
+    onSuccess: () => {
+      toast.success('Deleted successfully.');
+      qc.invalidateQueries({ queryKey: [key] });
+    },
+    onError: (e) => toast.error(e?.message ?? 'Delete failed.')
+  });
+}
+
 export function useCrudCreate({ key, createFn, reset }) {
   const qc = useQueryClient();
   const toast = useToast();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Users, AccountField, BankAccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Select, SimpleTable, StatusBadge, TaxCodeField, asNumber, cleanPayload, selectOptions, useCrudCreate, useHr, useLookupData } from './_hrShared.jsx';
+import { Users, AccountField, BankAccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Select, SimpleTable, StatusBadge, TaxCodeField, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 const blank = {
@@ -34,17 +34,21 @@ export default function Employees() {
   const lookups = useLookupData(api);
   const [filters, setFilters] = useState({ search: '', status: '' });
   const [form, setForm] = useState(blank);
+  const [editingId, setEditingId] = useState(null);
+  const reset = () => { setForm(blank); setEditingId(null); };
   const query = useQuery({ queryKey: ['hr.employees', filters], queryFn: () => api.employees.list(filters) });
-  const create = useCrudCreate({ key: 'hr.employees', createFn: (p) => api.employees.create(employeePayload(p)), reset: () => setForm(blank) });
+  const save = useCrudSave({ key: 'hr.employees', createFn: (p) => api.employees.create(employeePayload(p)), updateFn: (id, p) => api.employees.update(id, employeePayload(p)), reset });
   const action = useMutation({ mutationFn: ({ id, op }) => api.employees[op](id), onSuccess: () => { toast.success('Employee status updated.'); qc.invalidateQueries({ queryKey: ['hr.employees'] }); }, onError: (e) => toast.error(e?.message ?? 'Action failed.') });
+  const startEdit = (row) => { setEditingId(row.id); setForm({ ...toFormValues(row, blank), bank_account_ref: '' }); };
 
   return (
     <HrShell title="Employees" subtitle="Employee master file and lifecycle actions." icon={Users}>
-      <ContentCard title="New employee">
-        <FormGrid onSubmit={(e) => { e.preventDefault(); create.mutate(form); }}>
+      <ContentCard title={editingId ? 'Edit employee' : 'New employee'} actions={editingId ? <Button variant="outline" size="sm" onClick={reset}>Cancel edit</Button> : null}>
+        <FormGrid onSubmit={(e) => { e.preventDefault(); save.mutate({ id: editingId, payload: form }); }}>
           <Input label="Employee No" value={form.employee_no} onChange={(e) => setForm({ ...form, employee_no: e.target.value })} required />
           <Input label="First name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} required />
           <Input label="Last name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} required />
+          <Input label="Other names" value={form.other_names} onChange={(e) => setForm({ ...form, other_names: e.target.value })} />
           <Input label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input label="Hire date" type="date" value={form.hire_date} onChange={(e) => setForm({ ...form, hire_date: e.target.value })} />
@@ -58,14 +62,14 @@ export default function Employees() {
           <Select label="Salary frequency" value={form.base_salary_frequency} onChange={(e) => setForm({ ...form, base_salary_frequency: e.target.value })} options={[{ value: 'monthly', label: 'Monthly' }, { value: 'weekly', label: 'Weekly' }, { value: 'daily', label: 'Daily' }]} />
           <AccountField label="Expense account" value={form.expense_account_id} onChange={(e) => setForm({ ...form, expense_account_id: e.target.value })} />
           <AccountField label="Payable account" value={form.payable_account_id} onChange={(e) => setForm({ ...form, payable_account_id: e.target.value })} />
-          <BankAccountField label="Payroll bank account" value={form.bank_account_ref} onChange={(e, account) => setForm({ ...form, bank_account_ref: e.target.value, ...bankValuesFromAccount(account) })} />
+          <BankAccountField label={editingId && form.bank_name ? `Payroll bank account (${form.bank_name})` : 'Payroll bank account'} value={form.bank_account_ref} onChange={(e, account) => setForm({ ...form, bank_account_ref: e.target.value, ...bankValuesFromAccount(account) })} />
           <TaxCodeField label="Payroll tax code" value={form.tax_id} onChange={(e) => setForm({ ...form, tax_id: e.target.value })} />
           <Input label="National ID" value={form.national_id} onChange={(e) => setForm({ ...form, national_id: e.target.value })} />
-          <div className="flex items-end"><Button type="submit" loading={create.isPending}>Create</Button></div>
+          <div className="flex items-end"><Button type="submit" loading={save.isPending}>{editingId ? 'Update employee' : 'Create employee'}</Button></div>
         </FormGrid>
       </ContentCard>
       <ContentCard title="Employees" actions={<div className="flex gap-2"><Input placeholder="Search" value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} /><Select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} options={[{ value: '', label: 'All' }, { value: 'draft', label: 'Draft' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, { value: 'terminated', label: 'Terminated' }]} /></div>}>
-        <ErrorBlock query={query} label="employees" />{!query.isLoading && !query.isError ? <SimpleTable rows={query.data ?? []} columns={[{ key: 'employee_no', label: 'Employee No' }, { key: 'name', label: 'Name', render: (r) => `${r.first_name ?? ''} ${r.last_name ?? ''}`.trim() }, { key: 'department_name', label: 'Department' }, { key: 'position_name', label: 'Position' }, { key: 'base_salary_amount', label: 'Salary' }, { key: 'base_salary_currency', label: 'Currency' }, { key: 'bank_name', label: 'Bank' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<>{r.status !== 'active' ? <Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'activate' })}>Activate</Button> : <Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'deactivate' })}>Deactivate</Button>}<Button size="sm" variant="danger" onClick={() => action.mutate({ id: r.id, op: 'terminate' })}>Terminate</Button></>)} /> : null}
+        <ErrorBlock query={query} label="employees" />{!query.isLoading && !query.isError ? <SimpleTable rows={rowsOf(query.data)} columns={[{ key: 'employee_no', label: 'Employee No' }, { key: 'name', label: 'Name', render: (r) => `${r.first_name ?? ''} ${r.last_name ?? ''}`.trim() }, { key: 'department_name', label: 'Department' }, { key: 'position_name', label: 'Position' }, { key: 'base_salary_amount', label: 'Salary' }, { key: 'base_salary_currency', label: 'Currency' }, { key: 'bank_name', label: 'Bank' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => startEdit(r)}>Edit</Button>{r.status !== 'active' ? <Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'activate' })}>Activate</Button> : <Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'deactivate' })}>Deactivate</Button>}<Button size="sm" variant="danger" onClick={() => action.mutate({ id: r.id, op: 'terminate' })}>Terminate</Button></>)} /> : null}
       </ContentCard>
     </HrShell>
   );
