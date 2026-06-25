@@ -44,7 +44,7 @@ export function cleanPayload(obj) {
 export function statusTone(status) {
   if (['active', 'approved', 'posted', 'completed'].includes(status)) return 'success';
   if (['inactive', 'cancelled', 'rejected', 'terminated'].includes(status)) return 'danger';
-  if (['draft', 'pending_approval', 'calculated'].includes(status)) return 'warning';
+  if (['draft', 'pending_approval', 'submitted', 'calculated'].includes(status)) return 'warning';
   return 'default';
 }
 

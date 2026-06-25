@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calculator, CheckCircle2, FilePlus2, Send, Trash2, UploadCloud, XCircle } from 'lucide-react';
 import { AccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Landmark, PeriodField, Select, SimpleTable, StatusBadge, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudRemove, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -35,7 +36,42 @@ export default function Payroll() {
   const saveAssignment = useCrudSave({ key: 'hr.payroll.assignments', createFn: (p) => api.employeeComponents.create(buildAssignmentPayload(p)), updateFn: (id, p) => api.employeeComponents.update(id, buildAssignmentPayload(p)), reset: resetAssignment });
   const removeAssignment = useCrudRemove({ key: 'hr.payroll.assignments', removeFn: (id) => api.employeeComponents.remove(id) });
   const createRun = useCrudSave({ key: 'hr.payroll.runs', createFn: (p) => api.payrollRuns.create(cleanPayload(p)), updateFn: () => Promise.reject(new Error('Payroll run editing is not supported by the backend. Create a new draft run for a different period/pay date.')), reset: () => setRun(runBlank) });
+  const removeRun = useCrudRemove({ key: 'hr.payroll.runs', removeFn: (id) => api.payrollRuns.remove(id) });
   const action = useMutation({ mutationFn: ({ id, op }) => api.payrollRuns[op](id), onSuccess: () => { toast.success('Payroll run updated.'); qc.invalidateQueries({ queryKey: ['hr.payroll.runs'] }); }, onError: (e) => toast.error(e?.message ?? 'Payroll action failed.') });
+
+
+  const isActionLoading = (row, op) => action.isPending && action.variables?.id === row.id && action.variables?.op === op;
+  const isRemoveRunLoading = (row) => removeRun.isPending && removeRun.variables === row.id;
+  const hasJournal = (row) => Boolean(row.journal_entry_id || row.journal_id || row.journal_entry_no || row.journal_reference);
+  const knowsJournalState = (row) => ['journal_entry_id', 'journal_id', 'journal_entry_no', 'journal_reference'].some((key) => Object.prototype.hasOwnProperty.call(row, key));
+  const deletePayrollRun = (row) => {
+    if (confirm('Delete this payroll run? This is only allowed before submission/approval/posting.')) removeRun.mutate(row.id);
+  };
+  const renderPayrollRunActions = (row) => {
+    const status = String(row.status ?? 'draft').toLowerCase();
+    if (status === 'draft') {
+      return <><Button size="sm" variant="outline" leftIcon={Calculator} loading={isActionLoading(row, 'calculate')} onClick={() => action.mutate({ id: row.id, op: 'calculate' })}>Calculate</Button><Button size="sm" variant="danger" leftIcon={Trash2} loading={isRemoveRunLoading(row)} onClick={() => deletePayrollRun(row)}>Delete</Button></>;
+    }
+    if (status === 'calculated') {
+      return <><Button size="sm" leftIcon={Send} loading={isActionLoading(row, 'submit')} onClick={() => action.mutate({ id: row.id, op: 'submit' })}>Submit</Button><Button size="sm" variant="danger" leftIcon={Trash2} loading={isRemoveRunLoading(row)} onClick={() => deletePayrollRun(row)}>Delete</Button></>;
+    }
+    if (status === 'submitted' || status === 'pending_approval') {
+      return <><Button size="sm" leftIcon={CheckCircle2} loading={isActionLoading(row, 'approve')} onClick={() => action.mutate({ id: row.id, op: 'approve' })}>Approve</Button><Button size="sm" variant="danger" leftIcon={XCircle} loading={isActionLoading(row, 'reject')} onClick={() => action.mutate({ id: row.id, op: 'reject' })}>Reject</Button></>;
+    }
+    if (status === 'approved') {
+      if (knowsJournalState(row) && hasJournal(row)) {
+        return <Button size="sm" leftIcon={UploadCloud} loading={isActionLoading(row, 'postJournal')} onClick={() => action.mutate({ id: row.id, op: 'postJournal' })}>Post</Button>;
+      }
+      if (knowsJournalState(row) && !hasJournal(row)) {
+        return <Button size="sm" leftIcon={FilePlus2} loading={isActionLoading(row, 'buildJournal')} onClick={() => action.mutate({ id: row.id, op: 'buildJournal' })}>Build journal</Button>;
+      }
+      return <><Button size="sm" variant="outline" leftIcon={FilePlus2} loading={isActionLoading(row, 'buildJournal')} onClick={() => action.mutate({ id: row.id, op: 'buildJournal' })}>Build journal</Button><Button size="sm" leftIcon={UploadCloud} loading={isActionLoading(row, 'postJournal')} onClick={() => action.mutate({ id: row.id, op: 'postJournal' })}>Post</Button></>;
+    }
+    if (status === 'rejected') {
+      return <><Button size="sm" variant="outline" leftIcon={Calculator} loading={isActionLoading(row, 'calculate')} onClick={() => action.mutate({ id: row.id, op: 'calculate' })}>Recalculate</Button><Button size="sm" variant="danger" leftIcon={Trash2} loading={isRemoveRunLoading(row)} onClick={() => deletePayrollRun(row)}>Delete</Button></>;
+    }
+    return <span className="text-xs text-slate-500">No action available</span>;
+  };
 
   const selectedComponent = rowsOf(lookups.components.data).find((r) => r.id === assignment.component_id);
   const assignmentIsFixed = assignment.calculation_method === 'fixed';
@@ -103,7 +139,7 @@ export default function Payroll() {
         <ContentCard title="Components"><ErrorBlock query={components} label="components" />{!components.isLoading && !components.isError ? <SimpleTable rows={rowsOf(components.data)} columns={[{ key: 'code', label: 'Code' }, { key: 'name', label: 'Name' }, { key: 'kind', label: 'Kind' }, { key: 'calculation_method', label: 'Method' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => startComponentEdit(r)}>Edit</Button><Button size="sm" variant="danger" loading={removeComponent.isPending} onClick={() => { if (confirm('Delete this payroll component?')) removeComponent.mutate(r.id); }}>Delete</Button></>)} /> : null}</ContentCard>
         <ContentCard title="Employee assignments"><ErrorBlock query={assignments} label="assignments" />{!assignments.isLoading && !assignments.isError ? <SimpleTable rows={rowsOf(assignments.data)} columns={[{ key: 'employee_id', label: 'Employee' }, { key: 'component_name', label: 'Component' }, { key: 'component_kind', label: 'Kind' }, { key: 'amount', label: 'Amount' }, { key: 'percent', label: 'Percent' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => startAssignmentEdit(r)}>Edit</Button><Button size="sm" variant="danger" loading={removeAssignment.isPending} onClick={() => { if (confirm('Delete this employee component assignment?')) removeAssignment.mutate(r.id); }}>Delete</Button></>)} /> : null}</ContentCard>
       </div>
-      <ContentCard title="Payroll runs"><ErrorBlock query={runs} label="payroll runs" />{!runs.isLoading && !runs.isError ? <SimpleTable rows={rowsOf(runs.data)} columns={[{ key: 'period_code', label: 'Period' }, { key: 'pay_date', label: 'Pay date' }, { key: 'currency', label: 'Currency' }, { key: 'gross_amount', label: 'Gross' }, { key: 'net_amount', label: 'Net' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'calculate' })}>Calculate</Button><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'submit' })}>Submit</Button><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'approve' })}>Approve</Button><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'buildJournal' })}>Build journal</Button><Button size="sm" onClick={() => action.mutate({ id: r.id, op: 'postJournal' })}>Post</Button></>)} /> : null}</ContentCard>
+      <ContentCard title="Payroll runs"><ErrorBlock query={runs} label="payroll runs" />{!runs.isLoading && !runs.isError ? <SimpleTable rows={rowsOf(runs.data)} columns={[{ key: 'period_code', label: 'Period' }, { key: 'pay_date', label: 'Pay date' }, { key: 'currency', label: 'Currency' }, { key: 'gross_amount', label: 'Gross' }, { key: 'net_amount', label: 'Net' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={renderPayrollRunActions} /> : null}</ContentCard>
     </HrShell>
   );
 }

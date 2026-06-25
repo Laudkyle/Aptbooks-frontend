@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, Send, Trash2, XCircle } from 'lucide-react';
 import { Button, CalendarDays, ContentCard, ErrorBlock, FormGrid, HrShell, Input, Select, SimpleTable, StatusBadge, Textarea, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudRemove, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
@@ -24,7 +25,28 @@ export default function Leave() {
   const removeType = useCrudRemove({ key: 'hr.leave.types', removeFn: (id) => api.leaveTypes.remove(id) });
   const upsertBalance = useCrudSave({ key: 'hr.leave.balances', createFn: (p) => api.leaveBalances.upsert(cleanPayload({ ...p, balance_days: asNumber(p.balance_days) })), updateFn: (_, p) => api.leaveBalances.upsert(cleanPayload({ ...p, balance_days: asNumber(p.balance_days) })), reset: () => setBalanceForm(balanceBlank) });
   const createRequest = useCrudSave({ key: 'hr.leave.requests', createFn: (p) => api.leaveRequests.create(cleanPayload({ ...p, days: asNumber(p.days) })), updateFn: () => Promise.reject(new Error('Leave request editing is not supported by the backend after creation. Cancel and recreate if needed.')), reset: () => setRequestForm(requestBlank) });
+  const removeRequest = useCrudRemove({ key: 'hr.leave.requests', removeFn: (id) => api.leaveRequests.remove(id) });
   const action = useMutation({ mutationFn: ({ id, op }) => api.leaveRequests[op](id), onSuccess: () => { toast.success('Leave request updated.'); qc.invalidateQueries({ queryKey: ['hr.leave.requests'] }); qc.invalidateQueries({ queryKey: ['hr.leave.balances'] }); }, onError: (e) => toast.error(e?.message ?? 'Leave action failed.') });
+
+  const isLeaveActionLoading = (row, op) => action.isPending && action.variables?.id === row.id && action.variables?.op === op;
+  const isRemoveRequestLoading = (row) => removeRequest.isPending && removeRequest.variables === row.id;
+  const deleteLeaveRequest = (row) => {
+    if (confirm('Delete this leave request? This is only allowed before final approval.')) removeRequest.mutate(row.id);
+  };
+  const renderLeaveRequestActions = (row) => {
+    const status = String(row.status ?? 'draft').toLowerCase();
+    if (status === 'draft') {
+      return <><Button size="sm" leftIcon={Send} loading={isLeaveActionLoading(row, 'submit')} onClick={() => action.mutate({ id: row.id, op: 'submit' })}>Submit</Button><Button size="sm" variant="danger" leftIcon={Trash2} loading={isRemoveRequestLoading(row)} onClick={() => deleteLeaveRequest(row)}>Delete</Button></>;
+    }
+    if (status === 'submitted' || status === 'pending_approval') {
+      return <><Button size="sm" leftIcon={CheckCircle2} loading={isLeaveActionLoading(row, 'approve')} onClick={() => action.mutate({ id: row.id, op: 'approve' })}>Approve</Button><Button size="sm" variant="danger" leftIcon={XCircle} loading={isLeaveActionLoading(row, 'reject')} onClick={() => action.mutate({ id: row.id, op: 'reject' })}>Reject</Button></>;
+    }
+    if (status === 'rejected') {
+      return <><Button size="sm" leftIcon={Send} loading={isLeaveActionLoading(row, 'submit')} onClick={() => action.mutate({ id: row.id, op: 'submit' })}>Resubmit</Button><Button size="sm" variant="danger" leftIcon={Trash2} loading={isRemoveRequestLoading(row)} onClick={() => deleteLeaveRequest(row)}>Delete</Button></>;
+    }
+    return <span className="text-xs text-slate-500">No action available</span>;
+  };
+
   const startTypeEdit = (row) => { setTypeEditingId(row.id); setTypeForm(toFormValues(row, typeBlank)); };
   const startBalanceEdit = (row) => setBalanceForm(toFormValues(row, balanceBlank));
 
@@ -65,7 +87,7 @@ export default function Leave() {
         <ContentCard title="Leave types"><ErrorBlock query={types} label="leave types" />{!types.isLoading && !types.isError ? <SimpleTable rows={rowsOf(types.data)} columns={[{ key: 'code', label: 'Code' }, { key: 'name', label: 'Name' }, { key: 'is_paid', label: 'Paid', render: (r) => r.is_paid ? 'Yes' : 'No' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => startTypeEdit(r)}>Edit</Button><Button size="sm" variant="danger" loading={removeType.isPending} onClick={() => { if (confirm('Delete this leave type?')) removeType.mutate(r.id); }}>Delete</Button></>)} /> : null}</ContentCard>
         <ContentCard title="Leave balances"><ErrorBlock query={balances} label="leave balances" />{!balances.isLoading && !balances.isError ? <SimpleTable rows={rowsOf(balances.data)} columns={[{ key: 'employee_id', label: 'Employee ID' }, { key: 'leave_type_name', label: 'Leave type' }, { key: 'balance_days', label: 'Balance days' }]} actions={(r) => <Button size="sm" variant="outline" onClick={() => startBalanceEdit(r)}>Edit balance</Button>} /> : null}</ContentCard>
       </div>
-      <ContentCard title="Leave requests"><ErrorBlock query={requests} label="leave requests" />{!requests.isLoading && !requests.isError ? <SimpleTable rows={rowsOf(requests.data)} columns={[{ key: 'employee_no', label: 'Employee' }, { key: 'leave_type_name', label: 'Type' }, { key: 'start_date', label: 'Start' }, { key: 'end_date', label: 'End' }, { key: 'days', label: 'Days' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={(r) => (<><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'submit' })}>Submit</Button><Button size="sm" variant="outline" onClick={() => action.mutate({ id: r.id, op: 'approve' })}>Approve</Button><Button size="sm" variant="danger" onClick={() => action.mutate({ id: r.id, op: 'cancel' })}>Cancel</Button></>)} /> : null}</ContentCard>
+      <ContentCard title="Leave requests"><ErrorBlock query={requests} label="leave requests" />{!requests.isLoading && !requests.isError ? <SimpleTable rows={rowsOf(requests.data)} columns={[{ key: 'employee_no', label: 'Employee' }, { key: 'leave_type_name', label: 'Type' }, { key: 'start_date', label: 'Start' }, { key: 'end_date', label: 'End' }, { key: 'days', label: 'Days' }, { key: 'status', label: 'Status', render: (r) => <StatusBadge value={r.status} /> }]} actions={renderLeaveRequestActions} /> : null}</ContentCard>
     </HrShell>
   );
 }

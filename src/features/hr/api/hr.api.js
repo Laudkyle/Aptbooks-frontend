@@ -65,6 +65,8 @@ export function makeHrApi(http) {
       list: (params) => unwrap(http.get(`${base}/leave/requests${qs(params)}`)),
       get: (id) => unwrap(http.get(`${base}/leave/requests/${id}`)),
       create: (payload) => unwrap(http.post(`${base}/leave/requests`, payload, idem())),
+      update: (id, payload) => unwrap(http.put(`${base}/leave/requests/${id}`, payload)),
+      remove: (id) => unwrap(http.delete(`${base}/leave/requests/${id}`)),
       submit: (id) => unwrap(http.post(`${base}/leave/requests/${id}/submit`, {}, idem())),
       approve: (id) => unwrap(http.post(`${base}/leave/requests/${id}/approve`, {}, idem())),
       reject: (id, reason) => unwrap(http.post(`${base}/leave/requests/${id}/reject`, { reason }, idem())),
