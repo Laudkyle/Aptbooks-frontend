@@ -52,6 +52,11 @@ function firstNumber(...values) {
   return 0;
 }
 
+function decimalOrUndefined(value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  return String(value);
+}
+
 function statusTone(status) {
   const s = String(status || '').toLowerCase();
   if (['active', 'approved', 'posted'].includes(s)) return 'success';
@@ -446,9 +451,9 @@ export default function IFRS16LeasesPage() {
         name: form.name.trim(),
         commencement_date: form.commencement_date,
         term_months: Number(form.term_months || 0),
-        payment_amount: Number(form.payment_amount || 0),
+        payment_amount: form.payment_amount || '0',
         payments_per_year: Number(form.payments_per_year || 0),
-        annual_discount_rate: Number(form.annual_discount_rate || 0),
+        annual_discount_rate: form.annual_discount_rate || '0',
         payment_timing: form.payment_timing || 'arrears',
         recognition_model: form.recognition_model || 'on_balance_sheet',
         is_short_term_lease: form.is_short_term_lease === 'true',
@@ -472,13 +477,13 @@ export default function IFRS16LeasesPage() {
         asset_description: form.asset_description.trim() || form.name.trim(),
         asset_class: form.asset_class.trim() || undefined,
         useful_life_months: form.useful_life_months === '' ? undefined : Number(form.useful_life_months || 0),
-        initial_direct_costs: form.initial_direct_costs === '' ? undefined : Number(form.initial_direct_costs || 0),
-        lease_incentives: form.lease_incentives === '' ? undefined : Number(form.lease_incentives || 0),
-        restoration_provision: form.restoration_provision === '' ? undefined : Number(form.restoration_provision || 0),
-        prepaid_lease_payments: form.prepaid_lease_payments === '' ? undefined : Number(form.prepaid_lease_payments || 0),
-        accrued_lease_payments: form.accrued_lease_payments === '' ? undefined : Number(form.accrued_lease_payments || 0),
-        residual_value_guarantee: form.residual_value_guarantee === '' ? undefined : Number(form.residual_value_guarantee || 0),
-        purchase_option_amount: form.purchase_option_amount === '' ? undefined : Number(form.purchase_option_amount || 0),
+        initial_direct_costs: decimalOrUndefined(form.initial_direct_costs),
+        lease_incentives: decimalOrUndefined(form.lease_incentives),
+        restoration_provision: decimalOrUndefined(form.restoration_provision),
+        prepaid_lease_payments: decimalOrUndefined(form.prepaid_lease_payments),
+        accrued_lease_payments: decimalOrUndefined(form.accrued_lease_payments),
+        residual_value_guarantee: decimalOrUndefined(form.residual_value_guarantee),
+        purchase_option_amount: decimalOrUndefined(form.purchase_option_amount),
       }),
     onSuccess: async (data) => {
       const createdLeaseId = data?.id || data?.lease_id || data?.lease?.id || null;

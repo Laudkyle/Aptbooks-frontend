@@ -570,6 +570,8 @@ export const endpoints = {
           `/compliance/ifrs16/leases?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/compliance/ifrs16/leases",
         detail: (leaseId) => `/compliance/ifrs16/leases/${leaseId}`,
+        update: (leaseId) => `/compliance/ifrs16/leases/${leaseId}`,
+        delete: (leaseId) => `/compliance/ifrs16/leases/${leaseId}`,
         status: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/status`,
         submit: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/submit`,
         approve: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/approve`,
@@ -581,6 +583,7 @@ export const endpoints = {
           const query = new URLSearchParams(qs ?? {}).toString();
           return `/compliance/ifrs16/leases/${leaseId}/payments${query ? `?${query}` : ''}`;
         },
+        paymentDetail: (leaseId, paymentId) => `/compliance/ifrs16/leases/${leaseId}/payments/${paymentId}`,
         modifications: (leaseId) => `/compliance/ifrs16/leases/${leaseId}/modifications`,
         modificationDetail: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}`,
         modificationSubmit: (leaseId, modificationId) => `/compliance/ifrs16/leases/${leaseId}/modifications/${modificationId}/submit`,

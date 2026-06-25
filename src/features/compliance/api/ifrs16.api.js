@@ -8,6 +8,8 @@ export function makeIfrs16Api(http) {
     listLeases: async (qs) => (await http.get(endpoints.compliance.ifrs16.leases.list(qs))).data,
     createLease: async (body) => (await http.post(endpoints.compliance.ifrs16.leases.create, body)).data,
     getLease: async (leaseId) => (await http.get(endpoints.compliance.ifrs16.leases.detail(leaseId))).data,
+    updateLease: async (leaseId, body) => (await http.patch(endpoints.compliance.ifrs16.leases.update(leaseId), body)).data,
+    deleteLease: async (leaseId) => (await http.delete(endpoints.compliance.ifrs16.leases.delete(leaseId))).data,
     updateLeaseStatus: async (leaseId, body) => (await http.patch(endpoints.compliance.ifrs16.leases.status(leaseId), body)).data,
     submitLease: async (leaseId) => (await http.post(endpoints.compliance.ifrs16.leases.submit(leaseId))).data,
     approveLease: async (leaseId, body) => (await http.post(endpoints.compliance.ifrs16.leases.approve(leaseId), body ?? {})).data,
@@ -22,6 +24,8 @@ export function makeIfrs16Api(http) {
 
     listPayments: async (leaseId, qs) => (await http.get(endpoints.compliance.ifrs16.leases.payments(leaseId, qs))).data,
     createPayment: async (leaseId, body) => (await http.post(endpoints.compliance.ifrs16.leases.payments(leaseId), body)).data,
+    updatePayment: async (leaseId, paymentId, body) => (await http.patch(endpoints.compliance.ifrs16.leases.paymentDetail(leaseId, paymentId), body)).data,
+    deletePayment: async (leaseId, paymentId) => (await http.delete(endpoints.compliance.ifrs16.leases.paymentDetail(leaseId, paymentId))).data,
 
     generateSchedule: async (leaseId, body) =>
       (await http.post(endpoints.compliance.ifrs16.leases.scheduleGenerate(leaseId), body ?? {})).data,
@@ -34,6 +38,8 @@ export function makeIfrs16Api(http) {
 
     listModifications: async (leaseId) => (await http.get(endpoints.compliance.ifrs16.leases.modifications(leaseId))).data,
     createModification: async (leaseId, body) => (await http.post(endpoints.compliance.ifrs16.leases.modifications(leaseId), body)).data,
+    updateModification: async (leaseId, modificationId, body) => (await http.patch(endpoints.compliance.ifrs16.leases.modificationDetail(leaseId, modificationId), body)).data,
+    deleteModification: async (leaseId, modificationId) => (await http.delete(endpoints.compliance.ifrs16.leases.modificationDetail(leaseId, modificationId))).data,
     getModification: async (leaseId, modificationId) => (await http.get(endpoints.compliance.ifrs16.leases.modificationDetail(leaseId, modificationId))).data,
     submitModification: async (leaseId, modificationId) => (await http.post(endpoints.compliance.ifrs16.leases.modificationSubmit(leaseId, modificationId))).data,
     approveModification: async (leaseId, modificationId, body) => (await http.post(endpoints.compliance.ifrs16.leases.modificationApprove(leaseId, modificationId), body ?? {})).data,
