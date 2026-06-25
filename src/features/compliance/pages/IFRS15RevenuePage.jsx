@@ -190,7 +190,7 @@ export default function IFRS15RevenuePage() {
       start_date: form.start_date || undefined,
       end_date: form.end_date || undefined,
       currency_code: form.currency_code || 'GHS',
-      transaction_price: Number(form.transaction_price || 0),
+      transaction_price: form.transaction_price || '0',
       billing_policy: form.billing_policy || 'UPFRONT',
       billing_account_id: form.billing_account_id || undefined,
     }),

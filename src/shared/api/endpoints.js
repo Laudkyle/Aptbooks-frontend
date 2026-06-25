@@ -617,6 +617,8 @@ export const endpoints = {
           `/compliance/ifrs15/contracts?${new URLSearchParams(qs ?? {}).toString()}`,
         create: "/compliance/ifrs15/contracts",
         detail: (contractId) => `/compliance/ifrs15/contracts/${contractId}`,
+        update: (contractId) => `/compliance/ifrs15/contracts/${contractId}`,
+        remove: (contractId) => `/compliance/ifrs15/contracts/${contractId}`,
         lifecycle: (contractId) => `/compliance/ifrs15/contracts/${contractId}/lifecycle`,
         submitForApproval: (contractId) => `/compliance/ifrs15/contracts/${contractId}/submit-for-approval`,
         approve: (contractId) => `/compliance/ifrs15/contracts/${contractId}/approve`,
@@ -625,16 +627,24 @@ export const endpoints = {
           `/compliance/ifrs15/contracts/${contractId}/activate`,
         obligations: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/obligations`,
+        obligation: (contractId, obligationId) =>
+          `/compliance/ifrs15/contracts/${contractId}/obligations/${obligationId}`,
         scheduleGenerate: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/schedule/generate`,
         schedule: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/schedule`,
         post: (contractId) => `/compliance/ifrs15/contracts/${contractId}/post`,
         modifications: (contractId) => `/compliance/ifrs15/contracts/${contractId}/modifications`,
+        modification: (contractId, modificationId) => `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}`,
+        submitModification: (contractId, modificationId) => `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}/submit-for-approval`,
+        approveModification: (contractId, modificationId) => `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}/approve`,
+        rejectModification: (contractId, modificationId) => `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}/reject`,
         applyModification: (contractId, modificationId) =>
           `/compliance/ifrs15/contracts/${contractId}/modifications/${modificationId}/apply`,
         variableConsideration: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/variable-consideration`,
+        variableConsiderationItem: (contractId, variableConsiderationId) =>
+          `/compliance/ifrs15/contracts/${contractId}/variable-consideration/${variableConsiderationId}`,
         reviewVariableConsideration: (contractId, variableConsiderationId) =>
           `/compliance/ifrs15/contracts/${contractId}/variable-consideration/${variableConsiderationId}/review`,
         approveVariableConsideration: (contractId, variableConsiderationId) =>
@@ -646,6 +656,8 @@ export const endpoints = {
         financingPost: (contractId) => `/compliance/ifrs15/contracts/${contractId}/financing/post`,
         costs: (contractId) =>
           `/compliance/ifrs15/contracts/${contractId}/costs`,
+        cost: (contractId, costId) =>
+          `/compliance/ifrs15/contracts/${contractId}/costs/${costId}`,
         costScheduleGenerate: (contractId, costId) =>
           `/compliance/ifrs15/contracts/${contractId}/costs/${costId}/schedule/generate`,
         costSchedule: (contractId, costId) =>

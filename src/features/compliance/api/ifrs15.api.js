@@ -9,6 +9,8 @@ export function makeIfrs15Api(http) {
 
     listContracts: async (qs) => (await http.get(endpoints.compliance.ifrs15.contracts.list(qs))).data,
     createContract: async (body) => (await http.post(endpoints.compliance.ifrs15.contracts.create, body)).data,
+    updateContract: async (contractId, body) => (await http.put(endpoints.compliance.ifrs15.contracts.update(contractId), body)).data,
+    deleteContract: async (contractId) => (await http.delete(endpoints.compliance.ifrs15.contracts.remove(contractId))).data,
     getContract: async (contractId) => (await http.get(endpoints.compliance.ifrs15.contracts.detail(contractId))).data,
     activateContract: async (contractId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.activate(contractId), body ?? {})).data,
@@ -23,6 +25,10 @@ export function makeIfrs15Api(http) {
 
     addObligation: async (contractId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.obligations(contractId), body)).data,
+    updateObligation: async (contractId, obligationId, body) =>
+      (await http.put(endpoints.compliance.ifrs15.contracts.obligation(contractId, obligationId), body)).data,
+    deleteObligation: async (contractId, obligationId) =>
+      (await http.delete(endpoints.compliance.ifrs15.contracts.obligation(contractId, obligationId))).data,
 
     generateSchedule: async (contractId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.scheduleGenerate(contractId), body ?? {})).data,
@@ -35,6 +41,16 @@ export function makeIfrs15Api(http) {
       (await http.get(endpoints.compliance.ifrs15.contracts.modifications(contractId))).data,
     createModification: async (contractId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.modifications(contractId), body)).data,
+    updateModification: async (contractId, modificationId, body) =>
+      (await http.put(endpoints.compliance.ifrs15.contracts.modification(contractId, modificationId), body)).data,
+    deleteModification: async (contractId, modificationId) =>
+      (await http.delete(endpoints.compliance.ifrs15.contracts.modification(contractId, modificationId))).data,
+    submitModification: async (contractId, modificationId) =>
+      (await http.post(endpoints.compliance.ifrs15.contracts.submitModification(contractId, modificationId), {})).data,
+    approveModification: async (contractId, modificationId, body) =>
+      (await http.post(endpoints.compliance.ifrs15.contracts.approveModification(contractId, modificationId), body ?? {})).data,
+    rejectModification: async (contractId, modificationId, body) =>
+      (await http.post(endpoints.compliance.ifrs15.contracts.rejectModification(contractId, modificationId), body ?? {})).data,
     applyModification: async (contractId, modificationId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.applyModification(contractId, modificationId), body ?? {})).data,
 
@@ -42,6 +58,10 @@ export function makeIfrs15Api(http) {
       (await http.get(endpoints.compliance.ifrs15.contracts.variableConsideration(contractId))).data,
     createVariableConsideration: async (contractId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.variableConsideration(contractId), body)).data,
+    updateVariableConsideration: async (contractId, variableConsiderationId, body) =>
+      (await http.put(endpoints.compliance.ifrs15.contracts.variableConsiderationItem(contractId, variableConsiderationId), body)).data,
+    deleteVariableConsideration: async (contractId, variableConsiderationId) =>
+      (await http.delete(endpoints.compliance.ifrs15.contracts.variableConsiderationItem(contractId, variableConsiderationId))).data,
     reviewVariableConsideration: async (contractId, variableConsiderationId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.reviewVariableConsideration(contractId, variableConsiderationId), body ?? {})).data,
     approveVariableConsideration: async (contractId, variableConsiderationId, body) =>
@@ -58,6 +78,8 @@ export function makeIfrs15Api(http) {
 
     listCosts: async (contractId) => (await http.get(endpoints.compliance.ifrs15.contracts.costs(contractId))).data,
     createCost: async (contractId, body) => (await http.post(endpoints.compliance.ifrs15.contracts.costs(contractId), body)).data,
+    updateCost: async (contractId, costId, body) => (await http.put(endpoints.compliance.ifrs15.contracts.cost(contractId, costId), body)).data,
+    deleteCost: async (contractId, costId) => (await http.delete(endpoints.compliance.ifrs15.contracts.cost(contractId, costId))).data,
     addCost: async (contractId, body) => (await http.post(endpoints.compliance.ifrs15.contracts.costs(contractId), body)).data,
     generateCostSchedule: async (contractId, costId, body) =>
       (await http.post(endpoints.compliance.ifrs15.contracts.costScheduleGenerate(contractId, costId), body ?? {})).data,
