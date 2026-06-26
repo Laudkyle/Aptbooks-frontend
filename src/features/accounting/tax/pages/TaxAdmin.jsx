@@ -3,12 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Bot,
   Globe2,
+  DownloadCloud,
   Percent,
   Plus,
   ReceiptText,
   Settings2,
   ShieldCheck,
   WalletCards,
+  Calculator,
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { useApi } from "../../../../shared/hooks/useApi.js";
@@ -133,6 +138,18 @@ export default function TaxAdmin() {
     staleTime: 10000,
   });
 
+  const ghanaSetupQ = useQuery({
+    queryKey: ["tax-ghana-setup"],
+    queryFn: api.getGhanaSetupChecklist,
+    staleTime: 10000,
+  });
+
+  const ghanaDiagnosticsQ = useQuery({
+    queryKey: ["tax-ghana-diagnostics"],
+    queryFn: api.getGhanaDiagnostics,
+    staleTime: 10000,
+  });
+
   const jurisdictions = normalizeRows(jurisQ.data);
   const taxCodes = normalizeRows(codesQ.data);
   const adjustments = normalizeRows(adjustmentsQ.data);
@@ -145,7 +162,43 @@ export default function TaxAdmin() {
   const countryPacks = normalizeRows(countryPacksQ.data);
   const automationRules = normalizeRows(automationRulesQ.data);
   const filingAdapters = normalizeRows(filingAdaptersQ.data);
-console.log(rules)
+  const ghanaSetup = ghanaSetupQ.data || {};
+  const ghanaDiagnostics = ghanaDiagnosticsQ.data || {};
+  const ghanaChecklist = Array.isArray(ghanaSetup.checklist) ? ghanaSetup.checklist : [];
+  const ghanaIssues = Array.isArray(ghanaDiagnostics.issues) ? ghanaDiagnostics.issues : [];
+
+  const installCountryPack = useMutation({
+    mutationFn: (pack) => api.installCountryPack({ packCode: pack.pack_code || pack.packCode || pack.code }),
+    onSuccess: (res) => {
+      const counts = res?.installedCounts || {};
+      toast.success(`Country pack installed${counts.taxCodes ? `: ${counts.taxCodes} tax codes` : ''}.`);
+      qc.invalidateQueries({ queryKey: ["tax-country-packs"] });
+      qc.invalidateQueries({ queryKey: ["tax-juris"] });
+      qc.invalidateQueries({ queryKey: ["tax-codes-admin"] });
+      qc.invalidateQueries({ queryKey: ["tax-rules"] });
+      qc.invalidateQueries({ queryKey: ["tax-return-templates"] });
+      qc.invalidateQueries({ queryKey: ["tax-ghana-setup"] });
+      qc.invalidateQueries({ queryKey: ["tax-ghana-diagnostics"] });
+    },
+    onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? "Country pack install failed"),
+  });
+
+  const installGhanaWorkflows = useMutation({
+    mutationFn: api.installGhanaWorkflows,
+    onSuccess: () => {
+      toast.success("Ghana tax workflows installed.");
+      qc.invalidateQueries({ queryKey: ["tax-country-packs"] });
+      qc.invalidateQueries({ queryKey: ["tax-juris"] });
+      qc.invalidateQueries({ queryKey: ["tax-codes-admin"] });
+      qc.invalidateQueries({ queryKey: ["tax-rules"] });
+      qc.invalidateQueries({ queryKey: ["tax-return-templates"] });
+      qc.invalidateQueries({ queryKey: ["tax-automation-rules"] });
+      qc.invalidateQueries({ queryKey: ["tax-return-configs"] });
+      qc.invalidateQueries({ queryKey: ["tax-ghana-setup"] });
+      qc.invalidateQueries({ queryKey: ["tax-ghana-diagnostics"] });
+    },
+    onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? "Ghana workflow install failed"),
+  });
 
   const jurisOptions = [{ value: "", label: "No jurisdiction" }].concat(
     jurisdictions.map((j) => ({ value: j.id, label: `${j.code} — ${j.name}` })),
@@ -215,7 +268,7 @@ console.log(rules)
         name: tName,
         taxType,
         taxCategory,
-        rate: Number(rate),
+        rate,
         direction: direction || null,
       }),
     onSuccess: () => {
@@ -523,6 +576,26 @@ console.log(rules)
         };
     });
 
+  const [ghanaCalc, setGhanaCalc] = useState({ taxCode: "GH_VAT_EFFECTIVE_20", baseAmount: "1000.00", calculationMode: "exclusive" });
+  const [ghanaCalcResult, setGhanaCalcResult] = useState(null);
+  const calculateGhana = useMutation({
+    mutationFn: () => api.calculateGhanaTax(ghanaCalc),
+    onSuccess: (data) => setGhanaCalcResult(data),
+    onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? "Tax calculation failed"),
+  });
+
+  const [reportRange, setReportRange] = useState({ from: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0,10), to: new Date().toISOString().slice(0,10) });
+  const vatSummaryQ = useQuery({
+    queryKey: ["tax-vat-summary", reportRange],
+    queryFn: () => api.getVatSummary(reportRange),
+    enabled: tab === "ghana" && !!reportRange.from && !!reportRange.to,
+  });
+  const whtSummaryQ = useQuery({
+    queryKey: ["tax-wht-summary", reportRange],
+    queryFn: () => api.getWithholdingSummary(reportRange),
+    enabled: tab === "ghana" && !!reportRange.from && !!reportRange.to,
+  });
+
   return (
     <div className="space-y-6 pb-8">
       <PageHeader
@@ -546,6 +619,7 @@ console.log(rules)
             icon: ReceiptText,
           },
           { value: "automation", label: "Automation & packs", icon: Bot },
+          { value: "ghana", label: "Ghana tax workflows", icon: ClipboardCheck },
         ]}
       />
 
@@ -1084,6 +1158,102 @@ console.log(rules)
         </div>
       ) : null}
 
+      {tab === "ghana" ? (
+        <div className="space-y-6">
+          <ContentCard
+            title="Ghana tax setup assistant"
+            subtitle="Use this screen after installing the Ghana country pack to confirm readiness, run quick calculations, and review VAT/WHT summaries."
+            actions={
+              <Button
+                size="sm"
+                leftIcon={DownloadCloud}
+                loading={installGhanaWorkflows.isPending}
+                onClick={() => installGhanaWorkflows.mutate()}
+              >
+                Install Ghana workflows
+              </Button>
+            }
+          >
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {ghanaChecklist.map((item) => (
+                <div key={item.key} className="rounded-2xl border border-border-subtle bg-background p-4">
+                  <div className="flex items-start gap-3">
+                    {item.complete ? <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-600" /> : <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600" />}
+                    <div>
+                      <div className="font-medium text-text-strong">{item.label}</div>
+                      <div className="mt-1 text-xs text-text-muted">{item.complete ? "Complete" : item.action}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ContentCard>
+
+          <ContentCard title="Ghana tax diagnostics">
+            {ghanaIssues.length ? (
+              <DataTable
+                columns={[
+                  { header: "Severity", accessorKey: "severity", render: (row) => <Badge tone={row.severity === "warning" ? "warning" : row.severity === "error" ? "danger" : "muted"}>{row.severity}</Badge> },
+                  { header: "Issue", accessorKey: "message" },
+                  { header: "Recommendation", accessorKey: "recommendation" },
+                ]}
+                rows={ghanaIssues}
+              />
+            ) : (
+              <div className="rounded-2xl border border-border-subtle bg-background p-4 text-sm text-text-muted">No Ghana tax setup warnings detected.</div>
+            )}
+          </ContentCard>
+
+          <ContentCard title="Ghana tax calculator">
+            <div className="grid gap-4 md:grid-cols-4">
+              <Select
+                label="Tax code"
+                value={ghanaCalc.taxCode}
+                onChange={(e) => setGhanaCalc((s) => ({ ...s, taxCode: e.target.value }))}
+                options={taxCodes.filter((c) => String(c.code || "").startsWith("GH_")).map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
+              />
+              <Input
+                label="Base/entered amount"
+                value={ghanaCalc.baseAmount}
+                onChange={(e) => setGhanaCalc((s) => ({ ...s, baseAmount: e.target.value }))}
+              />
+              <Select
+                label="Calculation mode"
+                value={ghanaCalc.calculationMode}
+                onChange={(e) => setGhanaCalc((s) => ({ ...s, calculationMode: e.target.value }))}
+                options={[
+                  { value: "exclusive", label: "Tax exclusive" },
+                  { value: "inclusive", label: "Tax inclusive" },
+                ]}
+              />
+              <div className="flex items-end">
+                <Button leftIcon={Calculator} loading={calculateGhana.isPending} onClick={() => calculateGhana.mutate()} disabled={!ghanaCalc.taxCode || !ghanaCalc.baseAmount}>Calculate</Button>
+              </div>
+            </div>
+            {ghanaCalcResult ? (
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Taxable base</div><div className="text-lg font-semibold">GHS {ghanaCalcResult.baseAmount}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Tax amount</div><div className="text-lg font-semibold">GHS {ghanaCalcResult.taxAmount}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Gross amount</div><div className="text-lg font-semibold">GHS {ghanaCalcResult.grossAmount}</div></div>
+              </div>
+            ) : null}
+          </ContentCard>
+
+          <ContentCard title="VAT and withholding summary">
+            <div className="mb-4 grid gap-4 md:grid-cols-3">
+              <Input label="From" type="date" value={reportRange.from} onChange={(e) => setReportRange((s) => ({ ...s, from: e.target.value }))} />
+              <Input label="To" type="date" value={reportRange.to} onChange={(e) => setReportRange((s) => ({ ...s, to: e.target.value }))} />
+            </div>
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Output VAT</div><div className="text-lg font-semibold">{vatSummaryQ.data?.outputTax ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Input VAT</div><div className="text-lg font-semibold">{vatSummaryQ.data?.inputTax ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Net VAT payable</div><div className="text-lg font-semibold">{vatSummaryQ.data?.netTaxPayable ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">WHT payable/receivable</div><div className="text-lg font-semibold">{whtSummaryQ.data?.totalTax ?? "0.00"}</div></div>
+            </div>
+          </ContentCard>
+        </div>
+      ) : null}
+
       {tab === "automation" ? (
         <div className="space-y-6">
           <ContentCard title="Automation rules">
@@ -1105,14 +1275,50 @@ console.log(rules)
             />
           </ContentCard>
 
-          <ContentCard title="Country packs">
+          <ContentCard
+            title="Country packs"
+            actions={
+              <Button
+                size="sm"
+                leftIcon={DownloadCloud}
+                loading={installCountryPack.isPending}
+                onClick={() => {
+                  const gh = countryPacks.find((p) => String(p.pack_code || p.packCode || '').includes('GH-TAX-2026-COMPLETE'))
+                    || countryPacks.find((p) => String(p.country_code || p.countryCode || '').toUpperCase() === 'GH');
+                  if (!gh) return toast.error('Ghana country pack is not available. Run backend migrations first.');
+                  installCountryPack.mutate(gh);
+                }}
+              >
+                Install Ghana defaults
+              </Button>
+            }
+          >
             <DataTable
-              columns={simpleColumns([
-                "countryCode",
-                "name",
-                "version",
-                "status",
-              ])}
+              columns={[
+                { header: 'Country', accessorKey: 'countryCode', render: (row) => row.countryCode || row.country_code || '—' },
+                { header: 'Pack', accessorKey: 'pack_code', render: (row) => row.pack_code || row.packCode || '—' },
+                { header: 'Name', accessorKey: 'name', render: (row) => row.name || '—' },
+                { header: 'Version', accessorKey: 'version_no', render: (row) => row.version_no || row.version || '—' },
+                { header: 'Status', accessorKey: 'status', render: (row) => <Badge tone={statusTone(row.status)}>{String(row.status ?? '—')}</Badge> },
+                {
+                  header: 'Action',
+                  accessorKey: 'action',
+                  render: (row) => (
+                    <Button
+                      size="sm"
+                      variant={row.is_installed || row.isInstalled ? 'outline' : 'primary'}
+                      leftIcon={DownloadCloud}
+                      loading={installCountryPack.isPending}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        installCountryPack.mutate(row);
+                      }}
+                    >
+                      {row.is_installed || row.isInstalled ? 'Reinstall' : 'Install'}
+                    </Button>
+                  ),
+                },
+              ]}
               rows={countryPacks}
             />
           </ContentCard>
