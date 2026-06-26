@@ -21,10 +21,28 @@ import { useNavigate } from 'react-router-dom';
 function formatLabel(value) {
   return String(value ?? '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').replace(/^./, (c) => c.toUpperCase());
 }
+const INTERNAL_REPORT_KEYS = new Set(['organization_id', 'organizationId', 'org_id', 'orgId', 'metadata', 'default_templates', 'defaultTemplates', 'templates', 'payload_json', 'payloadJson']);
+
+function cleanCountryPackReportRow(row) {
+  const packCode = row?.packCode || row?.pack_code || row?.code || '—';
+  return {
+    countryCode: row?.countryCode || row?.country_code || '—',
+    packCode,
+    name: row?.name || '—',
+    version: row?.version || row?.version_no || '—',
+    scope: row?.scope || 'Default',
+    status: row?.status || row?.readiness || 'available',
+    readiness: row?.readiness || (row?.isActive === false || row?.is_active === false ? 'not_ready' : 'ready')
+  };
+}
+
 function rowsToColumns(rows) {
   const sample = rows[0];
   if (!sample) return [];
-  return Object.keys(sample).slice(0, 12).map((key) => ({ header: formatLabel(key), accessorKey: key, render: (row) => /status|state|severity/i.test(key) ? <Badge tone="muted">{String(row[key] ?? '—')}</Badge> : String(row[key] ?? '—') }));
+  return Object.keys(sample)
+    .filter((key) => !INTERNAL_REPORT_KEYS.has(key))
+    .slice(0, 12)
+    .map((key) => ({ header: formatLabel(key), accessorKey: key, render: (row) => /status|state|severity|readiness/i.test(key) ? <Badge tone="muted">{String(row[key] ?? '—')}</Badge> : String(row[key] ?? '—') }));
 }
 function today() { return new Date().toISOString().slice(0, 10); }
 function startOfMonth() { const d = new Date(); d.setDate(1); return d.toISOString().slice(0, 10); }
@@ -59,8 +77,24 @@ export default function ReportTax() {
 
   const active = queryMap[tab];
   const data = active?.data;
-  const rows = normalizeRows(data);
-  const columns = rowsToColumns(rows);
+  const rows = tab === 'countryPacks'
+    ? normalizeRows(data).map(cleanCountryPackReportRow)
+    : normalizeRows(data).map((row) => {
+        const cleaned = { ...row };
+        INTERNAL_REPORT_KEYS.forEach((key) => delete cleaned[key]);
+        return cleaned;
+      });
+  const columns = tab === 'countryPacks'
+    ? [
+        { header: 'Country', accessorKey: 'countryCode' },
+        { header: 'Pack', accessorKey: 'packCode' },
+        { header: 'Name', accessorKey: 'name' },
+        { header: 'Version', accessorKey: 'version' },
+        { header: 'Scope', accessorKey: 'scope' },
+        { header: 'Status', accessorKey: 'status', render: (row) => <Badge tone="muted">{String(row.status ?? '—')}</Badge> },
+        { header: 'Readiness', accessorKey: 'readiness', render: (row) => <Badge tone="muted">{String(row.readiness ?? '—')}</Badge> },
+      ]
+    : rowsToColumns(rows);
 
   const cards = [
     { icon: Calculator, label: 'Summary', value: normalizeRows(queryMap.summary.data).length },
@@ -97,7 +131,16 @@ export default function ReportTax() {
               <p>Jurisdiction-specific return output and country-pack readiness can be reviewed without leaving reporting.</p>
             </div>
           </ContentCard>
-          <ContentCard title="Raw response"><JsonPanel title="API payload" value={data ?? { filters: qs, message: 'Run a report to load data.' }} /></ContentCard>
+          <ContentCard title={tab === 'countryPacks' ? 'Report note' : 'Raw response'}>
+            {tab === 'countryPacks' ? (
+              <div className="space-y-2 text-sm text-text-body">
+                <p>Country-pack readiness is shown as a user-facing summary only.</p>
+                <p>Internal fields such as organization ID, metadata, and return templates are intentionally hidden from this report.</p>
+              </div>
+            ) : (
+              <JsonPanel title="API payload" value={data ?? { filters: qs, message: 'Run a report to load data.' }} />
+            )}
+          </ContentCard>
         </div>
       </div>
     </div>

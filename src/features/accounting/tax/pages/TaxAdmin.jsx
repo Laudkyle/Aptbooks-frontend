@@ -53,6 +53,25 @@ function moneyCell(value) {
   return value === null || value === undefined || value === "" ? "0.00" : String(value);
 }
 
+function cleanCountryPackRow(row) {
+  const packCode = row?.packCode || row?.pack_code || row?.code || '';
+  return {
+    id: row?.id,
+    countryCode: row?.countryCode || row?.country_code || '—',
+    packCode,
+    pack_code: packCode,
+    name: row?.name || '—',
+    description: row?.description || '',
+    version: row?.version || row?.version_no || '—',
+    version_no: row?.version_no || row?.version || '—',
+    status: row?.status || (row?.isInstalled || row?.is_installed ? 'installed' : 'available'),
+    scope: row?.scope || 'Default',
+    isInstalled: Boolean(row?.isInstalled || row?.is_installed),
+    is_installed: Boolean(row?.isInstalled || row?.is_installed),
+    installedAt: row?.installedAt || row?.installed_at || null,
+  };
+}
+
 export default function TaxAdmin() {
   const { http } = useApi();
   const api = useMemo(() => makeTaxApi(http), [http]);
@@ -165,7 +184,7 @@ export default function TaxAdmin() {
   const profiles = normalizeRows(profilesQ.data);
   const returnTemplates = normalizeRows(returnTemplatesQ.data);
   const returnConfigs = normalizeRows(returnConfigsQ.data);
-  const countryPacks = normalizeRows(countryPacksQ.data);
+  const countryPacks = normalizeRows(countryPacksQ.data).map(cleanCountryPackRow);
   const automationRules = normalizeRows(automationRulesQ.data);
   const filingAdapters = normalizeRows(filingAdaptersQ.data);
   const ghanaSetup = ghanaSetupQ.data || {};
@@ -174,7 +193,7 @@ export default function TaxAdmin() {
   const ghanaIssues = Array.isArray(ghanaDiagnostics.issues) ? ghanaDiagnostics.issues : [];
 
   const installCountryPack = useMutation({
-    mutationFn: (pack) => api.installCountryPack({ packCode: pack.pack_code || pack.packCode || pack.code }),
+    mutationFn: (pack) => api.installCountryPack({ packCode: pack.packCode || pack.pack_code }),
     onSuccess: (res) => {
       const counts = res?.installedCounts || {};
       toast.success(`Country pack installed${counts.taxCodes ? `: ${counts.taxCodes} tax codes` : ''}.`);
@@ -1462,6 +1481,7 @@ export default function TaxAdmin() {
                 { header: 'Pack', accessorKey: 'pack_code', render: (row) => row.pack_code || row.packCode || '—' },
                 { header: 'Name', accessorKey: 'name', render: (row) => row.name || '—' },
                 { header: 'Version', accessorKey: 'version_no', render: (row) => row.version_no || row.version || '—' },
+                { header: 'Scope', accessorKey: 'scope', render: (row) => row.scope || 'Default' },
                 { header: 'Status', accessorKey: 'status', render: (row) => <Badge tone={statusTone(row.status)}>{String(row.status ?? '—')}</Badge> },
                 {
                   header: 'Action',
