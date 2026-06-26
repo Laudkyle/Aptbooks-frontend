@@ -807,6 +807,13 @@ export const endpoints = {
         `/reporting/tax/vat-summary?${new URLSearchParams(qs ?? {}).toString()}`,
       vatReturn: (qs) =>
         `/reporting/tax/vat-return?${new URLSearchParams(qs ?? {}).toString()}`,
+      createVatReturn: `/reporting/tax/vat-returns`,
+      ghanaVatReturn: (qs) =>
+        `/reporting/tax/ghana/vat-return?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaVatTransactions: (qs) =>
+        `/reporting/tax/ghana/vat-transactions?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaVatReconciliation: (qs) =>
+        `/reporting/tax/ghana/vat-reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
       returns: (qs) =>
         `/reporting/tax/returns?${new URLSearchParams(qs ?? {}).toString()}`,
       transactions: (qs) =>
@@ -817,6 +824,14 @@ export const endpoints = {
         `/reporting/tax/diagnostics?${new URLSearchParams(qs ?? {}).toString()}`,
       withholdingSummary: (qs) =>
         `/reporting/tax/withholding-summary?${new URLSearchParams(qs ?? {}).toString()}`,
+      withholdingPayable: (qs) =>
+        `/reporting/tax/withholding/payable?${new URLSearchParams(qs ?? {}).toString()}`,
+      withholdingReceivable: (qs) =>
+        `/reporting/tax/withholding/receivable?${new URLSearchParams(qs ?? {}).toString()}`,
+      withholdingOpenItems: (qs) =>
+        `/reporting/tax/withholding/open-items?${new URLSearchParams(qs ?? {}).toString()}`,
+      withholdingReconciliation: (qs) =>
+        `/reporting/tax/withholding/reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
       recoverability: (qs) =>
         `/reporting/tax/recoverability?${new URLSearchParams(qs ?? {}).toString()}`,
       einvoicing: (qs) =>

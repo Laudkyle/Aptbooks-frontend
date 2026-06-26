@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   ClipboardCheck,
+  FileText,
+  RefreshCw,
 } from "lucide-react";
 
 import { useApi } from "../../../../shared/hooks/useApi.js";
@@ -41,10 +43,14 @@ function formatLabel(value) {
 
 function statusTone(value) {
   const v = String(value ?? "").toLowerCase();
-  if (["posted", "active", "ready", "enabled"].includes(v)) return "success";
-  if (["draft", "pending"].includes(v)) return "warning";
-  if (["voided", "inactive", "disabled"].includes(v)) return "danger";
+  if (["posted", "active", "ready", "enabled", "balanced"].includes(v)) return "success";
+  if (["draft", "pending", "attention_required"].includes(v)) return "warning";
+  if (["voided", "inactive", "disabled", "error"].includes(v)) return "danger";
   return "muted";
+}
+
+function moneyCell(value) {
+  return value === null || value === undefined || value === "" ? "0.00" : String(value);
 }
 
 export default function TaxAdmin() {
@@ -593,7 +599,49 @@ export default function TaxAdmin() {
   const whtSummaryQ = useQuery({
     queryKey: ["tax-wht-summary", reportRange],
     queryFn: () => api.getWithholdingSummary(reportRange),
-    enabled: tab === "ghana" && !!reportRange.from && !!reportRange.to,
+    enabled: ["ghana", "reports"].includes(tab) && !!reportRange.from && !!reportRange.to,
+  });
+
+  const ghanaVatReturnQ = useQuery({
+    queryKey: ["tax-ghana-vat-return", reportRange],
+    queryFn: () => api.getGhanaVatReturn(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const ghanaVatTxQ = useQuery({
+    queryKey: ["tax-ghana-vat-transactions", reportRange],
+    queryFn: () => api.getGhanaVatTransactions(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const taxReconQ = useQuery({
+    queryKey: ["tax-reconciliation-report", reportRange],
+    queryFn: () => api.getGhanaVatReconciliation(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const whtPayableQ = useQuery({
+    queryKey: ["tax-wht-payable", reportRange],
+    queryFn: () => api.getWithholdingPayable(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const whtReceivableQ = useQuery({
+    queryKey: ["tax-wht-receivable", reportRange],
+    queryFn: () => api.getWithholdingReceivable(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const taxDiagnosticsReportQ = useQuery({
+    queryKey: ["tax-diagnostics-report", reportRange],
+    queryFn: () => api.getTaxDiagnosticsReport(reportRange),
+    enabled: tab === "reports" && !!reportRange.from && !!reportRange.to,
+  });
+
+  const createVatReturn = useMutation({
+    mutationFn: () => api.createVatReturn({ ...reportRange, includeGhanaComponents: true }),
+    onSuccess: (data) => toast.success(`Draft VAT return created${data?.return_id ? `: ${data.return_id}` : ""}.`),
+    onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? "VAT return creation failed"),
   });
 
   return (
@@ -619,6 +667,7 @@ export default function TaxAdmin() {
             icon: ReceiptText,
           },
           { value: "automation", label: "Automation & packs", icon: Bot },
+          { value: "reports", label: "Tax reports", icon: FileText },
           { value: "ghana", label: "Ghana tax workflows", icon: ClipboardCheck },
         ]}
       />
@@ -1153,6 +1202,120 @@ export default function TaxAdmin() {
                 "status",
               ])}
               rows={adjustments}
+            />
+          </ContentCard>
+        </div>
+      ) : null}
+
+      {tab === "reports" ? (
+        <div className="space-y-6">
+          <ContentCard
+            title="Tax reports workspace"
+            subtitle="Run filing-ready tax previews, reconcile tax to the ledger, and drill down to source transactions. Preview reports do not create tax returns; use Create draft VAT return when you intentionally want to save one."
+            actions={
+              <Button size="sm" leftIcon={DownloadCloud} loading={createVatReturn.isPending} onClick={() => createVatReturn.mutate()} disabled={!reportRange.from || !reportRange.to}>
+                Create draft VAT return
+              </Button>
+            }
+          >
+            <div className="grid gap-4 md:grid-cols-3">
+              <Input label="From" type="date" value={reportRange.from} onChange={(e) => setReportRange((st) => ({ ...st, from: e.target.value }))} />
+              <Input label="To" type="date" value={reportRange.to} onChange={(e) => setReportRange((st) => ({ ...st, to: e.target.value }))} />
+              <div className="flex items-end">
+                <Button variant="secondary" leftIcon={RefreshCw} onClick={() => { ghanaVatReturnQ.refetch(); ghanaVatTxQ.refetch(); taxReconQ.refetch(); whtPayableQ.refetch(); whtReceivableQ.refetch(); taxDiagnosticsReportQ.refetch(); }}>Refresh reports</Button>
+              </div>
+            </div>
+          </ContentCard>
+
+          <ContentCard title="Ghana VAT / NHIL / GETFund return preview" subtitle="Box-level preview with taxable amount, tax amount, and transaction counts.">
+            <div className="mb-4 grid gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Output tax</div><div className="text-lg font-semibold">{ghanaVatReturnQ.data?.totals?.output_tax ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Input tax</div><div className="text-lg font-semibold">{ghanaVatReturnQ.data?.totals?.input_tax ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Net payable</div><div className="text-lg font-semibold">{ghanaVatReturnQ.data?.totals?.net_tax_payable ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Transactions</div><div className="text-lg font-semibold">{ghanaVatReturnQ.data?.coverage?.transaction_count ?? 0}</div></div>
+            </div>
+            <DataTable
+              columns={[
+                { header: "Box", accessorKey: "box_code" },
+                { header: "Label", accessorKey: "label" },
+                { header: "Direction", accessorKey: "direction" },
+                { header: "Taxable", accessorKey: "taxable_amount", render: (row) => moneyCell(row.taxable_amount) },
+                { header: "Tax", accessorKey: "tax_amount", render: (row) => moneyCell(row.tax_amount) },
+                { header: "Count", accessorKey: "transaction_count" },
+              ]}
+              rows={ghanaVatReturnQ.data?.boxes || []}
+              emptyMessage="No VAT return lines for the selected period."
+            />
+          </ContentCard>
+
+          <ContentCard title="VAT transaction drill-down">
+            <DataTable
+              columns={[
+                { header: "Date", accessorKey: "document_date" },
+                { header: "Document", accessorKey: "document_no" },
+                { header: "Partner", accessorKey: "partner_name" },
+                { header: "Tax code", accessorKey: "tax_code" },
+                { header: "Box", accessorKey: "box_code" },
+                { header: "Direction", accessorKey: "direction" },
+                { header: "Taxable", accessorKey: "signed_taxable_amount", render: (row) => moneyCell(row.signed_taxable_amount) },
+                { header: "Tax", accessorKey: "signed_tax_amount", render: (row) => moneyCell(row.signed_tax_amount) },
+              ]}
+              rows={ghanaVatTxQ.data || []}
+              emptyMessage="No Ghana VAT/NHIL/GETFund transactions for this period."
+            />
+          </ContentCard>
+
+          <ContentCard title="Tax reconciliation" subtitle="Shows both VAT payable basis and GL debit-minus-credit basis to avoid sign confusion.">
+            <div className="mb-4 grid gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Status</div><Badge tone={statusTone(taxReconQ.data?.status)}>{taxReconQ.data?.status || "not run"}</Badge></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">VAT payable basis</div><div className="text-lg font-semibold">{taxReconQ.data?.sourceTotals?.vatPayableBasis ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Expected GL balance</div><div className="text-lg font-semibold">{taxReconQ.data?.sourceTotals?.expectedGlBalanceDebitMinusCredit ?? "0.00"}</div></div>
+              <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Difference</div><div className="text-lg font-semibold">{taxReconQ.data?.difference ?? "0.00"}</div></div>
+            </div>
+            <DataTable
+              columns={[
+                { header: "Account", accessorKey: "account_name" },
+                { header: "Code", accessorKey: "account_code" },
+                { header: "Debit", accessorKey: "debit_total", render: (row) => moneyCell(row.debit_total) },
+                { header: "Credit", accessorKey: "credit_total", render: (row) => moneyCell(row.credit_total) },
+                { header: "Net", accessorKey: "net_amount", render: (row) => moneyCell(row.net_amount) },
+              ]}
+              rows={taxReconQ.data?.glTotals?.accounts || []}
+              emptyMessage="No mapped tax GL activity found for the selected period."
+            />
+          </ContentCard>
+
+          <div className="grid gap-6 xl:grid-cols-2">
+            <ContentCard title="Withholding payable">
+              <div className="mb-3 grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Total taxable</div><div className="text-lg font-semibold">{whtPayableQ.data?.totalTaxable ?? "0.00"}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Total WHT</div><div className="text-lg font-semibold">{whtPayableQ.data?.totalTax ?? "0.00"}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Items</div><div className="text-lg font-semibold">{whtPayableQ.data?.count ?? 0}</div></div>
+              </div>
+              <DataTable columns={[{ header: "Tax code", accessorKey: "tax_code" }, { header: "Name", accessorKey: "tax_code_name" }, { header: "Taxable", accessorKey: "taxable_amount" }, { header: "Tax", accessorKey: "tax_amount" }, { header: "Count", accessorKey: "count" }]} rows={whtPayableQ.data?.byTaxCode || []} />
+            </ContentCard>
+
+            <ContentCard title="Withholding receivable">
+              <div className="mb-3 grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Total taxable</div><div className="text-lg font-semibold">{whtReceivableQ.data?.totalTaxable ?? "0.00"}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Total WHT</div><div className="text-lg font-semibold">{whtReceivableQ.data?.totalTax ?? "0.00"}</div></div>
+                <div className="rounded-xl border border-border-subtle bg-background p-3"><div className="text-xs text-text-muted">Items</div><div className="text-lg font-semibold">{whtReceivableQ.data?.count ?? 0}</div></div>
+              </div>
+              <DataTable columns={[{ header: "Tax code", accessorKey: "tax_code" }, { header: "Name", accessorKey: "tax_code_name" }, { header: "Taxable", accessorKey: "taxable_amount" }, { header: "Tax", accessorKey: "tax_amount" }, { header: "Count", accessorKey: "count" }]} rows={whtReceivableQ.data?.byTaxCode || []} />
+            </ContentCard>
+          </div>
+
+          <ContentCard title="Tax diagnostics for selected period">
+            <DataTable
+              columns={[
+                { header: "Issue", accessorKey: "issue_code" },
+                { header: "Date", accessorKey: "document_date" },
+                { header: "Document", accessorKey: "document_no" },
+                { header: "Line", accessorKey: "line_no" },
+                { header: "Description", accessorKey: "description" },
+              ]}
+              rows={taxDiagnosticsReportQ.data || []}
+              emptyMessage="No reporting diagnostics for the selected period."
             />
           </ContentCard>
         </div>
