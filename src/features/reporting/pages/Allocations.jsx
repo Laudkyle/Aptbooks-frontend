@@ -12,7 +12,6 @@ import {
   PlayCircle,
   Archive,
   Edit,
-  Copy,
   Trash2,
   Calendar,
   DollarSign,
@@ -47,6 +46,7 @@ import {
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makePlanningApi } from '../api/planning.api.js';
 import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
+import { makePeriodsApi } from '../../accounting/periods/api/periods.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
@@ -161,6 +161,7 @@ export default function Allocations() {
   const { http } = useApi();
   const api = useMemo(() => makePlanningApi(http), [http]);
   const coaApi = useMemo(() => makeCoaApi(http), [http]);
+  const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
 
@@ -358,7 +359,7 @@ export default function Allocations() {
   // Fetch Periods for dropdown
   const { data: periodsData } = useQuery({
     queryKey: ['periods', 'open'],
-    queryFn: () => api.periods.list({ status: 'open', limit: 100 }),
+    queryFn: () => periodsApi.list({ status: 'open', limit: 100 }),
     staleTime: 60000
   });
 
@@ -395,7 +396,6 @@ export default function Allocations() {
         payloadJson: ruleForm.payloadJson // Contains targets with dimensionJson using dimensionKey
       };
       
-      console.log('📤 Sending payload:', JSON.stringify(payload, null, 2));
       
       return api.allocations.rules.create(payload, { idempotencyKey });
     },
@@ -406,9 +406,6 @@ export default function Allocations() {
       refetchRules();
     },
     onError: (err) => {
-      console.error('❌ Full error:', err);
-      console.error('❌ Error response:', err?.response);
-      console.error('❌ Error data:', err?.response?.data);
       
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to create rule';
       toast.error(message);
@@ -630,11 +627,11 @@ export default function Allocations() {
       if (!postState.allocationId) throw new Error('No allocation selected');
       if (!postState.entryDate) throw new Error('Entry date is required');
       
-      return api.allocations.post({
-        allocationId: postState.allocationId,
-        entryDate: postState.entryDate,
-        memo: postState.memo || null
-      });
+      return api.allocations.post(
+        postState.allocationId,
+        { entryDate: postState.entryDate, memo: postState.memo || null },
+        { idempotencyKey: generateUUID() }
+      );
     },
     onSuccess: (data) => {
       toast.success(data.journalEntryId 
@@ -648,14 +645,49 @@ export default function Allocations() {
         memo: '',
         loading: false
       });
-      // Refresh rules to show updated status
-      refetchRules();
+      updateComputedAllocation(postState.allocationId, { ...data, status: data?.status || 'posted' });
     },
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to post allocation';
       toast.error(message);
       setPostState(prev => ({ ...prev, loading: false }));
     }
+  });
+
+  const updateComputedAllocation = (allocationId, patch) => {
+    setComputeState((prev) => ({
+      ...prev,
+      result: Array.isArray(prev.result)
+        ? prev.result.map((item) => (item.id === allocationId ? { ...item, ...patch } : item))
+        : prev.result,
+    }));
+  };
+
+  const approveAllocationMutation = useMutation({
+    mutationFn: async (allocation) => api.allocations.approve(allocation.id, {}, { idempotencyKey: generateUUID() }),
+    onSuccess: (data, allocation) => {
+      toast.success('Allocation approved');
+      updateComputedAllocation(allocation.id, { ...data, status: data?.status || 'approved' });
+    },
+    onError: (err) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Failed to approve allocation'),
+  });
+
+  const rejectAllocationMutation = useMutation({
+    mutationFn: async (allocation) => api.allocations.reject(allocation.id, { reason: 'Rejected from allocation workspace' }, { idempotencyKey: generateUUID() }),
+    onSuccess: (data, allocation) => {
+      toast.success('Allocation rejected');
+      updateComputedAllocation(allocation.id, { ...data, status: data?.status || 'rejected' });
+    },
+    onError: (err) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Failed to reject allocation'),
+  });
+
+  const reverseAllocationMutation = useMutation({
+    mutationFn: async (allocation) => api.allocations.reverse(allocation.id, { memo: 'Reversed from allocation workspace' }, { idempotencyKey: generateUUID() }),
+    onSuccess: (data, allocation) => {
+      toast.success('Allocation reversed');
+      updateComputedAllocation(allocation.id, { ...data, status: data?.status || 'reversed' });
+    },
+    onError: (err) => toast.error(err?.response?.data?.message ?? err?.message ?? 'Failed to reverse allocation'),
   });
 
   // ============================
@@ -680,8 +712,6 @@ export default function Allocations() {
       [ruleForm.dimensionKey]: targetForm.centerId // Use dimensionKey for JSON keys
     };
 
-    console.log('📦 Creating dimensionJson with key:', ruleForm.dimensionKey);
-    console.log('📦 dimensionJson:', dimensionJson);
 
     const newTarget = {
       toAccountId: targetForm.toAccountId,
@@ -987,10 +1017,6 @@ export default function Allocations() {
   }, [computeMutation]);
 
   const handleSubmitRule = () => {
-    console.log('📝 Current ruleForm state:', ruleForm);
-    console.log('📝 targetDimension value:', ruleForm.targetDimension);
-    console.log('📝 dimensionKey value:', ruleForm.dimensionKey);
-    console.log('📝 payloadJson.targets:', ruleForm.payloadJson.targets);
     
     if (modals.editRule) {
       updateRuleMutation.mutate();
@@ -1091,13 +1117,6 @@ export default function Allocations() {
             <DropdownMenuItem onClick={() => openModal('editBase', row)}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit Base</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              navigator.clipboard.writeText(JSON.stringify(row, null, 2));
-              toast.success('Copied to clipboard');
-            }}>
-              <Copy className="mr-2 h-4 w-4" />
-              <span>Copy JSON</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -1228,14 +1247,6 @@ export default function Allocations() {
                 <span>Delete Rule</span>
               </DropdownMenuItem>
             )}
-            
-            <DropdownMenuItem onClick={() => {
-              navigator.clipboard.writeText(JSON.stringify(row, null, 2));
-              toast.success('Copied to clipboard');
-            }}>
-              <Copy className="mr-2 h-4 w-4" />
-              <span>Copy JSON</span>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -1563,8 +1574,7 @@ export default function Allocations() {
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-amber-800">
-                      This will generate actual journal entries. The operation cannot be 
-                      undone automatically.
+                      This computes allocation batches only. Review and approve each batch before posting to the general ledger.
                     </p>
                   </div>
                 </div>
@@ -1576,7 +1586,7 @@ export default function Allocations() {
                   leftIcon={Calculator}
                   className="w-full bg-green-600 hover:bg-green-700"
                 >
-                  Run Computation
+                  Compute Allocations
                 </Button>
 
                 {computeMutation.isSuccess && computeState.result && (
@@ -1593,16 +1603,51 @@ export default function Allocations() {
                               <Badge tone="muted" size="sm" className="ml-2">Reused</Badge>
                             )}
                           </div>
-                          {allocation.status === 'computed' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              leftIcon={DollarSign}
-                              onClick={() => openPostModal(allocation)}
-                            >
-                              Post
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {allocation.status === 'computed' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  leftIcon={CheckCircle2}
+                                  loading={approveAllocationMutation.isPending}
+                                  onClick={() => approveAllocationMutation.mutate(allocation)}
+                                >
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  leftIcon={XCircle}
+                                  loading={rejectAllocationMutation.isPending}
+                                  onClick={() => rejectAllocationMutation.mutate(allocation)}
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                            {['approved', 'rejected'].includes(allocation.status) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                leftIcon={allocation.status === 'approved' ? DollarSign : CheckCircle2}
+                                onClick={() => allocation.status === 'approved' ? openPostModal(allocation) : approveAllocationMutation.mutate(allocation)}
+                              >
+                                {allocation.status === 'approved' ? 'Post' : 'Approve'}
+                              </Button>
+                            )}
+                            {allocation.status === 'posted' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                leftIcon={RefreshCw}
+                                loading={reverseAllocationMutation.isPending}
+                                onClick={() => reverseAllocationMutation.mutate(allocation)}
+                              >
+                                Reverse
+                              </Button>
+                            )}
+                          </div>
                         </div>
                         {allocation.journalEntryId && (
                           <div className="mt-2 text-xs text-slate-600">

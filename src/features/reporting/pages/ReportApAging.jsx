@@ -299,7 +299,6 @@ export default function ReportApAging() {
   const asOf      = asOfFrom(data);
   const summary   = rows.length > 0 ? calculateSummary(rows, apiTotals) : null;
 
-  console.log('AP aging report data:', { rows, summary, apiTotals, fullData: data });
 
   const columns = useMemo(() => {
     if (rows.length === 0) return [

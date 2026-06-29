@@ -183,6 +183,24 @@ export function makePlanningApi(http) {
           `${base}/projects/${id}`,
           idem(options, options?.idempotencyKey),
         ),
+      submit: (id, options = {}) =>
+        post(
+          `${base}/projects/${id}/submit-for-approval`,
+          {},
+          idem(options, options?.idempotencyKey),
+        ),
+      approve: (id, options = {}) =>
+        post(
+          `${base}/projects/${id}/approve`,
+          {},
+          idem(options, options?.idempotencyKey),
+        ),
+      reject: (id, body = {}, options = {}) =>
+        post(
+          `${base}/projects/${id}/reject`,
+          body,
+          idem(options, options?.idempotencyKey),
+        ),
       phases: {
         list: (projectId) => get(`${base}/projects/${projectId}/phases`),
         create: (projectId, body, options = {}) =>
@@ -323,6 +341,12 @@ export function makePlanningApi(http) {
         get: (budgetId, versionId) =>
           get(`${base}/budgets/${budgetId}/versions/${versionId}`),
         list: (budgetId) => get(`${base}/budgets/${budgetId}/versions`),
+        update: (budgetId, versionId, body, options = {}) =>
+          put(
+            `${base}/budgets/${budgetId}/versions/${versionId}`,
+            body,
+            idem(options, options?.idempotencyKey),
+          ),
 
         // Variance analysis
         variance: (budgetId, versionId, periodId) =>
@@ -567,6 +591,18 @@ export function makePlanningApi(http) {
             idem(options, options?.idempotencyKey),
           ),
 
+        archive: (forecastId, versionId, options = {}) =>
+          post(
+            `${base}/forecasts/${forecastId}/versions/${versionId}/archive`,
+            {},
+            idem(options, options?.idempotencyKey),
+          ),
+        delete: (forecastId, versionId, options = {}) =>
+          del(
+            `${base}/forecasts/${forecastId}/versions/${versionId}`,
+            idem(options, options?.idempotencyKey),
+          ),
+
         // Get workflow history for a version
         getHistory: (forecastId, versionId) =>
           get(
@@ -648,20 +684,52 @@ export function makePlanningApi(http) {
     // 7.5 Allocations
     allocations: {
       bases: {
-        list: () => get(`${base}/allocations/bases`),
+        list: (params = {}) => get(`${base}/allocations/bases`, { params }),
         create: (body, options = {}) =>
           post(
             `${base}/allocations/bases`,
             body,
             idem(options, options?.idempotencyKey),
           ),
+        update: (id, body, options = {}) =>
+          put(
+            `${base}/allocations/bases/${id}`,
+            body,
+            idem(options, options?.idempotencyKey),
+          ),
+        archive: (id, options = {}) =>
+          del(
+            `${base}/allocations/bases/${id}`,
+            idem(options, options?.idempotencyKey),
+          ),
+        delete: (id, options = {}) =>
+          del(
+            `${base}/allocations/bases/${id}`,
+            idem(options, options?.idempotencyKey),
+          ),
       },
       rules: {
-        list: () => get(`${base}/allocations/rules`),
+        list: (params = {}) => get(`${base}/allocations/rules`, { params }),
         create: (body, options = {}) =>
           post(
             `${base}/allocations/rules`,
             body,
+            idem(options, options?.idempotencyKey),
+          ),
+        update: (id, body, options = {}) =>
+          put(
+            `${base}/allocations/rules/${id}`,
+            body,
+            idem(options, options?.idempotencyKey),
+          ),
+        archive: (id, options = {}) =>
+          del(
+            `${base}/allocations/rules/${id}`,
+            idem(options, options?.idempotencyKey),
+          ),
+        delete: (id, options = {}) =>
+          del(
+            `${base}/allocations/rules/${id}`,
             idem(options, options?.idempotencyKey),
           ),
       },
@@ -672,9 +740,27 @@ export function makePlanningApi(http) {
           body,
           idem(options, options?.idempotencyKey),
         ),
+      approve: (id, body = {}, options = {}) =>
+        post(
+          `${base}/allocations/${id}/approve`,
+          body,
+          idem(options, options?.idempotencyKey),
+        ),
+      reject: (id, body = {}, options = {}) =>
+        post(
+          `${base}/allocations/${id}/reject`,
+          body,
+          idem(options, options?.idempotencyKey),
+        ),
       post: (id, body, options = {}) =>
         post(
           `${base}/allocations/${id}/post`,
+          body,
+          idem(options, options?.idempotencyKey),
+        ),
+      reverse: (id, body = {}, options = {}) =>
+        post(
+          `${base}/allocations/${id}/reverse`,
           body,
           idem(options, options?.idempotencyKey),
         ),
@@ -729,6 +815,12 @@ export function makePlanningApi(http) {
             },
           }),
       },
+      listDefinitions: (params = {}) => get(`${base}/kpis/definitions`, { params }),
+      createDefinition: (body, options = {}) =>
+        post(`${base}/kpis/definitions`, body, idem(options, options?.idempotencyKey)),
+      listValues: (params = {}) => get(`${base}/kpis/values`, { params }),
+      computeValues: (body, options = {}) =>
+        post(`${base}/kpis/values/compute`, body, idem(options, options?.idempotencyKey)),
       targets: {
         update: (targetId, body, options = {}) =>
           put(
@@ -747,59 +839,72 @@ export function makePlanningApi(http) {
     // 7.7 Dashboards
     dashboards: {
       list: (params = {}) => get(`${base}/dashboards`, { params }),
-      create: (body) => post(`${base}/dashboards`, body),
-      update: (dashboardId, body) =>
-        patch(`${base}/dashboards/${dashboardId}`, body),
+      create: (body, options = {}) =>
+        post(`${base}/dashboards`, body, idem(options, options?.idempotencyKey)),
+      update: (dashboardId, body, options = {}) =>
+        patch(`${base}/dashboards/${dashboardId}`, body, idem(options, options?.idempotencyKey)),
       widgets: {
         list: (dashboardId, params = {}) =>
           get(`${base}/dashboards/${dashboardId}/widgets`, { params }),
-        create: (dashboardId, body) =>
-          post(`${base}/dashboards/${dashboardId}/widgets`, body),
-        update: (widgetId, body) =>
-          patch(`${base}/dashboards/widgets/${widgetId}`, body),
+        create: (dashboardId, body, options = {}) =>
+          post(`${base}/dashboards/${dashboardId}/widgets`, body, idem(options, options?.idempotencyKey)),
+        update: (widgetId, body, options = {}) =>
+          patch(`${base}/dashboards/widgets/${widgetId}`, body, idem(options, options?.idempotencyKey)),
       },
     },
 
     // 7.8 Saved Report Builder
     reports: {
       list: (params = {}) => get(`${base}/reports`, { params }),
-      create: (body) => post(`${base}/reports`, body),
-      update: (reportId, body) =>
-        patch(`${base}/reports/${reportId}`, body),
-      archive: (reportId) =>
-        post(`${base}/reports/${reportId}/archive`, {}),
-      unarchive: (reportId) =>
-        post(`${base}/reports/${reportId}/unarchive`, {}),
+      create: (body, options = {}) => post(`${base}/reports`, body, idem(options, options?.idempotencyKey)),
+      update: (reportId, body, options = {}) =>
+        patch(`${base}/reports/${reportId}`, body, idem(options, options?.idempotencyKey)),
+      archive: (reportId, options = {}) =>
+        post(`${base}/reports/${reportId}/archive`, {}, idem(options, options?.idempotencyKey)),
+      unarchive: (reportId, options = {}) =>
+        post(`${base}/reports/${reportId}/unarchive`, {}, idem(options, options?.idempotencyKey)),
       versions: {
         list: (reportId) => get(`${base}/reports/${reportId}/versions`),
-        create: (reportId, body) =>
-          post(`${base}/reports/${reportId}/versions`, body),
+        create: (reportId, body, options = {}) =>
+          post(`${base}/reports/${reportId}/versions`, body, idem(options, options?.idempotencyKey)),
       },
       runs: {
-        run: (reportId, body) =>
-          post(`${base}/reports/${reportId}/run`, body),
+        run: (reportId, body, options = {}) =>
+          post(`${base}/reports/${reportId}/run`, body, idem(options, options?.idempotencyKey)),
         list: (reportId, params = {}) =>
           get(`${base}/reports/${reportId}/runs`, { params }),
       },
       shares: {
         list: (reportId) => get(`${base}/reports/${reportId}/shares`),
-        create: (reportId, body) =>
-          post(`${base}/reports/${reportId}/shares`, body),
+        create: (reportId, body, options = {}) =>
+          post(`${base}/reports/${reportId}/shares`, body, idem(options, options?.idempotencyKey)),
         remove: (shareId) => del(`${base}/reports/shares/${shareId}`),
       },
       schedules: {
         list: (reportId) => get(`${base}/reports/${reportId}/schedules`),
-        create: (reportId, body) =>
-          post(`${base}/reports/${reportId}/schedules`, body),
-        update: (scheduleId, body) =>
-          patch(`${base}/reports/schedules/${scheduleId}`, body),
+        create: (reportId, body, options = {}) =>
+          post(`${base}/reports/${reportId}/schedules`, body, idem(options, options?.idempotencyKey)),
+        update: (scheduleId, body, options = {}) =>
+          patch(`${base}/reports/schedules/${scheduleId}`, body, idem(options, options?.idempotencyKey)),
       },
       comments: {
         list: (reportId, params = {}) =>
           get(`${base}/reports/${reportId}/comments`, { params }),
-        create: (reportId, body) =>
-          post(`${base}/reports/${reportId}/comments`, body),
+        create: (reportId, body, options = {}) =>
+          post(`${base}/reports/${reportId}/comments`, body, idem(options, options?.idempotencyKey)),
       },
+    },
+
+
+    // Compatibility aliases used by existing Planning pages
+    periods: {
+      list: (params = {}) => get(`/accounting/periods`, { params }),
+    },
+    savedReports: {
+      list: (params = {}) => get(`${base}/saved-reports`, { params }),
+      create: (body, options = {}) => post(`${base}/saved-reports`, body, idem(options, options?.idempotencyKey)),
+      update: (reportId, body, options = {}) => patch(`${base}/saved-reports/${reportId}`, body, idem(options, options?.idempotencyKey)),
+      run: (reportId, body, options = {}) => post(`${base}/saved-reports/${reportId}/run`, body, idem(options, options?.idempotencyKey)),
     },
 
     // 7.9 Management Reports

@@ -141,8 +141,6 @@ export default function Budgets() {
   });
 
   const rows = useMemo(() => extractRows(data), [data]);
-  console.log("Budgets data:", data);
-  console.log("Extracted rows:", rows);
 
   // Get status configuration
   const getStatusConfig = useCallback((status) => {
@@ -192,7 +190,6 @@ export default function Budgets() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to archive budget";
       toast.error(message);
-      console.error('Archive budget error:', err);
     },
   });
 
@@ -202,7 +199,6 @@ export default function Budgets() {
       if (!selectedBudget) throw new Error("No budget selected");
       
       const idempotencyKey = generateUUID();
-      console.log(`Activating budget ${selectedBudget.id} with key:`, idempotencyKey);
       
       const response = await api.budgets.activate(selectedBudget.id, { idempotencyKey });
       return response.data;
@@ -217,7 +213,6 @@ export default function Budgets() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to activate budget";
       toast.error(message);
-      console.error('Activate budget error:', err);
     },
   });
 
@@ -395,7 +390,6 @@ export default function Budgets() {
 
       // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      console.log('Using idempotency key for budget creation:', idempotencyKey);
 
       // Call the API with idempotency key
       const response = await api.budgets.create({
@@ -416,7 +410,6 @@ export default function Budgets() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to create budget";
       toast.error(message);
-      console.error('Create budget error:', err);
     },
   });
 

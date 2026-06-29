@@ -4,13 +4,13 @@ import { FileText, PlayCircle, Plus } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makePlanningApi } from '../api/planning.api.js';
+import { generateUUID } from '../../../shared/utils/generateUUID.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 function rowsFrom(data) {
   if (!data) return [];
@@ -47,7 +47,7 @@ export default function SavedReports() {
         )
       },
       { header: 'Kind', render: (r) => <span className="text-sm text-slate-700">{r.kind || 'sql'}</span> },
-      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.status || r.is_archived ? 'archived' : 'active'}</span> },
+      { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.is_archived ? 'archived' : (r.status || 'active')}</span> },
       {
         header: '',
         render: (r) => (
@@ -79,7 +79,7 @@ export default function SavedReports() {
       templateKey: form.kind === 'management' ? form.templateKey : undefined,
       parameters: {}
     };
-    await api.savedReports.create(body);
+    await api.savedReports.create(body, { idempotencyKey: generateUUID() });
     setOpen(false);
     setForm({ name: '', description: '', folder: '', kind: 'sql', querySql: '', templateKey: '' });
     refetch();
@@ -93,7 +93,7 @@ export default function SavedReports() {
       parameters: [],
       maxRows: Number(runForm.maxRows || 500)
     };
-    const res = await api.savedReports.run(selected.id, payload);
+    const res = await api.savedReports.run(selected.id, payload, { idempotencyKey: generateUUID() });
     setSelected((s) => ({ ...s, _lastRun: res }));
   }
 
@@ -123,9 +123,6 @@ export default function SavedReports() {
           empty={{ title: 'No saved reports', description: 'Create a report definition and run it on demand.' }}
         />
 
-        <div className="mt-4">
-          <JsonPanel title="Raw response" value={data ?? {}} />
-        </div>
       </div>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Create report">
@@ -189,7 +186,12 @@ export default function SavedReports() {
 
           {selected?._lastRun ? (
             <div className="pt-2">
-              <JsonPanel title="Last run response" value={selected._lastRun} />
+              <div className="mb-2 text-sm font-medium text-slate-900">Last run preview</div>
+              <DataTable
+                columns={(rowsFrom(selected._lastRun?.rows || selected._lastRun?.data || selected._lastRun).at(0) ? Object.keys(rowsFrom(selected._lastRun?.rows || selected._lastRun?.data || selected._lastRun).at(0)).slice(0, 8) : []).map((key) => ({ header: key, render: (r) => <span className="text-xs text-slate-700">{String(r[key] ?? '')}</span> }))}
+                rows={rowsFrom(selected._lastRun?.rows || selected._lastRun?.data || selected._lastRun)}
+                empty={{ title: 'No rows returned', description: 'The report ran successfully but returned no rows.' }}
+              />
             </div>
           ) : null}
         </div>

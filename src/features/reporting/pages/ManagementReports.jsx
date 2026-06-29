@@ -11,7 +11,6 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function rowsFrom(data) {
@@ -60,9 +59,17 @@ export default function ManagementReports() {
 
   const rows = rowsFrom(data);
   const columns = useMemo(() => {
-    const keys = rows[0] ? Object.keys(rows[0]) : [];
-    return keys.slice(0, 8).map((k) => ({ header: k, render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span> }));
-  }, [rows]);
+    const preferred = mode === 'departmental-pnl'
+      ? ['department', 'cost_center', 'profit_center', 'project', 'revenue', 'expense', 'net_amount', 'variance']
+      : ['cost_center', 'account_code', 'account_name', 'debit', 'credit', 'net_amount', 'budget_amount', 'variance'];
+    const keys = rows[0] ? Object.keys(rows[0]) : preferred;
+    const visible = preferred.filter((k) => keys.includes(k));
+    const fallback = keys.filter((k) => !String(k).toLowerCase().includes('json')).slice(0, 8);
+    return (visible.length ? visible : fallback).map((k) => ({
+      header: k.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      render: (r) => <span className="text-sm text-slate-800">{String(r[k] ?? '')}</span>
+    }));
+  }, [rows, mode]);
 
   return (
     <div className="space-y-4">
@@ -85,7 +92,7 @@ export default function ManagementReports() {
         </div>
 
         <div className="mt-4"><DataTable columns={columns} rows={rows} loading={isFetching} empty={{ title: 'No data', description: 'Run the report to see results.' }} /></div>
-        <div className="mt-4"><JsonPanel title="Raw response" value={data ?? {}} /></div>
+        <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">Use the filters above to generate management-ready output. Internal response metadata is hidden from this report view.</div>
       </ContentCard>
     </div>
   );

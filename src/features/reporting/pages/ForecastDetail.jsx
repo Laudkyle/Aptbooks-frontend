@@ -1369,7 +1369,6 @@ export default function ForecastDetail() {
         ]}
         value={activeTab}
         onChange={(newTab) => {
-          console.log("Tab changed to:", newTab);
           setActiveTab(newTab);
         }}
       />

@@ -152,8 +152,6 @@ export default function Forecasts() {
   });
 
   const rows = useMemo(() => extractRows(data), [data]);
-  console.log("Forecasts data:", data);
-  console.log("Extracted rows:", rows);
 
   // Get status configuration
   const getStatusConfig = useCallback((status) => {
@@ -203,7 +201,6 @@ export default function Forecasts() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to archive forecast";
       toast.error(message);
-      console.error('Archive forecast error:', err);
     },
   });
 
@@ -213,7 +210,6 @@ export default function Forecasts() {
       if (!selectedForecast) throw new Error("No forecast selected");
       
       const idempotencyKey = generateUUID();
-      console.log(`Activating forecast ${selectedForecast.id} with key:`, idempotencyKey);
       
       const response = await api.forecasts.activate(selectedForecast.id, { idempotencyKey });
       return response.data;
@@ -228,7 +224,6 @@ export default function Forecasts() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to activate forecast";
       toast.error(message);
-      console.error('Activate forecast error:', err);
     },
   });
 
@@ -411,7 +406,6 @@ export default function Forecasts() {
 
       // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      console.log('Using idempotency key for forecast creation:', idempotencyKey);
 
       // Call the API with idempotency key
       const response = await api.forecasts.create({
@@ -432,7 +426,6 @@ export default function Forecasts() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? "Failed to create forecast";
       toast.error(message);
-      console.error('Create forecast error:', err);
     },
   });
 

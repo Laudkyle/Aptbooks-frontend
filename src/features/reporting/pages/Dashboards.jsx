@@ -4,12 +4,12 @@ import { LayoutDashboard, Plus } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makePlanningApi } from '../api/planning.api.js';
+import { generateUUID } from '../../../shared/utils/generateUUID.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 
 function arr(v) {
   if (!v) return [];
@@ -50,7 +50,7 @@ export default function Dashboards() {
       name: form.name,
       description: form.description || null,
       layoutJson
-    });
+    }, { idempotencyKey: generateUUID() });
     setOpen(false);
     setForm({ name: '', description: '', layoutJson: '{}' });
     refetch();
@@ -81,8 +81,8 @@ export default function Dashboards() {
           loading={isLoading}
           empty={{ title: 'No dashboards', description: 'Create a dashboard to organize KPI and planning views.' }}
         />
-        <div className="mt-4">
-          <JsonPanel title="Raw response" value={data ?? {}} />
+        <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+          Dashboard details are intentionally shown as business fields only. Internal layout JSON and widget metadata stay hidden until a dashboard is opened for editing.
         </div>
       </div>
 

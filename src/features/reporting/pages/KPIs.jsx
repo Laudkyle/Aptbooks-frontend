@@ -14,7 +14,6 @@ import { Modal } from '../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
-import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
 
 function rowsFrom(data) {
@@ -36,8 +35,8 @@ export default function KPIs() {
   const [form, setForm] = useState({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' });
   const [compute, setCompute] = useState({ periodId: '', asOfDate: '' });
 
-  const defsQ = useQuery({ queryKey: ['reporting', 'kpis', 'definitions'], queryFn: () => api.kpis.listDefinitions({ limit: 100, offset: 0 }) });
-  const valuesQ = useQuery({ queryKey: ['reporting', 'kpis', 'values', compute.periodId || null], queryFn: () => api.kpis.listValues({ periodId: compute.periodId || null, limit: 200, offset: 0 }) });
+  const defsQ = useQuery({ queryKey: ['reporting', 'kpis', 'definitions'], queryFn: () => api.kpis.definitions.list({ limit: 100, offset: 0 }) });
+  const valuesQ = useQuery({ queryKey: ['reporting', 'kpis', 'values', compute.periodId || null], queryFn: () => api.kpis.values.list({ periodId: compute.periodId || null, limit: 200, offset: 0 }) });
   const periodsQ = useQuery({ queryKey: ['periods', 'all'], queryFn: () => periodsApi.list({ limit: 500, offset: 0 }), staleTime: 60_000 });
   const coaQ = useQuery({ queryKey: ['coa', 'all'], queryFn: () => coaApi.list({ includeArchived: false }), staleTime: 60_000 });
 
@@ -58,7 +57,7 @@ export default function KPIs() {
 
   async function createDefinition() {
     const body = { code: form.code, name: form.name, kpiType: form.kpiType, accountId: form.kpiType === 'ACCOUNT_BALANCE' ? form.accountId : null, status: form.status, expressionJson: form.kpiType === 'EXPRESSION' ? {} : undefined, category: form.category || null };
-    await api.kpis.createDefinition(body);
+    await api.kpis.definitions.create(body);
     setOpen(false);
     setForm({ code: '', name: '', kpiType: 'ACCOUNT_BALANCE', accountId: '', status: 'active', category: '' });
     defsQ.refetch();
@@ -66,7 +65,7 @@ export default function KPIs() {
 
   async function computeValues() {
     if (!compute.periodId) return;
-    await api.kpis.computeValues({ periodId: compute.periodId, asOfDate: compute.asOfDate || null });
+    await api.kpis.values.compute({ periodId: compute.periodId, asOfDate: compute.asOfDate || null });
     valuesQ.refetch();
   }
 
@@ -81,7 +80,6 @@ export default function KPIs() {
           {tab === 'values' ? <div className="grid w-full gap-3 md:w-auto md:grid-cols-2"><Select label="Period" value={compute.periodId} onChange={(e) => setCompute((s) => ({ ...s, periodId: e.target.value }))} options={periodOptions} /><Input label="As of date" value={compute.asOfDate} onChange={(e) => setCompute((s) => ({ ...s, asOfDate: e.target.value }))} placeholder="YYYY-MM-DD (optional)" /></div> : null}
         </div>
         <div className="mt-4"><DataTable columns={columns} rows={rows} loading={tab === 'definitions' ? defsQ.isLoading : valuesQ.isLoading} /></div>
-        <div className="mt-4"><JsonPanel title="Raw response" value={(tab === 'definitions' ? defsQ.data : valuesQ.data) ?? {}} /></div>
       </div>
       <Modal open={open} onClose={() => setOpen(false)} title="New KPI definition">
         <div className="space-y-3">

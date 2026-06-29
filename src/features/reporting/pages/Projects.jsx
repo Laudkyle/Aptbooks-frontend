@@ -125,8 +125,6 @@ export default function Projects() {
   });
 
   const rows = useMemo(() => extractRows(data), [data]);
-  console.log('Projects data:', data);
-  console.log('Extracted rows:', rows);
 
   // Get status configuration
   const getStatusConfig = useCallback((status) => {
@@ -171,11 +169,8 @@ export default function Projects() {
       
       const idempotencyKey = generateUUID();
       
-      // Assuming you have an archive endpoint - adjust as needed
-      const response = await api.projects.update(selectedProject.id, {
-        status: 'archived'
-      }, { idempotencyKey });
-      return response.data;
+      const response = await api.projects.archive(selectedProject.id, { idempotencyKey });
+      return response?.data ?? response;
     },
     onSuccess: () => {
       toast.success('Project archived successfully');
@@ -187,7 +182,6 @@ export default function Projects() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to archive project';
       toast.error(message);
-      console.error('Archive project error:', err);
     },
   });
 
@@ -213,7 +207,6 @@ export default function Projects() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to activate project';
       toast.error(message);
-      console.error('Activate project error:', err);
     },
   });
 
@@ -239,7 +232,6 @@ export default function Projects() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to close project';
       toast.error(message);
-      console.error('Close project error:', err);
     },
   });
 
@@ -410,7 +402,6 @@ export default function Projects() {
 
       // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      console.log('Using idempotency key for project creation:', idempotencyKey);
 
       // Call the API with idempotency key
       const response = await api.projects.create({
@@ -429,7 +420,6 @@ export default function Projects() {
     onError: (err) => {
       const message = err?.response?.data?.message ?? err?.message ?? 'Failed to create project';
       toast.error(message);
-      console.error('Create project error:', err);
     },
   });
 

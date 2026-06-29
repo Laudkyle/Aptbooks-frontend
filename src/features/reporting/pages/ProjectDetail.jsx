@@ -221,7 +221,6 @@ export default function ProjectDetail() {
     return projectData;
   }, [projectData]);
 
-  console.log("Fetched project:", projectData);
 
   // Fetch Phases
   const {
