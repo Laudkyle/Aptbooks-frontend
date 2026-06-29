@@ -172,6 +172,23 @@ inventoryTraceabilityManage: 'inventory.traceability.manage',
 inventoryReorderRead: 'inventory.reorder.read',
 inventoryReorderManage: 'inventory.reorder.manage',
 
+// Phase 12 — Commerce / POS
+// Keep these frontend aliases mapped to the backend permission codes seeded by the POS migrations.
+commercePosRead: 'pos.sale.read',
+commercePosSell: 'pos.sale.create',
+commercePosPost: 'pos.sale.post',
+commercePosVoid: 'pos.sale.void',
+commercePosRefund: 'pos.sale.refund',
+commerceSetupRead: 'pos.setup.read',
+commerceSetupManage: 'pos.setup.manage',
+commerceOrdersRead: 'commerce.orders.read',
+commerceOrdersManage: 'commerce.orders.manage',
+commerceReturnsRead: 'pos.return.manage',
+commerceReturnsManage: 'pos.return.manage',
+commercePromotionsRead: 'commerce.promotions.manage',
+commercePromotionsManage: 'commerce.promotions.manage',
+commerceReportsRead: 'pos.reports.view',
+
 // Phase 7 — Reporting & Planning
 reportingCentersRead: 'reporting.centers.read',
 reportingCentersManage: 'reporting.centers.manage',

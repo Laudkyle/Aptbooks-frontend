@@ -312,6 +312,42 @@ export function SideNav() {
 
           <PermissionGate
             any={[
+              PERMISSIONS.commercePosRead,
+              PERMISSIONS.commercePosSell,
+              PERMISSIONS.commerceSetupRead,
+              PERMISSIONS.commerceOrdersRead,
+              PERMISSIONS.commerceReturnsRead,
+              PERMISSIONS.commercePromotionsRead,
+              PERMISSIONS.commerceReportsRead,
+            ]}
+          >
+            <div className="mt-2 px-2 text-[10px] font-semibold tracking-wide text-slate-500/90">
+              COMMERCE / POS
+            </div>
+            <nav className="mt-1 space-y-1">
+              <PermissionGate any={[PERMISSIONS.commercePosRead, PERMISSIONS.commercePosSell]}>
+                <Item to={ROUTES.commercePos} icon={ShoppingCart} label="POS Register" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.commerceSetupRead, PERMISSIONS.commerceSetupManage]}>
+                <Item to={ROUTES.commerceSetup} icon={Settings} label="POS Setup" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.commerceOrdersRead, PERMISSIONS.commerceOrdersManage]}>
+                <Item to={ROUTES.commerceOrders} icon={PackageCheck} label="Online Orders" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.commerceReturnsRead, PERMISSIONS.commerceReturnsManage]}>
+                <Item to={ROUTES.commerceReturns} icon={RotateCcw} label="Returns & Refunds" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.commercePromotionsRead, PERMISSIONS.commercePromotionsManage]}>
+                <Item to={ROUTES.commercePromotions} icon={Percent} label="Promotions" collapsed={!sidebarOpen} />
+              </PermissionGate>
+              <PermissionGate any={[PERMISSIONS.commerceReportsRead]}>
+                <Item to={ROUTES.commerceReports} icon={BarChart3} label="Commerce Reports" collapsed={!sidebarOpen} />
+              </PermissionGate>
+            </nav>
+          </PermissionGate>
+
+          <PermissionGate
+            any={[
               PERMISSIONS.partnersRead,
               PERMISSIONS.partnersManage,
               PERMISSIONS.paymentConfigManage,

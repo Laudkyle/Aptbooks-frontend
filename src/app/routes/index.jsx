@@ -556,6 +556,15 @@ const InventoryReorder = lazy(() =>
   import("../../features/inventory/pages/Reorder.jsx")
 );
 
+
+// Phase 12 — Commerce / POS
+const POSRegister = lazy(() => import("../../features/commerce/pages/POSRegister.jsx"));
+const POSSetup = lazy(() => import("../../features/commerce/pages/POSSetup.jsx"));
+const CommerceOrders = lazy(() => import("../../features/commerce/pages/CommerceOrders.jsx"));
+const CommerceReturns = lazy(() => import("../../features/commerce/pages/CommerceReturns.jsx"));
+const CommercePromotions = lazy(() => import("../../features/commerce/pages/CommercePromotions.jsx"));
+const CommerceReports = lazy(() => import("../../features/commerce/pages/CommerceReports.jsx"));
+
 // Phase 7 — Reporting & Planning
 const Centers = lazy(() =>
   import("../../features/reporting/pages/Centers.jsx")
@@ -1767,6 +1776,57 @@ export const router = createBrowserRouter([
             element: (
               <RequirePermission any={[PERMISSIONS.inventoryReorderRead, PERMISSIONS.inventoryReorderManage]}>
                 <Lazy><InventoryReorder /></Lazy>
+              </RequirePermission>
+            ),
+          },
+
+
+          // Phase 12 — Commerce / POS
+          {
+            path: ROUTES.commercePos,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commercePosRead, PERMISSIONS.commercePosSell, PERMISSIONS.commercePosPost]}>
+                <Lazy><POSRegister /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.commerceSetup,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commerceSetupRead, PERMISSIONS.commerceSetupManage]}>
+                <Lazy><POSSetup /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.commerceOrders,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commerceOrdersRead, PERMISSIONS.commerceOrdersManage]}>
+                <Lazy><CommerceOrders /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.commerceReturns,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commerceReturnsRead, PERMISSIONS.commerceReturnsManage]}>
+                <Lazy><CommerceReturns /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.commercePromotions,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commercePromotionsRead, PERMISSIONS.commercePromotionsManage]}>
+                <Lazy><CommercePromotions /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.commerceReports,
+            element: (
+              <RequirePermission any={[PERMISSIONS.commerceReportsRead]}>
+                <Lazy><CommerceReports /></Lazy>
               </RequirePermission>
             ),
           },

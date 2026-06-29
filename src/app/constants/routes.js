@@ -199,6 +199,14 @@ export const ROUTES = {
   inventoryTraceability: '/inventory/traceability',
   inventoryReorder: '/inventory/reorder',
 
+  // Phase 12 — Commerce / POS
+  commercePos: '/commerce/pos',
+  commerceSetup: '/commerce/setup',
+  commerceOrders: '/commerce/orders',
+  commerceReturns: '/commerce/returns',
+  commercePromotions: '/commerce/promotions',
+  commerceReports: '/commerce/reports',
+
   // Phase 7 — Reporting & Planning
   planningCenters: (type = ':type') => `/planning/centers/${type}`,
   planningProjects: '/planning/projects',
