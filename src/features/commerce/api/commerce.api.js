@@ -34,6 +34,7 @@ export function makeCommerceApi(http) {
       saveAccountingProfile: (body, options = {}) => unwrap(http.post(`${base}/pos/accounting-profiles`, body, idem(options))),
       devices: (params) => unwrap(http.get(`${base}/pos/devices${qs(params)}`)),
       registerDevice: (body, options = {}) => unwrap(http.post(`${base}/pos/devices/register`, body, idem(options))),
+      paymentMethods: (params) => unwrap(http.get(`${base}/payment-methods${qs(params)}`)),
       paymentProviders: (params) => unwrap(http.get(`${base}/payment-providers${qs(params)}`)),
       savePaymentProvider: (body, options = {}) => unwrap(http.post(`${base}/payment-providers`, body, idem(options))),
     },

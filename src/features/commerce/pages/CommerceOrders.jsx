@@ -46,12 +46,12 @@ export default function CommerceOrders() {
       </Panel>
       <Panel title="Orders" subtitle="Only valid lifecycle actions should be used after backend validation.">
         <SimpleTable rows={orders} columns={[
-          { key: 'order_no', label: 'Order', render: (r) => r.order_no || r.code || r.id },
+          { key: 'orderNo', label: 'Order', render: (r) => r.orderNo || r.code || r.id },
           { key: 'channel', label: 'Channel' },
-          { key: 'customer_name', label: 'Customer', render: (r) => r.customer_name || r.partner_name || r.customer_id || 'Walk-in/guest' },
-          { key: 'total_amount', label: 'Total', render: (r) => money(r.total_amount || r.grand_total) },
+          { key: 'customerName', label: 'Customer', render: (r) => r.customerName || r.partnerName || r.customerId || 'Walk-in/guest' },
+          { key: 'totalAmount', label: 'Total', render: (r) => money(r.totalAmount || r.grandTotal) },
           { key: 'status', label: 'Status', render: (r) => <Badge>{r.status}</Badge> },
-          { key: 'created_at', label: 'Date', render: (r) => dateish(r.created_at || r.order_date) },
+          { key: 'createdAt', label: 'Date', render: (r) => dateish(r.createdAt || r.orderDate) },
           { key: 'actions', label: 'Actions', render: (r) => <div className="flex flex-wrap gap-2">{['pending_payment', 'cart'].includes(String(r.status)) ? <button className={softBtn} onClick={() => action.mutate({ type: 'pay', id: r.id })}><CheckCircle2 className="h-4 w-4" /> Mark paid</button> : null}{['paid', 'processing'].includes(String(r.status)) ? <button className={btnClass} onClick={() => action.mutate({ type: 'fulfill', id: r.id })}><PackageCheck className="h-4 w-4" /> Fulfil</button> : null}{!['cancelled', 'fulfilled', 'refunded'].includes(String(r.status)) ? <button className={dangerBtn} onClick={() => action.mutate({ type: 'cancel', id: r.id })}><XCircle className="h-4 w-4" /> Cancel</button> : null}{['paid', 'fulfilled'].includes(String(r.status)) ? <button className={softBtn} onClick={() => action.mutate({ type: 'refund', id: r.id })}>Refund</button> : null}</div> },
         ]} />
       </Panel>

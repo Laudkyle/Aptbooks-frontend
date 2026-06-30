@@ -13,16 +13,16 @@ const softBtn = 'inline-flex items-center justify-center gap-2 rounded-xl border
 const dangerBtn = 'inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50';
 
 function productId(product) {
-  return firstValue(product, ['id', 'item_id', 'inventory_item_id']);
+  return firstValue(product, ['id', 'itemId', 'inventoryItemId']);
 }
 function productName(product) {
-  return firstValue(product, ['name', 'item_name', 'description'], 'Unnamed item');
+  return firstValue(product, ['name', 'itemName', 'description'], 'Unnamed item');
 }
 function productSku(product) {
-  return firstValue(product, ['sku', 'code', 'item_code'], '');
+  return firstValue(product, ['sku', 'code', 'itemCode'], '');
 }
 function productPrice(product) {
-  return firstValue(product, ['price', 'unit_price', 'selling_price', 'default_price', 'amount'], '0');
+  return firstValue(product, ['price', 'unitPrice', 'sellingPrice', 'defaultPrice', 'amount'], '0');
 }
 
 export default function POSRegister() {
@@ -36,21 +36,23 @@ export default function POSRegister() {
   const [shiftId, setShiftId] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [cart, setCart] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paymentMethodId, setPaymentMethodId] = useState('');
   const [amountTendered, setAmountTendered] = useState('');
   const [lastSale, setLastSale] = useState(null);
 
   const productsQ = useQuery({ queryKey: ['commerce.products', query], queryFn: () => api.catalog.products({ q: query || undefined, limit: 25 }), staleTime: 30_000 });
   const storesQ = useQuery({ queryKey: ['commerce.stores'], queryFn: () => api.setup.stores(), staleTime: 60_000 });
-  const registersQ = useQuery({ queryKey: ['commerce.registers', storeId], queryFn: () => api.setup.registers({ store_id: storeId || undefined }), staleTime: 60_000 });
-  const shiftsQ = useQuery({ queryKey: ['commerce.shifts', registerId], queryFn: () => api.shifts.list({ register_id: registerId || undefined, status: 'open' }), staleTime: 20_000 });
+  const registersQ = useQuery({ queryKey: ['commerce.registers', storeId], queryFn: () => api.setup.registers({ storeId: storeId || undefined }), staleTime: 60_000 });
+  const shiftsQ = useQuery({ queryKey: ['commerce.shifts', registerId], queryFn: () => api.shifts.list({ registerId: registerId || undefined, status: 'open' }), staleTime: 20_000 });
+  const paymentMethodsQ = useQuery({ queryKey: ['commerce.paymentMethods'], queryFn: () => api.setup.paymentMethods(), staleTime: 60_000 });
 
   const products = rowsOf(productsQ.data);
   const stores = rowsOf(storesQ.data);
   const registers = rowsOf(registersQ.data);
   const shifts = rowsOf(shiftsQ.data);
+  const paymentMethods = rowsOf(paymentMethodsQ.data);
 
-  const subtotal = cart.reduce((sum, line) => sum + Number(line.quantity || 0) * Number(line.unit_price || 0), 0);
+  const subtotal = cart.reduce((sum, line) => sum + Number(line.quantity || 0) * Number(line.unitPrice || 0), 0);
   const total = subtotal;
   const changeDue = Number(amountTendered || 0) - total;
 
@@ -58,15 +60,15 @@ export default function POSRegister() {
     const id = productId(product);
     if (!id) return;
     setCart((rows) => {
-      const existing = rows.find((row) => row.item_id === id);
-      if (existing) return rows.map((row) => row.item_id === id ? { ...row, quantity: Number(row.quantity) + 1 } : row);
-      return [...rows, { item_id: id, sku: productSku(product), name: productName(product), quantity: 1, unit_price: String(productPrice(product) || '0'), tax_code_id: product.tax_code_id || product.default_tax_code_id || '' }];
+      const existing = rows.find((row) => row.itemId === id);
+      if (existing) return rows.map((row) => row.itemId === id ? { ...row, quantity: Number(row.quantity) + 1 } : row);
+      return [...rows, { itemId: id, sku: productSku(product), name: productName(product), quantity: 1, unitPrice: String(productPrice(product) || '0'), taxCodeId: product.taxCodeId || product.defaultTaxCodeId || '' }];
     });
   };
 
   const setQty = (itemId, qty) => {
     const next = Math.max(0, Number(qty || 0));
-    setCart((rows) => next === 0 ? rows.filter((row) => row.item_id !== itemId) : rows.map((row) => row.item_id === itemId ? { ...row, quantity: next } : row));
+    setCart((rows) => next === 0 ? rows.filter((row) => row.itemId !== itemId) : rows.map((row) => row.itemId === itemId ? { ...row, quantity: next } : row));
   };
 
   const createSale = useMutation({
@@ -74,14 +76,15 @@ export default function POSRegister() {
       if (!registerId) throw new Error('Select a register before completing a sale.');
       if (!shiftId) throw new Error('Open or select a shift before completing a sale.');
       if (!cart.length) throw new Error('Add at least one item to the cart.');
+      if (!paymentMethodId) throw new Error('Select a payment method.');
       const payload = {
-        store_id: storeId || undefined,
-        register_id: registerId,
-        shift_id: shiftId,
-        customer_id: customerId || undefined,
-        price_mode: 'tax_inclusive',
-        lines: cart.map((line) => ({ item_id: line.item_id, quantity: String(line.quantity), unit_price: String(line.unit_price), tax_code_id: line.tax_code_id || undefined })),
-        payments: [{ method: paymentMethod, amount: String(total) }],
+        storeId: storeId || undefined,
+        registerId: registerId,
+        shiftId: shiftId,
+        customerId: customerId || undefined,
+        taxInclusive: true,
+        lines: cart.map((line) => ({ itemId: line.itemId, quantity: String(line.quantity), unitPrice: String(line.unitPrice), taxCodeId: line.taxCodeId || undefined })),
+        payments: [{ paymentMethodId, amount: String(total) }],
       };
       const sale = await api.pos.createSale(payload);
       const saleId = sale?.id || sale?.data?.id || sale?.sale?.id;
@@ -118,7 +121,7 @@ export default function POSRegister() {
             <div className="grid gap-3 md:grid-cols-3">
               <Field label="Store"><select className={inputClass} value={storeId} onChange={(e) => { setStoreId(e.target.value); setRegisterId(''); setShiftId(''); }}><option value="">Select store</option>{stores.map((s) => <option key={s.id} value={s.id}>{s.name || s.code || s.id}</option>)}</select></Field>
               <Field label="Register"><select className={inputClass} value={registerId} onChange={(e) => { setRegisterId(e.target.value); setShiftId(''); }}><option value="">Select register</option>{registers.map((r) => <option key={r.id} value={r.id}>{r.name || r.code || r.id}</option>)}</select></Field>
-              <Field label="Open shift"><select className={inputClass} value={shiftId} onChange={(e) => setShiftId(e.target.value)}><option value="">Select shift</option>{shifts.map((s) => <option key={s.id} value={s.id}>{s.shift_no || s.code || s.id}</option>)}</select></Field>
+              <Field label="Open shift"><select className={inputClass} value={shiftId} onChange={(e) => setShiftId(e.target.value)}><option value="">Select shift</option>{shifts.map((s) => <option key={s.id} value={s.id}>{s.shiftNo || s.code || s.id}</option>)}</select></Field>
             </div>
           </Panel>
 
@@ -143,11 +146,11 @@ export default function POSRegister() {
         <Panel title="Cart" subtitle="Review quantities, payment and receipt." actions={cart.length ? <button className={softBtn} onClick={() => setCart([])}><X className="h-4 w-4" /> Clear</button> : null}>
           <div className="space-y-3">
             {cart.length ? cart.map((line) => (
-              <div key={line.item_id} className="rounded-xl border border-slate-200 p-3">
-                <div className="flex items-start justify-between gap-3"><div><div className="font-medium text-slate-900">{line.name}</div><div className="text-xs text-slate-500">{line.sku || line.item_id}</div></div><button type="button" onClick={() => setQty(line.item_id, 0)} className="text-slate-400 hover:text-rose-600"><X className="h-4 w-4" /></button></div>
+              <div key={line.itemId} className="rounded-xl border border-slate-200 p-3">
+                <div className="flex items-start justify-between gap-3"><div><div className="font-medium text-slate-900">{line.name}</div><div className="text-xs text-slate-500">{line.sku || line.itemId}</div></div><button type="button" onClick={() => setQty(line.itemId, 0)} className="text-slate-400 hover:text-rose-600"><X className="h-4 w-4" /></button></div>
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-1"><button className={softBtn} onClick={() => setQty(line.item_id, Number(line.quantity) - 1)}><Minus className="h-3 w-3" /></button><input className="w-16 rounded-xl border border-slate-200 px-2 py-2 text-center text-sm" value={line.quantity} onChange={(e) => setQty(line.item_id, e.target.value)} /><button className={softBtn} onClick={() => setQty(line.item_id, Number(line.quantity) + 1)}><Plus className="h-3 w-3" /></button></div>
-                  <div className="text-right"><div className="text-xs text-slate-500">Line total</div><div className="font-semibold text-slate-900">{money(Number(line.quantity) * Number(line.unit_price))}</div></div>
+                  <div className="flex items-center gap-1"><button className={softBtn} onClick={() => setQty(line.itemId, Number(line.quantity) - 1)}><Minus className="h-3 w-3" /></button><input className="w-16 rounded-xl border border-slate-200 px-2 py-2 text-center text-sm" value={line.quantity} onChange={(e) => setQty(line.itemId, e.target.value)} /><button className={softBtn} onClick={() => setQty(line.itemId, Number(line.quantity) + 1)}><Plus className="h-3 w-3" /></button></div>
+                  <div className="text-right"><div className="text-xs text-slate-500">Line total</div><div className="font-semibold text-slate-900">{money(Number(line.quantity) * Number(line.unitPrice))}</div></div>
                 </div>
               </div>
             )) : <Empty>Cart is empty.</Empty>}
@@ -158,7 +161,7 @@ export default function POSRegister() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              <Field label="Payment method"><select className={inputClass} value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}><option value="cash">Cash</option><option value="card">Card</option><option value="momo">Mobile money</option><option value="bank_transfer">Bank transfer</option><option value="store_credit">Store credit</option></select></Field>
+              <Field label="Payment method"><select className={inputClass} value={paymentMethodId} onChange={(e) => setPaymentMethodId(e.target.value)}><option value="">Select payment method</option>{paymentMethods.map((m) => <option key={m.id} value={m.id}>{m.name || m.code || m.id}</option>)}</select></Field>
               <Field label="Amount tendered"><input className={inputClass} value={amountTendered} onChange={(e) => setAmountTendered(e.target.value)} placeholder="0.00" /></Field>
             </div>
             <div className="flex justify-between rounded-xl border border-slate-200 p-3 text-sm"><span>Change due</span><span className="font-semibold">{money(Math.max(0, changeDue))}</span></div>
@@ -167,7 +170,7 @@ export default function POSRegister() {
 
           {lastSale ? (
             <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <div className="flex items-center justify-between"><div><div className="font-semibold text-emerald-900">Last sale completed</div><div className="text-xs text-emerald-700">{lastSale.receipt_no || lastSale.sale_no || lastSale.id}</div></div><Badge>{lastSale.status || 'completed'}</Badge></div>
+              <div className="flex items-center justify-between"><div><div className="font-semibold text-emerald-900">Last sale completed</div><div className="text-xs text-emerald-700">{lastSale.receiptNo || lastSale.saleNo || lastSale.id}</div></div><Badge>{lastSale.status || 'completed'}</Badge></div>
               <div className="mt-3 flex flex-wrap gap-2"><button className={softBtn} onClick={() => window.print()}><Printer className="h-4 w-4" /> Print</button>{lastSale.id ? <button className={softBtn} onClick={() => postSale.mutate(lastSale.id)}><DollarSign className="h-4 w-4" /> Post</button> : null}</div>
               {receiptQ.data ? <pre className="mt-3 max-h-40 overflow-auto rounded-xl bg-white p-3 text-xs text-slate-600">{JSON.stringify(receiptQ.data, null, 2)}</pre> : null}
             </div>
