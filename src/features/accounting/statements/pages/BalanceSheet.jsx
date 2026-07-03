@@ -23,8 +23,8 @@ function formatCurrency(amount, currency = 'GHS') {
 
 function StatementLine({ line, level = 0, isExpanded = true, onToggle }) {
   const hasChildren = line.children && line.children.length > 0;
-  const isSection = line.line_type === 'section';
-  const isFormula = line.line_type === 'formula';
+  const isSection = (line.lineType || line.line_type) === 'section';
+  const isFormula = (line.lineType || line.line_type) === 'formula';
   const isTotal = line.label.includes('Total') || line.label.includes('Check');
   
   const paddingLeft = level * 16; // 16px per level
@@ -135,10 +135,10 @@ export default function BalanceSheet() {
   const statementRoots = useMemo(() => {
     const roots = q.data?.data?.lines ?? [];
     return {
-      assets: roots.find((line) => line.section_code === 'ASSETS') || null,
-      liabilities: roots.find((line) => line.section_code === 'LIABILITIES') || null,
-      equity: roots.find((line) => line.section_code === 'EQUITY') || null,
-      check: roots.find((line) => line.section_code === 'CHECK') || null,
+      assets: roots.find((line) => (line.sectionCode || line.section_code) === 'ASSETS') || null,
+      liabilities: roots.find((line) => (line.sectionCode || line.section_code) === 'LIABILITIES') || null,
+      equity: roots.find((line) => (line.sectionCode || line.section_code) === 'EQUITY') || null,
+      check: roots.find((line) => (line.sectionCode || line.section_code) === 'CHECK') || null,
     };
   }, [q.data]);
 
@@ -146,7 +146,7 @@ export default function BalanceSheet() {
     const allSectionIds = new Set();
     const walk = (line) => {
       if (!line) return;
-      if (line.line_type === 'section' && Array.isArray(line.children) && line.children.length) {
+      if ((line.lineType || line.line_type) === 'section' && Array.isArray(line.children) && line.children.length) {
         allSectionIds.add(line.id);
       }
       (line.children || []).forEach(walk);
@@ -167,8 +167,7 @@ export default function BalanceSheet() {
   };
 
   const handleExport = () => {
-    // Implement export functionality (CSV, PDF, etc.)
-    console.log('Export data', q.data);
+    window.print();
   };
 
   return (

@@ -67,16 +67,23 @@ export default function PnL() {
     return section.children.reduce((sum, child) => sum + (parseFloat(child.amount) || 0), 0);
   };
 
-  // Find section by section_code
+  const sectionCodeOf = (line) => line?.sectionCode || line?.section_code || null;
+  const lineTypeOf = (line) => line?.lineType || line?.line_type || null;
+  const aliases = {
+    REV: ['REV', 'REVENUE'],
+    COGS: ['COGS', 'COST_OF_SALES', 'COST_OF_GOODS_SOLD'],
+    OPEX: ['OPEX', 'OPERATING_EXPENSES', 'EXPENSES'],
+    OTHER: ['OTHER', 'OTHER_INCOME', 'OTHER_EXP'],
+    NET_INCOME: ['NET_INCOME', 'NET_PROFIT', 'PROFIT_LOSS'],
+  };
+
+  // Find section by section code, supporting both legacy short codes and backend canonical codes.
   const findSectionByCode = (lines, sectionCode) => {
-    for (const line of lines) {
-      if (line.section_code === sectionCode) {
-        return line;
-      }
-      if (line.children) {
-        const found = findSectionByCode(line.children, sectionCode);
-        if (found) return found;
-      }
+    const wanted = new Set(aliases[sectionCode] || [sectionCode]);
+    for (const line of lines || []) {
+      if (wanted.has(sectionCodeOf(line))) return line;
+      const found = findSectionByCode(line.children || [], sectionCode);
+      if (found) return found;
     }
     return null;
   };
@@ -100,7 +107,7 @@ export default function PnL() {
   const getCompareAmount = (line, compareLines) => {
     const compareLine = getCompareLine(line.id, compareLines);
     if (compareLine) {
-      if (compareLine.line_type === 'section') {
+      if (lineTypeOf(compareLine) === 'section') {
         return calculateSectionTotal(compareLine);
       }
       return parseFloat(compareLine.amount) || 0;
@@ -110,9 +117,9 @@ export default function PnL() {
 
   // Render a single line with proper styling
   const renderLine = (line, level = 0, compareLines = null, parentId = '') => {
-    const isSection = line.line_type === 'section';
-    const isFormula = line.line_type === 'formula';
-    const isAccount = line.line_type === 'account';
+    const isSection = lineTypeOf(line) === 'section';
+    const isFormula = lineTypeOf(line) === 'formula';
+    const isAccount = lineTypeOf(line) === 'account';
     const hasChildren = line.children && line.children.length > 0;
     
     const sectionKey = `${parentId}-${line.id}`;
@@ -133,9 +140,9 @@ export default function PnL() {
       : 0;
 
     // Special styling for Other section
-    const isOtherSection = line.section_code === 'OTHER';
-    const isOtherIncome = line.section_code === 'OTHER_INCOME';
-    const isOtherExpense = line.section_code === 'OTHER_EXP';
+    const isOtherSection = sectionCodeOf(line) === 'OTHER';
+    const isOtherIncome = sectionCodeOf(line) === 'OTHER_INCOME';
+    const isOtherExpense = sectionCodeOf(line) === 'OTHER_EXP';
 
     return (
       <React.Fragment key={line.id}>
@@ -167,9 +174,9 @@ export default function PnL() {
                 {line.label}
               </div>
             </div>
-            {line.section_code && !isFormula && (
+            {sectionCodeOf(line) && !isFormula && (
               <div className={`text-xs ml-6 ${isOtherSection ? 'text-blue-600' : 'text-slate-500'}`}>
-                {line.section_code}
+                {sectionCodeOf(line)}
               </div>
             )}
           </td>
@@ -262,8 +269,8 @@ export default function PnL() {
   let otherIncomeAccount = null;
   let otherExpenseAccount = null;
   if (otherSection && otherSection.children) {
-    otherIncomeAccount = otherSection.children.find(child => child.section_code === 'OTHER_INCOME');
-    otherExpenseAccount = otherSection.children.find(child => child.section_code === 'OTHER_EXP');
+    otherIncomeAccount = otherSection.children.find(child => sectionCodeOf(child) === 'OTHER_INCOME');
+    otherExpenseAccount = otherSection.children.find(child => sectionCodeOf(child) === 'OTHER_EXP');
   }
   
   const netIncomeLine = findSectionByCode(lines, 'NET_INCOME');

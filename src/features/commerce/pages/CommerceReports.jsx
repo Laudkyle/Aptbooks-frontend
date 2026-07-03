@@ -4,7 +4,7 @@ import { BarChart3, CalendarDays, CreditCard, Package, Percent, ReceiptText, Ref
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { makeCommerceApi } from '../api/commerce.api.js';
-import { Field, Panel, SimpleTable, dateish, money, rowsOf } from './_commerceUi.jsx';
+import { Field, Panel, SimpleTable, dateish, money, rowsOf } from './_commerceUi.js';
 
 const inputClass = 'w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15';
 const btnClass = 'inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-deep disabled:opacity-50';

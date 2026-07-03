@@ -86,7 +86,7 @@ export default function JournalCreate() {
   function normalizedLines() {
     return lines.map((l) => ({
       accountId: l.accountId,
-      description: l.description || null,
+      description: l.description.trim(),
       debit: l.debit !== '' ? l.debit.trim() : undefined,
       credit: l.credit !== '' ? l.credit.trim() : undefined
     }));
@@ -97,7 +97,7 @@ export default function JournalCreate() {
       api.create({
         periodId,
         entryDate,
-        memo: memo || undefined,
+        memo: memo.trim(),
         typeCode,
         lines: normalizedLines()
       }),
@@ -136,7 +136,7 @@ export default function JournalCreate() {
               { value: 'CLOSING', label: 'Closing' }
             ]}
           />
-          <Input label="Memo (optional)" value={memo} onChange={(e) => setMemo(e.target.value)} />
+          <Input label="Memo" value={memo} onChange={(e) => setMemo(e.target.value)} required />
         </div>
       </ContentCard>
 
@@ -165,7 +165,7 @@ export default function JournalCreate() {
                   <AccountSelect value={l.accountId} onChange={(e) => setLine(idx, { accountId: e.target.value })} allowEmpty />
                 </TD>
                 <TD>
-                  <Input value={l.description} onChange={(e) => setLine(idx, { description: e.target.value })} placeholder="Optional" />
+                  <Input value={l.description} onChange={(e) => setLine(idx, { description: e.target.value })} placeholder="Enter line description" required />
                 </TD>
                 <TD className="text-right">
                   <Input
@@ -201,7 +201,7 @@ export default function JournalCreate() {
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => navigate(ROUTES.accountingJournals)}>Cancel</Button>
-            <Button onClick={() => create.mutate()} disabled={create.isLoading || !periodId || !entryDate || lines.length < 2 || !balanced}>
+            <Button onClick={() => create.mutate()} disabled={create.isLoading || !periodId || !entryDate || !memo.trim() || lines.length < 2 || !balanced || lines.some((line) => !line.description.trim())}>
               Create draft
             </Button>
           </div>
