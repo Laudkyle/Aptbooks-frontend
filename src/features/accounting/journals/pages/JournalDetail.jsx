@@ -13,6 +13,10 @@ import { formatDate } from '../../../../shared/utils/formatDate.js';
 import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
 import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 import { Calendar, Hash, CheckCircle2, XCircle, Clock, ChevronLeft, RefreshCw } from 'lucide-react';
+import { allowedJournalActions, centsToDecimal, sumJournalLines,parseAmountToCents } from '../journal.logic.mjs';
+import { TransactionPrintButtons } from '../../../printing/components/TransactionPrintButtons.jsx';
+import { useAuth } from '../../../../shared/hooks/useAuth.js';
+
 
 
 export default function JournalDetail() {
@@ -23,6 +27,7 @@ export default function JournalDetail() {
   const qc = useQueryClient();
   const toast = useToast();
   const permissions = usePermissions();
+  const { user } = useAuth();
 
   const q = useQuery({
     queryKey: ['journal', id],
@@ -66,6 +71,7 @@ export default function JournalDetail() {
 
   const j = q.data?.journal;
   const lines = q.data?.lines || [];
+  const workflow = q.data?.workflow || {};
   
   const getAccountName = (line) => {
     if (line?.account_code || line?.account_name) {
@@ -98,32 +104,44 @@ export default function JournalDetail() {
     const canCancel = permissions.can(PERMISSIONS.accountingJournalCancel);
     const canPost = permissions.can(PERMISSIONS.accountingJournalPost);
     const canVoid = permissions.can(PERMISSIONS.accountingJournalVoid);
+    const allowed = allowedJournalActions(status, {
+      submit: canSubmit, approve: canApprove, reject: canReject,
+      cancel: canCancel, post: canPost, void: canVoid
+    });
+    const isCreator = Boolean(j?.created_by && user?.id && String(j.created_by) === String(user.id));
+    const creatorMayApprove = !isCreator || workflow.creatorCanApprove;
+    const creatorMayPost = !isCreator || workflow.creatorCanPost;
 
     switch(status) {
-      case 'draft':
+      case 'draft': {
+        const directPostAllowed = !workflow.approvalRequired
+          && canPost
+          && creatorMayPost;
         return (
           <>
-            {canSubmit && <Button onClick={() => submit.mutate()} disabled={submit.isLoading} size="sm">Submit</Button>}
-            {canCancel && <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>}
+            {workflow.approvalRequired && allowed.includes('submit') && <Button onClick={() => submit.mutate()} disabled={submit.isLoading} size="sm">Submit for approval</Button>}
+            {directPostAllowed && <Button onClick={() => post.mutate()} disabled={post.isLoading} size="sm">Post journal</Button>}
+            {allowed.includes('cancel') && <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>}
           </>
         );
+      }
       case 'submitted':
         return (
           <>
-            {canApprove && <Button onClick={() => approve.mutate()} disabled={approve.isLoading} size="sm">Approve</Button>}
-            {canReject && <Button variant="secondary" onClick={() => openReason('reject')} size="sm">Reject</Button>}
+            {allowed.includes('approve') && creatorMayApprove && <Button onClick={() => approve.mutate()} disabled={approve.isLoading} size="sm">Approve</Button>}
+            {allowed.includes('reject') && creatorMayApprove && <Button variant="secondary" onClick={() => openReason('reject')} size="sm">Reject</Button>}
           </>
         );
       case 'approved':
-        return canPost ? (
+        return allowed.includes('post') && creatorMayPost ? (
           <Button onClick={() => post.mutate()} disabled={post.isLoading} size="sm">Post</Button>
         ) : null;
       case 'rejected':
-        return canCancel ? (
+        return allowed.includes('cancel') ? (
           <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>
         ) : null;
       case 'posted':
-        return canVoid ? (
+        return allowed.includes('void') ? (
           <Button variant="danger" onClick={() => openReason('void')} size="sm">Void</Button>
         ) : null;
       default:
@@ -131,30 +149,13 @@ export default function JournalDetail() {
     }
   };
 
-  function parseMoneyToCents(value) {
-    const raw = String(value ?? '0').trim();
-    const match = raw.match(/^([+-])?(\d+)(?:\.(\d{0,2}))?$/);
-    if (!match) return 0n;
-    const sign = match[1] === '-' ? -1n : 1n;
-    const whole = BigInt(match[2]);
-    const fraction = BigInt((match[3] || '').padEnd(2, '0'));
-    return sign * (whole * 100n + fraction);
-  }
-
-  function centsToDecimal(cents) {
-    const sign = cents < 0n ? '-' : '';
-    const absolute = cents < 0n ? -cents : cents;
-    return `${sign}${absolute / 100n}.${String(absolute % 100n).padStart(2, '0')}`;
-  }
-
-  const totals = lines.reduce((acc, line) => ({
-    debit: acc.debit + parseMoneyToCents(line.debit),
-    credit: acc.credit + parseMoneyToCents(line.credit)
-  }), { debit: 0n, credit: 0n });
+  const baseCurrencyCode = j?.base_currency_code || 'GHS';
+  const totalsSummary = sumJournalLines(lines);
+  const totals = { debit: totalsSummary.debit, credit: totalsSummary.credit };
   const balanceDifference = totals.debit >= totals.credit
     ? totals.debit - totals.credit
     : totals.credit - totals.debit;
-  const isBalanced = totals.debit === totals.credit;
+  const isBalanced = totalsSummary.balanced;
 
   if (q.isLoading) {
     return (
@@ -200,6 +201,7 @@ export default function JournalDetail() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
+              {permissions.can(PERMISSIONS.printingRender) ? <TransactionPrintButtons documentType="journal_entry" documentId={id} /> : null}
               {getStatusActions()}
             </div>
           </div>
@@ -233,7 +235,7 @@ export default function JournalDetail() {
                   </div>
                   <div className="col-span-2">
                     <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Currency</label>
-                    <div className="mt-1 text-slate-900">GHS (Ghanaian Cedi)</div>
+                    <div className="mt-1 text-slate-900">{baseCurrencyCode}</div>
                   </div>
                   {j?.memo && (
                     <div className="col-span-2">
@@ -249,7 +251,7 @@ export default function JournalDetail() {
             <div className="bg-white rounded-lg shadow-sm border border-slate-200">
               <div className="px-6 py-4 border-b border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-900">Line Items</h2>
-                <p className="text-sm text-slate-600">{lines.length} lines • {formatMoney(centsToDecimal(totals.debit), 'GHS')} total</p>
+                <p className="text-sm text-slate-600">{lines.length} lines • {formatMoney(centsToDecimal(totals.debit), baseCurrencyCode)} total</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -289,10 +291,10 @@ export default function JournalDetail() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
-                          {parseMoneyToCents(line.debit) > 0n ? formatMoney(line.debit, line.currency_code) : '—'}
+                          {parseAmountToCents(line.debit) > 0n ? formatMoney(line.debit, line.currency_code) : '—'}
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
-                          {parseMoneyToCents(line.credit) > 0n ? formatMoney(line.credit, line.currency_code) : '—'}
+                          {parseAmountToCents(line.credit) > 0n ? formatMoney(line.credit, line.currency_code) : '—'}
                         </td>
                       </tr>
                     ))}
@@ -303,10 +305,10 @@ export default function JournalDetail() {
                         Total
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
-                        {formatMoney(centsToDecimal(totals.debit), 'GHS')}
+                        {formatMoney(centsToDecimal(totals.debit), baseCurrencyCode)}
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
-                        {formatMoney(centsToDecimal(totals.credit), 'GHS')}
+                        {formatMoney(centsToDecimal(totals.credit), baseCurrencyCode)}
                       </td>
                     </tr>
                     <tr>
@@ -315,7 +317,7 @@ export default function JournalDetail() {
                       </td>
                       <td colSpan="2" className="px-6 py-2">
                         <div className={`text-sm font-bold text-right ${isBalanced ? 'text-green-600' : 'text-red-600'}`}>
-                          {isBalanced ? '✓ Balanced' : `✗ Unbalanced by ${formatMoney(centsToDecimal(balanceDifference), 'GHS')}`}
+                          {isBalanced ? '✓ Balanced' : `✗ Unbalanced by ${formatMoney(centsToDecimal(balanceDifference), baseCurrencyCode)}`}
                         </div>
                       </td>
                     </tr>

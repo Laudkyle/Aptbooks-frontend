@@ -124,6 +124,11 @@ export default function PreviewPage() {
         <ContentCard className="p-0 overflow-hidden">
           {previewQ.isLoading ? (
             <div className="p-10 text-sm text-slate-500">Loading preview…</div>
+          ) : previewQ.isError ? (
+            <div className="p-10">
+              <div className="text-sm font-semibold text-red-700">Could not generate this print preview.</div>
+              <div className="mt-2 text-sm text-slate-600">{previewQ.error?.response?.data?.message || previewQ.error?.message || 'Preview generation failed.'}</div>
+            </div>
           ) : html ? (
             <iframe
               ref={iframeRef}

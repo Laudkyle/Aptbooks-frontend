@@ -3,9 +3,11 @@ import { Outlet } from 'react-router-dom';
 import { SideNav } from './SideNav.jsx';
 import { TopNav } from './TopNav.jsx';
 import { uiStore } from '../../../app/store/ui.store.js';
+import { OrganizationOnboardingGate } from '../../../features/foundation/onboarding/components/OrganizationOnboardingGate.jsx';
 
 export function AppShell() {
   return (
+    <OrganizationOnboardingGate>
     <div className="relative flex h-full bg-bg-main">
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-brand-light/15 blur-3xl" />
@@ -23,5 +25,6 @@ export function AppShell() {
         </main>
       </div>
     </div>
+    </OrganizationOnboardingGate>
   );
 }

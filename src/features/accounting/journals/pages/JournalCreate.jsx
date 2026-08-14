@@ -14,6 +14,7 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Table, THead, TBody, TH, TD } from '../../../../shared/components/ui/Table.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
+import { parseAmountToCents, centsToDecimal } from '../journal.logic.mjs';
 
 
 export default function JournalCreate() {
@@ -47,21 +48,6 @@ export default function JournalCreate() {
 
   function removeLine(i) {
     setLines((prev) => prev.filter((_, idx) => idx !== i));
-  }
-
-  function parseAmountToCents(value) {
-    const raw = String(value ?? '').trim();
-    if (!raw) return 0n;
-    if (!/^\d+(?:\.\d{0,2})?$/.test(raw)) return null;
-    const [whole, fraction = ''] = raw.split('.');
-    return BigInt(whole) * 100n + BigInt((fraction + '00').slice(0, 2));
-  }
-
-  function formatCents(value) {
-    const amount = value < 0n ? -value : value;
-    const whole = amount / 100n;
-    const fraction = String(amount % 100n).padStart(2, '0');
-    return `${value < 0n ? '-' : ''}${whole}.${fraction}`;
   }
 
   function totals() {
@@ -197,7 +183,7 @@ export default function JournalCreate() {
 
         <div className="mt-3 flex items-center justify-between text-sm">
           <div className={balanced ? 'text-emerald-700' : 'text-amber-700'}>
-            Totals — Debit: {formatCents(deb)} | Credit: {formatCents(cre)} {balanced ? '(Balanced)' : valid ? '(Not balanced)' : '(Invalid amount)'}
+            Totals — Debit: {centsToDecimal(deb)} | Credit: {centsToDecimal(cre)} {balanced ? '(Balanced)' : valid ? '(Not balanced)' : '(Invalid amount)'}
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => navigate(ROUTES.accountingJournals)}>Cancel</Button>

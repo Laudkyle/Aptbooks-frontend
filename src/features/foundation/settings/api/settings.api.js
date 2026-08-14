@@ -19,6 +19,10 @@ export function makeSettingsApi(http) {
       const res = await http.put(endpoints.core.settings.bulk, { settings });
       return res.data;
     },
+    onboarding: {
+      get: async () => (await http.get(endpoints.core.settings.onboarding.get)).data,
+      complete: async (body) => (await http.put(endpoints.core.settings.onboarding.complete, body)).data,
+    },
 
     // ── Document Workflow Statics ─────────────────────────────────────────────
     workflowStatics: {

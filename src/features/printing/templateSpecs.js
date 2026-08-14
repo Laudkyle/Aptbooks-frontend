@@ -1,5 +1,13 @@
 export const TRANSACTION_TEMPLATE_SPECS = [
   {
+    documentType: 'journal_entry',
+    label: 'Journal Entry',
+    family: 'Accounting & Ledger',
+    description: 'Formal double-entry journal print with account lines, debit/credit totals, signatures and print-user identity.',
+    sections: ['Organization identity', 'Journal metadata', 'Memo', 'Ledger lines', 'Debit / credit totals', 'Workflow signatures', 'Printed-by identity'],
+    keyFields: ['Journal number', 'Entry date', 'Journal type', 'Status', 'Account code and name', 'Description', 'Debit', 'Credit', 'Base currency', 'Prepared / approved by', 'Printed by'],
+  },
+  {
     documentType: 'invoice',
     label: 'Invoice',
     family: 'Sales & Customer',

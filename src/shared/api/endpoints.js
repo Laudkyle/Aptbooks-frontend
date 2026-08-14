@@ -62,6 +62,10 @@ export const endpoints = {
       get: (key) => `/core/settings/${encodeURIComponent(key)}`,
       put: (key) => `/core/settings/${encodeURIComponent(key)}`,
       bulk: "/core/settings/bulk",
+      onboarding: {
+        get: "/core/settings/onboarding",
+        complete: "/core/settings/onboarding",
+      },
 
       workflowStatics: {
         list: "/core/settings/workflow-statics",
@@ -101,6 +105,7 @@ export const endpoints = {
         `/core/accounting/accounts?${new URLSearchParams(qs ?? {}).toString()}`,
       create: "/core/accounting/accounts",
       detail: (id) => `/core/accounting/accounts/${id}`,
+      report: (id, qs) => `/core/accounting/accounts/${id}/report?${new URLSearchParams(qs ?? {}).toString()}`,
       update: (id) => `/core/accounting/accounts/${id}`,
       archive: (id) => `/core/accounting/accounts/${id}/archive`,
     },
