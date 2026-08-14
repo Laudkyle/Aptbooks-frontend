@@ -4,6 +4,7 @@ import { SideNav } from './SideNav.jsx';
 import { TopNav } from './TopNav.jsx';
 import { uiStore } from '../../../app/store/ui.store.js';
 import { OrganizationOnboardingGate } from '../../../features/foundation/onboarding/components/OrganizationOnboardingGate.jsx';
+import { AppRouteNavigator } from './AppRouteNavigator.jsx';
 
 export function AppShell() {
   return (
@@ -20,6 +21,7 @@ export function AppShell() {
         <TopNav />
         <main className="min-w-0 flex-1 overflow-auto p-4 md:p-6">
           <div className="mx-auto w-full max-w-7xl animate-fadeIn">
+            <AppRouteNavigator />
             <Outlet />
           </div>
         </main>
