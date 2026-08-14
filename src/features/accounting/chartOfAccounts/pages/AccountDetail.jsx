@@ -13,6 +13,8 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 
 export default function AccountDetail() {
   const { id } = useParams();
@@ -20,6 +22,9 @@ export default function AccountDetail() {
   const api = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
   const navigate = useNavigate();
+  const permissions = usePermissions();
+  const canManage = permissions.can(PERMISSIONS.accountingCoaManage);
+  const canArchive = permissions.can(PERMISSIONS.accountingCoaArchive);
   
 
   const q = useQuery({
@@ -76,9 +81,11 @@ export default function AccountDetail() {
         actions={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => navigate(ROUTES.accountingCoa)}>Back</Button>
-            <Button variant="danger" onClick={() => setArchiveOpen(true)} disabled={archive.isLoading}>
-              Archive
-            </Button>
+            {canArchive && (
+              <Button variant="danger" onClick={() => setArchiveOpen(true)} disabled={archive.isLoading}>
+                Archive
+              </Button>
+            )}
           </div>
         }
       />
@@ -92,9 +99,9 @@ export default function AccountDetail() {
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <Input label="Code" value={acc?.code ?? ''} disabled />
             <Input label="Account type" value={acc?.accountTypeCode ?? ''} disabled />
-            <Input className="md:col-span-2" label="Name" value={name} onChange={(e) => setName(e.target.value)} />
-            <Input label="Category (optional)" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} />
-            <AccountSelect label="Parent account (optional)" value={parentAccountId} onChange={(e) => setParentAccountId(e.target.value)} allowEmpty />
+            <Input className="md:col-span-2" label="Name" value={name} onChange={(e) => setName(e.target.value)} disabled={!canManage} />
+            <Input label="Category (optional)" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} disabled={!canManage} />
+            <AccountSelect label="Parent account (optional)" value={parentAccountId} onChange={(e) => setParentAccountId(e.target.value)} allowEmpty disabled={!canManage} />
             <Select
               label="Postable"
               value={String(isPostable)}
@@ -103,6 +110,7 @@ export default function AccountDetail() {
                 { value: 'true', label: 'Yes' },
                 { value: 'false', label: 'No' }
               ]}
+              disabled={!canManage}
             />
             <Select
               label="Status"
@@ -112,13 +120,16 @@ export default function AccountDetail() {
                 { value: 'active', label: 'Active' },
                 { value: 'inactive', label: 'Inactive' }
               ]}
+              disabled={!canManage}
             />
 
             <div className="md:col-span-2 mt-2 flex justify-end gap-2">
               <Button variant="secondary" onClick={() => q.refetch()} disabled={q.isFetching}>Refresh</Button>
-              <Button onClick={() => update.mutate()} disabled={update.isLoading || !name}>
-                Save changes
-              </Button>
+              {canManage && (
+                <Button onClick={() => update.mutate()} disabled={update.isLoading || !name}>
+                  Save changes
+                </Button>
+              )}
             </div>
           </div>
         )}

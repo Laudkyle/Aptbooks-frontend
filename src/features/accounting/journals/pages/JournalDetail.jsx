@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeJournalsApi } from '../api/journals.api.js';
-import { makeCoaApi } from './../../chartOfAccounts/api/coa.api.js';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../../shared/components/ui/Modal.jsx';
 import { Input } from '../../../../shared/components/ui/Input.jsx';
@@ -11,26 +10,23 @@ import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { formatMoney } from '../../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../../shared/utils/formatDate.js';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 import { Calendar, Hash, CheckCircle2, XCircle, Clock, ChevronLeft, RefreshCw } from 'lucide-react';
 
 
 export default function JournalDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { http } = useApi();
   const api = useMemo(() => makeJournalsApi(http), [http]);
-  const accountsApi = useMemo(() => makeCoaApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
+  const permissions = usePermissions();
 
   const q = useQuery({
     queryKey: ['journal', id],
     queryFn: () => api.detail(id),
-    enabled: !!id
-  });
-
-  const accountsQ = useQuery({
-    queryKey: ['accounts'],
-    queryFn: () => accountsApi.list(),
     enabled: !!id
   });
 
@@ -71,18 +67,13 @@ export default function JournalDetail() {
   const j = q.data?.journal;
   const lines = q.data?.lines || [];
   
-  const accountsMap = React.useMemo(() => {
-    if (!accountsQ.data) return {};
-    return accountsQ.data.reduce((acc, account) => {
-      acc[account.id] = account;
-      return acc;
-    }, {});
-  }, [accountsQ.data]);
-
-  const getAccountName = (accountId) => {
-    const account = accountsMap[accountId];
-    return account ? `${account.code} - ${account.name}` : 'Loading...';
+  const getAccountName = (line) => {
+    if (line?.account_code || line?.account_name) {
+      return [line.account_code, line.account_name].filter(Boolean).join(' - ');
+    }
+    return line?.account_id || 'Unknown account';
   };
+
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -101,46 +92,69 @@ export default function JournalDetail() {
 
   const getStatusActions = () => {
     const status = j?.status?.toLowerCase();
-    
+    const canSubmit = permissions.can(PERMISSIONS.accountingJournalSubmit);
+    const canApprove = permissions.can(PERMISSIONS.accountingJournalApprove);
+    const canReject = permissions.can(PERMISSIONS.accountingJournalReject);
+    const canCancel = permissions.can(PERMISSIONS.accountingJournalCancel);
+    const canPost = permissions.can(PERMISSIONS.accountingJournalPost);
+    const canVoid = permissions.can(PERMISSIONS.accountingJournalVoid);
+
     switch(status) {
       case 'draft':
         return (
           <>
-            <Button onClick={() => submit.mutate()} disabled={submit.isLoading} size="sm">Submit</Button>
-            <Button variant="secondary" onClick={() => openReason('void')} size="sm">Void</Button>
+            {canSubmit && <Button onClick={() => submit.mutate()} disabled={submit.isLoading} size="sm">Submit</Button>}
+            {canCancel && <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>}
           </>
         );
       case 'submitted':
         return (
           <>
-            <Button onClick={() => approve.mutate()} disabled={approve.isLoading} size="sm">Approve</Button>
-            <Button variant="secondary" onClick={() => openReason('reject')} size="sm">Reject</Button>
+            {canApprove && <Button onClick={() => approve.mutate()} disabled={approve.isLoading} size="sm">Approve</Button>}
+            {canReject && <Button variant="secondary" onClick={() => openReason('reject')} size="sm">Reject</Button>}
           </>
         );
       case 'approved':
-        return (
-          <>
-            <Button onClick={() => post.mutate()} disabled={post.isLoading} size="sm">Post</Button>
-            <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>
-          </>
-        );
+        return canPost ? (
+          <Button onClick={() => post.mutate()} disabled={post.isLoading} size="sm">Post</Button>
+        ) : null;
+      case 'rejected':
+        return canCancel ? (
+          <Button variant="secondary" onClick={() => cancel.mutate()} disabled={cancel.isLoading} size="sm">Cancel</Button>
+        ) : null;
       case 'posted':
-        return (
+        return canVoid ? (
           <Button variant="danger" onClick={() => openReason('void')} size="sm">Void</Button>
-        );
+        ) : null;
       default:
         return null;
     }
   };
 
-  const totals = lines.reduce((acc, line) => {
-    const debit = parseFloat(line.debit) || 0;
-    const credit = parseFloat(line.credit) || 0;
-    return {
-      debit: acc.debit + debit,
-      credit: acc.credit + credit
-    };
-  }, { debit: 0, credit: 0 });
+  function parseMoneyToCents(value) {
+    const raw = String(value ?? '0').trim();
+    const match = raw.match(/^([+-])?(\d+)(?:\.(\d{0,2}))?$/);
+    if (!match) return 0n;
+    const sign = match[1] === '-' ? -1n : 1n;
+    const whole = BigInt(match[2]);
+    const fraction = BigInt((match[3] || '').padEnd(2, '0'));
+    return sign * (whole * 100n + fraction);
+  }
+
+  function centsToDecimal(cents) {
+    const sign = cents < 0n ? '-' : '';
+    const absolute = cents < 0n ? -cents : cents;
+    return `${sign}${absolute / 100n}.${String(absolute % 100n).padStart(2, '0')}`;
+  }
+
+  const totals = lines.reduce((acc, line) => ({
+    debit: acc.debit + parseMoneyToCents(line.debit),
+    credit: acc.credit + parseMoneyToCents(line.credit)
+  }), { debit: 0n, credit: 0n });
+  const balanceDifference = totals.debit >= totals.credit
+    ? totals.debit - totals.credit
+    : totals.credit - totals.debit;
+  const isBalanced = totals.debit === totals.credit;
 
   if (q.isLoading) {
     return (
@@ -165,7 +179,7 @@ export default function JournalDetail() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button className="text-slate-600 hover:text-slate-900 transition-colors">
+              <button onClick={() => navigate(-1)} className="text-slate-600 hover:text-slate-900 transition-colors" aria-label="Go back">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <div>
@@ -235,7 +249,7 @@ export default function JournalDetail() {
             <div className="bg-white rounded-lg shadow-sm border border-slate-200">
               <div className="px-6 py-4 border-b border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-900">Line Items</h2>
-                <p className="text-sm text-slate-600">{lines.length} lines • {formatMoney(totals.debit, 'GHS')} total</p>
+                <p className="text-sm text-slate-600">{lines.length} lines • {formatMoney(centsToDecimal(totals.debit), 'GHS')} total</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -266,7 +280,7 @@ export default function JournalDetail() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-slate-900">
-                            {getAccountName(line.account_id)}
+                            {getAccountName(line)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -275,10 +289,10 @@ export default function JournalDetail() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
-                          {parseFloat(line.debit) > 0 ? formatMoney(line.debit, line.currency_code) : '—'}
+                          {parseMoneyToCents(line.debit) > 0n ? formatMoney(line.debit, line.currency_code) : '—'}
                         </td>
                         <td className="px-6 py-4 text-sm text-right text-slate-900 font-medium">
-                          {parseFloat(line.credit) > 0 ? formatMoney(line.credit, line.currency_code) : '—'}
+                          {parseMoneyToCents(line.credit) > 0n ? formatMoney(line.credit, line.currency_code) : '—'}
                         </td>
                       </tr>
                     ))}
@@ -289,10 +303,10 @@ export default function JournalDetail() {
                         Total
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
-                        {formatMoney(totals.debit, 'GHS')}
+                        {formatMoney(centsToDecimal(totals.debit), 'GHS')}
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
-                        {formatMoney(totals.credit, 'GHS')}
+                        {formatMoney(centsToDecimal(totals.credit), 'GHS')}
                       </td>
                     </tr>
                     <tr>
@@ -300,8 +314,8 @@ export default function JournalDetail() {
                         Balance
                       </td>
                       <td colSpan="2" className="px-6 py-2">
-                        <div className={`text-sm font-bold text-right ${Math.abs(totals.debit - totals.credit) < 0.01 ? 'text-green-600' : 'text-red-600'}`}>
-                          {Math.abs(totals.debit - totals.credit) < 0.01 ? '✓ Balanced' : `✗ Unbalanced by ${formatMoney(Math.abs(totals.debit - totals.credit), 'GHS')}`}
+                        <div className={`text-sm font-bold text-right ${isBalanced ? 'text-green-600' : 'text-red-600'}`}>
+                          {isBalanced ? '✓ Balanced' : `✗ Unbalanced by ${formatMoney(centsToDecimal(balanceDifference), 'GHS')}`}
                         </div>
                       </td>
                     </tr>

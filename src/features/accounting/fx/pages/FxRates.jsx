@@ -9,12 +9,16 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Tabs } from '../../../../shared/components/ui/Tabs.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { DollarSign, TrendingUp, Calendar, Plus, RefreshCw, Search, ArrowRightLeft } from 'lucide-react';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 
 export default function FxRates() {
   const { http } = useApi();
   const api = useMemo(() => makeFxApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
+  const permissions = usePermissions();
+  const canManage = permissions.can(PERMISSIONS.accountingFxManage);
 
   const [tab, setTab] = useState('types');
 
@@ -64,7 +68,7 @@ export default function FxRates() {
       fromCurrency, 
       toCurrency, 
       effectiveDate, 
-      rate: Number(rate) 
+      rate 
     }),
     onSuccess: () => {
       toast.success('Rate upserted.');
@@ -154,7 +158,7 @@ export default function FxRates() {
                     <div className="flex items-end">
                       <Button 
                         onClick={() => createType.mutate()} 
-                        disabled={createType.isLoading || !code || !name}
+                        disabled={!canManage || createType.isLoading || !code || !name}
                         className="w-full"
                       >
                         <Plus className="w-4 h-4 mr-2" />
@@ -299,7 +303,7 @@ export default function FxRates() {
                     <div className="flex items-end">
                       <Button 
                         onClick={() => upsert.mutate()} 
-                        disabled={upsert.isLoading || !rateTypeCode || !fromCurrency || !toCurrency || !effectiveDate || !rate}
+                        disabled={!canManage || upsert.isLoading || !rateTypeCode || !fromCurrency || !toCurrency || !effectiveDate || !rate}
                         className="w-full"
                       >
                         <Plus className="w-4 h-4 mr-2" />

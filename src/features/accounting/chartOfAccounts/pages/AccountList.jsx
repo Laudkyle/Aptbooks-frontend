@@ -14,6 +14,8 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 
 
 const ACCOUNT_TYPES = [
@@ -31,6 +33,8 @@ export default function AccountList() {
   const api = useMemo(() => makeCoaApi(http), [http]);
   const toast = useToast();
   const qc = useQueryClient();
+  const permissions = usePermissions();
+  const canManage = permissions.can(PERMISSIONS.accountingCoaManage);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -201,6 +205,7 @@ export default function AccountList() {
     {
       header: 'Actions',
       render: (r) => {
+        if (!canManage) return null;
         if (editingId === r.id) {
           return (
             <div className="flex items-center gap-2">
@@ -230,7 +235,7 @@ export default function AccountList() {
         );
       }
     }
-  ], [editingId, editForm, updateMutation.isPending]);
+  ], [editingId, editForm, updateMutation.isPending, canManage]);
 
   return (
     <div className="min-h-screen ">
@@ -244,13 +249,15 @@ export default function AccountList() {
                 Maintain your account master data
               </p>
             </div>
-            <Button 
-              onClick={() => navigate(ROUTES.accountingCoaNew)}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Account
-            </Button>
+            {canManage && (
+              <Button 
+                onClick={() => navigate(ROUTES.accountingCoaNew)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Account
+              </Button>
+            )}
           </div>
         </div>
 

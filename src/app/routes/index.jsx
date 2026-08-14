@@ -707,151 +707,151 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.accountingCoa,
             element: (
-              <Lazy>
-                <AccountList />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingCoaRead]}>
+                <Lazy><AccountList /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingCoaNew,
             element: (
-              <Lazy>
-                <AccountCreate />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingCoaManage]}>
+                <Lazy><AccountCreate /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingCoaDetail(),
             element: (
-              <Lazy>
-                <AccountDetail />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingCoaRead]}>
+                <Lazy><AccountDetail /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingCoaEdit(),
             element: (
-              <Lazy>
-                <AccountDetail mode="edit" />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingCoaManage]}>
+                <Lazy><AccountDetail mode="edit" /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingPeriods,
             element: (
-              <Lazy>
-                <PeriodList />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><PeriodList /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingPeriodClose(),
             element: (
-              <Lazy>
-                <PeriodClose />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingPeriodClose]}>
+                <Lazy><PeriodClose /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingJournals,
             element: (
-              <Lazy>
-                <JournalList />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingJournalRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><JournalList /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingJournalNew,
             element: (
-              <Lazy>
-                <JournalCreate />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingJournalCreate, PERMISSIONS.accountingPeriodRead, PERMISSIONS.accountingCoaRead]}>
+                <Lazy><JournalCreate /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingJournalDetail(),
             element: (
-              <Lazy>
-                <JournalDetail />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingJournalRead]}>
+                <Lazy><JournalDetail /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingTrialBalance,
             element: (
-              <Lazy>
-                <TrialBalance />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><TrialBalance /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingAccountActivity,
             element: (
-              <Lazy>
-                <BalanceByAccount />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><BalanceByAccount /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingPnL,
             element: (
-              <Lazy>
-                <PnL />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><PnL /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingBalanceSheet,
             element: (
-              <Lazy>
-                <BalanceSheet />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><BalanceSheet /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingCashflow,
             element: (
-              <Lazy>
-                <Cashflow />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><Cashflow /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingChangesEquity,
             element: (
-              <Lazy>
-                <ChangesInEquity />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingBalancesRead, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><ChangesInEquity /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingExports,
             element: (
-              <Lazy>
-                <ExportsHub />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingExportsRun, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><ExportsHub /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingImports,
             element: (
-              <Lazy>
-                <ImportsHub />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingImportsRun]}>
+                <Lazy><ImportsHub /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingFx,
             element: (
-              <Lazy>
-                <FxRates />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingFxRead]}>
+                <Lazy><FxRates /></Lazy>
+              </RequirePermission>
             ),
           },
 
@@ -929,26 +929,26 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.accountingAccruals,
             element: (
-              <Lazy>
-                <AccrualsHub />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingAccrualsRead]}>
+                <Lazy><AccrualsHub /></Lazy>
+              </RequirePermission>
             ),
           },
           {
             path: ROUTES.accountingAccrualNew,
             element: (
-              <Lazy>
-                <AccrualCreate />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.accountingAccrualsManage]}>
+                <Lazy><AccrualCreate /></Lazy>
+              </RequirePermission>
             ),
           },
 
           {
             path: ROUTES.accountingReconciliation,
             element: (
-              <Lazy>
-                <Reconciliation />
-              </Lazy>
+              <RequirePermission all={[PERMISSIONS.accountingReconcileRun, PERMISSIONS.accountingPeriodRead]}>
+                <Lazy><Reconciliation /></Lazy>
+              </RequirePermission>
             ),
           },
 

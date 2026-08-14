@@ -12,6 +12,8 @@ import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
 import { Link } from 'react-router-dom';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 
 /** Format an ISO date string (or date-time) to a locale date-only string. */
 function formatDate(value) {
@@ -42,6 +44,12 @@ export default function PeriodList() {
   const api = useMemo(() => makePeriodsApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
+  const permissions = usePermissions();
+  const canManage = permissions.can(PERMISSIONS.accountingPeriodManage);
+  const canClose = permissions.can(PERMISSIONS.accountingPeriodClose);
+  const canLock = permissions.can(PERMISSIONS.accountingPeriodLock);
+  const canUnlock = permissions.can(PERMISSIONS.accountingPeriodUnlock);
+  const canRollForward = permissions.can(PERMISSIONS.accountingPeriodRollForward);
 
   const q = useQuery({ queryKey: ['periods'], queryFn: api.list, staleTime: 10_000 });
 
@@ -98,11 +106,11 @@ export default function PeriodList() {
       <PageHeader
         title="Accounting Periods"
         subtitle="Manage fiscal periods — create, lock, close, and roll forward."
-        actions={
+        actions={canManage ? (
           <Button onClick={() => setCreateOpen(true)}>
             + New Period
           </Button>
-        }
+        ) : null}
       />
 
       <ContentCard title={`Periods ${periods.length ? `(${periods.length})` : ''}`}>
@@ -144,7 +152,7 @@ export default function PeriodList() {
                     </TD>
                     <TD className="text-right">
                       <div className="flex justify-end items-center gap-2">
-                        {allowed.includes('close') && (
+                        {allowed.includes('close') && canClose && (
                           <Link
                             className="inline-flex items-center text-sm font-medium text-brand-primary hover:underline"
                             to={ROUTES.accountingPeriodClose(p.id)}
@@ -152,7 +160,7 @@ export default function PeriodList() {
                             Close
                           </Link>
                         )}
-                        {allowed.includes('lock') && (
+                        {allowed.includes('lock') && canLock && (
                           <Button
                             size="sm"
                             variant="secondary"
@@ -162,7 +170,7 @@ export default function PeriodList() {
                             Lock
                           </Button>
                         )}
-                        {allowed.includes('unlock') && (
+                        {allowed.includes('unlock') && canUnlock && (
                           <Button
                             size="sm"
                             variant="secondary"
@@ -172,7 +180,7 @@ export default function PeriodList() {
                             Unlock
                           </Button>
                         )}
-                        {allowed.includes('reopen') && (
+                        {allowed.includes('reopen') && canManage && (
                           <Button
                             size="sm"
                             variant="secondary"
@@ -182,7 +190,7 @@ export default function PeriodList() {
                             Reopen
                           </Button>
                         )}
-                        {allowed.includes('rollForward') && (
+                        {allowed.includes('rollForward') && canRollForward && (
                           <Button
                             size="sm"
                             variant="secondary"
@@ -213,7 +221,7 @@ export default function PeriodList() {
             </Button>
             <Button
               onClick={() => create.mutate()}
-              disabled={create.isLoading || !isFormValid}
+              disabled={!canManage || create.isLoading || !isFormValid}
             >
               {create.isLoading ? 'Creating…' : 'Create Period'}
             </Button>

@@ -13,6 +13,8 @@ import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
+import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
+import { PERMISSIONS } from '../../../../app/constants/permissions.js';
 
 
 export default function JournalList() {
@@ -20,6 +22,8 @@ export default function JournalList() {
   const api = useMemo(() => makeJournalsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const navigate = useNavigate();
+  const permissions = usePermissions();
+  const canCreate = permissions.can(PERMISSIONS.accountingJournalCreate);
   const [periodId, setPeriodId] = useState('');
   const [status, setStatus] = useState('');
   const [q, setQ] = useState('');
@@ -120,7 +124,7 @@ export default function JournalList() {
       <PageHeader
         title="Journals"
         subtitle="Create, submit, approve/reject, post, and void journals."
-        actions={<Button onClick={() => navigate(ROUTES.accountingJournalNew)}>New journal</Button>}
+        actions={canCreate ? <Button onClick={() => navigate(ROUTES.accountingJournalNew)}>New journal</Button> : null}
       />
 
       <FilterBar

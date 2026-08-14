@@ -29,7 +29,7 @@ export default function PeriodClose() {
   const [force, setForce] = useState('false');
   const [autoRunAccruals, setAutoRunAccruals] = useState('true');
 
-  const canForce = perms.any([PERMISSIONS.periodForceClose]);
+  const canForce = perms.hasAny([PERMISSIONS.periodForceClose]);
 
   const close = useMutation({
     mutationFn: () =>

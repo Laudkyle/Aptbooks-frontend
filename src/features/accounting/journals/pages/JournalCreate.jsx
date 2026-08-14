@@ -103,7 +103,7 @@ export default function JournalCreate() {
       }),
     onSuccess: (data) => {
       toast.success('Journal draft created.');
-      navigate(ROUTES.accountingJournalDetail(data?.id ?? ''));
+      navigate(ROUTES.accountingJournalDetail(data?.journalId ?? ''));
     },
     onError: (e) => toast.error(e.response?.data?.message ?? e.message ?? 'Create failed')
   });
