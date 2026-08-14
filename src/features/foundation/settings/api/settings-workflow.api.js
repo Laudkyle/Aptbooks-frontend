@@ -1,4 +1,4 @@
-import { endpoints } from '../../../shared/api/endpoints.js';
+import { endpoints } from '../../../../shared/api/endpoints.js';
 // Create a new file: settings-workflow.api.js
 export function makeWorkflowSettingsApi(http) {
   return {
