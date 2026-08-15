@@ -37,8 +37,14 @@ export function AuthProvider({ children }) {
   }, [meQuery.data]);
 
   const login = useCallback(
-    async ({ email, password, otp }) => {
-      const res = await http.post(endpoints.auth.login, { email, password, ...(otp ? { otp } : {}) });
+    async ({ email, password, otp, challengeId }) => {
+      const res = await http.post(endpoints.auth.login, {
+        email,
+        password,
+        ...(otp ? { otp } : {}),
+        ...(challengeId ? { challengeId } : {})
+      });
+      if (res.data?.twoFactorRequired) return res.data;
       const { accessToken: at, refreshToken: rt } = res.data ?? {};
       if (!at) throw new Error('Login did not return an access token');
       authStore.getState().setTokens({ accessToken: at, refreshToken: rt ?? refreshToken });
@@ -118,19 +124,29 @@ export function AuthProvider({ children }) {
   }, [http]);
 
   const verify2fa = useCallback(
-    async ({ otp }) => {
-      const res = await http.post(endpoints.auth.twofa.verify, { otp });
+    async ({ challengeId, otp }) => {
+      const res = await http.post(endpoints.auth.twofa.verify, { challengeId, otp });
+      await qc.invalidateQueries({ queryKey: qk.me });
+      return res.data;
+    },
+    [http, qc]
+  );
+
+  const requestDisable2fa = useCallback(
+    async ({ password }) => {
+      const res = await http.post(endpoints.auth.twofa.disableRequest, { password });
       return res.data;
     },
     [http]
   );
 
   const disable2fa = useCallback(
-    async ({ password, otp }) => {
-      const res = await http.post(endpoints.auth.twofa.disable, { password, otp });
+    async ({ password, challengeId, otp }) => {
+      const res = await http.post(endpoints.auth.twofa.disable, { password, challengeId, otp });
+      await qc.invalidateQueries({ queryKey: qk.me });
       return res.data;
     },
-    [http]
+    [http, qc]
   );
 
   const value = useMemo(
@@ -148,10 +164,11 @@ export function AuthProvider({ children }) {
       logoutAll,
       enroll2fa,
       verify2fa,
+      requestDisable2fa,
       disable2fa,
       error: meQuery.error ? normalizeError(meQuery.error) : null
     }),
-    [accessToken, refreshToken, user, meQuery, login, register, forgotPassword, resetPassword, logout, logoutAll, enroll2fa, verify2fa, disable2fa]
+    [accessToken, refreshToken, user, meQuery, login, register, forgotPassword, resetPassword, logout, logoutAll, enroll2fa, verify2fa, requestDisable2fa, disable2fa]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -243,7 +243,7 @@ export function SideNav() {
           <Item
             to={ROUTES.accountingPnL}
             icon={BarChart4}
-            label="Statements"
+            label="Profit and Loss"
             collapsed={!sidebarOpen}
           />
           <Item
@@ -459,7 +459,7 @@ export function SideNav() {
                 <Item
                   to={ROUTES.vendorPayments}
                   icon={Wallet}
-                  label="Vendor Payments"
+                  label="Payments"
                   collapsed={!sidebarOpen}
                 />
               </PermissionGate>

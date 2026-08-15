@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Activity, ArrowUpRight, BookOpenText, TrendingUp, WalletCards } from 'lucide-react';
+import { Activity, ArrowUpRight, BookOpenText, TrendingUp, WalletCards, BookPlus } from 'lucide-react';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeCoaApi } from '../api/coa.api.js';
 import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
@@ -11,6 +11,8 @@ import { Select } from '../../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../../shared/components/forms/AccountSelect.jsx';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { ConfirmDialog } from '../../../../shared/components/ui/ConfirmDialog.jsx';
+import { Modal } from '../../../../shared/components/ui/Modal.jsx';
+import { JournalDraftForm } from '../../journals/components/JournalDraftForm.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 import { ROUTES } from '../../../../app/constants/routes.js';
 import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
@@ -134,6 +136,7 @@ export default function AccountDetail() {
   const permissions = usePermissions();
   const canManage = permissions.can(PERMISSIONS.accountingCoaManage);
   const canArchive = permissions.can(PERMISSIONS.accountingCoaArchive);
+  const canCreateJournal = permissions.can(PERMISSIONS.accountingJournalCreate);
 
   const q = useQuery({ queryKey: ['coa', id], queryFn: () => api.detail(id), enabled: !!id });
   const reportQ = useQuery({ queryKey: ['coa-report', id, 6], queryFn: () => api.report(id, { months: 6 }), enabled: !!id, staleTime: 30_000 });
@@ -144,6 +147,7 @@ export default function AccountDetail() {
   const [isPostable, setIsPostable] = useState(true);
   const [status, setStatus] = useState('active');
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [journalOpen, setJournalOpen] = useState(false);
 
   React.useEffect(() => {
     if (!q.data) return;
@@ -173,7 +177,17 @@ export default function AccountDetail() {
       <PageHeader
         title={acc ? `${acc.code} — ${acc.name}` : 'Account'}
         subtitle="Account profile, ledger pulse and recent movement."
-        actions={<div className="flex gap-2"><Button variant="secondary" onClick={() => navigate(ROUTES.accountingCoa)}>Back</Button>{canArchive && <Button variant="danger" onClick={() => setArchiveOpen(true)} disabled={archive.isLoading}>Archive</Button>}</div>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {canCreateJournal ? (
+              <Button leftIcon={BookPlus} onClick={() => setJournalOpen(true)} disabled={!acc || !isPostable || status !== 'active'} title={!isPostable ? 'This account is not postable' : undefined}>
+                New journal for this account
+              </Button>
+            ) : null}
+            <Button variant="secondary" onClick={() => navigate(ROUTES.accountingCoa)}>Back</Button>
+            {canArchive && <Button variant="danger" onClick={() => setArchiveOpen(true)} disabled={archive.isLoading}>Archive</Button>}
+          </div>
+        }
       />
 
       {reportQ.isError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Account details loaded, but the activity report could not be built. <button className="font-semibold underline" onClick={() => reportQ.refetch()}>Retry</button></div> : null}
@@ -193,6 +207,19 @@ export default function AccountDetail() {
           </div>
         )}
       </ContentCard>
+
+      <Modal open={journalOpen} title={acc ? `New journal · ${acc.code} — ${acc.name}` : 'New journal'} onClose={() => setJournalOpen(false)}>
+        <JournalDraftForm
+          key={`${id}-${journalOpen ? 'open' : 'closed'}`}
+          embedded
+          initialAccountId={id}
+          onCancel={() => setJournalOpen(false)}
+          onCreated={(data) => {
+            setJournalOpen(false);
+            navigate(ROUTES.accountingJournalDetail(data?.journalId ?? ''));
+          }}
+        />
+      </Modal>
 
       <ConfirmDialog open={archiveOpen} title="Archive account" message="This account will be archived. Proceed?" onCancel={() => setArchiveOpen(false)} onConfirm={() => archive.mutate()} />
     </div>

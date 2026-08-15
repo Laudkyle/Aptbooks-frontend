@@ -8,7 +8,7 @@ function labels(path) {
 
 test('vendor payment detail uses operations hierarchy', () => {
   const crumbs = buildRouteNavigation('/transactions/vendor-payments/abc-12345678');
-  assert.deepEqual(crumbs.map((item) => item.label), ['Operations', 'Vendor Payments', 'Vendor Payment Details']);
+  assert.deepEqual(crumbs.map((item) => item.label), ['Operations', 'Payments', 'Payment Details']);
   assert.equal(crumbs[1].to, '/transactions/vendor-payments');
   assert.equal(crumbs.at(-1).to, '/transactions/vendor-payments/abc-12345678');
 });
@@ -31,7 +31,7 @@ test('banking treasury detail keeps useful parents', () => {
 
 test('new vendor payment points current crumb to current page', () => {
   const crumbs = buildRouteNavigation('/transactions/vendor-payments/new');
-  assert.deepEqual(crumbs.map((item) => item.label), ['Operations', 'Vendor Payments', 'New Vendor Payment']);
+  assert.deepEqual(crumbs.map((item) => item.label), ['Operations', 'Payments', 'New Payment']);
   assert.equal(crumbs.at(-1).current, true);
 });
 

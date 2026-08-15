@@ -6,6 +6,7 @@ import { uiStore } from '../../../app/store/ui.store.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { Button } from '../ui/Button.jsx';
 import { OrgSwitcher } from '../../../features/foundation/organizations/components/OrgSwitcher.jsx';
+import { TopSearch } from './TopSearch.jsx';
 
 export function TopNav() {
   const { user, logout } = useAuth();
@@ -29,17 +30,7 @@ export function TopNav() {
         </div>
 
         <div className="hidden flex-1 px-4 md:block">
-          <button
-            type="button"
-            onClick={() => navigate(ROUTES.search)}
-            className="flex w-full max-w-xl items-center gap-2 rounded-xl border border-border-subtle bg-white/70 px-3 py-2 text-sm text-slate-600 shadow-sm transition hover:bg-white"
-          >
-            <Search className="h-4 w-4 text-slate-500" />
-            <span className="truncate">Search partners, accounts, journals, documents…</span>
-            <span className="ml-auto hidden rounded-md bg-slate-900/5 px-2 py-0.5 text-[11px] text-slate-500 lg:inline">
-              Ctrl K
-            </span>
-          </button>
+          <TopSearch />
         </div>
 
         <div className="flex items-center gap-2">

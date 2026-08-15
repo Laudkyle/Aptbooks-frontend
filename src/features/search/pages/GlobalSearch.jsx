@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Search as SearchIcon,
@@ -26,7 +26,7 @@ const GROUP_CONFIG = {
   invoices: { title: 'Invoices', icon: Receipt, accent: 'text-emerald-600' },
   bills: { title: 'Bills', icon: Receipt, accent: 'text-red-600' },
   customerReceipts: { title: 'Customer Receipts', icon: Receipt, accent: 'text-sky-600' },
-  vendorPayments: { title: 'Vendor Payments', icon: Receipt, accent: 'text-indigo-600' },
+  vendorPayments: { title: 'Payments', icon: Receipt, accent: 'text-indigo-600' },
   creditNotes: { title: 'Credit Notes', icon: Receipt, accent: 'text-pink-600' },
   debitNotes: { title: 'Debit Notes', icon: Receipt, accent: 'text-rose-600' },
   operationalDocuments: { title: 'Operational Documents', icon: FileText, accent: 'text-amber-600' },
@@ -109,9 +109,10 @@ function Group({ groupKey, items, onSelect }) {
 
 export default function GlobalSearch() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { http } = useApi();
   const api = useMemo(() => makeSearchApi(http), [http]);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(() => searchParams.get('q') || '');
   const [limit, setLimit] = useState(10);
   const enabled = q.trim().length >= 2;
 

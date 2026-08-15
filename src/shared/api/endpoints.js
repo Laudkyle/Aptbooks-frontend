@@ -10,6 +10,7 @@ export const endpoints = {
     twofa: {
       enroll: "/auth/2fa/enroll",
       verify: "/auth/2fa/verify",
+      disableRequest: "/auth/2fa/disable/request",
       disable: "/auth/2fa/disable",
     },
   },

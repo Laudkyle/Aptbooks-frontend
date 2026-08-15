@@ -12,11 +12,11 @@ import { formatMoney } from '../../../../shared/utils/formatMoney.js';
 import { formatDate } from '../../../../shared/utils/formatDate.js';
 import { usePermissions } from '../../../../shared/hooks/usePermissions.js';
 import { PERMISSIONS } from '../../../../app/constants/permissions.js';
-import { Calendar, Hash, CheckCircle2, XCircle, Clock, ChevronLeft, RefreshCw } from 'lucide-react';
-import { allowedJournalActions, centsToDecimal, sumJournalLines,parseAmountToCents } from '../journal.logic.mjs';
+import { Calendar, Hash, CheckCircle2, XCircle, Clock, ChevronLeft, RefreshCw, Pencil } from 'lucide-react';
+import { allowedJournalActions, centsToDecimal, sumJournalLines, parseAmountToCents } from '../journal.logic.mjs';
 import { TransactionPrintButtons } from '../../../printing/components/TransactionPrintButtons.jsx';
 import { useAuth } from '../../../../shared/hooks/useAuth.js';
-
+import { JournalDraftForm } from '../components/JournalDraftForm.jsx';
 
 
 export default function JournalDetail() {
@@ -38,6 +38,7 @@ export default function JournalDetail() {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [action, setAction] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const mutate = (mutationFn, successMsg) =>
     useMutation({
@@ -202,6 +203,9 @@ export default function JournalDetail() {
                 Refresh
               </Button>
               {permissions.can(PERMISSIONS.printingRender) ? <TransactionPrintButtons documentType="journal_entry" documentId={id} /> : null}
+              {['draft', 'rejected'].includes(String(j?.status || '').toLowerCase()) && permissions.can(PERMISSIONS.accountingJournalEdit) ? (
+                <Button variant="secondary" onClick={() => setEditOpen(true)} size="sm"><Pencil className="mr-2 h-4 w-4" />Edit draft</Button>
+              ) : null}
               {getStatusActions()}
             </div>
           </div>
@@ -509,6 +513,22 @@ export default function JournalDetail() {
       </div>
 
       {/* Reason Modal */}
+      <Modal open={editOpen} title="Continue journal draft" onClose={() => setEditOpen(false)}>
+        <JournalDraftForm
+          key={`${id}-${editOpen ? 'edit' : 'closed'}`}
+          embedded
+          journalId={id}
+          initialJournal={j}
+          initialLines={lines}
+          onCancel={() => setEditOpen(false)}
+          onSaved={() => {
+            setEditOpen(false);
+            q.refetch();
+            qc.invalidateQueries({ queryKey: ['journals'] });
+          }}
+        />
+      </Modal>
+
       <Modal
         open={reasonOpen}
         title={action === 'reject' ? 'Reject Journal Entry' : 'Void Journal Entry'}

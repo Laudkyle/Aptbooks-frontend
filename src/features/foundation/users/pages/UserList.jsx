@@ -50,9 +50,8 @@ const toast = useToast();
   });
 
   const users = useMemo(() => {
-    if (Array.isArray(data)) return data;
-    if (data?.data && Array.isArray(data.data)) return data.data;
-    return [];
+    const rows = Array.isArray(data) ? data : data?.data && Array.isArray(data.data) ? data.data : [];
+    return rows.filter((user) => String(user?.email ?? '').toLowerCase() !== 'system@aptbooks.local' && !user?.is_system);
   }, [data]);
 
   // Form validation
