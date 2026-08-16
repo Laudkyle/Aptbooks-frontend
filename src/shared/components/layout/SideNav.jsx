@@ -252,19 +252,29 @@ export function SideNav() {
             label="FX"
             collapsed={!sidebarOpen}
           />
-          <PermissionGate any={[PERMISSIONS.taxRead]} fallback={null}>
-            <Item
-              to={ROUTES.accountingTax}
-              icon={ReceiptIndianRupee}
-              label="Tax"
-              collapsed={!sidebarOpen}
-            />
-            <Item
-              to={ROUTES.accountingTaxWithholding}
-              icon={ReceiptIndianRupee}
-              label="Withholding"
-              collapsed={!sidebarOpen}
-            />
+          <PermissionGate any={[PERMISSIONS.taxRead, PERMISSIONS.taxGhanaReadinessRead]} fallback={null}>
+            <PermissionGate any={[PERMISSIONS.taxGhanaReadinessRead]} fallback={null}>
+              <Item
+                to={ROUTES.accountingTaxGhana}
+                icon={Shield}
+                label="Ghana Compliance"
+                collapsed={!sidebarOpen}
+              />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.taxRead]} fallback={null}>
+              <Item
+                to={ROUTES.accountingTax}
+                icon={ReceiptIndianRupee}
+                label="Tax Configuration"
+                collapsed={!sidebarOpen}
+              />
+              <Item
+                to={ROUTES.accountingTaxWithholding}
+                icon={ReceiptIndianRupee}
+                label="Withholding"
+                collapsed={!sidebarOpen}
+              />
+            </PermissionGate>
           </PermissionGate>
           <Item
             to={ROUTES.accountingAccruals}
@@ -1217,6 +1227,7 @@ export function SideNav() {
             PERMISSIONS.hrEmployeesRead,
             PERMISSIONS.hrDepartmentsRead,
             PERMISSIONS.hrPayrollRead,
+            PERMISSIONS.hrPayrollGhanaRead,
             PERMISSIONS.hrReportsRead,
           ]}
           fallback={null}
@@ -1245,6 +1256,9 @@ export function SideNav() {
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.hrPayrollRead, PERMISSIONS.hrPayrollManage, PERMISSIONS.hrPayrollPost]}>
               <Item to={ROUTES.hrPayroll} icon={Landmark} label="Payroll" collapsed={!sidebarOpen} />
+            </PermissionGate>
+            <PermissionGate any={[PERMISSIONS.hrPayrollGhanaRead, PERMISSIONS.hrPayrollGhanaManage, PERMISSIONS.hrPayrollGhanaFile]}>
+              <Item to={ROUTES.hrPayrollGhana} icon={Landmark} label="Ghana PAYE & Pensions" collapsed={!sidebarOpen} />
             </PermissionGate>
             <PermissionGate any={[PERMISSIONS.hrLeaveRead, PERMISSIONS.hrLeaveManage]}>
               <Item to={ROUTES.hrLeave} icon={CalendarRange} label="Leave" collapsed={!sidebarOpen} />

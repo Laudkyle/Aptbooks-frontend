@@ -96,7 +96,9 @@ export default function ReportApOpenItems() {
 
   const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
   const vendors = rowsFrom(vendorsQ.data);
-  const vendorOptions = [NONE_OPTION, ...toOptions(vendors, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendors, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? 'Unnamed vendor'}`.trim() })];
+  const selectedVendor = vendors.find((vendor) => vendor.id === vendorId);
+  const selectedVendorLabel = selectedVendor ? `${selectedVendor.code ?? ''} ${selectedVendor.name ?? selectedVendor.business_name ?? 'Selected vendor'}`.trim() : 'Selected vendor';
 
   const rows = rowsFrom(data);
   const summary = calculateSummary(rows);
@@ -203,7 +205,8 @@ export default function ReportApOpenItems() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ap-open-items-vendor-${vendorId}-${new Date().toISOString().split('T')[0]}.csv`;
+    const vendorFileLabel = (selectedVendor?.code || selectedVendor?.name || 'vendor').replace(/[^a-z0-9_-]+/gi, '-');
+    a.download = `ap-open-items-${vendorFileLabel}-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -329,7 +332,7 @@ export default function ReportApOpenItems() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm text-blue-800">
-                    Showing open items for vendor: <span className="font-semibold">{vendorId}</span>
+                    Showing open items for vendor: <span className="font-semibold">{selectedVendorLabel}</span>
                   </p>
                 </div>
               </div>
@@ -347,7 +350,7 @@ export default function ReportApOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Vendor to Begin</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Enter a vendor ID above and click "Run Report" to view their open payable items
+              Select a vendor above and click "Run Report" to view their open payable items
             </p>
           </div>
         ) : isLoading || isFetching ? (
@@ -364,7 +367,7 @@ export default function ReportApOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Vendor <span className="font-mono font-semibold">{vendorId}</span> has no outstanding payable items.
+              Vendor <span className="font-semibold">{selectedVendorLabel}</span> has no outstanding payable items.
             </p>
             <Button
               variant="secondary"
@@ -382,7 +385,7 @@ export default function ReportApOpenItems() {
               <div>
                 <h3 className="text-sm font-semibold text-slate-900">Open Items Detail</h3>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  {rows.length} open item{rows.length !== 1 ? 's' : ''} for vendor {vendorId}
+                  {rows.length} open item{rows.length !== 1 ? 's' : ''} for vendor {selectedVendorLabel}
                 </p>
               </div>
             </div>
@@ -416,7 +419,7 @@ export default function ReportApOpenItems() {
             <div>
               <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
               <ul className="text-xs text-slate-600 space-y-1">
-                <li>• Enter the vendor's ID to view their open items</li>
+                <li>• Select the vendor whose open items you want to view</li>
                 <li>• Review individual invoice details and amounts</li>
                 <li>• Identify which items need to be paid first</li>
                 <li>• Export the data for vendor reconciliation</li>

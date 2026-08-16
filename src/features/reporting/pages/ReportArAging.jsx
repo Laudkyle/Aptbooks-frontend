@@ -7,6 +7,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { DataTable } from '../../../shared/components/data/DataTable.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
+import { Select } from '../../../shared/components/ui/Select.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 
 /* ─── data helpers ─── */
@@ -288,6 +289,19 @@ export default function ReportArAging() {
     [asOfDate, bucketSetId],
   );
 
+  const bucketSetsQ = useQuery({
+    queryKey: ['reporting', 'config', 'aging-bucket-sets'],
+    queryFn: () => api.config.agingBucketSets(),
+    staleTime: 60_000,
+  });
+  const bucketSetOptions = [
+    { value: '', label: 'Default aging buckets' },
+    ...(bucketSetsQ.data?.data ?? []).map((set) => ({
+      value: String(set.id),
+      label: `${set.name}${set.is_default ? ' — Default' : ''}`,
+    })),
+  ];
+
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: qk.reportArAging(qs),
     queryFn:  () => api.ar.agedReceivables(qs),
@@ -537,11 +551,11 @@ export default function ReportArAging() {
               </p>
             </div>
             <div>
-              <Input
-                label="Bucket set ID (optional)"
+              <Select
+                label="Aging bucket set"
                 value={bucketSetId}
                 onChange={e => setBucketSetId(e.target.value)}
-                placeholder="Enter bucket set ID"
+                options={bucketSetOptions}
               />
               <p className="mt-1.5 text-xs text-slate-500">
                 Use a custom aging bucket configuration

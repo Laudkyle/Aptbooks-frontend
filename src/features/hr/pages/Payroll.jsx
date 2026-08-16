@@ -4,7 +4,7 @@ import { Calculator, CheckCircle2, FilePlus2, Send, Trash2, UploadCloud, XCircle
 import { AccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Landmark, PeriodField, Select, SimpleTable, StatusBadge, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudRemove, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
-const componentBlank = { code: '', name: '', kind: 'earning', calculation_method: 'fixed', expense_account_id: '', liability_account_id: '', is_taxable: false, is_statutory: false, status: 'active' };
+const componentBlank = { code: '', name: '', kind: 'earning', calculation_method: 'fixed', expense_account_id: '', liability_account_id: '', is_taxable: false, is_statutory: false, ghana_category: 'regular', pensionable: false, status: 'active' };
 const assignmentBlank = { employee_id: '', component_id: '', calculation_method: 'fixed', amount: '', percent: '', status: 'active' };
 const runBlank = { period_id: '', pay_date: '', currency: 'GHS' };
 
@@ -99,6 +99,8 @@ export default function Payroll() {
           <Input label="Name" value={component.name} onChange={(e) => setComponent({ ...component, name: e.target.value })} required />
           <Select label="Kind" value={component.kind} onChange={(e) => setComponent({ ...component, kind: e.target.value })} options={[{ value: 'earning', label: 'Earning' }, { value: 'deduction', label: 'Deduction' }]} />
           <Select label="Method" value={component.calculation_method} onChange={(e) => setComponent({ ...component, calculation_method: e.target.value })} options={[{ value: 'fixed', label: 'Fixed' }, { value: 'percent_base', label: 'Percent of base' }]} />
+          <Select label="Ghana category" value={component.ghana_category} onChange={(e) => setComponent({ ...component, ghana_category: e.target.value })} options={[{ value: 'regular', label: 'Regular earnings' }, { value: 'bonus', label: 'Bonus' }, { value: 'overtime', label: 'Overtime' }, { value: 'non_taxable', label: 'Non-taxable' }, { value: 'relief', label: 'Tax relief' }, { value: 'other_deduction', label: 'Other deduction' }]} />
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" checked={component.pensionable} onChange={(e) => setComponent({ ...component, pensionable: e.target.checked })} /> Pensionable</label>
           <AccountField label="Expense account" value={component.expense_account_id} onChange={(e) => setComponent({ ...component, expense_account_id: e.target.value })} />
           <AccountField label="Liability account" value={component.liability_account_id} onChange={(e) => setComponent({ ...component, liability_account_id: e.target.value })} />
           <Select label="Taxable" value={String(component.is_taxable)} onChange={(e) => setComponent({ ...component, is_taxable: e.target.value === 'true' })} options={[{ value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} />

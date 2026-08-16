@@ -69,6 +69,12 @@ export default function AssetDepreciationPage() {
     staleTime: 60_000,
   });
 
+  const assetsQ = useQuery({
+    queryKey: ["fixed-assets", "depreciation-filter"],
+    queryFn: () => assetsApi.listFixedAssets({}),
+    staleTime: 60_000,
+  });
+
   const periods = Array.isArray(periodsQ.data)
     ? periodsQ.data
     : periodsQ.data?.data ?? [];
@@ -82,6 +88,17 @@ export default function AssetDepreciationPage() {
       }),
     ],
     [periods]
+  );
+
+  const assetOptions = useMemo(
+    () => [
+      { value: "", label: "All assets" },
+      ...(assetsQ.data ?? []).map((asset) => ({
+        value: asset.id,
+        label: `${asset.code} — ${asset.name}`,
+      })),
+    ],
+    [assetsQ.data]
   );
 
   const canPreview = !!periodId?.trim();
@@ -443,13 +460,13 @@ export default function AssetDepreciationPage() {
                 {showFilters ? (
                   <ContentCard>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                      <Input
-                        label="Asset ID"
+                      <Select
+                        label="Asset"
                         value={scheduleFilters.assetId}
                         onChange={(e) =>
                           setScheduleFilters((s) => ({ ...s, assetId: e.target.value }))
                         }
-                        placeholder="Filter by asset"
+                        options={assetOptions}
                       />
 
                       <Select

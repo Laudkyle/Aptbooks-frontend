@@ -12,6 +12,9 @@ export function makeReportingApi(http) {
       openItems: async (qs) => (await http.get(endpoints.reporting.ap.openItems(qs))).data,
       vendorStatement: async (qs) => (await http.get(endpoints.reporting.ap.vendorStatement(qs))).data
     },
+    config: {
+      agingBucketSets: async () => (await http.get(endpoints.reporting.config.agingBucketSets)).data
+    },
     tax: {
       vatSummary: async (qs) => (await http.get(endpoints.reporting.tax.vatSummary(qs))).data,
       vatReturn: async (qs) => (await http.get(endpoints.reporting.tax.vatReturn(qs))).data,

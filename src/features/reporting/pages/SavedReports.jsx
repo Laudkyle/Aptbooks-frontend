@@ -34,6 +34,19 @@ export default function SavedReports() {
     queryFn: () => api.savedReports.list({ includeArchived: 'false', limit: 100, offset: 0 })
   });
   const rows = rowsFrom(data);
+  const versionsQ = useQuery({
+    queryKey: ['reporting', 'reports', selected?.id, 'versions'],
+    queryFn: () => api.savedReports.versions(selected.id),
+    enabled: !!selected?.id && runOpen,
+    staleTime: 60_000,
+  });
+  const versionOptions = [
+    { value: '', label: 'Latest version' },
+    ...(versionsQ.data?.data ?? []).map((version) => ({
+      value: version.id,
+      label: `Version ${version.version_number} — ${version.kind}`,
+    })),
+  ];
 
   const columns = useMemo(() => {
     return [
@@ -166,9 +179,9 @@ export default function SavedReports() {
         <div className="space-y-3">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
             <div className="text-sm font-medium text-slate-900">{selected?.name}</div>
-            <div className="text-xs text-slate-600">{selected?.id}</div>
+            <div className="text-xs text-slate-600">Choose a version or run the latest.</div>
           </div>
-          <Input label="Version ID" value={runForm.versionId} onChange={(e) => setRunForm((s) => ({ ...s, versionId: e.target.value }))} placeholder="Optional" />
+          <Select label="Report version" value={runForm.versionId} onChange={(e) => setRunForm((s) => ({ ...s, versionId: e.target.value }))} options={versionOptions} />
           <Input
             label="Max rows"
             value={String(runForm.maxRows)}

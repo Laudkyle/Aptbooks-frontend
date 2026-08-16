@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
   FileText,
@@ -8,13 +9,36 @@ import {
   ArrowLeftRight,
   Bell,
   Shield,
-  Search
+  Search,
+  ShieldCheck
 } from 'lucide-react';
 import { ROUTES } from '../app/constants/routes.js';
+import { PERMISSIONS } from '../app/constants/permissions.js';
+import { PermissionGate } from '../app/routes/route-guards.jsx';
 import { useAuth } from '../shared/hooks/useAuth.js';
+import { useApi } from '../shared/hooks/useApi.js';
+import { makeGhanaComplianceApi } from '../features/accounting/tax/api/ghanaCompliance.api.js';
 import { ContentCard } from '../shared/components/layout/ContentCard.jsx';
 import { PageHeader } from '../shared/components/layout/PageHeader.jsx';
 import { Button } from '../shared/components/ui/Button.jsx';
+
+
+function GhanaComplianceCard() {
+  const { http } = useApi();
+  const api = useMemo(() => makeGhanaComplianceApi(http), [http]);
+  const q = useQuery({ queryKey: ['tax','ghana','readiness'], queryFn: () => api.getReadiness(), staleTime: 60_000 });
+  const r = q.data;
+  return (
+    <ContentCard title="Ghana Compliance" actions={<Link to={ROUTES.accountingTaxGhana}><Button variant="ghost" size="sm">Open</Button></Link>}>
+      {q.isLoading ? <div className="text-sm text-slate-500">Checking compliance readiness…</div> : q.isError ? <div className="text-sm text-slate-500">Compliance readiness is unavailable.</div> : (
+        <Link to={ROUTES.accountingTaxGhana} className="app-surface flex items-center justify-between gap-4 p-4 hover:bg-white">
+          <span className="flex items-center gap-3"><span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-deep"><ShieldCheck className="h-5 w-5" /></span><span><span className="block text-2xl font-bold text-brand-deep">{r?.score ?? 0}%</span><span className="block text-xs text-slate-600">{r?.blockers?.length ?? 0} blockers · {r?.warnings?.length ?? 0} warnings</span></span></span>
+          <span className="text-sm font-semibold text-brand-primary">Review →</span>
+        </Link>
+      )}
+    </ContentCard>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -147,6 +171,10 @@ export default function Dashboard() {
           </div>
         </ContentCard>
       </div>
+
+      <PermissionGate any={[PERMISSIONS.taxGhanaReadinessRead]} fallback={null}>
+        <GhanaComplianceCard />
+      </PermissionGate>
     </div>
   );
 }

@@ -9,6 +9,8 @@ import { makeCoaApi } from '../../accounting/chartOfAccounts/api/coa.api.js';
 import { makePaymentConfigApi } from '../../business/api/paymentConfig.api.js';
 import { makeBillsApi } from '../api/bills.api.js';
 import { makeDebitNotesApi } from '../api/debitNotes.api.js';
+import { makeGhanaComplianceApi } from '../../accounting/tax/api/ghanaCompliance.api.js';
+import { qk } from '../../../shared/query/keys.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
@@ -35,6 +37,7 @@ export default function VendorPaymentCreate() {
   const paymentConfigApi = useMemo(() => makePaymentConfigApi(http), [http]);
   const billsApi = useMemo(() => makeBillsApi(http), [http]);
   const debitNotesApi = useMemo(() => makeDebitNotesApi(http), [http]);
+  const ghanaTaxApi = useMemo(() => makeGhanaComplianceApi(http), [http]);
   const toast = useToast();
 
   // Auto-generate idempotency key on mount
@@ -196,6 +199,45 @@ export default function VendorPaymentCreate() {
       setSelectedVendor(null);
     }
   }, [formData.vendorId, vendors]);
+
+  const partnerTaxProfileQuery = useQuery({
+    queryKey: qk.partnerTaxProfiles(formData.vendorId ? { partnerId: formData.vendorId } : {}),
+    queryFn: () => ghanaTaxApi.listPartnerProfiles({ partnerId: formData.vendorId }),
+    enabled: Boolean(formData.vendorId),
+    staleTime: 30_000,
+  });
+
+  const vendorTaxProfile = partnerTaxProfileQuery.data?.[0] ?? null;
+  const withholdingCategory = vendorTaxProfile?.default_withholding_category || null;
+
+  const thresholdQuery = useQuery({
+    queryKey: qk.ghanaWithholdingThresholdPosition({
+      partnerId: formData.vendorId,
+      categoryCode: withholdingCategory,
+      date: formData.paymentDate,
+    }),
+    queryFn: () => ghanaTaxApi.getWithholdingThresholdPosition({
+      partnerId: formData.vendorId,
+      categoryCode: withholdingCategory || undefined,
+      date: formData.paymentDate,
+    }),
+    enabled: Boolean(formData.vendorId && formData.paymentDate && withholdingCategory),
+    staleTime: 15_000,
+  });
+
+  const incomeWithholdingPreviewQuery = useQuery({
+    queryKey: ['tax', 'ghana', 'withholding', 'vendorPaymentPreview', formData.vendorId, formData.paymentDate, formData.amountTotal, vendorTaxProfile?.withholding_tax_code_id || null],
+    queryFn: () => ghanaTaxApi.previewWithholding({
+      regime: 'income_wht',
+      partnerId: formData.vendorId,
+      eventDate: formData.paymentDate,
+      paymentAmount: formData.amountTotal,
+      taxCodeId: vendorTaxProfile.withholding_tax_code_id,
+      categoryCode: withholdingCategory || undefined,
+    }),
+    enabled: Boolean(formData.vendorId && formData.paymentDate && Number(formData.amountTotal || 0) > 0 && vendorTaxProfile?.withholding_tax_code_id),
+    staleTime: 5_000,
+  });
 
   const create = useMutation({
     mutationFn: () => {
@@ -639,6 +681,43 @@ export default function VendorPaymentCreate() {
                   )}
                 </div>
               </div>
+
+              {/* Ghana withholding preview */}
+              {formData.vendorId && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900">Ghana Withholding Check</h3>
+                  </div>
+                  <div className="p-6 space-y-3 text-sm">
+                    {!vendorTaxProfile ? (
+                      <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-800">
+                        This vendor has no Ghana tax profile. Configure its withholding category before relying on automatic WHT checks.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between"><span className="text-gray-600">Income WHT</span><span className="font-medium">{vendorTaxProfile.withholding_applicable === false ? 'Not applicable' : 'Configured'}</span></div>
+                        <div className="flex items-center justify-between"><span className="text-gray-600">WHT category</span><span className="font-medium">{withholdingCategory || 'Not set'}</span></div>
+                        <div className="flex items-center justify-between"><span className="text-gray-600">WHVAT eligibility</span><span className="font-medium">{vendorTaxProfile.vat_withholding_eligible === false ? 'Not eligible' : 'Eligible / subject to transaction test'}</span></div>
+                        {thresholdQuery.data ? (
+                          <div className="rounded-md bg-slate-50 p-3 space-y-1">
+                            <div className="flex justify-between"><span>Prior qualifying payments</span><strong>{Number(thresholdQuery.data.qualifyingPayments || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</strong></div>
+                            <div className="flex justify-between"><span>Annual threshold</span><strong>{Number(thresholdQuery.data.thresholdAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</strong></div>
+                            <div className="flex justify-between"><span>Remaining before threshold</span><strong>{Number(thresholdQuery.data.remainingAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</strong></div>
+                          </div>
+                        ) : null}
+                        {incomeWithholdingPreviewQuery.data ? (
+                          <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-blue-900">
+                            <div className="flex justify-between"><span>Indicative WHT rate</span><strong>{Number(incomeWithholdingPreviewQuery.data.rate || 0).toFixed(2)}%</strong></div>
+                            <div className="mt-1 flex justify-between"><span>Indicative WHT</span><strong>{Number(incomeWithholdingPreviewQuery.data.withheldAmount || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS' })}</strong></div>
+                            <div className="mt-1 flex justify-between"><span>Threshold status</span><strong>{String(incomeWithholdingPreviewQuery.data.thresholdStatus || 'not_applicable').replaceAll('_', ' ')}</strong></div>
+                            <p className="mt-2 text-xs text-blue-700">This is an on-screen estimate from the entered payment amount. Final statutory capture at posting uses the bill tax lines and actual payment allocations.</p>
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Validation Status */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

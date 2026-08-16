@@ -31,6 +31,9 @@ export default function CommerceReports() {
   const [active, setActive] = useState('daily');
   const params = useMemo(() => ({ from: filters.from || undefined, to: filters.to || undefined, storeId: filters.storeId || undefined }), [filters]);
 
+  const storesQ = useQuery({ queryKey: ['commerce.pos.stores', 'report-filter'], queryFn: () => api.setup.stores({}) });
+  const stores = storesQ.data?.data ?? [];
+
   const dailyQ = useQuery({ queryKey: ['commerce.report.daily', params], queryFn: () => api.reports.dailySales(params) });
   const productQ = useQuery({ queryKey: ['commerce.report.product', params], queryFn: () => api.reports.productSales(params), enabled: active === 'products' });
   const marginQ = useQuery({ queryKey: ['commerce.report.margin', params], queryFn: () => api.reports.grossMargin(params), enabled: active === 'margin' });
@@ -58,7 +61,7 @@ export default function CommerceReports() {
     <div className="space-y-6">
       <PageHeader icon={BarChart3} title="Commerce reports" subtitle="Retail, POS and e-commerce reporting for sales, tax, margins, payments and returns." />
       <Panel title="Filters" subtitle="Apply the same period and store filter across reports." actions={<button className={softBtn} onClick={() => window.print()}><ReceiptText className="h-4 w-4" /> Print</button>}>
-        <div className="grid gap-3 md:grid-cols-3"><Field label="From"><input type="date" className={inputClass} value={filters.from} onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))} /></Field><Field label="To"><input type="date" className={inputClass} value={filters.to} onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))} /></Field><Field label="Store ID"><input className={inputClass} value={filters.storeId} onChange={(e) => setFilters((f) => ({ ...f, storeId: e.target.value }))} placeholder="Optional" /></Field></div>
+        <div className="grid gap-3 md:grid-cols-3"><Field label="From"><input type="date" className={inputClass} value={filters.from} onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))} /></Field><Field label="To"><input type="date" className={inputClass} value={filters.to} onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))} /></Field><Field label="Store"><select className={inputClass} value={filters.storeId} onChange={(e) => setFilters((f) => ({ ...f, storeId: e.target.value }))}><option value="">All stores</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.code} — {store.name}</option>)}</select></Field></div>
       </Panel>
       <div className="grid gap-4 md:grid-cols-4"><Kpi title="Sales" value={money(kpiValue(dailyQ.data, ['netSales', 'totalSales']))} icon={TrendingUp} /><Kpi title="Payments" value={money(kpiValue(paymentsQ.data, ['confirmedAmount', 'amount']))} icon={CreditCard} /><Kpi title="Tax" value={money(kpiValue(taxQ.data, ['taxAmount']))} icon={Percent} /><Kpi title="Returns" value={money(kpiValue(returnsQ.data, ['amount']))} icon={RefreshCw} /></div>
       <div className="flex flex-wrap gap-2">{[{ id: 'daily', label: 'Daily sales' }, { id: 'products', label: 'Products' }, { id: 'margin', label: 'Gross margin' }, { id: 'tax', label: 'Tax' }, { id: 'payments', label: 'Payments' }, { id: 'returns', label: 'Returns/refunds' }, { id: 'discounts', label: 'Discounts' }, { id: 'orders', label: 'E-commerce' }].map((tab) => <button key={tab.id} className={active === tab.id ? btnClass : softBtn} onClick={() => setActive(tab.id)}>{tab.label}</button>)}</div>

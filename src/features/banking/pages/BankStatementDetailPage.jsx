@@ -5,6 +5,7 @@ import { ArrowLeft, Upload, RefreshCw, Check, X, Search, Filter, Download } from
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeBankingApi } from '../api/banking.api.js';
+import { makeJournalsApi } from '../../accounting/journals/api/journals.api.js';
 import { ROUTES } from '../../../app/constants/routes.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
@@ -30,6 +31,7 @@ export default function BankStatementDetailPage() {
   const toast = useToast();
   const { http } = useApi();
   const api = useMemo(() => makeBankingApi(http), [http]);
+  const journalsApi = useMemo(() => makeJournalsApi(http), [http]);
 
   const [tab, setTab] = useState('lines');
   const [paging, setPaging] = useState({ limit: 200, offset: 0 });
@@ -46,6 +48,19 @@ export default function BankStatementDetailPage() {
 
   const accountsQuery = useQuery({ queryKey: ['banking.accounts'], queryFn: async () => api.listAccounts() });
   const statementsQuery = useQuery({ queryKey: ['banking.statements'], queryFn: async () => api.listStatements() });
+  const postedJournalsQuery = useQuery({
+    queryKey: ['accounting.journals', 'posted', 'bank-manual-match'],
+    queryFn: () => journalsApi.list({ status: 'posted' }),
+    enabled: !!selectedLineId,
+    staleTime: 30_000,
+  });
+  const postedJournalOptions = [
+    { value: '', label: 'Select posted journal' },
+    ...(postedJournalsQuery.data ?? []).map((journal) => ({
+      value: journal.id,
+      label: `${journal.entry_no} — ${journal.entry_date} — ${journal.memo || 'No memo'}`,
+    })),
+  ];
 
   const lineParams = useMemo(() => {
     const p = { ...paging };
@@ -406,13 +421,15 @@ export default function BankStatementDetailPage() {
                 <div className="border-t border-gray-200 pt-6">
                   <h3 className="text-sm font-semibold text-gray-900 mb-3">Manual Match</h3>
                   <div className="flex gap-3">
-                    <input
-                      type="text"
-                      placeholder="Enter Journal Entry ID"
+                    <select
                       value={manualJournalId}
                       onChange={(e) => setManualJournalId(e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    />
+                    >
+                      {postedJournalOptions.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
                     <button
                       onClick={() => matchMutation.mutate({ 
                         lineId: selectedLineId, 
@@ -425,7 +442,7 @@ export default function BankStatementDetailPage() {
                     </button>
                   </div>
                   <p className="mt-2 text-xs text-gray-500">
-                    Enter a posted journal entry ID to manually match this transaction
+                    Select a posted journal to manually match this transaction
                   </p>
                 </div>
               </>

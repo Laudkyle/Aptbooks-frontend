@@ -247,6 +247,38 @@ export const endpoints = {
       withholdingCertificateReject: (id) => `/core/accounting/tax/withholding/certificates/${id}/reject`,
       withholdingCertificatePost: (id) => `/core/accounting/tax/withholding/certificates/${id}/post`,
       withholdingCertificateVoid: (id) => `/core/accounting/tax/withholding/certificates/${id}/void`,
+
+      // Ghana compliance centre — exact GRA 1–6 backend contracts
+      catalogProfiles: (qs) => `/core/accounting/tax/catalog-profiles?${new URLSearchParams(qs ?? {}).toString()}`,
+      catalogProfile: (id) => `/core/accounting/tax/catalog-profiles/${id}`,
+      ledger: (qs) => `/core/accounting/tax/ledger?${new URLSearchParams(qs ?? {}).toString()}`,
+      partnerProfiles: (qs) => `/core/accounting/tax/partner-profiles?${new URLSearchParams(qs ?? {}).toString()}`,
+      partnerProfile: (id) => `/core/accounting/tax/partner-profiles/${id}`,
+      ghanaReadiness: (qs) => `/core/accounting/tax/ghana/readiness?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingRates: `/core/accounting/tax/ghana/withholding/rates`,
+      ghanaWithholdingDashboard: (qs) => `/core/accounting/tax/ghana/withholding/dashboard?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingReconciliation: (qs) => `/core/accounting/tax/ghana/withholding/reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingThresholdPosition: (qs) => `/core/accounting/tax/ghana/withholding/threshold-position?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingPreview: `/core/accounting/tax/ghana/withholding/preview`,
+      ghanaWithholdingEvents: (qs) => `/core/accounting/tax/ghana/withholding/events?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingCertificates: (qs) => `/core/accounting/tax/ghana/withholding/certificates?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingCertificateReceived: `/core/accounting/tax/ghana/withholding/certificates/received`,
+      ghanaWithholdingReturns: (qs) => `/core/accounting/tax/ghana/withholding/returns?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaWithholdingReturn: (id) => `/core/accounting/tax/ghana/withholding/returns/${id}`,
+      ghanaWithholdingReturnFinalize: (id) => `/core/accounting/tax/ghana/withholding/returns/${id}/finalize`,
+      ghanaWithholdingReturnFiled: (id) => `/core/accounting/tax/ghana/withholding/returns/${id}/filed`,
+      ghanaWithholdingRemittances: `/core/accounting/tax/ghana/withholding/remittances`,
+      ghanaWithholdingRemittancePost: (id) => `/core/accounting/tax/ghana/withholding/remittances/${id}/post`,
+      ghanaWithholdingRemittanceVoid: (id) => `/core/accounting/tax/ghana/withholding/remittances/${id}/void`,
+      ghanaVatRegistrationMonitor: (qs) => `/core/accounting/tax/ghana/vat/registration-monitor?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaVatApportionments: (qs) => `/core/accounting/tax/ghana/vat/apportionments?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaVatApportionmentCalculate: `/core/accounting/tax/ghana/vat/apportionments/calculate`,
+      ghanaVatApportionmentPost: (id) => `/core/accounting/tax/ghana/vat/apportionments/${id}/post`,
+      ghanaVatApportionmentVoid: (id) => `/core/accounting/tax/ghana/vat/apportionments/${id}/void`,
+      ghanaImportedServices: (qs) => `/core/accounting/tax/ghana/imported-services?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaImportedService: (id) => `/core/accounting/tax/ghana/imported-services/${id}`,
+      ghanaImportedServicePost: (id) => `/core/accounting/tax/ghana/imported-services/${id}/post`,
+      ghanaImportedServiceVoid: (id) => `/core/accounting/tax/ghana/imported-services/${id}/void`,
     },
     accruals: {
       rules: "/core/accounting/accruals",
@@ -808,6 +840,9 @@ export const endpoints = {
       vendorStatement: (qs) =>
         `/reporting/ap/vendor-statement?${new URLSearchParams(qs ?? {}).toString()}`,
     },
+    config: {
+      agingBucketSets: `/reporting/config/bucket-sets`,
+    },
     tax: {
       vatSummary: (qs) =>
         `/reporting/tax/vat-summary?${new URLSearchParams(qs ?? {}).toString()}`,
@@ -820,6 +855,8 @@ export const endpoints = {
         `/reporting/tax/ghana/vat-transactions?${new URLSearchParams(qs ?? {}).toString()}`,
       ghanaVatReconciliation: (qs) =>
         `/reporting/tax/ghana/vat-reconciliation?${new URLSearchParams(qs ?? {}).toString()}`,
+      ghanaImportedServicesSummary: (qs) =>
+        `/reporting/tax/ghana/imported-services-summary?${new URLSearchParams(qs ?? {}).toString()}`,
       returns: (qs) =>
         `/reporting/tax/returns?${new URLSearchParams(qs ?? {}).toString()}`,
       transactions: (qs) =>

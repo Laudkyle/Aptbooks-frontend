@@ -108,7 +108,9 @@ export default function ReportArOpenItems() {
 
   const customersQ = useQuery({ queryKey: ['partners', 'customers'], queryFn: () => partnersApi.list({ type: 'customer' }), staleTime: 60_000 });
   const customers = rowsFrom(customersQ.data);
-  const customerOptions = [NONE_OPTION, ...toOptions(customers, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || c.id })];
+  const customerOptions = [NONE_OPTION, ...toOptions(customers, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? 'Unnamed customer'}`.trim() })];
+  const selectedCustomer = customers.find((customer) => customer.id === customerId);
+  const selectedCustomerLabel = selectedCustomer ? `${selectedCustomer.code ?? ''} ${selectedCustomer.name ?? selectedCustomer.business_name ?? 'Selected customer'}`.trim() : 'Selected customer';
 
   const rows = rowsFrom(data);
   const summary = calculateSummary(rows);
@@ -215,7 +217,8 @@ export default function ReportArOpenItems() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ar-open-items-customer-${customerId}-${new Date().toISOString().split('T')[0]}.csv`;
+    const customerFileLabel = (selectedCustomer?.code || selectedCustomer?.name || 'customer').replace(/[^a-z0-9_-]+/gi, '-');
+    a.download = `ar-open-items-${customerFileLabel}-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -370,7 +373,7 @@ export default function ReportArOpenItems() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-sm text-blue-800">
-                    Showing open items for customer: <span className="font-semibold">{customerId}</span>
+                    Showing open items for customer: <span className="font-semibold">{selectedCustomerLabel}</span>
                   </p>
                 </div>
               </div>
@@ -388,7 +391,7 @@ export default function ReportArOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Select Customer to Begin</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Enter a customer ID above and click "Run Report" to view their open receivable items
+              Select a customer above and click "Run Report" to view their open receivable items
             </p>
           </div>
         ) : isLoading || isFetching ? (
@@ -405,7 +408,7 @@ export default function ReportArOpenItems() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Items Found</h3>
             <p className="text-sm text-slate-600 mb-6">
-              Customer <span className="font-mono font-semibold">{customerId}</span> has no outstanding receivable items. All invoices are paid in full.
+              Customer <span className="font-semibold">{selectedCustomerLabel}</span> has no outstanding receivable items. All invoices are paid in full.
             </p>
             <Button
               variant="secondary"
@@ -423,7 +426,7 @@ export default function ReportArOpenItems() {
               <div>
                 <h3 className="text-sm font-semibold text-slate-900">Open Items Detail</h3>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  {rows.length} open item{rows.length !== 1 ? 's' : ''} for customer {customerId}
+                  {rows.length} open item{rows.length !== 1 ? 's' : ''} for customer {selectedCustomerLabel}
                 </p>
               </div>
             </div>
@@ -458,7 +461,7 @@ export default function ReportArOpenItems() {
             <div>
               <h4 className="font-medium text-slate-900 mb-2">How to Use This Report</h4>
               <ul className="text-xs text-slate-600 space-y-1">
-                <li>• Enter the customer's ID to view their open items</li>
+                <li>• Select the customer whose open items you want to view</li>
                 <li>• Identify past due invoices that need collection</li>
                 <li>• Review payment history and aging details</li>
                 <li>• Export data for customer account statements</li>

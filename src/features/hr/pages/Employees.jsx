@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Users, AccountField, BankAccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Select, SimpleTable, StatusBadge, TaxCodeField, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
+import { Users, AccountField, BankAccountField, Button, ContentCard, CurrencyField, ErrorBlock, FormGrid, HrShell, Input, Select, SimpleTable, StatusBadge, asNumber, cleanPayload, rowsOf, selectOptions, toFormValues, useCrudSave, useHr, useLookupData } from './_hrShared.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 
 const blank = {
   employee_no: '', first_name: '', last_name: '', other_names: '', email: '', phone: '', hire_date: '', status: 'draft',
   department_id: '', position_id: '', grade_id: '', compensation_band_id: '', base_salary_amount: '', base_salary_currency: 'GHS',
   base_salary_frequency: 'monthly', expense_account_id: '', payable_account_id: '', bank_account_ref: '', bank_name: '', bank_account_no: '',
-  bank_branch: '', tax_id: '', national_id: ''
+  bank_branch: '', tax_id: '', national_id: '', ghana_card_pin: '', ssnit_number: '', tier2_member_id: '', tier2_scheme_name: '',
+  tax_residency: 'resident', worker_classification: 'regular', qualifies_overtime_concession: false, pension_exempt: false,
+  approved_monthly_tax_relief: '', employment_end_date: ''
 };
 
 function employeePayload(form) {
   const { bank_account_ref, ...payload } = form;
-  return cleanPayload({ ...payload, base_salary_amount: asNumber(payload.base_salary_amount) });
+  return cleanPayload({ ...payload, base_salary_amount: asNumber(payload.base_salary_amount), approved_monthly_tax_relief: asNumber(payload.approved_monthly_tax_relief) });
 }
 
 function bankValuesFromAccount(account) {
@@ -63,8 +65,18 @@ export default function Employees() {
           <AccountField label="Expense account" value={form.expense_account_id} onChange={(e) => setForm({ ...form, expense_account_id: e.target.value })} />
           <AccountField label="Payable account" value={form.payable_account_id} onChange={(e) => setForm({ ...form, payable_account_id: e.target.value })} />
           <BankAccountField label={editingId && form.bank_name ? `Payroll bank account (${form.bank_name})` : 'Payroll bank account'} value={form.bank_account_ref} onChange={(e, account) => setForm({ ...form, bank_account_ref: e.target.value, ...bankValuesFromAccount(account) })} />
-          <TaxCodeField label="Payroll tax code" value={form.tax_id} onChange={(e) => setForm({ ...form, tax_id: e.target.value })} />
+          <Input label="Taxpayer ID / TIN" value={form.tax_id} onChange={(e) => setForm({ ...form, tax_id: e.target.value })} />
           <Input label="National ID" value={form.national_id} onChange={(e) => setForm({ ...form, national_id: e.target.value })} />
+          <Input label="Ghana Card PIN" value={form.ghana_card_pin} onChange={(e) => setForm({ ...form, ghana_card_pin: e.target.value })} />
+          <Input label="SSNIT number" value={form.ssnit_number} onChange={(e) => setForm({ ...form, ssnit_number: e.target.value })} />
+          <Input label="Tier 2 member ID" value={form.tier2_member_id} onChange={(e) => setForm({ ...form, tier2_member_id: e.target.value })} />
+          <Input label="Tier 2 scheme" value={form.tier2_scheme_name} onChange={(e) => setForm({ ...form, tier2_scheme_name: e.target.value })} />
+          <Select label="Tax residency" value={form.tax_residency} onChange={(e) => setForm({ ...form, tax_residency: e.target.value })} options={[{ value: 'resident', label: 'Resident' }, { value: 'nonresident', label: 'Non-resident' }]} />
+          <Select label="Worker classification" value={form.worker_classification} onChange={(e) => setForm({ ...form, worker_classification: e.target.value })} options={[{ value: 'regular', label: 'Regular' }, { value: 'temporary', label: 'Temporary' }, { value: 'casual', label: 'Casual' }, { value: 'part_time', label: 'Part-time' }]} />
+          <Input label="Approved monthly tax relief" type="number" min="0" step="0.01" value={form.approved_monthly_tax_relief} onChange={(e) => setForm({ ...form, approved_monthly_tax_relief: e.target.value })} />
+          <Input label="Employment end date" type="date" value={form.employment_end_date} onChange={(e) => setForm({ ...form, employment_end_date: e.target.value })} />
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" checked={form.qualifies_overtime_concession} onChange={(e) => setForm({ ...form, qualifies_overtime_concession: e.target.checked })} /> Qualifies for overtime concession</label>
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700"><input type="checkbox" checked={form.pension_exempt} onChange={(e) => setForm({ ...form, pension_exempt: e.target.checked })} /> Pension exempt</label>
           <div className="flex items-end"><Button type="submit" loading={save.isPending}>{editingId ? 'Update employee' : 'Create employee'}</Button></div>
         </FormGrid>
       </ContentCard>

@@ -902,6 +902,7 @@ export function makePlanningApi(http) {
     },
     savedReports: {
       list: (params = {}) => get(`${base}/saved-reports`, { params }),
+      versions: (reportId) => get(`${base}/saved-reports/${reportId}/versions`),
       create: (body, options = {}) => post(`${base}/saved-reports`, body, idem(options, options?.idempotencyKey)),
       update: (reportId, body, options = {}) => patch(`${base}/saved-reports/${reportId}`, body, idem(options, options?.idempotencyKey)),
       run: (reportId, body, options = {}) => post(`${base}/saved-reports/${reportId}/run`, body, idem(options, options?.idempotencyKey)),

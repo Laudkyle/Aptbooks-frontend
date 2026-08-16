@@ -272,6 +272,68 @@ const FxRates = lazy(() =>
 const TaxAdmin = lazy(() =>
   import("../../features/accounting/tax/pages/TaxAdmin.jsx")
 );
+const GhanaComplianceOverview = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaComplianceOverview.jsx")
+);
+const GhanaTaxLedger = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/TaxLedger.jsx")
+);
+const GhanaTaxCatalogProfiles = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/TaxCatalogProfiles.jsx")
+);
+const GhanaPartnerTaxProfiles = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/PartnerTaxProfiles.jsx")
+);
+const GhanaVatOverview = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaVatOverview.jsx")
+);
+const GhanaVatReturn = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaVatReturn.jsx")
+);
+const GhanaVatApportionment = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaVatApportionment.jsx")
+);
+const GhanaImportedServices = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaImportedServices.jsx")
+);
+const GhanaImportedServiceDetail = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaImportedServiceDetail.jsx")
+);
+const GhanaVatReconciliation = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaVatReconciliation.jsx")
+);
+const GhanaWithholdingOverview = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingOverview.jsx")
+);
+const GhanaWithholdingEvents = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingEvents.jsx")
+);
+const GhanaWithholdingCertificates = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingCertificates.jsx")
+);
+const GhanaWithholdingReturns = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReturns.jsx")
+);
+const GhanaWithholdingReturnDetail = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReturnDetail.jsx")
+);
+const GhanaWithholdingRemittances = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingRemittances.jsx")
+);
+const GhanaWithholdingReconciliation = lazy(() =>
+  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReconciliation.jsx")
+);
+const GhanaEvatOverview = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatOverview.jsx"));
+const GhanaEvatDocuments = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDocuments.jsx"));
+const GhanaEvatDocumentDetail = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDocumentDetail.jsx"));
+const GhanaEvatQueue = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatQueue.jsx"));
+const GhanaEvatDevices = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDevices.jsx"));
+const GhanaEvatLogs = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatLogs.jsx"));
+const GhanaEvatSettings = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatSettings.jsx"));
+const GhanaCit = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCit.jsx"));
+const GhanaCitComputation = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCitComputation.jsx"));
+const GhanaCapitalAllowances = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCapitalAllowances.jsx"));
+const GhanaIndustryProfiles = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaIndustryProfiles.jsx"));
 const WithholdingWorkspace = lazy(() =>
   import("../../features/accounting/tax/pages/WithholdingWorkspace.jsx")
 );
@@ -610,6 +672,12 @@ const HrGrades = lazy(() => import("../../features/hr/pages/Grades.jsx"));
 const HrPositions = lazy(() => import("../../features/hr/pages/Positions.jsx"));
 const HrCompensationBands = lazy(() => import("../../features/hr/pages/CompensationBands.jsx"));
 const HrPayroll = lazy(() => import("../../features/hr/pages/Payroll.jsx"));
+const GhanaPayrollOverview = lazy(() => import("../../features/hr/pages/ghana/GhanaPayrollOverview.jsx"));
+const GhanaPayeReturns = lazy(() => import("../../features/hr/pages/ghana/GhanaPayeReturns.jsx"));
+const GhanaPayeReturnDetail = lazy(() => import("../../features/hr/pages/ghana/GhanaPayeReturnDetail.jsx"));
+const GhanaPensionSchedule = lazy(() => import("../../features/hr/pages/ghana/GhanaPensionSchedule.jsx"));
+const GhanaDisengagedSchedule = lazy(() => import("../../features/hr/pages/ghana/GhanaDisengagedSchedule.jsx"));
+const GhanaPayrollRemittances = lazy(() => import("../../features/hr/pages/ghana/GhanaPayrollRemittances.jsx"));
 const HrLeave = lazy(() => import("../../features/hr/pages/Leave.jsx"));
 const HrBenefits = lazy(() => import("../../features/hr/pages/Benefits.jsx"));
 const HrStatutory = lazy(() => import("../../features/hr/pages/Statutory.jsx"));
@@ -864,6 +932,194 @@ export const router = createBrowserRouter([
                 </Lazy>
               </RequirePermission>
             ),
+          },
+          {
+            path: ROUTES.accountingTaxGhana,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxGhanaReadinessRead]}>
+                <Lazy>
+                  <GhanaComplianceOverview />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaLedger,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <GhanaTaxLedger />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaCatalogProfiles,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy>
+                  <GhanaTaxCatalogProfiles />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaPartnerProfiles,
+            element: (
+              <RequirePermission all={[PERMISSIONS.taxRead, PERMISSIONS.partnersRead]}>
+                <Lazy>
+                  <GhanaPartnerTaxProfiles />
+                </Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaVat,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaVatOverview /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaVatReturn,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaVatReturn /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaVatApportionment,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaVatApportionment /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaImportedServices,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaImportedServices /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaImportedServiceDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaImportedServiceDetail /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaVatReconciliation,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaVatReconciliation /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholding,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingOverview /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingEvents,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingEvents /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingCertificates,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingCertificates /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingReturns,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingReturns /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingReturnDetail(),
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingReturnDetail /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingRemittances,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingRemittances /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaWithholdingReconciliation,
+            element: (
+              <RequirePermission any={[PERMISSIONS.taxRead]}>
+                <Lazy><GhanaWithholdingReconciliation /></Lazy>
+              </RequirePermission>
+            ),
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvat,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatOverview /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatDocuments,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatDocuments /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatDocumentDetail(),
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatDocumentDetail /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatQueue,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatQueue /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatDevices,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatDevices /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatLogs,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationRead]}><Lazy><GhanaEvatLogs /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaEvatSettings,
+            element: <RequirePermission any={[PERMISSIONS.fiscalizationManage]}><Lazy><GhanaEvatSettings /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaCit,
+            element: <RequirePermission any={[PERMISSIONS.taxGhanaCitRead]}><Lazy><GhanaCit /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaCitComputation(),
+            element: <RequirePermission any={[PERMISSIONS.taxGhanaCitRead]}><Lazy><GhanaCitComputation /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaCapitalAllowances,
+            element: <RequirePermission any={[PERMISSIONS.taxGhanaCitRead]}><Lazy><GhanaCapitalAllowances /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.accountingTaxGhanaIndustryProfile,
+            element: <RequirePermission any={[PERMISSIONS.taxRead]}><Lazy><GhanaIndustryProfiles /></Lazy></RequirePermission>,
           },
           {
             path: ROUTES.accountingTaxWithholding,
@@ -2185,6 +2441,30 @@ export const router = createBrowserRouter([
                 <Lazy><HrPayroll /></Lazy>
               </RequirePermission>
             ),
+          },
+          {
+            path: ROUTES.hrPayrollGhana,
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead, PERMISSIONS.hrPayrollGhanaManage, PERMISSIONS.hrPayrollGhanaFile]}><Lazy><GhanaPayrollOverview /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.hrPayrollGhanaReturns,
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead]}><Lazy><GhanaPayeReturns /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.hrPayrollGhanaReturnDetail(),
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead]}><Lazy><GhanaPayeReturnDetail /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.hrPayrollGhanaPensions,
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead]}><Lazy><GhanaPensionSchedule /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.hrPayrollGhanaDisengaged,
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead]}><Lazy><GhanaDisengagedSchedule /></Lazy></RequirePermission>,
+          },
+          {
+            path: ROUTES.hrPayrollGhanaRemittances,
+            element: <RequirePermission any={[PERMISSIONS.hrPayrollGhanaRead]}><Lazy><GhanaPayrollRemittances /></Lazy></RequirePermission>,
           },
           {
             path: ROUTES.hrLeave,

@@ -5,25 +5,26 @@ import { ArrowLeft, Save } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeInventoryApi } from '../api/inventory.api.js';
-import { toOptions, NONE_OPTION } from '../../../shared/utils/options.js';
+import { ROUTES } from '../../../app/constants/routes.js';
 
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
-import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
+import { TaxCatalogProfileSelect } from '../../../shared/components/forms/TaxCatalogProfileSelect.jsx';
 
-const STATUS_OPTIONS = [
-  NONE_OPTION,
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' }
+const ACTIVE_OPTIONS = [
+  { value: 'true', label: 'Active' },
+  { value: 'false', label: 'Inactive' },
 ];
 
-const BOOLEAN_OPTIONS = [
-  { value: 'false', label: 'No' },
-  { value: 'true', label: 'Yes' }
-];
+function readableOption(row) {
+  if (row.code && row.name) return `${row.code} — ${row.name}`;
+  if (row.name) return row.name;
+  if (row.code) return row.code;
+  return 'Unnamed option';
+}
 
 export default function ItemCreate() {
   const nav = useNavigate();
@@ -31,50 +32,38 @@ export default function ItemCreate() {
   const { http } = useApi();
   const invApi = useMemo(() => makeInventoryApi(http), [http]);
 
-  const { data: categoriesRaw } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ['inventory.categories'],
-    queryFn: async () => invApi.listCategories(),
-    staleTime: 60_000
+    queryFn: () => invApi.listCategories(),
+    staleTime: 60_000,
   });
 
-  const { data: unitsRaw } = useQuery({
+  const { data: units = [] } = useQuery({
     queryKey: ['inventory.units'],
-    queryFn: async () => invApi.listUnits(),
-    staleTime: 60_000
+    queryFn: () => invApi.listUnits(),
+    staleTime: 60_000,
   });
 
   const categoryOptions = useMemo(
-    () => [
-      NONE_OPTION,
-      ...toOptions(categoriesRaw, {
-        valueKey: 'id',
-        label: (c) => `${c.code ?? ''} ${c.name ?? ''}`.trim() || c.id
-      })
-    ],
-    [categoriesRaw]
+    () => [{ value: '', label: 'Select category' }, ...categories.map((row) => ({ value: row.id, label: readableOption(row) }))],
+    [categories],
   );
 
   const unitOptions = useMemo(
-    () => [
-      NONE_OPTION,
-      ...toOptions(unitsRaw, {
-        valueKey: 'id',
-        label: (u) => `${u.code ?? ''} ${u.name ?? ''}`.trim() || u.id
-      })
-    ],
-    [unitsRaw]
+    () => [{ value: '', label: 'Select unit' }, ...units.map((row) => ({ value: row.id, label: readableOption(row) }))],
+    [units],
   );
 
   const [form, setForm] = useState({
     categoryId: '',
     unitId: '',
+    taxProfileId: '',
     sku: '',
     name: '',
-    description: '',
-    status: 'active',
-    reorderPoint: 0,
-    reorderQuantity: 0,
-    reorderEnabled: 'false'
+    barcode: '',
+    isActive: 'true',
+    reorderPoint: '0',
+    reorderQty: '0',
   });
 
   const [saving, setSaving] = useState(false);
@@ -85,21 +74,21 @@ export default function ItemCreate() {
 
     setSaving(true);
     try {
-      const payload = {
+      await invApi.createItem({
         categoryId: form.categoryId,
         unitId: form.unitId,
-        sku: form.sku,
-        name: form.name,
-        description: form.description ? form.description : null,
-        status: form.status ? form.status : null,
+        taxProfileId: form.taxProfileId || null,
+        sku: form.sku.trim(),
+        name: form.name.trim(),
+        barcode: form.barcode.trim() || null,
+        isActive: form.isActive === 'true',
         reorderPoint: form.reorderPoint === '' ? 0 : Number(form.reorderPoint),
-        reorderQuantity: form.reorderQuantity === '' ? 0 : Number(form.reorderQuantity),
-        reorderEnabled: form.reorderEnabled === 'true'
-      };
-
-      await invApi.createItem(payload);
+        reorderQty: form.reorderQty === '' ? 0 : Number(form.reorderQty),
+      });
       await qc.invalidateQueries({ queryKey: ['inventory.items'] });
-      nav(-1);
+      await qc.invalidateQueries({ queryKey: ['tax', 'catalogProfiles'] });
+      await qc.invalidateQueries({ queryKey: ['tax', 'ghana', 'readiness'] });
+      nav(ROUTES.inventoryItems);
     } finally {
       setSaving(false);
     }
@@ -109,7 +98,7 @@ export default function ItemCreate() {
     <>
       <PageHeader
         title="New Item"
-        subtitle="Create an inventory item."
+        subtitle="Create an inventory item and assign its Ghana tax treatment at source."
         actions={
           <div className="flex items-center gap-2">
             <Button type="button" variant="ghost" onClick={() => nav(-1)}>
@@ -156,19 +145,30 @@ export default function ItemCreate() {
             required
           />
 
-          <Select
-            label="Status"
-            value={form.status}
-            onChange={(e) => setForm((s) => ({ ...s, status: e.target.value }))}
-            options={STATUS_OPTIONS}
+          <Input
+            label="Barcode"
+            value={form.barcode}
+            onChange={(e) => setForm((s) => ({ ...s, barcode: e.target.value }))}
           />
 
           <Select
-            label="Enable Reordering"
-            value={form.reorderEnabled}
-            onChange={(e) => setForm((s) => ({ ...s, reorderEnabled: e.target.value }))}
-            options={BOOLEAN_OPTIONS}
+            label="Status"
+            value={form.isActive}
+            onChange={(e) => setForm((s) => ({ ...s, isActive: e.target.value }))}
+            options={ACTIVE_OPTIONS}
           />
+
+          <div className="md:col-span-2 rounded-2xl border border-brand-primary/20 bg-brand-primary/5 p-4">
+            <TaxCatalogProfileSelect
+              label="Ghana tax profile"
+              value={form.taxProfileId}
+              onChange={(e) => setForm((s) => ({ ...s, taxProfileId: e.target.value }))}
+              emptyLabel="Select the item's Ghana tax profile"
+            />
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Choose the tax profile by name; AptBooks links it to the item automatically.
+            </p>
+          </div>
 
           <Input
             label="Reorder Point"
@@ -184,24 +184,13 @@ export default function ItemCreate() {
             type="number"
             min="0"
             step="0.01"
-            value={form.reorderQuantity}
-            onChange={(e) => setForm((s) => ({ ...s, reorderQuantity: e.target.value }))}
-          />
-
-          <Textarea
-            className="md:col-span-2"
-            label="Description (optional)"
-            value={form.description}
-            onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))}
+            value={form.reorderQty}
+            onChange={(e) => setForm((s) => ({ ...s, reorderQty: e.target.value }))}
           />
 
           <div className="md:col-span-2 flex justify-end gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => nav(-1)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saving}>
-              Create item
-            </Button>
+            <Button type="button" variant="ghost" onClick={() => nav(-1)}>Cancel</Button>
+            <Button type="submit" disabled={saving || !form.categoryId || !form.unitId || !form.sku.trim() || !form.name.trim()}>Create item</Button>
           </div>
         </form>
       </ContentCard>

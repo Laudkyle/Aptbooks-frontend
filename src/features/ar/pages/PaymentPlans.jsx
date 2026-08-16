@@ -51,7 +51,7 @@ export default function PaymentPlans() {
   const selectedEntity = useMemo(() => getEntityByValue(draft.entityValue), [getEntityByValue, draft.entityValue]);
 
   const { data: listData, isLoading } = useQuery({ queryKey: qk.paymentPlans(qs), queryFn: () => api.list(qs) });
-  const rows = Array.isArray(listData) ? listData : listData?.data ?? [];
+  const rows = listData?.data ?? [];
   const { data: detail } = useQuery({ queryKey: qk.paymentPlan(selectedId), queryFn: () => api.get(selectedId), enabled: !!selectedId });
 
   const createPlan = useMutation({
@@ -124,7 +124,17 @@ export default function PaymentPlans() {
     });
   };
 
-  const installments = Array.isArray(detail?.installments) ? detail.installments : Array.isArray(detail?.data?.installments) ? detail.data.installments : [];
+  const planDetail = detail?.data ?? null;
+  const installments = planDetail?.installments ?? [];
+  const installmentOptions = [
+    { value: '', label: 'Select installment' },
+    ...installments
+      .filter((inst) => inst.status === 'due')
+      .map((inst) => ({
+        value: String(inst.id),
+        label: `Installment due ${inst.due_date} — ${inst.amount}`,
+      })),
+  ];
 
   return (
     <div className="space-y-4">
@@ -166,13 +176,13 @@ export default function PaymentPlans() {
         </div>
       </Modal>
 
-      <Modal open={modal === 'detail'} onClose={() => setModal(null)} title={`Plan #${selectedId ?? ''}`}>
+      <Modal open={modal === 'detail'} onClose={() => setModal(null)} title="Payment plan details">
         <div className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <ContentCard title="Entity"><div className="text-sm text-slate-700">{detail?.entity_type}:{detail?.entity_id}</div></ContentCard>
-            <ContentCard title="Partner"><div className="text-sm text-slate-700">{detail?.partner_name ?? detail?.partner_id ?? '—'}</div></ContentCard>
-            <ContentCard title="Total"><div className="text-sm text-slate-700">{detail?.total_amount ?? '—'}</div></ContentCard>
-            <ContentCard title="Status"><Badge tone={(detail?.status ?? 'active') === 'active' ? 'success' : 'muted'}>{detail?.status ?? 'active'}</Badge></ContentCard>
+            <ContentCard title="Entity"><div className="text-sm text-slate-700">{planDetail?.entity_type ?? '—'}</div></ContentCard>
+            <ContentCard title="Partner"><div className="text-sm text-slate-700">{planDetail?.partner_name ?? 'Linked partner'}</div></ContentCard>
+            <ContentCard title="Total"><div className="text-sm text-slate-700">{planDetail?.total_amount ?? '—'}</div></ContentCard>
+            <ContentCard title="Status"><Badge tone={(planDetail?.status ?? 'active') === 'active' ? 'success' : 'muted'}>{planDetail?.status ?? 'active'}</Badge></ContentCard>
           </div>
 
           <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
@@ -193,12 +203,17 @@ export default function PaymentPlans() {
           <div className="rounded-2xl border border-border-subtle bg-white/70 p-4">
             <div className="text-sm font-semibold text-slate-900">Mark installment paid</div>
             <div className="mt-3 grid gap-4 md:grid-cols-2">
-              <Input label="Installment ID" value={markPaidForm.installmentId} onChange={(e) => setMarkPaidForm((s) => ({ ...s, installmentId: e.target.value }))} placeholder="Exact installment id from backend" />
+              <Select
+                label="Installment"
+                value={markPaidForm.installmentId}
+                onChange={(e) => setMarkPaidForm((s) => ({ ...s, installmentId: e.target.value }))}
+                options={installmentOptions}
+              />
               <Input label="Settlement reference" value={markPaidForm.settlementRef} onChange={(e) => setMarkPaidForm((s) => ({ ...s, settlementRef: e.target.value }))} placeholder="Bank ref / receipt ref" />
             </div>
             <div className="mt-4 flex justify-end">
               <Button loading={markPaid.isPending} onClick={() => {
-                if (!selectedId || !markPaidForm.installmentId) return toast.error('Installment ID is required');
+                if (!selectedId || !markPaidForm.installmentId) return toast.error('Select an installment');
                 markPaid.mutate({ id: selectedId, installmentId: markPaidForm.installmentId, body: { settlement_ref: markPaidForm.settlementRef.trim() || null } });
               }}>Mark paid</Button>
             </div>

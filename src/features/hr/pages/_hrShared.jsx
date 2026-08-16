@@ -99,6 +99,7 @@ export function ModuleCards() {
     { to: ROUTES.hrGrades, icon: BadgeDollarSign, title: 'Grades', text: 'Grade bands and salary ranges.' },
     { to: ROUTES.hrCompensationBands, icon: Wallet, title: 'Compensation Bands', text: 'Pay bands and salary frequency controls.' },
     { to: ROUTES.hrPayroll, icon: Landmark, title: 'Payroll', text: 'Payroll components, assignments, runs and journal posting workflow.' },
+    { to: ROUTES.hrPayrollGhana, icon: Landmark, title: 'Ghana PAYE & Pensions', text: 'PAYE returns, SSNIT Tier 1, Tier 2 schedules and statutory remittances.' },
     { to: ROUTES.hrLeave, icon: CalendarDays, title: 'Leave', text: 'Leave types, balances, leave requests and approval actions.' },
     { to: ROUTES.hrBenefits, icon: HeartHandshake, title: 'Benefits', text: 'Benefit plans and employee benefit assignments.' },
     { to: ROUTES.hrStatutory, icon: Landmark, title: 'Statutory', text: 'PAYE, pension, social security and other payroll rules.' },
