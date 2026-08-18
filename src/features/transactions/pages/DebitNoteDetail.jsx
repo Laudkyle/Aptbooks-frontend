@@ -113,7 +113,7 @@ export default function DebitNoteDetail() {
 
   // Form validation
   const isApplyFormValid = useMemo(() => {
-    const amount = parseFloat(applyBody.amountApplied);
+    const amount = String(applyBody.amountApplied || '').trim();
     return applyBody.billId.trim() !== "" && !isNaN(amount) && amount > 0;
   }, [applyBody]);
 
@@ -233,7 +233,7 @@ export default function DebitNoteDetail() {
         return api.reject(id, { comment }, { idempotencyKey });
       if (action === "issue") return api.issue(id, { idempotencyKey });
       if (action === "apply") {
-        const amount = parseFloat(applyBody.amountApplied);
+        const amount = String(applyBody.amountApplied || '').trim();
         return api.apply(
           id,
           {

@@ -88,7 +88,7 @@ export function sanitizePayload(config, form) {
     memo: form.memo || undefined,
     currencyCode: form.currencyCode || undefined,
   };
-  if (config.requireAmountTotal && form.amountTotal !== '') payload.amountTotal = Number(form.amountTotal || 0);
+  if (config.requireAmountTotal && form.amountTotal !== '') payload.amountTotal = String(form.amountTotal || '0').trim();
   (config.extraFields || []).forEach((f) => {
     if (form[f.key] !== undefined && form[f.key] !== '') payload[f.key] = form[f.key];
   });
@@ -97,9 +97,9 @@ export function sanitizePayload(config, form) {
       .filter((line) => line.description || line.accountId || Number(line.lineTotal || 0) || Number(line.unitPrice || 0))
       .map((line) => ({
         description: line.description,
-        quantity: line.quantity === '' ? undefined : Number(line.quantity ?? 1),
-        unitPrice: line.unitPrice === '' ? undefined : Number(line.unitPrice ?? 0),
-        lineTotal: line.lineTotal === '' ? undefined : Number(line.lineTotal ?? 0),
+        quantity: line.quantity === '' ? undefined : String(line.quantity ?? '1').trim(),
+        unitPrice: line.unitPrice === '' ? undefined : String(line.unitPrice ?? '0').trim(),
+        lineTotal: line.lineTotal === '' ? undefined : String(line.lineTotal ?? '0').trim(),
         accountId: line.accountId || undefined,
         itemId: line.itemId || undefined,
         taxCodeId: line.taxCodeId || undefined,

@@ -9,6 +9,7 @@ import {
   normalizePercentagePointsNumber,
   percentagePointsToFractionNumber,
   scaledIntegerToNumber,
+  formatScaledInteger,
   toScaledInteger,
 } from '../finance/fixedPoint.js';
 
@@ -263,8 +264,8 @@ export function buildTaxSubmissionLines(lines = [], taxCodes = [], pricingMode =
   const summary = computeDocumentSummary({ lines, taxCodes, pricingMode });
   return summary.lines.map((line) => ({
     description: line.description || undefined,
-    quantity: line.quantity === '' ? undefined : scaledIntegerToNumber(toScaledInteger(line.quantity, FINANCIAL_SCALE.documentQuantity), FINANCIAL_SCALE.documentQuantity),
-    unitPrice: line.unitPrice === '' ? undefined : roundCurrency(line.unitPrice),
+    quantity: line.quantity === '' ? undefined : formatScaledInteger(toScaledInteger(line.quantity, FINANCIAL_SCALE.documentQuantity), FINANCIAL_SCALE.documentQuantity),
+    unitPrice: line.unitPrice === '' ? undefined : formatScaledInteger(toScaledInteger(line.unitPrice, FINANCIAL_SCALE.documentUnitPrice), FINANCIAL_SCALE.documentUnitPrice),
     [accountField]: line[accountField] || undefined,
     itemId: line.itemId || undefined,
     taxCodeId: line.taxCodeId || undefined,

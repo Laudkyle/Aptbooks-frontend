@@ -79,7 +79,7 @@ export default function AccrualCreate() {
         lines: lines.map((l) => ({
           accountId: l.accountId,
           dc: l.dc,
-          amountValue: Number(l.amountValue),
+          amountValue: String(l.amountValue || '').trim(),
           description: l.description || undefined
         }))
       };
@@ -100,7 +100,7 @@ export default function AccrualCreate() {
       // Add deferral schedule for DEFERRAL rules
       if (ruleType === 'DEFERRAL') {
         payload.deferralSchedule = {
-          totalAmount: Number(defTotalAmount),
+          totalAmount: String(defTotalAmount || '').trim(),
           periodCount: Number(defPeriodCount),
           startPeriodId: defStartPeriodId
         };
