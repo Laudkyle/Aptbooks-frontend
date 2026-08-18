@@ -26,7 +26,7 @@ export default function SavedReports() {
   const [open, setOpen] = useState(false);
   const [runOpen, setRunOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', folder: '', kind: 'sql', querySql: '', templateKey: '' });
+  const [form, setForm] = useState({ name: '', description: '', folder: '', kind: 'management', templateKey: '' });
   const [runForm, setRunForm] = useState({ versionId: '', maxRows: 500 });
 
   const { data, isLoading, refetch } = useQuery({
@@ -42,10 +42,12 @@ export default function SavedReports() {
   });
   const versionOptions = [
     { value: '', label: 'Latest version' },
-    ...(versionsQ.data?.data ?? []).map((version) => ({
-      value: version.id,
-      label: `Version ${version.version_number} — ${version.kind}`,
-    })),
+    ...(versionsQ.data?.data ?? [])
+      .filter((version) => version.kind !== 'sql')
+      .map((version) => ({
+        value: version.id,
+        label: `Version ${version.version_number} — ${version.kind}`,
+      })),
   ];
 
   const columns = useMemo(() => {
@@ -59,7 +61,7 @@ export default function SavedReports() {
           </div>
         )
       },
-      { header: 'Kind', render: (r) => <span className="text-sm text-slate-700">{r.kind || 'sql'}</span> },
+      { header: 'Kind', render: (r) => <span className="text-sm text-slate-700">{r.kind === 'sql' ? 'SQL (disabled)' : (r.kind || 'management')}</span> },
       { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.is_archived ? 'archived' : (r.status || 'active')}</span> },
       {
         header: '',
@@ -69,12 +71,14 @@ export default function SavedReports() {
               size="sm"
               variant="outline"
               leftIcon={PlayCircle}
+              disabled={r.kind === 'sql'}
+              title={r.kind === 'sql' ? 'Legacy custom SQL reports are disabled for tenant isolation.' : undefined}
               onClick={() => {
                 setSelected(r);
                 setRunOpen(true);
               }}
             >
-              Run
+              {r.kind === 'sql' ? 'Disabled' : 'Run'}
             </Button>
           </div>
         )
@@ -88,13 +92,12 @@ export default function SavedReports() {
       description: form.description || null,
       folder: form.folder || null,
       kind: form.kind,
-      querySql: form.kind === 'sql' ? form.querySql : undefined,
-      templateKey: form.kind === 'management' ? form.templateKey : undefined,
+      templateKey: form.templateKey,
       parameters: {}
     };
     await api.savedReports.create(body, { idempotencyKey: generateUUID() });
     setOpen(false);
-    setForm({ name: '', description: '', folder: '', kind: 'sql', querySql: '', templateKey: '' });
+    setForm({ name: '', description: '', folder: '', kind: 'management', templateKey: '' });
     refetch();
   }
 
@@ -142,33 +145,15 @@ export default function SavedReports() {
         <div className="space-y-3">
           <Input label="Name" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
           <Input label="Folder" value={form.folder} onChange={(e) => setForm((s) => ({ ...s, folder: e.target.value }))} placeholder="Optional" />
-          <Select
-            label="Kind"
-            value={form.kind}
-            onChange={(e) => setForm((s) => ({ ...s, kind: e.target.value }))}
-            options={[
-              { label: 'SQL', value: 'sql' },
-              { label: 'Management template', value: 'management' }
-            ]}
-          />
-          {form.kind === 'sql' ? (
-            <div>
-              <div className="mb-1 text-sm font-medium text-slate-800">Query SQL</div>
-              <textarea
-                className="h-40 w-full rounded-xl border border-slate-200 bg-white p-3 font-mono text-xs text-slate-800 outline-none focus:ring-2 focus:ring-[var(--color-brand-light)]"
-                value={form.querySql}
-                onChange={(e) => setForm((s) => ({ ...s, querySql: e.target.value }))}
-                placeholder="SELECT ..."
-              />
-            </div>
-          ) : (
-            <Input label="Template key" value={form.templateKey} onChange={(e) => setForm((s) => ({ ...s, templateKey: e.target.value }))} placeholder="e.g., departmental-pnl" />
-          )}
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            Custom SQL reports are disabled. Saved reports must use an approved management-report template so tenant isolation is enforced by application-owned queries.
+          </div>
+          <Input label="Template key" value={form.templateKey} onChange={(e) => setForm((s) => ({ ...s, templateKey: e.target.value }))} placeholder="e.g., departmental-pnl" />
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={create} disabled={!form.name || (form.kind === 'sql' && !form.querySql)}>
+            <Button onClick={create} disabled={!form.name || !form.templateKey}>
               Create
             </Button>
           </div>

@@ -55,7 +55,7 @@ export default function AssetRevalue() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { periodId: form.periodId, entryDate: form.entryDate, newValue: Number(form.newValue||0), revaluationReserveAccountId: form.revaluationReserveAccountId, memo: form.memo || undefined };
+      const payload = { periodId: form.periodId, entryDate: form.entryDate, newValue: String(form.newValue || '0').trim(), revaluationReserveAccountId: form.revaluationReserveAccountId, memo: form.memo || undefined };
       await assetsApi.revalueFixedAsset(id, payload);
       await qc.invalidateQueries({ queryKey: ['assets.fixedAsset', id] });
       await qc.invalidateQueries({ queryKey: ['assets.fixedAssets'] });

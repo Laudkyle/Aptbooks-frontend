@@ -62,7 +62,6 @@ export default function OperationalDocDetail({ moduleKey }) {
   });
   
   const availableActions = getPhase1Actions(config, state);
-  console.log({ state, availableActions, header, detailMeta });
 
   const run = useMutation({
     mutationFn: async ({ key }) => {

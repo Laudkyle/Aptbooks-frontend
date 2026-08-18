@@ -1,3 +1,4 @@
+import { clientLogger } from "../../utils/clientLogger.js";
 import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle, CheckCircle2, Copy, Download, Upload, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
@@ -159,9 +160,9 @@ export function JsonEditor({
     try {
       await navigator.clipboard.writeText(textValue);
       // You might want to show a toast notification here
-      console.log('Copied to clipboard');
+      
     } catch (err) {
-      console.error('Failed to copy:', err);
+      clientLogger.error('Failed to copy JSON', err);
     }
   };
 
@@ -178,7 +179,7 @@ export function JsonEditor({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Failed to download:', err);
+      clientLogger.error('Failed to download JSON', err);
     }
   };
 

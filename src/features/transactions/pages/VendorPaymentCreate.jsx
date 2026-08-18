@@ -18,6 +18,7 @@ import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDocumentOptionLabel, formatDocumentAmount, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
+import { moneyNumberFromUnits, moneyString, moneyUnits } from '../../../shared/finance/money.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -121,8 +122,8 @@ export default function VendorPaymentCreate() {
     const noteVendorId = note.vendor_id || note.vendorId;
     const status = (note.status || note.workflow_status || '').toLowerCase();
     const remainingRaw = note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total;
-    const remaining = typeof remainingRaw === 'string' ? parseFloat(remainingRaw) : Number(remainingRaw || 0);
-    return (!formData.vendorId || noteVendorId === formData.vendorId) && remaining > 0 && !['voided', 'draft', 'rejected'].includes(status);
+    const remainingUnits = moneyUnits(remainingRaw || '0');
+    return (!formData.vendorId || noteVendorId === formData.vendorId) && remainingUnits > 0n && !['voided', 'draft', 'rejected'].includes(status);
   }), [debitNotes, formData.vendorId]);
 
   const vendorOptions = [
@@ -235,7 +236,7 @@ export default function VendorPaymentCreate() {
       taxCodeId: vendorTaxProfile.withholding_tax_code_id,
       categoryCode: withholdingCategory || undefined,
     }),
-    enabled: Boolean(formData.vendorId && formData.paymentDate && Number(formData.amountTotal || 0) > 0 && vendorTaxProfile?.withholding_tax_code_id),
+    enabled: Boolean(formData.vendorId && formData.paymentDate && moneyUnits(formData.amountTotal || '0') > 0n && vendorTaxProfile?.withholding_tax_code_id),
     staleTime: 5_000,
   });
 
@@ -247,14 +248,14 @@ export default function VendorPaymentCreate() {
         paymentDate: formData.paymentDate,
         paymentMethodId: formData.paymentMethodId || null,
         cashAccountId: formData.cashAccountId,
-        amountTotal: parseFloat(formData.amountTotal) || 0,
+        amountTotal: moneyString(formData.amountTotal || '0'),
         reference: formData.reference || undefined,
         memo: formData.memo || undefined,
         allocations: allocations
           .filter(a => a.billId && a.amountApplied)
           .map(a => ({
             billId: a.billId,
-            amountApplied: parseFloat(a.amountApplied) || 0
+            amountApplied: moneyString(a.amountApplied || '0')
           }))
       };
       return api.create(payload, { idempotencyKey });
@@ -271,16 +272,20 @@ export default function VendorPaymentCreate() {
     }
   });
 
-  const totalAllocated = allocations.reduce((sum, a) => sum + (parseFloat(a.amountApplied) || 0), 0);
-  const paymentAmount = parseFloat(formData.amountTotal) || 0;
-  const unallocated = paymentAmount - totalAllocated;
+  const totalAllocatedUnits = allocations.reduce((sum, a) => sum + moneyUnits(a.amountApplied || '0'), 0n);
+  const paymentAmountUnits = moneyUnits(formData.amountTotal || '0');
+  const unallocatedUnits = paymentAmountUnits - totalAllocatedUnits;
+  // Presentation values only; financial decisions use fixed-point units.
+  const totalAllocated = moneyNumberFromUnits(totalAllocatedUnits);
+  const paymentAmount = moneyNumberFromUnits(paymentAmountUnits);
+  const unallocated = moneyNumberFromUnits(unallocatedUnits);
 
   const isValid = 
     formData.vendorId &&
     formData.paymentDate &&
     formData.cashAccountId &&
-    paymentAmount > 0 &&
-    unallocated >= 0;
+    paymentAmountUnits > 0n &&
+    unallocatedUnits >= 0n;
 
   const isLoading = vendorsLoading || accountsLoading || methodsLoading;
 
@@ -407,7 +412,7 @@ export default function VendorPaymentCreate() {
                         onChange={(e) => setFormData({ ...formData, amountTotal: e.target.value })}
                         required
                       />
-                      {paymentAmount > 0 && (
+                      {paymentAmountUnits > 0n && (
                         <div className="mt-2 p-3 bg-blue-50 rounded-md">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-blue-700">Total Payment:</span>
@@ -419,7 +424,7 @@ export default function VendorPaymentCreate() {
                           </div>
                           <div className="flex items-center justify-between text-xs mt-1 pt-1 border-t border-blue-200">
                             <span className="text-blue-700">Unallocated:</span>
-                            <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : 'text-blue-900'}`}>
+                            <span className={`font-semibold ${unallocatedUnits < 0n ? 'text-red-600' : 'text-blue-900'}`}>
                               ${unallocated.toFixed(2)}
                             </span>
                           </div>
@@ -608,14 +613,14 @@ export default function VendorPaymentCreate() {
                           <span className="font-medium text-gray-700">Total Allocated:</span>
                           <span className="font-semibold text-gray-900">${totalAllocated.toFixed(2)}</span>
                         </div>
-                        {unallocated !== 0 && (
+                        {unallocatedUnits !== 0n && (
                           <div className={`flex items-center justify-between text-sm mt-2 p-2 rounded ${
-                            unallocated < 0 ? 'bg-red-50' : 'bg-yellow-50'
+                            unallocatedUnits < 0n ? 'bg-red-50' : 'bg-yellow-50'
                           }`}>
-                            <span className={`font-medium ${unallocated < 0 ? 'text-red-700' : 'text-yellow-700'}`}>
-                              {unallocated < 0 ? 'Over-allocated:' : 'Unallocated:'}
+                            <span className={`font-medium ${unallocatedUnits < 0n ? 'text-red-700' : 'text-yellow-700'}`}>
+                              {unallocatedUnits < 0n ? 'Over-allocated:' : 'Unallocated:'}
                             </span>
-                            <span className={`font-semibold ${unallocated < 0 ? 'text-red-900' : 'text-yellow-900'}`}>
+                            <span className={`font-semibold ${unallocatedUnits < 0n ? 'text-red-900' : 'text-yellow-900'}`}>
                               ${Math.abs(unallocated).toFixed(2)}
                             </span>
                           </div>
@@ -655,7 +660,7 @@ export default function VendorPaymentCreate() {
                   </div>
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-gray-200">
                     <span className="text-gray-600">Unallocated</span>
-                    <span className={`font-semibold ${unallocated < 0 ? 'text-red-600' : unallocated > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
+                    <span className={`font-semibold ${unallocatedUnits < 0n ? 'text-red-600' : unallocatedUnits > 0n ? 'text-yellow-600' : 'text-green-600'}`}>
                       ${unallocated.toFixed(2)}
                     </span>
                   </div>
@@ -669,7 +674,7 @@ export default function VendorPaymentCreate() {
                     </div>
                   </div>
 
-                  {unallocated < 0 && (
+                  {unallocatedUnits < 0n && (
                     <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
                       <div className="flex items-start gap-2">
                         <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
@@ -729,8 +734,8 @@ export default function VendorPaymentCreate() {
                     { label: 'Vendor', valid: !!formData.vendorId },
                     { label: 'Payment Date', valid: !!formData.paymentDate },
                     { label: 'Cash Account', valid: !!formData.cashAccountId },
-                    { label: 'Payment Amount > 0', valid: paymentAmount > 0 },
-                    { label: 'No Over-allocation', valid: unallocated >= 0 }
+                    { label: 'Payment Amount > 0', valid: paymentAmountUnits > 0n },
+                    { label: 'No Over-allocation', valid: unallocatedUnits >= 0n }
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       <div className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${

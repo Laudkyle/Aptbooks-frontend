@@ -1,11 +1,24 @@
+import {
+  FINANCIAL_SCALE,
+  applyPercentagePointUnits,
+  applyPercentagePoints,
+  clampPercentagePoints,
+  fractionToPercentagePointsNumber,
+  inclusiveTaxBreakdown,
+  multiplyScaled,
+  normalizePercentagePointsNumber,
+  percentagePointsToFractionNumber,
+  scaledIntegerToNumber,
+  toScaledInteger,
+} from '../finance/fixedPoint.js';
+
 export function coerceNumber(value, fallback = 0) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
 
-export function roundCurrency(value, decimals = 2) {
-  const factor = 10 ** decimals;
-  return Math.round(coerceNumber(value, 0) * factor) / factor;
+export function roundCurrency(value, decimals = FINANCIAL_SCALE.money) {
+  return scaledIntegerToNumber(toScaledInteger(value, decimals), decimals);
 }
 
 export function normalizeRows(data) {
@@ -17,18 +30,14 @@ export function normalizeRows(data) {
   return [];
 }
 
-function normalizeFractionOrPercent(value, fallback = 0) {
+function normalizeRecoverableDisplay(value, fallback = 100) {
   if (value === '' || value == null) return fallback;
-  const n = coerceNumber(value, fallback);
-  if (!Number.isFinite(n)) return fallback;
-  return n > 1 ? n / 100 : n;
+  return normalizePercentagePointsNumber(value, fallback);
 }
 
-function normalizePercentDisplay(value, fallback = 0) {
+function normalizeRecoverableFraction(value, fallback = 1) {
   if (value === '' || value == null) return fallback;
-  const n = coerceNumber(value, fallback);
-  if (!Number.isFinite(n)) return fallback;
-  return n <= 1 ? n * 100 : n;
+  return percentagePointsToFractionNumber(value);
 }
 
 function pickFirst(...values) {
@@ -50,8 +59,19 @@ export function normalizeTaxProfile(profile = {}) {
     salesTaxCodeId: pickFirst(source.salesTaxCodeId, source.sales_tax_code_id) ?? '',
     withholdingEnabled: !!pickFirst(source.withholdingEnabled, source.withholding_enabled, source.withholdingApplicable, source.withholding_applicable),
     withholdingTaxCodeId: pickFirst(source.withholdingTaxCodeId, source.withholding_tax_code_id) ?? '',
-    withholdingRate: normalizePercentDisplay(pickFirst(source.withholdingRate, source.withholding_rate, source.withholdingRateOverride, source.withholding_rate_override), 0),
-    recoverabilityPercent: normalizePercentDisplay(pickFirst(source.recoverabilityPercent, source.recoverability_percent, source.recoverablePercentOverride, source.recoverable_percent_override), 100),
+    // Tax/withholding rates are percentage points: 1.000000 means 1%, never 100%.
+    withholdingRate: normalizePercentagePointsNumber(
+      pickFirst(source.withholdingRate, source.withholding_rate, source.withholdingRateOverride, source.withholding_rate_override),
+      0,
+    ),
+    // The persisted recoverable override is a fraction (0..1); the form displays percentage points (0..100).
+    recoverabilityPercent:
+      pickFirst(source.recoverabilityPercent, source.recoverability_percent) !== undefined
+        ? normalizeRecoverableDisplay(pickFirst(source.recoverabilityPercent, source.recoverability_percent), 100)
+        : fractionToPercentagePointsNumber(
+            pickFirst(source.recoverablePercentOverride, source.recoverable_percent_override) ?? 1,
+            100,
+          ),
     exemptionReasonCode: pickFirst(source.exemptionReasonCode, source.exemption_reason_code) ?? '',
     exemptionCertificateNumber: pickFirst(source.exemptionCertificateNumber, source.exemption_certificate_number, source.certificateReference, source.certificate_reference, source.withholdingCertificateNo, source.withholding_certificate_no) ?? '',
     exemptionExpiryDate: pickFirst(source.exemptionExpiryDate, source.exemption_expiry_date, source.certificateExpiry, source.certificate_expiry) ?? '',
@@ -89,10 +109,10 @@ export function applyTaxProfileToLine(line = {}, taxProfile = {}) {
   if (!next.taxCodeId) {
     next.taxCodeId = profile.defaultTaxCodeId || profile.purchaseTaxCodeId || profile.salesTaxCodeId || next.taxCodeId;
   }
-  if ((next.withholdingRate === '' || next.withholdingRate == null || Number(next.withholdingRate) === 0) && profile.withholdingEnabled) {
+  if ((next.withholdingRate === '' || next.withholdingRate == null || toScaledInteger(next.withholdingRate, FINANCIAL_SCALE.percentagePoints) === 0n) && profile.withholdingEnabled) {
     next.withholdingRate = profile.withholdingRate;
   }
-  if (next.recoverablePercent === '' || next.recoverablePercent == null || Number(next.recoverablePercent) === 100) {
+  if (next.recoverablePercent === '' || next.recoverablePercent == null || toScaledInteger(next.recoverablePercent, FINANCIAL_SCALE.percentagePoints) === 100000000n) {
     next.recoverablePercent = profile.recoverabilityPercent;
   }
   if (!next.exemptionReasonCode && profile.exemptionReasonCode) next.exemptionReasonCode = profile.exemptionReasonCode;
@@ -126,58 +146,83 @@ export function applyTaxProfileToDocument(payload = {}, taxProfile = {}, options
 }
 
 export function computeLineAmounts(line = {}, taxCodeMap = {}, pricingMode = 'exclusive') {
-  const quantity = coerceNumber(line.quantity ?? line.qty ?? 1, 1);
-  const unitPrice = coerceNumber(line.unitPrice ?? line.unit_price ?? 0, 0);
-  const lineDiscount = coerceNumber(line.discountAmount ?? line.discount_amount ?? 0, 0);
-  const gross = quantity * unitPrice;
-  const baseBeforeTax = Math.max(0, gross - lineDiscount);
+  const quantityRaw = line.quantity ?? line.qty ?? 1;
+  const unitPriceRaw = line.unitPrice ?? line.unit_price ?? 0;
+  const lineDiscountRaw = line.discountAmount ?? line.discount_amount ?? 0;
+
+  const quantityUnits = toScaledInteger(quantityRaw, FINANCIAL_SCALE.documentQuantity);
+  const unitPriceUnits = toScaledInteger(unitPriceRaw, FINANCIAL_SCALE.documentUnitPrice);
+  const grossUnits = multiplyScaled(
+    quantityRaw,
+    FINANCIAL_SCALE.documentQuantity,
+    unitPriceRaw,
+    FINANCIAL_SCALE.documentUnitPrice,
+    FINANCIAL_SCALE.money,
+  );
+  const discountUnits = toScaledInteger(lineDiscountRaw, FINANCIAL_SCALE.money);
+  const baseBeforeTaxUnits = grossUnits - discountUnits > 0n ? grossUnits - discountUnits : 0n;
 
   const explicitRate = line.taxRate ?? line.tax_rate;
   const taxCodeId = line.taxCodeId ?? line.tax_code_id;
   const withholdingTaxCodeId = line.withholdingTaxCodeId ?? line.withholding_tax_code_id;
   const fallbackCode = taxCodeMap[taxCodeId] ?? {};
   const withholdingCode = taxCodeMap[withholdingTaxCodeId] ?? {};
-  const taxRate = normalizeFractionOrPercent(pickFirst(explicitRate, fallbackCode.rate, fallbackCode.tax_rate), 0);
-  const withholdingRate = normalizeFractionOrPercent(
-    pickFirst(line.withholdingRateOverride, line.withholding_rate_override, line.withholdingRate, line.withholding_rate, withholdingCode.rate, withholdingCode.tax_rate),
-    0
-  );
-  const recoverableFraction = normalizeFractionOrPercent(line.recoverablePercent ?? line.recoverable_percent ?? 1, 1);
 
-  let taxableBase = baseBeforeTax;
-  let taxAmount = 0;
-  if (String(pricingMode).toLowerCase() === 'inclusive' && taxRate > 0) {
-    taxableBase = baseBeforeTax / (1 + taxRate);
-    taxAmount = baseBeforeTax - taxableBase;
+  const taxRate = normalizePercentagePointsNumber(
+    pickFirst(explicitRate, fallbackCode.rate, fallbackCode.tax_rate),
+    0,
+  );
+  const withholdingRate = normalizePercentagePointsNumber(
+    pickFirst(
+      line.withholdingRateOverride,
+      line.withholding_rate_override,
+      line.withholdingRate,
+      line.withholding_rate,
+      withholdingCode.rate,
+      withholdingCode.tax_rate,
+    ),
+    0,
+  );
+  const recoverablePercent = normalizeRecoverableDisplay(
+    line.recoverablePercent ?? line.recoverable_percent ?? 100,
+    100,
+  );
+
+  const inclusive = String(pricingMode).toLowerCase() === 'inclusive';
+  let taxableBaseUnits = baseBeforeTaxUnits;
+  let taxUnits = 0n;
+  if (inclusive) {
+    const result = inclusiveTaxBreakdown(baseBeforeTaxUnits, taxRate);
+    taxableBaseUnits = result.baseUnits;
+    taxUnits = result.taxUnits;
   } else {
-    taxAmount = taxableBase * taxRate;
+    taxUnits = applyPercentagePoints(taxableBaseUnits, taxRate);
   }
 
-  taxableBase = roundCurrency(taxableBase);
-  taxAmount = roundCurrency(taxAmount);
-
-  const withholdingAmount = roundCurrency(taxableBase * withholdingRate);
-  const recoverableTaxAmount = roundCurrency(taxAmount * Math.min(Math.max(recoverableFraction, 0), 1));
-  const nonRecoverableTaxAmount = roundCurrency(taxAmount - recoverableTaxAmount);
-  const total = roundCurrency(String(pricingMode).toLowerCase() === 'inclusive' ? baseBeforeTax : taxableBase + taxAmount);
-  const payableAmount = roundCurrency(total - withholdingAmount);
+  const withholdingUnits = applyPercentagePoints(taxableBaseUnits, withholdingRate);
+  const recoverableRateUnits = clampPercentagePoints(recoverablePercent, 0, 100);
+  const recoverableTaxUnits = applyPercentagePointUnits(taxUnits, recoverableRateUnits);
+  const nonRecoverableTaxUnits = taxUnits - recoverableTaxUnits;
+  const totalUnits = inclusive ? baseBeforeTaxUnits : taxableBaseUnits + taxUnits;
+  const payableUnits = totalUnits - withholdingUnits;
 
   return {
-    quantity,
-    unitPrice,
-    gross: roundCurrency(gross),
-    lineDiscount: roundCurrency(lineDiscount),
-    taxableBase,
+    quantity: scaledIntegerToNumber(quantityUnits, FINANCIAL_SCALE.documentQuantity),
+    unitPrice: scaledIntegerToNumber(unitPriceUnits, FINANCIAL_SCALE.documentUnitPrice),
+    gross: scaledIntegerToNumber(grossUnits, FINANCIAL_SCALE.money),
+    lineDiscount: scaledIntegerToNumber(discountUnits, FINANCIAL_SCALE.money),
+    taxableBase: scaledIntegerToNumber(taxableBaseUnits, FINANCIAL_SCALE.money),
+    // Public rate fields remain percentage points to match API/database semantics and the UI labels.
     taxRate,
-    taxAmount,
+    taxAmount: scaledIntegerToNumber(taxUnits, FINANCIAL_SCALE.money),
     withholdingRate,
-    withholdingAmount,
-    recoverablePercent: roundCurrency(recoverableFraction * 100),
-    recoverableFraction,
-    recoverableTaxAmount,
-    nonRecoverableTaxAmount,
-    total,
-    payableAmount
+    withholdingAmount: scaledIntegerToNumber(withholdingUnits, FINANCIAL_SCALE.money),
+    recoverablePercent,
+    recoverableFraction: percentagePointsToFractionNumber(recoverablePercent),
+    recoverableTaxAmount: scaledIntegerToNumber(recoverableTaxUnits, FINANCIAL_SCALE.money),
+    nonRecoverableTaxAmount: scaledIntegerToNumber(nonRecoverableTaxUnits, FINANCIAL_SCALE.money),
+    total: scaledIntegerToNumber(totalUnits, FINANCIAL_SCALE.money),
+    payableAmount: scaledIntegerToNumber(payableUnits, FINANCIAL_SCALE.money),
   };
 }
 
@@ -188,24 +233,29 @@ export function computeDocumentSummary({ lines = [], taxCodes = [], pricingMode 
     _calc: computeLineAmounts(line, map, pricingMode)
   }));
 
-  const subtotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.taxableBase, 0));
-  const taxTotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.taxAmount, 0));
-  const withholdingTotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.withholdingAmount, 0));
-  const recoverableTaxTotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.recoverableTaxAmount, 0));
-  const nonRecoverableTaxTotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.nonRecoverableTaxAmount, 0));
-  const grandTotal = roundCurrency(normalized.reduce((sum, line) => sum + line._calc.total, 0) - coerceNumber(headerDiscount, 0));
-  const payableTotal = roundCurrency(grandTotal - withholdingTotal);
+  const sumMoney = (field) => normalized.reduce(
+    (sum, line) => sum + toScaledInteger(line._calc[field], FINANCIAL_SCALE.money),
+    0n,
+  );
+  const subtotalUnits = sumMoney('taxableBase');
+  const taxTotalUnits = sumMoney('taxAmount');
+  const withholdingTotalUnits = sumMoney('withholdingAmount');
+  const recoverableTaxTotalUnits = sumMoney('recoverableTaxAmount');
+  const nonRecoverableTaxTotalUnits = sumMoney('nonRecoverableTaxAmount');
+  const headerDiscountUnits = toScaledInteger(headerDiscount, FINANCIAL_SCALE.money);
+  const grandTotalUnits = sumMoney('total') - headerDiscountUnits;
+  const payableTotalUnits = grandTotalUnits - withholdingTotalUnits;
 
   return {
     lines: normalized,
-    subtotal,
-    taxTotal,
-    withholdingTotal,
-    recoverableTaxTotal,
-    nonRecoverableTaxTotal,
-    grandTotal,
-    payableTotal,
-    headerDiscount: coerceNumber(headerDiscount, 0)
+    subtotal: scaledIntegerToNumber(subtotalUnits, FINANCIAL_SCALE.money),
+    taxTotal: scaledIntegerToNumber(taxTotalUnits, FINANCIAL_SCALE.money),
+    withholdingTotal: scaledIntegerToNumber(withholdingTotalUnits, FINANCIAL_SCALE.money),
+    recoverableTaxTotal: scaledIntegerToNumber(recoverableTaxTotalUnits, FINANCIAL_SCALE.money),
+    nonRecoverableTaxTotal: scaledIntegerToNumber(nonRecoverableTaxTotalUnits, FINANCIAL_SCALE.money),
+    grandTotal: scaledIntegerToNumber(grandTotalUnits, FINANCIAL_SCALE.money),
+    payableTotal: scaledIntegerToNumber(payableTotalUnits, FINANCIAL_SCALE.money),
+    headerDiscount: scaledIntegerToNumber(headerDiscountUnits, FINANCIAL_SCALE.money),
   };
 }
 
@@ -213,33 +263,28 @@ export function buildTaxSubmissionLines(lines = [], taxCodes = [], pricingMode =
   const summary = computeDocumentSummary({ lines, taxCodes, pricingMode });
   return summary.lines.map((line) => ({
     description: line.description || undefined,
-    quantity: line.quantity === '' ? undefined : coerceNumber(line.quantity, 1),
+    quantity: line.quantity === '' ? undefined : scaledIntegerToNumber(toScaledInteger(line.quantity, FINANCIAL_SCALE.documentQuantity), FINANCIAL_SCALE.documentQuantity),
     unitPrice: line.unitPrice === '' ? undefined : roundCurrency(line.unitPrice),
     [accountField]: line[accountField] || undefined,
     itemId: line.itemId || undefined,
     taxCodeId: line.taxCodeId || undefined,
-    taxAmount: roundCurrency(line._calc?.taxAmount ?? line.taxAmount),
-    taxableAmount: roundCurrency(line._calc?.taxableBase),
     withholdingApplicable: !!(line.withholdingApplicable || line.withholdingTaxCodeId),
     withholdingTaxCodeId: line.withholdingTaxCodeId || undefined,
     withholdingRateOverride:
       line.withholdingRate === '' || line.withholdingRate == null
         ? undefined
-        : normalizeFractionOrPercent(line.withholdingRate),
+        : normalizePercentagePointsNumber(line.withholdingRate),
     recoverablePercentOverride:
       line.recoverablePercent === '' || line.recoverablePercent == null
         ? undefined
-        : normalizeFractionOrPercent(line.recoverablePercent, 1),
+        : normalizeRecoverableFraction(line.recoverablePercent, 1),
     exemptionReasonCode: line.exemptionReasonCode || undefined,
-    reverseCharge: !!line.reverseCharge,
-    lineTotal: roundCurrency(line._calc?.total ?? line.lineTotal ?? line.taxableBase ?? 0)
+    reverseCharge: !!line.reverseCharge
   }));
 }
 
 export function buildTransactionTaxPayload(payload = {}, { partnerKey, dateKey, referenceKey, accountField, taxCodes = [] } = {}) {
   const pricingMode = payload.pricingMode ?? payload.pricing_mode ?? 'exclusive';
-  const summary = computeDocumentSummary({ lines: payload.lines ?? [], taxCodes, pricingMode });
-
   return {
     [partnerKey]: payload[partnerKey] || undefined,
     [dateKey]: payload[dateKey] || undefined,
@@ -253,16 +298,9 @@ export function buildTransactionTaxPayload(payload = {}, { partnerKey, dateKey, 
     buyerReference: payload.buyerReference || undefined,
     jurisdictionId: payload.jurisdictionId || undefined,
     [referenceKey]: referenceKey ? (payload[referenceKey] || undefined) : undefined,
-    lines: buildTaxSubmissionLines(payload.lines ?? [], taxCodes, pricingMode, accountField),
-    taxSummary: {
-      subtotal: summary.subtotal,
-      taxTotal: summary.taxTotal,
-      withholdingTotal: summary.withholdingTotal,
-      recoverableTaxTotal: summary.recoverableTaxTotal,
-      nonRecoverableTaxTotal: summary.nonRecoverableTaxTotal,
-      grandTotal: summary.grandTotal,
-      payableTotal: summary.payableTotal,
-    }
+    // Calculated monetary totals are deliberately not submitted. The backend
+    // derives line bases/taxes/totals from the authoritative tax configuration.
+    lines: buildTaxSubmissionLines(payload.lines ?? [], taxCodes, pricingMode, accountField)
   };
 }
 
@@ -291,11 +329,11 @@ export function buildPartnerTaxProfilePayload(state = {}) {
     withholdingRateOverride:
       state.withholdingRate === '' || state.withholdingRate == null
         ? undefined
-        : normalizeFractionOrPercent(state.withholdingRate),
+        : normalizePercentagePointsNumber(state.withholdingRate),
     recoverablePercentOverride:
       state.recoverabilityPercent === '' || state.recoverabilityPercent == null
         ? undefined
-        : normalizeFractionOrPercent(state.recoverabilityPercent, 1),
+        : normalizeRecoverableFraction(state.recoverabilityPercent, 1),
     destinationCountryCode: state.taxCountryCode || undefined,
     registrationStatus,
     eInvoiceNetwork: state.eInvoiceScheme || undefined,

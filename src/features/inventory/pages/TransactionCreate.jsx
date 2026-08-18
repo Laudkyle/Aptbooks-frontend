@@ -89,8 +89,11 @@ export default function TransactionCreate() {
         memo: form.memo ? form.memo : null,
         lines: form.lines.map((l) => ({
           itemId: l.itemId,
-          quantity: Number(l.quantity),
-          unitCost: requiresUnitCost() ? Number(l.unitCost) : (l.unitCost ? Number(l.unitCost) : undefined),
+          // Preserve decimal text across the HTTP boundary; the backend applies the canonical fixed-point scales.
+          quantity: String(l.quantity ?? '').trim(),
+          unitCost: requiresUnitCost()
+            ? String(l.unitCost ?? '').trim()
+            : (l.unitCost ? String(l.unitCost).trim() : undefined),
           direction: requiresDirection() ? l.direction : undefined
         }))
       };

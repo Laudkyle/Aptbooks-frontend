@@ -1,3 +1,4 @@
+import { clientLogger } from "../../../../shared/utils/clientLogger.js";
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
@@ -485,7 +486,7 @@ function NewSecretModal({ secret, onClose }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      clientLogger.error('Failed to copy API key value', err);
     }
   };
 

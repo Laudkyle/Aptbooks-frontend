@@ -55,7 +55,7 @@ export default function AssetDispose() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { periodId: form.periodId, entryDate: form.entryDate, proceeds: Number(form.proceeds||0), proceedsAccountId: form.proceedsAccountId, memo: form.memo || undefined };
+      const payload = { periodId: form.periodId, entryDate: form.entryDate, proceeds: String(form.proceeds || '0').trim(), proceedsAccountId: form.proceedsAccountId, memo: form.memo || undefined };
       await assetsApi.disposeFixedAsset(id, payload);
       await qc.invalidateQueries({ queryKey: ['assets.fixedAsset', id] });
       await qc.invalidateQueries({ queryKey: ['assets.fixedAssets'] });

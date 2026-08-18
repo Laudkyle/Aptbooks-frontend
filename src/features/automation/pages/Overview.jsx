@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { BellRing, Bot, CalendarSync, FileSearch, Globe2, ReceiptText, RefreshCcw, ShieldCheck, Workflow } from 'lucide-react';
+import { BellRing, Bot, CalendarSync, FileSearch, Globe2, ReceiptText, RefreshCcw, ShieldCheck } from 'lucide-react';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeAutomationApi } from '../api/automation.api.js';
@@ -20,7 +20,6 @@ export default function AutomationOverview() {
   const reportingApi = useMemo(() => makeReportingApi(http), [http]);
 
   const recurringQ = useQuery({ queryKey: ['automation.overview.recurring'], queryFn: () => api.listRecurringTransactions(), staleTime: 30000 });
-  const jobsQ = useQuery({ queryKey: ['automation.overview.jobs'], queryFn: () => api.listAccountingJobs(), staleTime: 30000 });
   const reconRunsQ = useQuery({ queryKey: ['automation.overview.reconRuns'], queryFn: () => api.listAutoReconciliationRuns(), staleTime: 30000 });
   const matchesQ = useQuery({ queryKey: ['automation.overview.matches'], queryFn: () => api.listDocumentMatches({ minScore: 0.8 }), staleTime: 30000 });
   const rulesQ = useQuery({ queryKey: ['automation.overview.classificationRules'], queryFn: () => api.listClassificationRules(), staleTime: 30000 });
@@ -32,7 +31,6 @@ export default function AutomationOverview() {
 
   const cards = [
     { title: 'Recurring transactions', value: normalizeRows(recurringQ.data).length, desc: 'Scheduled accounting entries', to: ROUTES.automationRecurringTransactions, icon: CalendarSync },
-    { title: 'Accounting jobs', value: normalizeRows(jobsQ.data).length, desc: 'Batch jobs and scheduler entries', to: ROUTES.automationAccountingJobs, icon: Workflow },
     { title: 'Reconciliation runs', value: normalizeRows(reconRunsQ.data).length, desc: 'Auto-reconciliation executions', to: ROUTES.automationAutoReconciliation, icon: RefreshCcw },
     { title: 'Document matches', value: normalizeRows(matchesQ.data).length, desc: 'Current matching suggestions', to: ROUTES.automationDocumentMatching, icon: FileSearch },
     { title: 'Classification rules', value: normalizeRows(rulesQ.data).length, desc: 'AI and deterministic classification', to: ROUTES.automationAiClassification, icon: Bot },

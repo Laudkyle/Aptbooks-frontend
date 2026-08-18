@@ -1,3 +1,4 @@
+import { clientLogger } from "../../../shared/utils/clientLogger.js";
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2, DollarSign, Calendar, User, FileText, FilePlus2 } from 'lucide-react';
@@ -143,7 +144,6 @@ export default function OperationalDocCreate({ moduleKey }) {
     mutationFn: () => {
       // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      console.log('Using idempotency key:', idempotencyKey);
       return api.create(sanitizePayload(config, form), { idempotencyKey });
     },
     onSuccess: (created) => {
@@ -154,7 +154,7 @@ export default function OperationalDocCreate({ moduleKey }) {
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || `Failed to create ${config.singular.toLowerCase()}.`);
-      console.error(`Create ${config.singular} error:`, err);
+      clientLogger.error(`Create ${config.singular} failed`, err);
     }
   });
 

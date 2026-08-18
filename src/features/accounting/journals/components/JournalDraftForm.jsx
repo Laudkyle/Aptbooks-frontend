@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
 import { makeJournalsApi } from '../api/journals.api.js';
@@ -27,6 +27,11 @@ export function JournalDraftForm({ initialAccountId = '', journalId = null, init
   const api = useMemo(() => makeJournalsApi(http), [http]);
   const periodsApi = useMemo(() => makePeriodsApi(http), [http]);
   const toast = useToast();
+  // One operation id per create intent. React Query/network retries reuse the
+  // same key, and the backend binds it to the journal's DB idempotency key.
+  const createOperationId = useRef(
+    globalThis.crypto?.randomUUID?.() || `journal-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
 
   const periodsQ = useQuery({ queryKey: ['periods'], queryFn: periodsApi.list, staleTime: 10_000 });
   const [periodId, setPeriodId] = useState(() => initialJournal?.period_id || '');
@@ -86,7 +91,10 @@ export function JournalDraftForm({ initialAccountId = '', journalId = null, init
   const save = useMutation({
     mutationFn: async () => {
       if (!journalId) {
-        return api.create({ periodId, entryDate, memo: memo.trim(), typeCode, lines: normalizedLines() });
+        return api.create(
+          { periodId, entryDate, memo: memo.trim(), typeCode, lines: normalizedLines(), idempotencyKey: createOperationId.current },
+          createOperationId.current
+        );
       }
       await api.updateHeader(journalId, { periodId, entryDate, memo: memo.trim(), typeCode });
       await api.replaceLines(journalId, normalizedLines());

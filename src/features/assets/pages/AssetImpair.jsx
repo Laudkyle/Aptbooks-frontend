@@ -55,7 +55,7 @@ export default function AssetImpair() {
     e.preventDefault();
     setSaving(true);
     try {
-      const payload = { periodId: form.periodId, entryDate: form.entryDate, impairmentAmount: Number(form.impairmentAmount||0), impairmentLossAccountId: form.impairmentLossAccountId, memo: form.memo || undefined };
+      const payload = { periodId: form.periodId, entryDate: form.entryDate, impairmentAmount: String(form.impairmentAmount || '0').trim(), impairmentLossAccountId: form.impairmentLossAccountId, memo: form.memo || undefined };
       await assetsApi.impairFixedAsset(id, payload);
       await qc.invalidateQueries({ queryKey: ['assets.fixedAsset', id] });
       await qc.invalidateQueries({ queryKey: ['assets.fixedAssets'] });

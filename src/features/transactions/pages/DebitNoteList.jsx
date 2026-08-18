@@ -71,7 +71,6 @@ export default function DebitNoteList() {
 
     return [];
   }, [data]);
-  console.log("DebitNoteList rows:", rows);
   // Navigation handlers
   const handleCreateDebitNote = useCallback(() => {
     navigate(ROUTES.debitNoteNew);

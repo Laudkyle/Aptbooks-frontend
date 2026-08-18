@@ -1,3 +1,4 @@
+import { clientLogger } from "../../../../shared/utils/clientLogger.js";
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useOrg } from '../../../../shared/hooks/useOrg.js';
 import { Button } from '../../../../shared/components/ui/Button.jsx';
@@ -49,7 +50,7 @@ export function OrgSwitcher() {
       await switchOrganization(org.id);
       setOpen(false);
     } catch (error) {
-      console.error('Failed to switch organization:', error);
+      clientLogger.error('Failed to switch organization', error);
     } finally {
       setSwitching(false);
     }

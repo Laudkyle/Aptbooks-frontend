@@ -24,7 +24,6 @@ export default function CustomerReceiptList() {
   });
 
   const rows = Array.isArray(data) ? data : data?.data ?? [];
-console.log(rows)
   // Client-side filtering
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {

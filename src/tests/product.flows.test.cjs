@@ -16,9 +16,9 @@ test('top navigation renders live TopSearch instead of a desktop search-page but
 });
 
 test('sidebar uses requested Profit and Loss and Payments labels', () => {
-  const source = read('shared/components/layout/SideNav.jsx');
-  assert.match(source, /to=\{ROUTES\.accountingPnL\}[\s\S]{0,160}label="Profit and Loss"/);
-  assert.match(source, /to=\{ROUTES\.vendorPayments\}[\s\S]{0,160}label="Payments"/);
+  const source = read('app/navigation/side-nav.manifest.js');
+  assert.match(source, /to: ROUTES\.accountingPnL[\s\S]{0,220}label: "Profit and Loss"/);
+  assert.match(source, /to: ROUTES\.vendorPayments[\s\S]{0,220}label: "Payments"/);
 });
 
 test('login and account settings use emailed verification challenges', () => {

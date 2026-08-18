@@ -53,8 +53,8 @@ export default function FixedAssetCreate() {
         code: form.code,
         name: form.name,
         acquisitionDate: form.acquisitionDate,
-        cost: Number(form.cost || 0),
-        salvageValue: Number(form.salvageValue || 0),
+        cost: String(form.cost || '0').trim(),
+        salvageValue: String(form.salvageValue || '0').trim(),
         locationId: form.locationId ? form.locationId : null,
         departmentId: form.departmentId ? form.departmentId : null,
         costCenterId: form.costCenterId ? form.costCenterId : null

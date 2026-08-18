@@ -3,7 +3,11 @@ import { endpoints } from '../../../../shared/api/endpoints.js';
 export function makeJournalsApi(http) {
   return {
     list: async (qs) => (await http.get(endpoints.accounting.journals.list(qs))).data,
-    create: async (body) => (await http.post(endpoints.accounting.journals.create, body)).data,
+    create: async (body, idempotencyKey) => (await http.post(
+      endpoints.accounting.journals.create,
+      body,
+      { headers: { 'Idempotency-Key': idempotencyKey } }
+    )).data,
     detail: async (id) => (await http.get(endpoints.accounting.journals.detail(id))).data,
     updateHeader: async (id, body) => (await http.patch(endpoints.accounting.journals.update(id), body)).data,
     replaceLines: async (id, lines) => (await http.put(endpoints.accounting.journals.replaceLines(id), { lines })).data,

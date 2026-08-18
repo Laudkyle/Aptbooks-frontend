@@ -1,691 +1,48 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute, GuestRoute, PermissionGate } from "./route-guards.jsx";
 import { ROUTES } from "../constants/routes.js";
 import { PERMISSIONS } from "../constants/permissions.js";
 import { AppShell } from "../../shared/components/layout/AppShell.jsx";
+import {
+  Login, Register, ForgotPassword, ResetPassword, GlobalSearch, NotificationCenter, ApprovalQueue, OrganizationSettings,
+  UserList, UserDetail, RoleList, RoleDetail, PermissionMatrix, SystemSettings, DimensionRules, ApiKeyList,
+  SystemHealth, ErrorLogs, ClientLogs, I18nAdmin, A11yChecks, ReleaseInfo, BankingOverview, BankAccountsPage,
+  BankStatementsPage, BankStatementDetailPage, BankMatchingRulesPage, BankCashbookPage, BankReconciliationsPage, TreasuryOverview, TreasuryDashboardPage, PaymentRunsPage,
+  PaymentRunDetailPage, BankTransfersPage, BankTransferDetailPage, ApprovalBatchesPage, ApprovalBatchDetailPage, ChequesPage, CashForecastPage, AutomationOverview,
+  RecurringTransactionsPage, AutoReconciliationPage, DocumentMatchingPage, AIClassificationPage, SmartNotificationsPage, TemplatesPage, PrintAssignmentsPage, PrintPreviewPage,
+  ComplianceOverview, IFRS16LeasesPage, IFRS16LeaseDetailPage, IFRS15ContractsPage, IFRS15ContractDetailPage, IFRS9EclPage, IAS12TaxPage, DocumentsLibraryPage,
+  DocumentDetailPage, DocumentTypesPage, ApprovalLevelsPage, DocumentCreatePage, AccountList, AccountCreate, AccountDetail, PeriodList,
+  PeriodClose, JournalList, JournalCreate, JournalDetail, TrialBalance, BalanceByAccount, PnL, BalanceSheet,
+  Cashflow, ChangesInEquity, ExportsHub, ImportsHub, FxRates, TaxAdmin, GhanaComplianceOverview, GhanaTaxLedger,
+  GhanaTaxCatalogProfiles, GhanaPartnerTaxProfiles, GhanaVatOverview, GhanaVatReturn, GhanaVatApportionment, GhanaImportedServices, GhanaImportedServiceDetail, GhanaVatReconciliation,
+  GhanaWithholdingOverview, GhanaWithholdingEvents, GhanaWithholdingCertificates, GhanaWithholdingReturns, GhanaWithholdingReturnDetail, GhanaWithholdingRemittances, GhanaWithholdingReconciliation, GhanaEvatOverview,
+  GhanaEvatDocuments, GhanaEvatDocumentDetail, GhanaEvatQueue, GhanaEvatDevices, GhanaEvatLogs, GhanaEvatSettings, GhanaCit, GhanaCitComputation,
+  GhanaCapitalAllowances, GhanaIndustryProfiles, WithholdingWorkspace, WithholdingOpenItemDetail, WithholdingRemittanceCreate, WithholdingRemittanceDetail, WithholdingCertificateCreate, WithholdingCertificateDetail,
+  AccrualsHub, AccrualCreate, Reconciliation, Customers, Vendors, PartnerDetail, PartnerCreate, PaymentConfig,
+  InvoiceList, InvoiceCreate, InvoiceDetail, BillList, BillCreate, BillDetail, CustomerReceiptList, CustomerReceiptCreate,
+  CustomerReceiptDetail, VendorPaymentList, VendorPaymentCreate, VendorPaymentDetail, CreditNoteList, CreditNoteCreate, CreditNoteDetail, DebitNoteList,
+  DebitNoteCreate, DebitNoteDetail, QuotationList, QuotationCreate, QuotationDetail, SalesOrderList, SalesOrderCreate, SalesOrderDetail,
+  PurchaseRequisitionList, PurchaseRequisitionCreate, PurchaseRequisitionDetail, PurchaseOrderList, PurchaseOrderCreate, PurchaseOrderDetail, GoodsReceiptList, GoodsReceiptCreate,
+  GoodsReceiptDetail, ExpenseList, ExpenseCreate, ExpenseDetail, PettyCashList, PettyCashCreate, PettyCashDetail, AdvanceList,
+  AdvanceCreate, AdvanceDetail, ReturnList, ReturnCreate, ReturnDetail, RefundList, RefundCreate, RefundDetail,
+  CollectionsHub, Disputes, Writeoffs, PaymentPlans, ReportArAging, ReportArOpenItems, ReportArCustomerStatement, ReportApAging,
+  ReportApOpenItems, ReportApVendorStatement, ReportTax, AssetRegister, AssetCategories, AssetDetail, AssetDepreciation, DepreciationRuns,
+  AssetRegisterNew, AssetCategoryNew, AssetCategoryEdit, AssetAcquire, AssetDispose, AssetTransfer, AssetRevalue, AssetImpair,
+  DepreciationScheduleNew, InventoryCategoryNew, InventoryUnitNew, InventoryItemNew, InventoryWarehouseNew, InventoryTransactionNew, InventoryStockCountNew, InventoryItems,
+  InventoryWarehouses, InventoryCategories, InventoryUnits, InventoryTransactions, InventoryTransactionDetail, InventoryStockCounts, InventoryStockCountDetail, InventoryReports,
+  InventoryBins, InventoryBinNew, InventoryReservations, InventoryReservationNew, InventoryTransfers, InventoryTransferNew, InventoryTransferDetail, InventoryTraceability,
+  InventoryReorder, POSRegister, POSSetup, CommerceOrders, CommerceReturns, CommercePromotions, CommerceReports, Centers,
+  Projects, ProjectDetail, Budgets, BudgetDetail, Forecasts, ForecastDetail, Allocations, KPIs,
+  Dashboards, SavedReports, ManagementReports, HrOverview, HrEmployees, HrDepartments, HrGrades, HrPositions,
+  HrCompensationBands, HrPayroll, GhanaPayrollOverview, GhanaPayeReturns, GhanaPayeReturnDetail, GhanaPensionSchedule, GhanaDisengagedSchedule, GhanaPayrollRemittances,
+  HrLeave, HrBenefits, HrStatutory, HrReports, Loader,
+} from "./lazy-pages.jsx";
 
 import Dashboard from "../../pages/Dashboard.jsx";
 import Me from "../../pages/Me.jsx";
 import NotFound from "../../pages/NotFound.jsx";
 import Forbidden from "../../pages/Forbidden.jsx";
-
-const Login = lazy(() => import("../../features/auth/pages/Login.jsx"));
-const Register = lazy(() => import("../../features/auth/pages/Register.jsx"));
-const ForgotPassword = lazy(() =>
-  import("../../features/auth/pages/ForgotPassword.jsx")
-);
-const ResetPassword = lazy(() =>
-  import("../../features/auth/pages/ResetPassword.jsx")
-);
-
-const GlobalSearch = lazy(() =>
-  import("../../features/search/pages/GlobalSearch.jsx")
-);
-const NotificationCenter = lazy(() =>
-  import("../../features/notifications/pages/NotificationCenter.jsx")
-);
-const ApprovalQueue = lazy(() =>
-  import("../../features/workflow/approvals/pages/ApprovalQueue.jsx")
-);
-
-const OrganizationSettings = lazy(() =>
-  import(
-    "../../features/foundation/organizations/pages/OrganizationSettings.jsx"
-  )
-);
-const UserList = lazy(() =>
-  import("../../features/foundation/users/pages/UserList.jsx")
-);
-const UserDetail = lazy(() =>
-  import("../../features/foundation/users/pages/UserDetail.jsx")
-);
-const RoleList = lazy(() =>
-  import("../../features/foundation/roles/pages/RoleList.jsx")
-);
-const RoleDetail = lazy(() =>
-  import("../../features/foundation/roles/pages/RoleDetail.jsx")
-);
-const PermissionMatrix = lazy(() =>
-  import("../../features/foundation/permissions/pages/PermissionMatrix.jsx")
-);
-const SystemSettings = lazy(() =>
-  import("../../features/foundation/settings/pages/SystemSettings.jsx")
-);
-const DimensionRules = lazy(() =>
-  import("../../features/foundation/dimensionSecurity/pages/DimensionRules.jsx")
-);
-const ApiKeyList = lazy(() =>
-  import("../../features/foundation/apiKeys/pages/ApiKeyList.jsx")
-);
-
-const SystemHealth = lazy(() =>
-  import("../../features/utilities/pages/SystemHealth.jsx")
-);
-const ScheduledTasks = lazy(() =>
-  import("../../features/utilities/pages/ScheduledTasks.jsx")
-);
-const ErrorLogs = lazy(() =>
-  import("../../features/utilities/pages/ErrorLogs.jsx")
-);
-const ClientLogs = lazy(() =>
-  import("../../features/utilities/pages/ClientLogs.jsx")
-);
-const I18nAdmin = lazy(() =>
-  import("../../features/utilities/pages/I18nAdmin.jsx")
-);
-const A11yChecks = lazy(() =>
-  import("../../features/utilities/pages/A11yChecks.jsx")
-);
-const ReleaseInfo = lazy(() =>
-  import("../../features/utilities/pages/ReleaseInfo.jsx")
-);
-const TestConsole = lazy(() =>
-  import("../../features/utilities/pages/TestConsole.jsx")
-);
-
-// Phase 8 — Banking
-const BankingOverview = lazy(() =>
-  import("../../features/banking/pages/BankingOverview.jsx")
-);
-const BankAccountsPage = lazy(() =>
-  import("../../features/banking/pages/BankAccountsPage.jsx")
-);
-const BankStatementsPage = lazy(() =>
-  import("../../features/banking/pages/BankStatementsPage.jsx")
-);
-const BankStatementDetailPage = lazy(() =>
-  import("../../features/banking/pages/BankStatementDetailPage.jsx")
-);
-const BankMatchingRulesPage = lazy(() =>
-  import("../../features/banking/pages/MatchingRulesPage.jsx")
-);
-const BankCashbookPage = lazy(() =>
-  import("../../features/banking/pages/CashbookPage.jsx")
-);
-const BankReconciliationsPage = lazy(() =>
-  import("../../features/banking/pages/ReconciliationsPage.jsx")
-);
-const TreasuryOverview = lazy(() =>
-  import("../../features/banking/pages/TreasuryOverview.jsx")
-);
-const TreasuryDashboardPage = lazy(() =>
-  import("../../features/banking/pages/TreasuryDashboardPage.jsx")
-);
-const PaymentRunsPage = lazy(() =>
-  import("../../features/banking/pages/PaymentRunsPage.jsx")
-);
-const PaymentRunDetailPage = lazy(() =>
-  import("../../features/banking/pages/PaymentRunDetailPage.jsx")
-);
-const BankTransfersPage = lazy(() =>
-  import("../../features/banking/pages/BankTransfersPage.jsx")
-);
-const BankTransferDetailPage = lazy(() =>
-  import("../../features/banking/pages/BankTransferDetailPage.jsx")
-);
-const ApprovalBatchesPage = lazy(() =>
-  import("../../features/banking/pages/ApprovalBatchesPage.jsx")
-);
-const ApprovalBatchDetailPage = lazy(() =>
-  import("../../features/banking/pages/ApprovalBatchDetailPage.jsx")
-);
-const ChequesPage = lazy(() =>
-  import("../../features/banking/pages/ChequesPage.jsx")
-);
-const CashForecastPage = lazy(() =>
-  import("../../features/banking/pages/CashForecastPage.jsx")
-);
-
-// Phase 9 — Automation
-const AutomationOverview = lazy(() =>
-  import("../../features/automation/pages/Overview.jsx")
-);
-const RecurringTransactionsPage = lazy(() =>
-  import("../../features/automation/pages/RecurringTransactionsPage.jsx")
-);
-const AccountingJobsPage = lazy(() =>
-  import("../../features/automation/pages/AccountingJobsPage.jsx")
-);
-const AutoReconciliationPage = lazy(() =>
-  import("../../features/automation/pages/AutoReconciliationPage.jsx")
-);
-const DocumentMatchingPage = lazy(() =>
-  import("../../features/automation/pages/DocumentMatchingPage.jsx")
-);
-const AIClassificationPage = lazy(() =>
-  import("../../features/automation/pages/AIClassificationPage.jsx")
-);
-const SmartNotificationsPage = lazy(() =>
-  import("../../features/automation/pages/SmartNotificationsPage.jsx")
-);
-
-// Phase 10 — Printing
-const TemplatesPage = lazy(() =>
-  import("../../features/printing/pages/TemplatesPage.jsx")
-);
-const PrintAssignmentsPage = lazy(() =>
-  import("../../features/printing/pages/AssignmentsPage.jsx")
-);
-const PrintPreviewPage = lazy(() =>
-  import("../../features/printing/pages/PreviewPage.jsx")
-);
-
-// Phase 8 — Compliance
-const ComplianceOverview = lazy(() =>
-  import("../../features/compliance/pages/ComplianceOverview.jsx")
-);
-const IFRS16LeasesPage = lazy(() =>
-  import("../../features/compliance/pages/IFRS16LeasesPage.jsx")
-);
-const IFRS16LeaseDetailPage = lazy(() =>
-  import("../../features/compliance/pages/IFRS16LeaseDetailPage.jsx")
-);
-const IFRS15ContractsPage = lazy(() =>
-  import("../../features/compliance/pages/IFRS15ContractsPage.jsx")
-);
-const IFRS15ContractDetailPage = lazy(() =>
-  import("../../features/compliance/pages/IFRS15ContractDetailPage.jsx")
-);
-const IFRS9EclPage = lazy(() =>
-  import("../../features/compliance/pages/IFRS9ECLPage.jsx")
-);
-const IAS12TaxPage = lazy(() =>
-  import("../../features/compliance/pages/IAS12TaxPage.jsx")
-);
-
-// Phase 8 — Workflow Documents
-const DocumentsLibraryPage = lazy(() =>
-  import("../../features/workflow/pages/DocumentsLibraryPage.jsx")
-);
-const DocumentDetailPage = lazy(() =>
-  import("../../features/workflow/pages/DocumentDetailPage.jsx")
-);
-const DocumentTypesPage = lazy(() =>
-  import("../../features/workflow/pages/DocumentTypesPage.jsx")
-);
-const ApprovalLevelsPage = lazy(() =>
-  import("../../features/workflow/pages/ApprovalLevelsPage.jsx")
-);
-const DocumentCreatePage = lazy(() =>
-  import("../../features/workflow/pages/DocumentCreatePage.jsx")
-);
-
-// Phase 4 — Accounting
-const AccountList = lazy(() =>
-  import("../../features/accounting/chartOfAccounts/pages/AccountList.jsx")
-);
-const AccountCreate = lazy(() =>
-  import("../../features/accounting/chartOfAccounts/pages/AccountCreate.jsx")
-);
-const AccountDetail = lazy(() =>
-  import("../../features/accounting/chartOfAccounts/pages/AccountDetail.jsx")
-);
-
-const PeriodList = lazy(() =>
-  import("../../features/accounting/periods/pages/PeriodList.jsx")
-);
-const PeriodClose = lazy(() =>
-  import("../../features/accounting/periods/pages/PeriodClose.jsx")
-);
-
-const JournalList = lazy(() =>
-  import("../../features/accounting/journals/pages/JournalList.jsx")
-);
-const JournalCreate = lazy(() =>
-  import("../../features/accounting/journals/pages/JournalCreate.jsx")
-);
-const JournalDetail = lazy(() =>
-  import("../../features/accounting/journals/pages/JournalDetail.jsx")
-);
-
-const TrialBalance = lazy(() =>
-  import("../../features/accounting/balances/pages/TrialBalance.jsx")
-);
-const BalanceByAccount = lazy(() =>
-  import("../../features/accounting/balances/pages/BalanceByAccount.jsx")
-);
-
-const PnL = lazy(() =>
-  import("../../features/accounting/statements/pages/PnL.jsx")
-);
-const BalanceSheet = lazy(() =>
-  import("../../features/accounting/statements/pages/BalanceSheet.jsx")
-);
-const Cashflow = lazy(() =>
-  import("../../features/accounting/statements/pages/Cashflow.jsx")
-);
-const ChangesInEquity = lazy(() =>
-  import("../../features/accounting/statements/pages/ChangesInEquity.jsx")
-);
-
-const ExportsHub = lazy(() =>
-  import("../../features/accounting/exports/pages/ExportsHub.jsx")
-);
-const ImportsHub = lazy(() =>
-  import("../../features/accounting/imports/pages/ImportsHub.jsx")
-);
-
-const FxRates = lazy(() =>
-  import("../../features/accounting/fx/pages/FxRates.jsx")
-);
-const TaxAdmin = lazy(() =>
-  import("../../features/accounting/tax/pages/TaxAdmin.jsx")
-);
-const GhanaComplianceOverview = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaComplianceOverview.jsx")
-);
-const GhanaTaxLedger = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/TaxLedger.jsx")
-);
-const GhanaTaxCatalogProfiles = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/TaxCatalogProfiles.jsx")
-);
-const GhanaPartnerTaxProfiles = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/PartnerTaxProfiles.jsx")
-);
-const GhanaVatOverview = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaVatOverview.jsx")
-);
-const GhanaVatReturn = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaVatReturn.jsx")
-);
-const GhanaVatApportionment = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaVatApportionment.jsx")
-);
-const GhanaImportedServices = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaImportedServices.jsx")
-);
-const GhanaImportedServiceDetail = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaImportedServiceDetail.jsx")
-);
-const GhanaVatReconciliation = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaVatReconciliation.jsx")
-);
-const GhanaWithholdingOverview = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingOverview.jsx")
-);
-const GhanaWithholdingEvents = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingEvents.jsx")
-);
-const GhanaWithholdingCertificates = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingCertificates.jsx")
-);
-const GhanaWithholdingReturns = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReturns.jsx")
-);
-const GhanaWithholdingReturnDetail = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReturnDetail.jsx")
-);
-const GhanaWithholdingRemittances = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingRemittances.jsx")
-);
-const GhanaWithholdingReconciliation = lazy(() =>
-  import("../../features/accounting/tax/pages/ghana/GhanaWithholdingReconciliation.jsx")
-);
-const GhanaEvatOverview = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatOverview.jsx"));
-const GhanaEvatDocuments = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDocuments.jsx"));
-const GhanaEvatDocumentDetail = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDocumentDetail.jsx"));
-const GhanaEvatQueue = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatQueue.jsx"));
-const GhanaEvatDevices = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatDevices.jsx"));
-const GhanaEvatLogs = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatLogs.jsx"));
-const GhanaEvatSettings = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaEvatSettings.jsx"));
-const GhanaCit = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCit.jsx"));
-const GhanaCitComputation = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCitComputation.jsx"));
-const GhanaCapitalAllowances = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaCapitalAllowances.jsx"));
-const GhanaIndustryProfiles = lazy(() => import("../../features/accounting/tax/pages/ghana/advanced/GhanaIndustryProfiles.jsx"));
-const WithholdingWorkspace = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingWorkspace.jsx")
-);
-const WithholdingOpenItemDetail = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingOpenItemDetail.jsx")
-);
-const WithholdingRemittanceCreate = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingRemittanceCreate.jsx")
-);
-const WithholdingRemittanceDetail = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingRemittanceDetail.jsx")
-);
-const WithholdingCertificateCreate = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingCertificateCreate.jsx")
-);
-const WithholdingCertificateDetail = lazy(() =>
-  import("../../features/accounting/tax/pages/WithholdingCertificateDetail.jsx")
-);
-
-const AccrualsHub = lazy(() =>
-  import("../../features/accounting/accruals/pages/AccrualsHub.jsx")
-);
-const AccrualCreate = lazy(() =>
-  import("../../features/accounting/accruals/pages/AccrualCreate.jsx")
-);
-
-const Reconciliation = lazy(() =>
-  import("../../features/accounting/reconciliation/pages/Reconciliation.jsx")
-);
-
-// Phase 5 — Business / Transactions / AR Ops / Reporting
-const Customers = lazy(() =>
-  import("../../features/business/pages/Customers.jsx")
-);
-const Vendors = lazy(() => import("../../features/business/pages/Vendors.jsx"));
-const PartnerDetail = lazy(() =>
-  import("../../features/business/pages/PartnerDetail.jsx")
-);
-const PartnerCreate = lazy(() =>
-  import("../../features/business/pages/PartnerCreate.jsx")
-);
-const PaymentConfig = lazy(() =>
-  import("../../features/business/pages/PaymentConfig.jsx")
-);
-
-const InvoiceList = lazy(() =>
-  import("../../features/transactions/pages/InvoiceList.jsx")
-);
-const InvoiceCreate = lazy(() =>
-  import("../../features/transactions/pages/InvoiceCreate.jsx")
-);
-const InvoiceDetail = lazy(() =>
-  import("../../features/transactions/pages/InvoiceDetail.jsx")
-);
-
-const BillList = lazy(() =>
-  import("../../features/transactions/pages/BillList.jsx")
-);
-const BillCreate = lazy(() =>
-  import("../../features/transactions/pages/BillCreate.jsx")
-);
-const BillDetail = lazy(() =>
-  import("../../features/transactions/pages/BillDetail.jsx")
-);
-
-const CustomerReceiptList = lazy(() =>
-  import("../../features/transactions/pages/CustomerReceiptList.jsx")
-);
-const CustomerReceiptCreate = lazy(() =>
-  import("../../features/transactions/pages/CustomerReceiptCreate.jsx")
-);
-const CustomerReceiptDetail = lazy(() =>
-  import("../../features/transactions/pages/CustomerReceiptDetail.jsx")
-);
-
-const VendorPaymentList = lazy(() =>
-  import("../../features/transactions/pages/VendorPaymentList.jsx")
-);
-const VendorPaymentCreate = lazy(() =>
-  import("../../features/transactions/pages/VendorPaymentCreate.jsx")
-);
-const VendorPaymentDetail = lazy(() =>
-  import("../../features/transactions/pages/VendorPaymentDetail.jsx")
-);
-
-const CreditNoteList = lazy(() =>
-  import("../../features/transactions/pages/CreditNoteList.jsx")
-);
-const CreditNoteCreate = lazy(() =>
-  import("../../features/transactions/pages/CreditNoteCreate.jsx")
-);
-const CreditNoteDetail = lazy(() =>
-  import("../../features/transactions/pages/CreditNoteDetail.jsx")
-);
-
-const DebitNoteList = lazy(() =>
-  import("../../features/transactions/pages/DebitNoteList.jsx")
-);
-const DebitNoteCreate = lazy(() =>
-  import("../../features/transactions/pages/DebitNoteCreate.jsx")
-);
-const DebitNoteDetail = lazy(() =>
-  import("../../features/transactions/pages/DebitNoteDetail.jsx")
-);
-
-const QuotationList = lazy(() => import('../../features/transactions/pages/QuotationList.jsx'));
-const QuotationCreate = lazy(() => import('../../features/transactions/pages/QuotationCreate.jsx'));
-const QuotationDetail = lazy(() => import('../../features/transactions/pages/QuotationDetail.jsx'));
-const SalesOrderList = lazy(() => import('../../features/transactions/pages/SalesOrderList.jsx'));
-const SalesOrderCreate = lazy(() => import('../../features/transactions/pages/SalesOrderCreate.jsx'));
-const SalesOrderDetail = lazy(() => import('../../features/transactions/pages/SalesOrderDetail.jsx'));
-const PurchaseRequisitionList = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionList.jsx'));
-const PurchaseRequisitionCreate = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionCreate.jsx'));
-const PurchaseRequisitionDetail = lazy(() => import('../../features/transactions/pages/PurchaseRequisitionDetail.jsx'));
-const PurchaseOrderList = lazy(() => import('../../features/transactions/pages/PurchaseOrderList.jsx'));
-const PurchaseOrderCreate = lazy(() => import('../../features/transactions/pages/PurchaseOrderCreate.jsx'));
-const PurchaseOrderDetail = lazy(() => import('../../features/transactions/pages/PurchaseOrderDetail.jsx'));
-const GoodsReceiptList = lazy(() => import('../../features/transactions/pages/GoodsReceiptList.jsx'));
-const GoodsReceiptCreate = lazy(() => import('../../features/transactions/pages/GoodsReceiptCreate.jsx'));
-const GoodsReceiptDetail = lazy(() => import('../../features/transactions/pages/GoodsReceiptDetail.jsx'));
-const ExpenseList = lazy(() => import('../../features/transactions/pages/ExpenseList.jsx'));
-const ExpenseCreate = lazy(() => import('../../features/transactions/pages/ExpenseCreate.jsx'));
-const ExpenseDetail = lazy(() => import('../../features/transactions/pages/ExpenseDetail.jsx'));
-const PettyCashList = lazy(() => import('../../features/transactions/pages/PettyCashList.jsx'));
-const PettyCashCreate = lazy(() => import('../../features/transactions/pages/PettyCashCreate.jsx'));
-const PettyCashDetail = lazy(() => import('../../features/transactions/pages/PettyCashDetail.jsx'));
-const AdvanceList = lazy(() => import('../../features/transactions/pages/AdvanceList.jsx'));
-const AdvanceCreate = lazy(() => import('../../features/transactions/pages/AdvanceCreate.jsx'));
-const AdvanceDetail = lazy(() => import('../../features/transactions/pages/AdvanceDetail.jsx'));
-const ReturnList = lazy(() => import('../../features/transactions/pages/ReturnList.jsx'));
-const ReturnCreate = lazy(() => import('../../features/transactions/pages/ReturnCreate.jsx'));
-const ReturnDetail = lazy(() => import('../../features/transactions/pages/ReturnDetail.jsx'));
-const RefundList = lazy(() => import('../../features/transactions/pages/RefundList.jsx'));
-const RefundCreate = lazy(() => import('../../features/transactions/pages/RefundCreate.jsx'));
-const RefundDetail = lazy(() => import('../../features/transactions/pages/RefundDetail.jsx'));
-
-const CollectionsHub = lazy(() =>
-  import("../../features/ar/pages/CollectionsHub.jsx")
-);
-const Disputes = lazy(() => import("../../features/ar/pages/Disputes.jsx"));
-const Writeoffs = lazy(() => import("../../features/ar/pages/Writeoffs.jsx"));
-const PaymentPlans = lazy(() =>
-  import("../../features/ar/pages/PaymentPlans.jsx")
-);
-
-const ReportArAging = lazy(() =>
-  import("../../features/reporting/pages/ReportArAging.jsx")
-);
-const ReportArOpenItems = lazy(() =>
-  import("../../features/reporting/pages/ReportArOpenItems.jsx")
-);
-const ReportArCustomerStatement = lazy(() =>
-  import("../../features/reporting/pages/ReportArCustomerStatement.jsx")
-);
-const ReportApAging = lazy(() =>
-  import("../../features/reporting/pages/ReportApAging.jsx")
-);
-const ReportApOpenItems = lazy(() =>
-  import("../../features/reporting/pages/ReportApOpenItems.jsx")
-);
-const ReportApVendorStatement = lazy(() =>
-  import("../../features/reporting/pages/ReportApVendorStatement.jsx")
-);
-const ReportTax = lazy(() =>
-  import("../../features/reporting/pages/ReportTax.jsx")
-);
-
-// Phase 6 — Assets + Inventory
-const AssetRegister = lazy(() =>
-  import("../../features/assets/pages/AssetRegister.jsx")
-);
-const AssetCategories = lazy(() =>
-  import("../../features/assets/pages/AssetCategories.jsx")
-);
-const AssetDetail = lazy(() =>
-  import("../../features/assets/pages/AssetDetail.jsx")
-);
-const AssetDepreciation = lazy(() =>
-  import("../../features/assets/pages/AssetDepreciation.jsx")
-);
-const DepreciationRuns = lazy(() =>
-  import("../../features/assets/pages/DepreciationRuns.jsx")
-);
-const AssetRegisterNew = lazy(() =>
-  import("../../features/assets/pages/FixedAssetCreate.jsx")
-);
-const AssetCategoryNew = lazy(() =>
-  import("../../features/assets/pages/AssetCategoryCreate.jsx")
-);
-const AssetCategoryEdit = lazy(() =>
-  import("../../features/assets/pages/AssetCategoryEdit.jsx")
-);
-const AssetAcquire = lazy(() =>
-  import("../../features/assets/pages/AssetAcquire.jsx")
-);
-const AssetDispose = lazy(() =>
-  import("../../features/assets/pages/AssetDispose.jsx")
-);
-const AssetTransfer = lazy(() =>
-  import("../../features/assets/pages/AssetTransfer.jsx")
-);
-const AssetRevalue = lazy(() =>
-  import("../../features/assets/pages/AssetRevalue.jsx")
-);
-const AssetImpair = lazy(() =>
-  import("../../features/assets/pages/AssetImpair.jsx")
-);
-const DepreciationScheduleNew = lazy(() =>
-  import("../../features/assets/pages/DepreciationScheduleCreate.jsx")
-);
-
-const InventoryCategoryNew = lazy(() =>
-  import("../../features/inventory/pages/CategoryCreate.jsx")
-);
-const InventoryUnitNew = lazy(() =>
-  import("../../features/inventory/pages/UnitCreate.jsx")
-);
-const InventoryItemNew = lazy(() =>
-  import("../../features/inventory/pages/ItemCreate.jsx")
-);
-const InventoryWarehouseNew = lazy(() =>
-  import("../../features/inventory/pages/WarehouseCreate.jsx")
-);
-const InventoryTransactionNew = lazy(() =>
-  import("../../features/inventory/pages/TransactionCreate.jsx")
-);
-const InventoryStockCountNew = lazy(() =>
-  import("../../features/inventory/pages/StockCountCreate.jsx")
-);
-const InventoryItems = lazy(() =>
-  import("../../features/inventory/pages/Items.jsx")
-);
-const InventoryWarehouses = lazy(() =>
-  import("../../features/inventory/pages/Warehouses.jsx")
-);
-const InventoryCategories = lazy(() =>
-  import("../../features/inventory/pages/Categories.jsx")
-);
-const InventoryUnits = lazy(() =>
-  import("../../features/inventory/pages/Units.jsx")
-);
-const InventoryTransactions = lazy(() =>
-  import("../../features/inventory/pages/Transactions.jsx")
-);
-const InventoryTransactionDetail = lazy(() =>
-  import("../../features/inventory/pages/TransactionDetail.jsx")
-);
-const InventoryStockCounts = lazy(() =>
-  import("../../features/inventory/pages/StockCounts.jsx")
-);
-const InventoryStockCountDetail = lazy(() =>
-  import("../../features/inventory/pages/StockCountDetail.jsx")
-);
-const InventoryReports = lazy(() =>
-  import("../../features/inventory/pages/Reports.jsx")
-);
-const InventoryBins = lazy(() =>
-  import("../../features/inventory/pages/Bins.jsx")
-);
-const InventoryBinNew = lazy(() =>
-  import("../../features/inventory/pages/BinCreate.jsx")
-);
-const InventoryReservations = lazy(() =>
-  import("../../features/inventory/pages/Reservations.jsx")
-);
-const InventoryReservationNew = lazy(() =>
-  import("../../features/inventory/pages/ReservationCreate.jsx")
-);
-const InventoryTransfers = lazy(() =>
-  import("../../features/inventory/pages/Transfers.jsx")
-);
-const InventoryTransferNew = lazy(() =>
-  import("../../features/inventory/pages/TransferCreate.jsx")
-);
-const InventoryTransferDetail = lazy(() =>
-  import("../../features/inventory/pages/TransferDetail.jsx")
-);
-const InventoryTraceability = lazy(() =>
-  import("../../features/inventory/pages/Traceability.jsx")
-);
-const InventoryReorder = lazy(() =>
-  import("../../features/inventory/pages/Reorder.jsx")
-);
-
-
-// Phase 12 — Commerce / POS
-const POSRegister = lazy(() => import("../../features/commerce/pages/POSRegister.jsx"));
-const POSSetup = lazy(() => import("../../features/commerce/pages/POSSetup.jsx"));
-const CommerceOrders = lazy(() => import("../../features/commerce/pages/CommerceOrders.jsx"));
-const CommerceReturns = lazy(() => import("../../features/commerce/pages/CommerceReturns.jsx"));
-const CommercePromotions = lazy(() => import("../../features/commerce/pages/CommercePromotions.jsx"));
-const CommerceReports = lazy(() => import("../../features/commerce/pages/CommerceReports.jsx"));
-
-// Phase 7 — Reporting & Planning
-const Centers = lazy(() =>
-  import("../../features/reporting/pages/Centers.jsx")
-);
-const Projects = lazy(() =>
-  import("../../features/reporting/pages/Projects.jsx")
-);
-const ProjectDetail = lazy(() =>
-  import("../../features/reporting/pages/ProjectDetail.jsx")
-);
-const Budgets = lazy(() =>
-  import("../../features/reporting/pages/Budgets.jsx")
-);
-const BudgetDetail = lazy(() =>
-  import("../../features/reporting/pages/BudgetDetail.jsx")
-);
-const Forecasts = lazy(() =>
-  import("../../features/reporting/pages/Forecasts.jsx")
-);
-const ForecastDetail = lazy(() =>
-  import("../../features/reporting/pages/ForecastDetail.jsx")
-);
-const Allocations = lazy(() =>
-  import("../../features/reporting/pages/Allocations.jsx")
-);
-const KPIs = lazy(() => import("../../features/reporting/pages/KPIs.jsx"));
-const Dashboards = lazy(() =>
-  import("../../features/reporting/pages/Dashboards.jsx")
-);
-const SavedReports = lazy(() =>
-  import("../../features/reporting/pages/SavedReports.jsx")
-);
-const ManagementReports = lazy(() =>
-  import("../../features/reporting/pages/ManagementReports.jsx")
-);
-
-
-// Phase 11 — HR
-const HrOverview = lazy(() => import("../../features/hr/pages/HrOverview.jsx"));
-const HrEmployees = lazy(() => import("../../features/hr/pages/Employees.jsx"));
-const HrDepartments = lazy(() => import("../../features/hr/pages/Departments.jsx"));
-const HrGrades = lazy(() => import("../../features/hr/pages/Grades.jsx"));
-const HrPositions = lazy(() => import("../../features/hr/pages/Positions.jsx"));
-const HrCompensationBands = lazy(() => import("../../features/hr/pages/CompensationBands.jsx"));
-const HrPayroll = lazy(() => import("../../features/hr/pages/Payroll.jsx"));
-const GhanaPayrollOverview = lazy(() => import("../../features/hr/pages/ghana/GhanaPayrollOverview.jsx"));
-const GhanaPayeReturns = lazy(() => import("../../features/hr/pages/ghana/GhanaPayeReturns.jsx"));
-const GhanaPayeReturnDetail = lazy(() => import("../../features/hr/pages/ghana/GhanaPayeReturnDetail.jsx"));
-const GhanaPensionSchedule = lazy(() => import("../../features/hr/pages/ghana/GhanaPensionSchedule.jsx"));
-const GhanaDisengagedSchedule = lazy(() => import("../../features/hr/pages/ghana/GhanaDisengagedSchedule.jsx"));
-const GhanaPayrollRemittances = lazy(() => import("../../features/hr/pages/ghana/GhanaPayrollRemittances.jsx"));
-const HrLeave = lazy(() => import("../../features/hr/pages/Leave.jsx"));
-const HrBenefits = lazy(() => import("../../features/hr/pages/Benefits.jsx"));
-const HrStatutory = lazy(() => import("../../features/hr/pages/Statutory.jsx"));
-const HrReports = lazy(() => import("../../features/hr/pages/Reports.jsx"));
-
-function Loader() {
-  return <div className="p-4 text-sm text-slate-600">Loading…</div>;
-}
 
 function Lazy({ children }) {
   return <Suspense fallback={<Loader />}>{children}</Suspense>;
@@ -765,9 +122,11 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.approvalsInbox,
             element: (
-              <Lazy>
-                <ApprovalQueue />
-              </Lazy>
+              <RequirePermission any={[PERMISSIONS.approvalsInboxRead]}>
+                <Lazy>
+                  <ApprovalQueue />
+                </Lazy>
+              </RequirePermission>
             ),
           },
 
@@ -2627,16 +1986,6 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: ROUTES.utilitiesScheduler,
-            element: (
-              <RequirePermission any={[PERMISSIONS.settingsRead]}>
-                <Lazy>
-                  <ScheduledTasks />
-                </Lazy>
-              </RequirePermission>
-            ),
-          },
-          {
             path: ROUTES.utilitiesErrors,
             element: (
               <RequirePermission any={[PERMISSIONS.settingsRead]}>
@@ -2682,16 +2031,6 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.releaseRead]}>
                 <Lazy>
                   <ReleaseInfo />
-                </Lazy>
-              </RequirePermission>
-            ),
-          },
-          {
-            path: ROUTES.utilitiesTests,
-            element: (
-              <RequirePermission any={[PERMISSIONS.testsRun]}>
-                <Lazy>
-                  <TestConsole />
                 </Lazy>
               </RequirePermission>
             ),
@@ -2890,16 +2229,6 @@ export const router = createBrowserRouter([
               <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage]}>
                 <Lazy>
                   <RecurringTransactionsPage />
-                </Lazy>
-              </RequirePermission>
-            ),
-          },
-          {
-            path: ROUTES.automationAccountingJobs,
-            element: (
-              <RequirePermission any={[PERMISSIONS.automationRead, PERMISSIONS.automationManage, PERMISSIONS.automationRun]}>
-                <Lazy>
-                  <AccountingJobsPage />
                 </Lazy>
               </RequirePermission>
             ),

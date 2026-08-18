@@ -125,7 +125,8 @@ export default function SystemHealth() {
     },
   ], []);
 
-  const schedulerTasks = systemQ.data?.scheduler?.tasks ?? [];
+  const schedulerRestricted = systemQ.data?.scheduler?.restricted === true;
+  const schedulerTasks = schedulerRestricted ? [] : (systemQ.data?.scheduler?.tasks ?? []);
   const failingSchedulerTasks = schedulerTasks.filter((t) => t.is_enabled && (t.window_failed_count ?? 0) > 0 && (t.window_success_count ?? 0) === 0);
 
   return (
@@ -147,7 +148,7 @@ export default function SystemHealth() {
         <StatCard icon={Shield} label="Service status" value={systemQ.data?.ok ? 'Healthy' : 'Attention'} tone={systemQ.data?.ok ? 'success' : 'danger'} helper={systemQ.data?.service ?? 'Backend'} />
         <StatCard icon={Boxes} label="Healthy modules" value={moduleSummary ? `${moduleSummary.healthy}/${moduleSummary.total}` : '—'} tone={moduleSummary?.unhealthy ? 'warning' : 'success'} helper={moduleSummary?.unhealthy ? `${moduleSummary.unhealthy} unhealthy` : 'All modules available'} />
         <StatCard icon={Database} label="Database latency" value={readyQ.data?.db?.latency_ms != null ? `${readyQ.data.db.latency_ms} ms` : '—'} tone={readyQ.data?.ok ? 'info' : 'danger'} helper={readyQ.data?.ok ? 'Readiness check passed' : 'Readiness degraded'} />
-        <StatCard icon={Timer} label="Scheduler issues" value={String(failingSchedulerTasks.length)} tone={failingSchedulerTasks.length ? 'warning' : 'success'} helper={schedulerTasks.length ? `${schedulerTasks.length} tracked tasks` : 'No scheduler summary'} />
+        <StatCard icon={Timer} label="Scheduler" value={schedulerRestricted ? 'Restricted' : String(failingSchedulerTasks.length)} tone={schedulerRestricted ? 'default' : (failingSchedulerTasks.length ? 'warning' : 'success')} helper={schedulerRestricted ? 'Platform-operator telemetry' : (schedulerTasks.length ? `${schedulerTasks.length} tracked tasks` : 'No scheduler summary')} />
       </div>
 
       <Tabs
@@ -318,6 +319,8 @@ export default function SystemHealth() {
               <ContentCard title="Task stability overview">
                 {systemQ.isLoading ? (
                   <div className="text-sm text-slate-600">Loading scheduler summary…</div>
+                ) : schedulerRestricted ? (
+                  <div className="rounded-2xl border border-border-subtle bg-white/70 p-4 text-sm text-slate-600">Detailed scheduler telemetry is restricted to the platform control plane.</div>
                 ) : !schedulerTasks.length ? (
                   <div className="rounded-2xl border border-border-subtle bg-white/70 p-4 text-sm text-slate-600">No scheduler summary returned by the backend.</div>
                 ) : (

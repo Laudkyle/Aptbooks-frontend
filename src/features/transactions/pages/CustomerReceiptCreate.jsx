@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDocumentOptionLabel, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
+import { moneyNumberFromUnits, moneyString, moneyUnits } from '../../../shared/finance/money.js';
 
 export default function CustomerReceiptCreate() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function CustomerReceiptCreate() {
     receiptDate: new Date().toISOString().split('T')[0],
     paymentMethodId: '',
     cashAccountId: '',
-    amountTotal: 0,
+    amountTotal: '',
     memo: '',
     allocations: []
   });
@@ -78,8 +79,8 @@ export default function CustomerReceiptCreate() {
     const noteCustomerId = note.customer_id || note.customerId;
     const status = (note.status || note.workflow_status || '').toLowerCase();
     const remainingRaw = note.balance?.remaining ?? note.remaining_amount ?? note.remaining ?? note.unapplied_amount ?? note.balance_remaining ?? note.total;
-    const remaining = typeof remainingRaw === 'string' ? parseFloat(remainingRaw) : Number(remainingRaw || 0);
-    return (!payload.customerId || noteCustomerId === payload.customerId) && remaining > 0 && !['voided', 'draft', 'rejected'].includes(status);
+    const remainingUnits = moneyUnits(remainingRaw || '0');
+    return (!payload.customerId || noteCustomerId === payload.customerId) && remainingUnits > 0n && !['voided', 'draft', 'rejected'].includes(status);
   }), [creditNotes, payload.customerId]);
   
   // Filter customers only
@@ -103,11 +104,12 @@ export default function CustomerReceiptCreate() {
   const create = useMutation({
     mutationFn: () => receiptsApi.create({
       ...payload,
+      amountTotal: moneyString(payload.amountTotal || '0'),
       allocations: payload.allocations
-        .filter((allocation) => allocation.invoiceId && Number(allocation.amountApplied) > 0)
+        .filter((allocation) => allocation.invoiceId && moneyUnits(allocation.amountApplied || '0') > 0n)
         .map((allocation) => ({
           invoiceId: allocation.invoiceId,
-          amountApplied: Number(allocation.amountApplied) || 0,
+          amountApplied: moneyString(allocation.amountApplied || '0'),
         })),
     }),
     onSuccess: (res) => {
@@ -126,7 +128,7 @@ export default function CustomerReceiptCreate() {
         ...payload.allocations,
         {
           invoiceId: '',
-          amountApplied: 0
+          amountApplied: ''
         }
       ]
     });
@@ -156,14 +158,16 @@ export default function CustomerReceiptCreate() {
     setPayload({ ...payload, [field]: value });
   };
 
-  const calculateAllocatedTotal = () => {
-    return payload.allocations.reduce((sum, allocation) => {
-      return sum + (parseFloat(allocation.amountApplied) || 0);
-    }, 0);
-  };
-
-  const allocatedTotal = calculateAllocatedTotal();
-  const unallocated = payload.amountTotal - allocatedTotal;
+  const allocatedUnits = payload.allocations.reduce(
+    (sum, allocation) => sum + moneyUnits(allocation.amountApplied || '0'),
+    0n,
+  );
+  const amountTotalUnits = moneyUnits(payload.amountTotal || '0');
+  const unallocatedUnits = amountTotalUnits - allocatedUnits;
+  // Numbers below are presentation-only; validation and submission use fixed-point units/strings.
+  const allocatedTotal = moneyNumberFromUnits(allocatedUnits);
+  const unallocated = moneyNumberFromUnits(unallocatedUnits);
+  const amountTotalDisplay = moneyNumberFromUnits(amountTotalUnits);
 
   const selectedCustomer = customers.find(c => c.id === payload.customerId);
 
@@ -253,7 +257,7 @@ export default function CustomerReceiptCreate() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-600">Total Amount</span>
                     <span className="text-sm font-bold text-gray-900">
-                      ${(payload.amountTotal || 0).toFixed(2)}
+                      ${amountTotalDisplay.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -267,7 +271,7 @@ export default function CustomerReceiptCreate() {
                       <DollarSign className="h-4 w-4 text-green-600" />
                       <span className="text-xs font-semibold text-gray-700">Unallocated</span>
                     </div>
-                    <span className={`text-sm font-bold ${unallocated < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <span className={`text-sm font-bold ${unallocatedUnits < 0n ? 'text-red-600' : 'text-green-600'}`}>
                       ${unallocated.toFixed(2)}
                     </span>
                   </div>
@@ -380,7 +384,7 @@ export default function CustomerReceiptCreate() {
                       min="0"
                       step="0.01"
                       value={payload.amountTotal}
-                      onChange={(e) => updateField('amountTotal', parseFloat(e.target.value) || 0)}
+                      onChange={(e) => updateField('amountTotal', e.target.value)}
                       className="pl-7"
                     />
                   </div>
@@ -554,7 +558,7 @@ export default function CustomerReceiptCreate() {
                               min="0"
                               step="0.01"
                               value={allocation.amountApplied}
-                              onChange={(e) => updateAllocation(index, 'amountApplied', parseFloat(e.target.value) || 0)}
+                              onChange={(e) => updateAllocation(index, 'amountApplied', e.target.value)}
                               className="pl-7"
                             />
                           </div>

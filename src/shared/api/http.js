@@ -5,6 +5,15 @@ import { createAuthRefresher } from './auth-refresh.js';
 import { toUserFacingError } from './errors.js';
 import { clearValidationErrors, publishValidationErrors } from '../forms/validationStore.js';
 
+function generateOperationId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `op-${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
+
+function isMutatingMethod(method) {
+  return ['post', 'put', 'patch', 'delete'].includes(String(method || 'get').toLowerCase());
+}
+
 export function createHttpClient({ baseURL, cookieRefreshMode }) {
   const http = axios.create({
     baseURL,
@@ -20,6 +29,11 @@ export function createHttpClient({ baseURL, cookieRefreshMode }) {
 
     config.headers = config.headers ?? {};
     if (!config.headers['x-request-id']) config.headers['x-request-id'] = generateRequestId();
+    // A single request intent keeps one operation key through auth/network retries.
+    // Endpoints that do not enforce idempotency simply ignore this header.
+    if (isMutatingMethod(config.method) && !config.headers['Idempotency-Key']) {
+      config.headers['Idempotency-Key'] = generateOperationId();
+    }
     if (isProtected && token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }

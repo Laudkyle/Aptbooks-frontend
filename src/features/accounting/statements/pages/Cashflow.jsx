@@ -342,7 +342,6 @@ export default function Cashflow() {
 
   const handleExport = () => {
     // Implement export functionality (CSV, PDF, etc.)
-    console.log('Export data', q.data);
   };
 
   const statementData = q.data?.data;

@@ -1,3 +1,4 @@
+import { clientLogger } from "../../../shared/utils/clientLogger.js";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -117,7 +118,7 @@ export default function CreditNoteCreate() {
     onError: (e) => {
       const message = e?.response?.data?.error ?? e?.response?.data?.message ?? e?.message ?? 'Failed to create credit note';
       toast.error(message);
-      console.error('Create credit note error:', e); // For debugging
+      clientLogger.error('Create credit note failed', e);
     }
   });
 
