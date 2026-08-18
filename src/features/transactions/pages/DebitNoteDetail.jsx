@@ -73,9 +73,12 @@ export default function DebitNoteDetail() {
   });
 
   // Extract debit note data - data is already the debit note object
+  const note = data?.data ?? data;
+  const noteVendorId = note?.vendor_id ?? note?.vendorId ?? null;
   const billsQ = useQuery({
-    queryKey: ["transactions", "bills", "select"],
-    queryFn: () => billsApi.list({ limit: 200, offset: 0 }),
+    queryKey: ["transactions", "bills", "select", noteVendorId],
+    queryFn: () => billsApi.list({ limit: 200, offset: 0, status: 'issued', vendorId: noteVendorId || undefined }),
+    enabled: Boolean(noteVendorId),
     staleTime: 60_000,
   });
   const billRows = (
@@ -89,8 +92,6 @@ export default function DebitNoteDetail() {
       label: formatDocumentOptionLabel(bill, "bill"),
     })),
   ];
-
-  const note = data?.data ?? data;
 
   // Extract applications - use applications array from your data structure
   const applications = (note?.applications || []).map((app) => ({

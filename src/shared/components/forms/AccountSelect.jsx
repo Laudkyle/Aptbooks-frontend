@@ -13,7 +13,7 @@ export function AccountSelect({
 }) {
   const accountsQuery = useAccounts(filters);
 
-  const options = (overrideOptions && overrideOptions.length ? overrideOptions : accountsQuery.options) ?? [];
+  const options = (Array.isArray(overrideOptions) ? overrideOptions : accountsQuery.options) ?? [];
   const selectOptions = allowEmpty ? [{ value: '', label: emptyLabel }, ...options] : options;
 
   return (

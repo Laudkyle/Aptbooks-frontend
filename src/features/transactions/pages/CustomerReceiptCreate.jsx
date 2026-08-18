@@ -126,10 +126,11 @@ export default function CustomerReceiptCreate() {
   );
 }, [invoices, payload.customerId]);
 
-  const cashAccounts = accounts.filter((account) =>
-    String(account.category_name || account.categoryName || '').toLowerCase().includes('cash') ||
-    String(account.category_name || account.categoryName || '').toLowerCase().includes('bank')
-  );
+  const paymentAccounts = accounts.filter((account) => {
+    const postable = account.is_postable ?? account.isPostable;
+    const status = String(account.status ?? 'active').toLowerCase();
+    return postable !== false && status === 'active';
+  });
 
   const create = useMutation({
     mutationFn: () => {
@@ -191,6 +192,16 @@ export default function CustomerReceiptCreate() {
 
   const updateField = (field, value) => {
     setPayload({ ...payload, [field]: value });
+  };
+
+  const handlePaymentMethodChange = (paymentMethodId) => {
+    const method = paymentMethods.find((row) => row.id === paymentMethodId);
+    const mappedAccountId = method?.default_account_id ?? method?.defaultAccountId ?? '';
+    setPayload((current) => ({
+      ...current,
+      paymentMethodId,
+      cashAccountId: mappedAccountId || current.cashAccountId,
+    }));
   };
 
   const allocatedUnits = payload.allocations.reduce(
@@ -365,6 +376,29 @@ export default function CustomerReceiptCreate() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Method
+                  </label>
+                  {paymentMethodsQuery.isLoading ? (
+                    <div className="text-sm text-gray-500">Loading payment methods...</div>
+                  ) : (
+                    <select
+                      value={payload.paymentMethodId}
+                      onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
+                    >
+                      <option value="">Select method (optional)</option>
+                      {paymentMethods.map((method) => (
+                        <option key={method.id} value={method.id}>
+                          {method.name || method.type || method.id}{method.default_account_name ? ` — ${method.default_account_code ? `${method.default_account_code} ` : ''}${method.default_account_name}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cash Account <span className="text-red-500">*</span>
                   </label>
                   {coaQuery.isLoading ? (
@@ -376,36 +410,14 @@ export default function CustomerReceiptCreate() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
                     >
                       <option value="">Select cash/bank account</option>
-                      {cashAccounts.map((account) => (
+                      {paymentAccounts.map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.code ? `${account.code} - ` : ''}{account.name || account.accountName || account.id}
                         </option>
                       ))}
                     </select>
                   )}
-                  <p className="text-xs text-gray-500 mt-1.5">Account where payment was deposited</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Method
-                  </label>
-                  {paymentMethodsQuery.isLoading ? (
-                    <div className="text-sm text-gray-500">Loading payment methods...</div>
-                  ) : (
-                    <select
-                      value={payload.paymentMethodId}
-                      onChange={(e) => updateField('paymentMethodId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm"
-                    >
-                      <option value="">Select method (optional)</option>
-                      {paymentMethods.map((method) => (
-                        <option key={method.id} value={method.id}>
-                          {method.name || method.type || method.id}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <p className="text-xs text-gray-500 mt-1.5">Prefilled from the selected payment method when configured. You can override it for this receipt.</p>
                 </div>
 
                 <div>

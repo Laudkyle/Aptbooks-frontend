@@ -59,10 +59,16 @@ export default function PaymentConfig() {
   }, [accountsRaw]);
 
   const accountOptions = useMemo(() => {
-    const opts = toOptions(accountsRaw, {
-      valueKey: 'id',
-      label: (a) => `${a.code ?? ''} ${a.name ?? ''}`.trim() || a.id
+    const rows = Array.isArray(accountsRaw) ? accountsRaw : (accountsRaw?.data || []);
+    const eligible = rows.filter((account) => {
+      const postable = account.is_postable ?? account.isPostable;
+      const status = String(account.status ?? 'active').toLowerCase();
+      return postable !== false && status === 'active';
     });
+    const opts = eligible.map((account) => ({
+      value: account.id,
+      label: `${account.code ?? ''}${account.code ? ' — ' : ''}${account.name ?? account.account_name ?? 'Unnamed account'}`.trim(),
+    }));
     return [NONE_OPTION, ...opts];
   }, [accountsRaw]);
 
@@ -94,6 +100,7 @@ export default function PaymentConfig() {
 
   const [termOpen, setTermOpen] = useState(false);
   const [termEditOpen, setTermEditOpen] = useState(false);
+  const [methodOpen, setMethodOpen] = useState(false);
   const [methodEditOpen, setMethodEditOpen] = useState(false);
   const [editingTermId, setEditingTermId] = useState(null);
   const [editingMethodId, setEditingMethodId] = useState(null);
@@ -116,10 +123,19 @@ export default function PaymentConfig() {
     status: 'active' 
   });
   
+  const [method, setMethod] = useState({
+    name: '',
+    code: '',
+    description: '',
+    defaultAccountId: '',
+    status: 'active'
+  });
+
   const [methodEdit, setMethodEdit] = useState({ 
     name: '', 
     code: '', 
-    description: '', 
+    description: '',
+    defaultAccountId: '',
     status: 'active' 
   });
 
@@ -159,6 +175,17 @@ export default function PaymentConfig() {
       qc.invalidateQueries({ queryKey: qk.paymentTerms });
     },
     onError: (e) => toast.error(e?.message ?? 'Failed to delete')
+  });
+
+  const createMethod = useMutation({
+    mutationFn: (body) => api.createPaymentMethod(body),
+    onSuccess: () => {
+      toast.success('Payment method created');
+      qc.invalidateQueries({ queryKey: qk.paymentMethods });
+      setMethodOpen(false);
+      setMethod({ name: '', code: '', description: '', defaultAccountId: '', status: 'active' });
+    },
+    onError: (e) => toast.error(e?.message ?? 'Failed to create payment method')
   });
 
   const updateMethod = useMutation({
@@ -276,6 +303,15 @@ export default function PaymentConfig() {
               >
                 <Plus className="h-4 w-4" />
                 New Payment Term
+              </button>
+            )}
+            {activeTab === 'methods' && (
+              <button
+                onClick={() => setMethodOpen(true)}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                New Payment Method
               </button>
             )}
           </div>
@@ -457,7 +493,7 @@ export default function PaymentConfig() {
                       <Wallet className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">No Payment Methods</h3>
                       <p className="text-sm text-gray-600">
-                        Payment methods are managed by your system administrator
+                        Create a payment method and map its default posting account
                       </p>
                     </div>
                   ) : (
@@ -483,9 +519,17 @@ export default function PaymentConfig() {
                             </span>
                           </div>
                           
-                          <p className="text-sm text-gray-600 mb-4 min-h-[40px]">
+                          <p className="text-sm text-gray-600 mb-3 min-h-[40px]">
                             {m.description || 'No description'}
                           </p>
+                          <div className="mb-4 rounded-md bg-slate-50 border border-slate-200 px-3 py-2">
+                            <div className="text-xs font-medium text-gray-600">Default posting account</div>
+                            <div className="text-sm text-gray-900 mt-0.5">
+                              {m.default_account_id
+                                ? `${m.default_account_code || ''}${m.default_account_code ? ' — ' : ''}${m.default_account_name || getAccountDisplay(m.default_account_id)?.fullName || 'Mapped account'}`
+                                : 'Not mapped'}
+                            </div>
+                          </div>
 
                           <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
                             <button
@@ -495,6 +539,7 @@ export default function PaymentConfig() {
                                   name: m.name ?? '',
                                   code: m.code ?? '',
                                   description: m.description ?? '',
+                                  defaultAccountId: m.default_account_id ?? m.defaultAccountId ?? '',
                                   status: m.status ?? 'active'
                                 });
                                 setMethodEditOpen(true);
@@ -1005,6 +1050,63 @@ export default function PaymentConfig() {
         </div>
       </Modal>
 
+      {/* Create Payment Method Modal */}
+      <Modal
+        open={methodOpen}
+        onClose={() => setMethodOpen(false)}
+        title="New Payment Method"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Method Name"
+            placeholder="e.g., Mobile Money"
+            value={method.name}
+            onChange={(e) => setMethod((v) => ({ ...v, name: e.target.value }))}
+          />
+          <Input
+            label="Code"
+            placeholder="e.g., MOMO"
+            value={method.code}
+            onChange={(e) => setMethod((v) => ({ ...v, code: e.target.value }))}
+          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Default Posting Account</label>
+            <Select
+              value={method.defaultAccountId}
+              onChange={(e) => setMethod((v) => ({ ...v, defaultAccountId: e.target.value }))}
+              options={accountOptions}
+            />
+            <p className="mt-1 text-xs text-gray-500">Receipts and payments will prefill this account when the method is selected. Users may override it per transaction.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea
+              value={method.description}
+              onChange={(e) => setMethod((v) => ({ ...v, description: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              placeholder="Describe this payment method..."
+            />
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <button onClick={() => setMethodOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-slate-50">Cancel</button>
+          <button
+            onClick={() => createMethod.mutate({
+              name: method.name.trim(),
+              code: method.code.trim(),
+              description: method.description || undefined,
+              defaultAccountId: method.defaultAccountId || null,
+              status: method.status
+            })}
+            disabled={createMethod.isPending || !method.name.trim() || !method.code.trim()}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
+          >
+            {createMethod.isPending ? 'Creating...' : 'Create Method'}
+          </button>
+        </div>
+      </Modal>
+
       {/* Edit Payment Method Modal */}
       <Modal
         open={methodEditOpen}
@@ -1026,6 +1128,16 @@ export default function PaymentConfig() {
             value={methodEdit.code} 
             onChange={(e) => setMethodEdit((s) => ({ ...s, code: e.target.value }))} 
           />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Default Posting Account</label>
+            <Select
+              value={methodEdit.defaultAccountId}
+              onChange={(e) => setMethodEdit((s) => ({ ...s, defaultAccountId: e.target.value }))}
+              options={accountOptions}
+            />
+            <p className="mt-1 text-xs text-gray-500">This account is prefilled on receipts/payments and can be overridden on the transaction.</p>
+          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -1069,6 +1181,7 @@ export default function PaymentConfig() {
                   name: methodEdit.name || undefined,
                   code: methodEdit.code || undefined,
                   description: methodEdit.description || undefined,
+                  defaultAccountId: methodEdit.defaultAccountId || null,
                   status: methodEdit.status || undefined
                 }
               })

@@ -344,6 +344,7 @@ export const endpoints = {
         paymentTerm: (id) =>
           `/modules/business/payment-config/payment-terms/${id}`,
         paymentMethods: "/modules/business/payment-config/payment-methods",
+        paymentMethod: (id) => `/modules/business/payment-config/payment-methods/${id}`,
         paymentSettings: "/modules/business/payment-config/payment-settings",
       },
     },

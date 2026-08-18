@@ -74,9 +74,12 @@ export default function CreditNoteDetail() {
   });
 
   // Extract credit note data - based on your console.log, data is already the credit note object
+  const note = data?.data ?? data;
+  const noteCustomerId = note?.customer_id ?? note?.customerId ?? null;
   const invoicesQ = useQuery({
-    queryKey: ["transactions", "invoices", "select"],
-    queryFn: () => invoicesApi.list({ limit: 200, offset: 0 }),
+    queryKey: ["transactions", "invoices", "select", noteCustomerId],
+    queryFn: () => invoicesApi.list({ limit: 200, offset: 0, status: 'issued', customerId: noteCustomerId || undefined }),
+    enabled: Boolean(noteCustomerId),
     staleTime: 60_000,
   });
   const invoiceRows = (
@@ -91,8 +94,6 @@ export default function CreditNoteDetail() {
       label: formatDocumentOptionLabel(inv, "invoice"),
     })),
   ];
-
-  const note = data?.data ?? data;
 
   // Extract allocations/applications - use applications array from your data
   const applications = (note?.applications || []).map((app) => ({

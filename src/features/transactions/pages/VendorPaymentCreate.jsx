@@ -157,17 +157,17 @@ export default function VendorPaymentCreate() {
     }))
   ];
 
-  const accountOptions = [
-    { value: '', label: 'Select account...' },
-    ...accounts.
-      filter(acc => 
-    acc.category_name?.toLowerCase().includes('cash') ||
-    acc.category_name?.toLowerCase().includes('bank')
-  ).map(a => ({
-        value: a.id,
-        label: `${a.code || ''} - ${a.name || ''}`.trim()
-      }))
-  ];
+  const paymentAccountOptions = accounts
+    .filter((account) => {
+      const postable = account.is_postable ?? account.isPostable;
+      const status = String(account.status ?? 'active').toLowerCase();
+      return postable !== false && status === 'active';
+    })
+    .map((account) => ({
+      value: account.id,
+      label: `${account.code || ''}${account.code ? ' — ' : ''}${account.name || account.accountName || 'Account'}`,
+      account,
+    }));
 
   const methodOptions = [
     { value: '', label: 'Select method...' },
@@ -175,7 +175,8 @@ export default function VendorPaymentCreate() {
       .filter(m => m.status === 'active')
       .map(m => ({
         value: m.id,
-        label: `${m.name || ''} (${m.code || ''})`.trim()
+        label: `${m.name || ''} (${m.code || ''})${m.default_account_name ? ` — ${m.default_account_code ? `${m.default_account_code} ` : ''}${m.default_account_name}` : ''}`.trim(),
+        method: m,
       }))
   ];
 
@@ -187,6 +188,16 @@ export default function VendorPaymentCreate() {
       bill: b
     }))
   ];
+
+  const handlePaymentMethodChange = (paymentMethodId) => {
+    const method = paymentMethods.find((row) => row.id === paymentMethodId);
+    const mappedAccountId = method?.default_account_id ?? method?.defaultAccountId ?? '';
+    setFormData((current) => ({
+      ...current,
+      paymentMethodId,
+      cashAccountId: mappedAccountId || current.cashAccountId,
+    }));
+  };
 
   const addAllocation = () => {
     setAllocations([...allocations, { billId: '', amountApplied: '' }]);
@@ -404,23 +415,26 @@ export default function VendorPaymentCreate() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Payment Method
+                      </label>
+                      <Select
+                        value={formData.paymentMethodId}
+                        onChange={(e) => handlePaymentMethodChange(e.target.value)}
+                        options={methodOptions}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Cash/Bank Account <span className="text-red-500">*</span>
                       </label>
                       <AccountSelect
                         value={formData.cashAccountId}
                         onChange={(e) => setFormData({ ...formData, cashAccountId: e.target.value })}
+                        options={paymentAccountOptions}
+                        emptyLabel="Select payment account..."
                         allowEmpty
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Payment Method
-                      </label>
-                      <Select
-                        value={formData.paymentMethodId}
-                        onChange={(e) => setFormData({ ...formData, paymentMethodId: e.target.value })}
-                        options={methodOptions}
-                      />
+                      <p className="mt-1 text-xs text-gray-500">Prefilled from the selected payment method when configured. You can override it for this payment.</p>
                     </div>
                   </div>
 

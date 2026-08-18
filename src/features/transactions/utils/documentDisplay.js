@@ -206,17 +206,10 @@ export function formatDocumentOptionLabel(
       : kind === "bill"
         ? "Unnamed bill"
         : "Unnamed document");
-  const totalLabel = formatDocumentAmount(doc, fallbackCurrency, kind);
-  const withholdingLabel = formatDocumentWithholding(doc, fallbackCurrency, kind);
-  const settlementLabel = formatDocumentSettlementBasis(doc, fallbackCurrency, kind);
   const outstandingLabel = formatDocumentOutstanding(doc, fallbackCurrency, kind);
-
-  const parts = [`Gross: ${totalLabel}`];
-  if (withholdingLabel !== "—" && getDocumentWithholding(doc, kind) > 0) parts.push(`WHT: ${withholdingLabel}`);
-  if (settlementLabel !== "—") parts.push(`Settlement: ${settlementLabel}`);
-  if (outstandingLabel !== "—") parts.push(`Open: ${outstandingLabel}`);
-
-  return `${number} — ${parts.join(" — ")}`;
+  if (outstandingLabel !== "—") return `${number} — Balance: ${outstandingLabel}`;
+  const totalLabel = formatDocumentAmount(doc, fallbackCurrency, kind);
+  return totalLabel !== "—" ? `${number} — Total: ${totalLabel}` : number;
 }
 
 export function formatDocumentSummary(
