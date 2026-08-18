@@ -6,7 +6,7 @@ function inferFieldKey({ fieldKey, name, id, label }) {
   return fieldKey || name || id || label || '';
 }
 
-export function Select({ className, label, error, options, onChange, name, id, fieldKey, ...props }) {
+export function Select({ className, label, error, options, children, onChange, name, id, fieldKey, ...props }) {
   const resolvedFieldKey = inferFieldKey({ fieldKey, name, id, label });
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
@@ -34,7 +34,7 @@ export function Select({ className, label, error, options, onChange, name, id, f
         }}
         {...props}
       >
-        {(options ?? []).map((o) => (
+        {children ?? (options ?? []).map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>

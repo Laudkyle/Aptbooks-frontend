@@ -159,7 +159,7 @@ export function OrganizationOnboardingGate({ children }) {
                   ['1', 'Identity', 'Your full name is used on every document you print.'],
                   ['2', 'Organization details', 'Complete the contact and address details printed on accounting documents.'],
                   ['3', 'Accounting policy', 'Choose the inventory costing method before transactions begin.'],
-                  ['4', 'Journal controls', 'Decide whether journal approval is required and what creators may do.'],
+                  ['4', 'Approval controls', 'A global Admin approval step protects every document by default; specific document types can be overridden later.'],
                 ].map(([n, title, text]) => (
                   <div key={n} className="flex gap-4">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold">{n}</div>
@@ -225,11 +225,15 @@ export function OrganizationOnboardingGate({ children }) {
               </section>
 
               <section>
-                <div className="mb-3 flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-brand-primary" /><h3 className="text-sm font-bold text-slate-900">Journal approval flow</h3></div>
+                <div className="mb-3 flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-brand-primary" /><h3 className="text-sm font-bold text-slate-900">Default approval flow</h3></div>
+                <div className="mb-4 rounded-2xl border border-brand-primary/20 bg-brand-primary/5 p-4 text-sm text-slate-700">
+                  <div className="font-semibold text-slate-900">Default approver: Admin</div>
+                  <div className="mt-1 text-xs leading-5 text-slate-600">This becomes the global approval ladder for invoices, bills, journals and every other workflow document. An administrator can create a document-specific override later.</div>
+                </div>
                 <div className="space-y-3">
-                  <Toggle checked={approvalRequired} onChange={setApprovalRequired} label="Require approval before journals can be posted" description="Creates a Journal Approval level and routes submitted journals through it before posting." />
-                  <Toggle checked={creatorCanApprove} onChange={setCreatorCanApprove} label="Creator can approve their own journal" description={approvalRequired ? 'Lets a creator act on the approval step for a journal they created.' : 'Stored as the self-approval policy if approval is enabled later.'} />
-                  <Toggle checked={creatorCanPost} onChange={setCreatorCanPost} label="Creator can post their own journal" description={approvalRequired ? 'The creator may post only after required approval is complete.' : 'The creator may post a valid draft directly without a separate approval step.'} />
+                  <Toggle checked={approvalRequired} onChange={setApprovalRequired} label="Require approval for workflow documents" description="Applies the Admin approval step globally unless a document type has an explicit override." />
+                  <Toggle checked={creatorCanApprove} onChange={setCreatorCanApprove} label="Non-admin creator can approve their own journal" description={approvalRequired ? 'Admins can approve by default. Enable this only if non-admin journal creators may self-approve too.' : 'Stored as the self-approval policy if approval is enabled later.'} />
+                  <Toggle checked={creatorCanPost} onChange={setCreatorCanPost} label="Non-admin creator can post their own journal" description={approvalRequired ? 'Admins can post by default after approval. Enable this if non-admin creators may post their own approved journals.' : 'Enable this if non-admin creators may post a valid draft directly when approval is disabled.'} />
                   <Toggle checked={requireCommentOnRejection} onChange={setRequireCommentOnRejection} label="Require a reason when rejecting" description="Recommended for a useful audit trail and clear rework instructions." />
                 </div>
               </section>

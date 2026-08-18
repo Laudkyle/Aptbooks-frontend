@@ -89,8 +89,15 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
     staleTime: 60_000,
   });
 
-  const rules    = rulesQ.data?.data ?? rulesQ.data ?? [];
-  const docTypes = typesQ.data ?? [];
+  const entityTypesQ = useQuery({
+    queryKey: ["workflow-entity-types"],
+    queryFn: documentsApi.listEntityTypes,
+    staleTime: 60_000,
+  });
+
+  const rules       = rulesQ.data?.data ?? rulesQ.data ?? [];
+  const docTypes    = Array.isArray(typesQ.data) ? typesQ.data : (typesQ.data?.data ?? []);
+  const entityTypes = Array.isArray(entityTypesQ.data) ? entityTypesQ.data : [];
   const typeName = (id) => id ? (docTypes.find((t) => t.id === id)?.name ?? id) : null;
 
   const deleteRule = useMutation({
@@ -184,6 +191,7 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
         <WorkflowRuleModal
           mode="create"
           docTypes={docTypes}
+          entityTypes={entityTypes}
           onClose={() => setShowCreateModal(false)}
           settingsApi={settingsApi}
           qc={qc}
@@ -196,6 +204,7 @@ function WorkflowRulesTab({ settingsApi, documentsApi, qc, toast }) {
           mode="edit"
           rule={editingRule}
           docTypes={docTypes}
+          entityTypes={entityTypes}
           onClose={() => setEditingRule(null)}
           settingsApi={settingsApi}
           qc={qc}
@@ -237,7 +246,7 @@ const EMPTY_RULE_FORM = {
   notify_creator_on_rejection:  true,
 };
 
-function WorkflowRuleModal({ mode, rule, docTypes, onClose, settingsApi, qc, toast }) {
+function WorkflowRuleModal({ mode, rule, docTypes, entityTypes, onClose, settingsApi, qc, toast }) {
   const [form, setForm] = useState(() =>
     mode === "edit" && rule
       ? {
@@ -305,10 +314,16 @@ function WorkflowRuleModal({ mode, rule, docTypes, onClose, settingsApi, qc, toa
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Entity Type <span className="text-slate-400 font-normal">(optional)</span>
               </label>
-              <Input
+              <Select
                 value={form.entity_type}
                 onChange={(e) => setField("entity_type", e.target.value)}
-                placeholder="e.g. invoice, bill"
+                options={[
+                  { value: "", label: "— All entity types —" },
+                  ...(entityTypes || []).map((value) => ({
+                    value,
+                    label: String(value).replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+                  })),
+                ]}
               />
               <p className="mt-1 text-xs text-slate-500">Leave blank to apply to all entity types</p>
             </div>

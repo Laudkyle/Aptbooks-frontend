@@ -7,6 +7,12 @@ export function makeDocumentsApi(http) {
     // without needing a separate api factory passed down the tree.
     _http: http,
 
+    listEntityTypes: async () => {
+      const res = await http.get('/workflow/documents/entity-types');
+      const data = res.data;
+      return Array.isArray(data?.supported) ? data.supported : [];
+    },
+
     // ── Document Types ──────────────────────────────────────────────────────
     listDocumentTypes: async () => {
       const res = await http.get(endpoints.documents.types.list);
