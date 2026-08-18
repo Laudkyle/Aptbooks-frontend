@@ -25,8 +25,19 @@ export default function FixedAssetCreate() {
     staleTime: 60_000
   });
 
+  const { data: dimensionsRaw } = useQuery({
+    queryKey: ['assets.dimensionOptions'],
+    queryFn: () => assetsApi.listDimensionOptions(),
+    staleTime: 60_000
+  });
+  const dimensions = dimensionsRaw?.data ?? dimensionsRaw ?? {};
+  const dimensionOptions = (key) => [NONE_OPTION, ...toOptions(dimensions[key] ?? [], {
+    valueKey: 'id',
+    label: (row) => `${row.code ?? ''} ${row.name ?? ''}`.trim() || 'Unnamed'
+  })];
+
   const categoryOptions = useMemo(() => {
-    const opts = toOptions(categoriesRaw, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? ''}`.trim() || c.id });
+    const opts = toOptions(categoriesRaw, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? ''}`.trim() || 'Unnamed category' });
     return [NONE_OPTION, ...opts];
   }, [categoriesRaw]);
 
@@ -126,24 +137,23 @@ export default function FixedAssetCreate() {
             onChange={(e) => setForm((s) => ({ ...s, salvageValue: e.target.value }))}
           />
 
-          {/* Optional dimension IDs exist in backend but do not have list endpoints in this frontend repo. */}
           <Select
             label="Location"
             value={form.locationId}
             onChange={(e) => setForm((s) => ({ ...s, locationId: e.target.value }))}
-            options={[NONE_OPTION]}
+            options={dimensionOptions('locations')}
           />
           <Select
             label="Department"
             value={form.departmentId}
             onChange={(e) => setForm((s) => ({ ...s, departmentId: e.target.value }))}
-            options={[NONE_OPTION]}
+            options={dimensionOptions('departments')}
           />
           <Select
             label="Cost center"
             value={form.costCenterId}
             onChange={(e) => setForm((s) => ({ ...s, costCenterId: e.target.value }))}
-            options={[NONE_OPTION]}
+            options={dimensionOptions('costCenters')}
           />
 
           <div className="md:col-span-2 flex justify-end gap-2 pt-2">

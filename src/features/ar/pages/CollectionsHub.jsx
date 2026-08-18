@@ -174,7 +174,7 @@ export default function CollectionsHub() {
 
   const queueColumns = useMemo(
     () => [
-      { header: 'Partner', render: (r) => <span className="font-medium text-slate-900">{r.partner_name ?? r.partnerName ?? r.partner_id ?? '—'}</span> },
+      { header: 'Partner', render: (r) => <span className="font-medium text-slate-900">{r.partner_name ?? r.partnerName ?? '—'}</span> },
       { header: 'Open amount', render: (r) => <span>{formatMoneyLike(r.open_amount ?? r.openAmount)}</span> },
       { header: 'Days past due', render: (r) => <span>{r.days_past_due ?? r.daysPastDue ?? '—'}</span> },
       { header: 'Open invoices', render: (r) => <span>{r.open_invoice_count ?? r.openInvoiceCount ?? '—'}</span> },
@@ -186,9 +186,9 @@ export default function CollectionsHub() {
   const caseColumns = useMemo(
     () => [
       { header: 'Case', render: (r) => <span className="font-medium text-slate-900">#{r.id}</span> },
-      { header: 'Partner', render: (r) => <span>{r.partner_name ?? r.partnerName ?? r.partner_id ?? '—'}</span> },
+      { header: 'Partner', render: (r) => <span>{r.partner_name ?? r.partnerName ?? '—'}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'open') === 'open' ? 'brand' : 'muted'}>{r.status ?? 'open'}</Badge> },
-      { header: 'Assigned to', render: (r) => <span>{r.assigned_to_user_name ?? r.assignedToUserName ?? r.assigned_to_user_id ?? '—'}</span> },
+      { header: 'Assigned to', render: (r) => <span>{r.assigned_to_user_name ?? r.assignedToUserName ?? 'Unassigned'}</span> },
       { header: 'Updated', render: (r) => <span>{String(r.updated_at ?? r.updatedAt ?? '').slice(0, 10) || '—'}</span> }
     ],
     []

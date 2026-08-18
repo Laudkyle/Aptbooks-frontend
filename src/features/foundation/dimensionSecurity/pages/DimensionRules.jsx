@@ -1,8 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../../shared/hooks/useApi.js';
-import { makeUsersApi } from '../../users/api/users.api.js';
-import { makeRolesApi } from '../../roles/api/roles.api.js';
 import { makeDimensionSecurityApi } from '../api/dimensionSecurity.api.js';
 import { PageHeader } from '../../../../shared/components/layout/PageHeader.jsx';
 import { ContentCard } from '../../../../shared/components/layout/ContentCard.jsx';
@@ -16,8 +14,6 @@ import { useToast } from '../../../../shared/components/ui/Toast.jsx';
 export default function DimensionRules() {
   const { http } = useApi();
   const api = useMemo(() => makeDimensionSecurityApi(http), [http]);
-  const usersApi = useMemo(() => makeUsersApi(http), [http]);
-  const rolesApi = useMemo(() => makeRolesApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
 
@@ -30,17 +26,12 @@ export default function DimensionRules() {
     staleTime: 30_000
   });
 
-  const usersQ = useQuery({ 
-    queryKey: ['users', 'dimension-rules'], 
-    queryFn: () => usersApi.list(), 
-    staleTime: 60_000 
+  const optionsQ = useQuery({
+    queryKey: ['dimensionSecurity', 'options'],
+    queryFn: () => api.options(),
+    staleTime: 60_000
   });
-  
-  const rolesQ = useQuery({ 
-    queryKey: ['roles', 'dimension-rules'], 
-    queryFn: () => rolesApi.list(), 
-    staleTime: 60_000 
-  });
+  const optionData = optionsQ.data?.data ?? optionsQ.data ?? {};
 
   const rows = q.data?.data ?? [];
   const totalCount = q.data?.total ?? rows.length;
@@ -140,7 +131,6 @@ export default function DimensionRules() {
               <Table>
                 <THead>
                   <tr>
-                    <TH>Rule ID</TH>
                     <TH>Applied To</TH>
                     <TH>Principal</TH>
                     <TH>Access</TH>
@@ -151,9 +141,6 @@ export default function DimensionRules() {
                 <TBody>
                   {rows.map((rule) => (
                     <tr key={rule.id} className="hover:bg-slate-50">
-                      <TD className="font-mono text-xs text-slate-600">
-                        #{rule.id}
-                      </TD>
                       <TD>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           (rule.principal_type || rule.principalType) === 'user' 
@@ -172,8 +159,9 @@ export default function DimensionRules() {
                           {(rule.principal_type || rule.principalType) === 'user' ? 'User' : 'Role'}
                         </span>
                       </TD>
-                      <TD className="font-mono text-xs text-slate-900">
-                        {rule.principal_id || rule.principalId}
+                      <TD>
+                        <div className="text-sm font-medium text-slate-900">{rule.principal_name || 'Unknown principal'}</div>
+                        {rule.principal_email ? <div className="text-xs text-slate-500">{rule.principal_email}</div> : null}
                       </TD>
                       <TD>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -286,8 +274,7 @@ export default function DimensionRules() {
           api={api}
           qc={qc}
           toast={toast}
-          users={usersQ.data?.data || []}
-          roles={rolesQ.data?.data || []}
+          options={optionData}
         />
       )}
 
@@ -315,10 +302,6 @@ export default function DimensionRules() {
 
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Rule ID:</span>
-                <span className="font-mono text-slate-900">#{deleteConfirm.id}</span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Applied To:</span>
                 <span className="font-medium text-slate-900">
                   {(deleteConfirm.principal_type || deleteConfirm.principalType) === 'user' ? 'User' : 'Role'}
@@ -326,7 +309,7 @@ export default function DimensionRules() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Principal:</span>
-                <span className="font-mono text-slate-900">{deleteConfirm.principal_id || deleteConfirm.principalId}</span>
+                <span className="font-medium text-slate-900">{deleteConfirm.principal_name || 'Unknown principal'}</span>
               </div>
             </div>
 
@@ -349,7 +332,7 @@ export default function DimensionRules() {
   );
 }
 
-function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }) {
+function RuleFormModal({ rule, onClose, api, qc, toast, options = {} }) {
   const isEditing = !!rule;
 
   const [form, setForm] = useState({
@@ -360,7 +343,10 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
     // Parse rule_json for specific dimension rules
     departments: [],
     locations: [],
-    costCenters: []
+    costCenters: [],
+    profitCenters: [],
+    investmentCenters: [],
+    projects: []
   });
 
   const [errors, setErrors] = useState({});
@@ -373,7 +359,10 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
         ...prev,
         departments: ruleJson.departments || [],
         locations: ruleJson.locations || [],
-        costCenters: ruleJson.costCenters || []
+        costCenters: ruleJson.costCenters || [],
+        profitCenters: ruleJson.profitCenters || [],
+        investmentCenters: ruleJson.investmentCenters || [],
+        projects: ruleJson.projects || []
       }));
     }
   }, [rule]);
@@ -382,7 +371,7 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
     const newErrors = {};
 
     if (!form.principalId?.trim()) {
-      newErrors.principalId = 'Principal ID is required';
+      newErrors.principalId = 'Principal is required';
     }
 
     setErrors(newErrors);
@@ -402,7 +391,10 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
         ruleJson: {
           departments: form.departments.filter(Boolean),
           locations: form.locations.filter(Boolean),
-          costCenters: form.costCenters.filter(Boolean)
+          costCenters: form.costCenters.filter(Boolean),
+          profitCenters: form.profitCenters.filter(Boolean),
+          investmentCenters: form.investmentCenters.filter(Boolean),
+          projects: form.projects.filter(Boolean)
         },
         note: form.note?.trim() || null
       };
@@ -433,14 +425,13 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
 
   // Prepare options for select
   const principalOptions = form.principalType === 'user'
-    ? users.map(u => ({ 
-        value: u.id, 
-        label: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || u.email || u.id 
-      }))
-    : roles.map(r => ({ 
-        value: r.id, 
-        label: r.name || r.code || r.id 
-      }));
+    ? (options.users || []).map((u) => ({ value: u.id, label: u.full_name ? `${u.full_name} — ${u.email}` : u.email }))
+    : (options.roles || []).map((r) => ({ value: r.id, label: r.name }));
+
+  const dimensionOptions = (key) => (options[key] || []).map((row) => ({
+    value: row.id,
+    label: `${row.code ? `${row.code} — ` : ''}${row.name}`
+  }));
 
   return (
     <Modal
@@ -547,26 +538,12 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
             Leave blank to apply to all dimensions, or specify particular dimensions to restrict access.
           </p>
 
-          <DimensionListInput
-            label="Departments"
-            values={form.departments}
-            onChange={(values) => handleInputChange('departments', values)}
-            placeholder="Enter department IDs"
-          />
-
-          <DimensionListInput
-            label="Locations"
-            values={form.locations}
-            onChange={(values) => handleInputChange('locations', values)}
-            placeholder="Enter location IDs"
-          />
-
-          <DimensionListInput
-            label="Cost Centers"
-            values={form.costCenters}
-            onChange={(values) => handleInputChange('costCenters', values)}
-            placeholder="Enter cost center IDs"
-          />
+          <DimensionMultiSelect label="Departments" values={form.departments} onChange={(values) => handleInputChange('departments', values)} options={dimensionOptions('departments')} />
+          <DimensionMultiSelect label="Locations" values={form.locations} onChange={(values) => handleInputChange('locations', values)} options={dimensionOptions('locations')} />
+          <DimensionMultiSelect label="Cost Centers" values={form.costCenters} onChange={(values) => handleInputChange('costCenters', values)} options={dimensionOptions('costCenters')} />
+          <DimensionMultiSelect label="Profit Centers" values={form.profitCenters} onChange={(values) => handleInputChange('profitCenters', values)} options={dimensionOptions('profitCenters')} />
+          <DimensionMultiSelect label="Investment Centers" values={form.investmentCenters} onChange={(values) => handleInputChange('investmentCenters', values)} options={dimensionOptions('investmentCenters')} />
+          <DimensionMultiSelect label="Projects" values={form.projects} onChange={(values) => handleInputChange('projects', values)} options={dimensionOptions('projects')} />
         </div>
 
         {/* Description */}
@@ -597,74 +574,20 @@ function RuleFormModal({ rule, onClose, api, qc, toast, users = [], roles = [] }
   );
 }
 
-function DimensionListInput({ label, values = [], onChange, placeholder }) {
-  const [inputValue, setInputValue] = useState('');
-
-  const handleAdd = () => {
-    const trimmed = inputValue.trim();
-    if (trimmed && !values.includes(trimmed)) {
-      onChange([...values, trimmed]);
-      setInputValue('');
-    }
-  };
-
-  const handleRemove = (value) => {
-    onChange(values.filter(v => v !== value));
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAdd();
-    }
-  };
-
+function DimensionMultiSelect({ label, values = [], onChange, options = [] }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-2">
-        {label}
-      </label>
-      <div className="space-y-2">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={placeholder}
-          />
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleAdd}
-            disabled={!inputValue.trim()}
-          >
-            Add
-          </Button>
-        </div>
-        {values.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {values.map((value, index) => (
-              <span
-                key={`${value}-${index}`}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 text-sm rounded-full"
-              >
-                <span className="font-mono text-xs">{value}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemove(value)}
-                  className="text-slate-500 hover:text-slate-700"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+      <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
+      <select
+        multiple
+        size={Math.min(Math.max(options.length, 3), 7)}
+        className="w-full rounded-xl border border-border-subtle bg-white px-3 py-2 text-sm focus:border-brand-light focus:ring-2 focus:ring-brand-light/40"
+        value={values}
+        onChange={(event) => onChange(Array.from(event.target.selectedOptions, (option) => option.value))}
+      >
+        {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </select>
+      <p className="mt-1 text-xs text-slate-500">Hold Ctrl/Cmd to select multiple. Leave all unselected to apply to every {label.toLowerCase()}.</p>
     </div>
   );
 }

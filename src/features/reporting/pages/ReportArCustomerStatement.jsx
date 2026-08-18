@@ -158,7 +158,6 @@ export default function ReportArCustomerStatement() {
     if (!statement) return;
     let text = `CUSTOMER STATEMENT\n==================\n\n`;
     if (statement.customer.name)               text += `Customer: ${statement.customer.name}\n`;
-    if (statement.customer.id || customerId)   text += `Customer ID: ${statement.customer.id || customerId}\n`;
     text += `\nStatement Period: ${formatDate(statement.period.from)} to ${formatDate(statement.period.to)}\n`;
     text += `Generated: ${new Date().toLocaleString()}\n\n`;
     text += `SUMMARY\n-------\n`;
@@ -291,7 +290,7 @@ export default function ReportArCustomerStatement() {
             </div>
             <h3 className="text-base font-semibold text-slate-900 mb-1.5">No statement data</h3>
             <p className="text-sm text-slate-500 mb-6">
-              No transactions found for <span className="font-mono font-semibold text-slate-700">{customerId}</span> in the specified period.
+              No transactions found for <span className="font-semibold text-slate-700">{selectedCustomerLabel}</span> in the specified period.
             </p>
             <Button variant="secondary" onClick={() => { setHasSearched(false); setCustomerId(''); setFrom(''); setTo(''); }}>
               Start over
@@ -375,7 +374,7 @@ export default function ReportArCustomerStatement() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{statement.customer.name || selectedCustomerLabel}</p>
-                    <p className="text-xs text-slate-400 font-mono">{statement.customer.id || customerId}</p>
+                    
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -407,7 +406,7 @@ export default function ReportArCustomerStatement() {
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Customer</p>
                     {statement.customer.name && <p className="text-sm font-semibold text-slate-900">{statement.customer.name}</p>}
-                    <p className="text-sm text-slate-600 font-mono">{statement.customer.id || customerId}</p>
+                    
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Period</p>
@@ -539,7 +538,7 @@ export default function ReportArCustomerStatement() {
                 <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm font-medium text-blue-900 mb-1">Payment instructions</p>
                   <p className="text-xs text-blue-800">
-                    Please include your customer ID (<span className="font-mono font-semibold">{statement.customer.id || customerId}</span>) with your payment.
+                    Please include the invoice or statement reference with your payment.
                     For questions about this statement, contact our accounts receivable department.
                   </p>
                 </div>

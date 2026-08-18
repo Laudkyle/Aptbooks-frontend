@@ -95,7 +95,7 @@ export default function WithholdingWorkspace() {
   const remittanceColumns = [
     { header: 'Remittance No', accessorKey: 'remittance_no', render: (row) => row.remittance_no || '—' },
     { header: 'Direction', accessorKey: 'direction', render: (row) => rowStatusBadge(row.direction || 'payable') },
-    { header: 'Authority', accessorKey: 'authority_name', render: (row) => row.authority_name || row.authority_partner_name || row.authority_partner_id || '—' },
+    { header: 'Authority', accessorKey: 'authority_name', render: (row) => row.authority_name || row.authority_partner_name || 'Unknown authority' },
     { header: 'Period', accessorKey: 'period_start', render: (row) => [row.period_start, row.period_end].filter(Boolean).join(' → ') || '—' },
     { header: 'Status', accessorKey: 'status', render: (row) => rowStatusBadge(row.status) },
     { header: 'Amount', accessorKey: 'total_amount', render: (row) => money(row.total_amount, row.currency_code || 'USD') },
@@ -103,7 +103,7 @@ export default function WithholdingWorkspace() {
 
   const certificateColumns = [
     { header: 'Certificate No', accessorKey: 'certificate_no', render: (row) => row.certificate_no || '—' },
-    { header: 'Customer', accessorKey: 'customer_name', render: (row) => row.customer_name || row.customer_id || '—' },
+    { header: 'Customer', accessorKey: 'customer_name', render: (row) => row.customer_name || 'Unknown customer' },
     { header: 'Tax code', accessorKey: 'tax_code', render: (row) => row.tax_code || '—' },
     { header: 'Status', accessorKey: 'status', render: (row) => rowStatusBadge(row.status) },
     { header: 'Date', accessorKey: 'certificate_date', render: (row) => row.certificate_date || '—' },

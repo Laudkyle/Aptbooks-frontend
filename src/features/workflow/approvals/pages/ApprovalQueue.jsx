@@ -53,12 +53,8 @@ function formatDateTime(v) {
 }
 
 function getRef(row) {
-  if (row.source === 'documents') return row.title ?? row.document_id;
-  return row.title ?? row.entity_id;
-}
-
-function getEntityId(row) {
-  return row.source === 'documents' ? row.document_id : row.entity_id;
+  if (row.source === 'documents') return row.title ?? row.document_type_name ?? 'Document approval';
+  return row.title ?? formatSource(row.source) ?? 'Approval request';
 }
 
 // ─── Status config ────────────────────────────────────────────────────────────
@@ -130,13 +126,14 @@ export default function ApprovalQueue() {
   // ── Inbox data ────────────────────────────────────────────────────────────
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['approvalsInbox', limit, offset, state, documentTypeId],
+    queryKey: ['approvalsInbox', limit, offset, state, documentTypeId, sourceFilter],
     queryFn: () =>
       api.inbox({
         limit,
         offset,
         state:          state          || undefined,
-        documentTypeId: documentTypeId || undefined
+        documentTypeId: documentTypeId || undefined,
+        source:         sourceFilter || undefined
       }),
     staleTime: 10_000,
     retry: 2
@@ -145,19 +142,13 @@ export default function ApprovalQueue() {
   const allRows = useMemo(() => data?.data ?? [], [data]);
   const paging  = useMemo(() => data?.paging ?? { limit, offset }, [data, limit, offset]);
 
-  // Client-side source filter (the inbox already filters by org; source is post-filter)
-  const rows = useMemo(
-    () => sourceFilter
-      ? allRows.filter((r) => String(r.source) === sourceFilter)
-      : allRows,
-    [allRows, sourceFilter]
-  );
+  const rows = allRows;
 
-  // Dynamically build source options from live data
-  const availableSources = useMemo(
-    () => [...new Set(allRows.map((r) => String(r.source)).filter(Boolean))].sort(),
-    [allRows]
-  );
+  // Keep source choices stable even when the server is currently filtering to one source.
+  const availableSources = useMemo(() => [
+    'documents', 'journals', 'writeoffs', 'stock_counts', 'leave_requests',
+    'budget_versions', 'forecast_versions'
+  ], []);
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -257,11 +248,10 @@ export default function ApprovalQueue() {
               onChange={handleStateChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
             >
-              <option value="">All States</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="">All Pending Requests</option>
+              <option value="pending">Pending Approval</option>
               <option value="submitted">Submitted</option>
+              <option value="in_review">In Review</option>
             </select>
           </div>
 
@@ -287,7 +277,7 @@ export default function ApprovalQueue() {
                 <option value="">All Document Types</option>
                 {documentTypes.map((dt) => (
                   <option key={dt.id} value={dt.id}>
-                    {dt.name ?? dt.code ?? dt.id}
+                    {dt.name ?? dt.code ?? 'Document type'}
                   </option>
                 ))}
               </select>
@@ -380,7 +370,6 @@ export default function ApprovalQueue() {
               <TBody>
                 {rows.map((row, idx) => {
                   const ref        = getRef(row);
-                  const entityId   = getEntityId(row);
                   const statusCfg  = getStatusConfig(row.approval_status);
                   const StatusIcon = statusCfg.icon;
                   const sourceTone = SOURCE_TONES[row.source] ?? 'muted';
@@ -399,9 +388,6 @@ export default function ApprovalQueue() {
                       <TD>
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-slate-900 text-sm">{ref ?? '—'}</span>
-                          {entityId && (
-                            <span className="font-mono text-[11px] text-slate-500">{entityId}</span>
-                          )}
                           {/* Show document type name inline for documents rows */}
                           {row.document_type_name && (
                             <span className="text-xs text-slate-400">{row.document_type_name}</span>

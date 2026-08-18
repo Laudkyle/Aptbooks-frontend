@@ -187,8 +187,8 @@ export default function BankAccountsPage() {
                                 {active ? 'Active' : 'Inactive'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-xs font-mono text-gray-600">
-                              {r.gl_account_id ?? r.glAccountId ?? '—'}
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {[r.gl_account_code, r.gl_account_name].filter(Boolean).join(' — ') || '—'}
                             </td>
                           </tr>
                         );

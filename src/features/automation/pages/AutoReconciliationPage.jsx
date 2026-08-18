@@ -40,7 +40,7 @@ export default function AutoReconciliationPage() {
   const columns = [
     { header: 'Code', render: (p) => <span className="font-medium text-slate-900">{p.code}</span> },
     { header: 'Name', render: (p) => p.name ?? '—' },
-    { header: 'Bank account', render: (p) => p.bank_account_code ?? p.bankAccountCode ?? p.bank_account_id ?? p.bankAccountId ?? 'All accounts' },
+    { header: 'Bank account', render: (p) => p.bank_account_code ?? p.bankAccountCode ?? p.bank_account_name ?? p.bankAccountName ?? 'All accounts' },
     { header: 'Threshold', render: (p) => p.min_score ?? p.minScore ?? '—' },
     { header: 'Actions', render: (p) => <div className="flex justify-end"><Button size="sm" onClick={()=>run.mutate({ profileId: p.id })}>Run</Button></div> }
   ];

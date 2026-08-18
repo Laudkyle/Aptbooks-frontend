@@ -219,7 +219,7 @@ export default function IAS12TaxesPage() {
   const tdColumns = useMemo(
     () => [
       { header: 'Type', render: (r) => <div className="font-medium text-slate-900">{r.diff_type ?? '—'}</div> },
-      { header: 'Category', render: (r) => <span className="text-sm text-slate-700">{r.category_name ?? r.category_id ?? '—'}</span> },
+      { header: 'Category', render: (r) => <span className="text-sm text-slate-700">{r.category_name ?? r.category_code ?? 'Unknown category'}</span> },
       { header: 'Difference', render: (r) => <span className="text-sm text-slate-700">{formatMoney(r.difference)}</span> },
       { header: 'Recognisable', render: (r) => <span className="text-sm text-slate-700">{r.recognisable === false ? 'No' : 'Yes'}</span> },
       { header: 'Notes', render: (r) => <span className="text-sm text-slate-700">{r.notes ?? '—'}</span> }
@@ -230,7 +230,7 @@ export default function IAS12TaxesPage() {
   const runColumns = useMemo(
     () => [
       { header: 'Run', render: (r) => <span className="text-sm text-slate-700">{r.run_id ?? '—'}</span> },
-      { header: 'Period', render: (r) => <span className="text-sm text-slate-700">{r.period_code ?? r.period_id ?? '—'}</span> },
+      { header: 'Period', render: (r) => <span className="text-sm text-slate-700">{r.period_code ?? r.period_name ?? 'Unknown period'}</span> },
       { header: 'Rate set', render: (r) => <span className="text-sm text-slate-700">{r.rate_set_id ?? '—'}</span> },
       { header: 'Status', render: (r) => <span className="text-sm text-slate-700">{r.run_status ?? '—'}</span> },
       { header: 'Computed at', render: (r) => <span className="text-sm text-slate-700">{formatDate(r.created_at)}</span> }

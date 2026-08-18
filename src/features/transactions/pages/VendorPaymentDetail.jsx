@@ -187,7 +187,7 @@ export default function VendorPaymentDetail() {
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">Payment ID: {id}</p>
+              <p className="text-sm text-gray-600">{payment?.vendor_name ? `Vendor: ${payment.vendor_name}` : 'Vendor payment'}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button

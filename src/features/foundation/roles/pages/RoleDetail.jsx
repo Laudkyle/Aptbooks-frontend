@@ -508,7 +508,7 @@ export default function RoleDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Loading Role..."
-          subtitle={`Role ID: ${id}`}
+          subtitle="Loading role configuration"
           icon={Shield}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -531,7 +531,7 @@ export default function RoleDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Error Loading Role"
-          subtitle={`Role ID: ${id}`}
+          subtitle="Role configuration could not be loaded"
           icon={Shield}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -561,7 +561,7 @@ export default function RoleDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Role Not Found"
-          subtitle={`Role ID: ${id}`}
+          subtitle="The requested role is unavailable"
           icon={Shield}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -633,14 +633,6 @@ export default function RoleDetail() {
                   leftIcon={Shield}
                   required
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Role ID
-                </label>
-                <div className="px-3 py-2 border border-slate-200 rounded-lg bg-slate-50">
-                  <span className="font-mono text-xs text-slate-600">{id}</span>
-                </div>
               </div>
             </div>
 

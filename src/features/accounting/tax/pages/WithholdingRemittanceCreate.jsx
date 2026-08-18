@@ -128,10 +128,10 @@ export default function WithholdingRemittanceCreate() {
                   <input type="checkbox" checked={checked} onChange={(e) => setSelectedIds((current) => e.target.checked ? [...current, key] : current.filter((value) => value !== key))} className="mt-1" />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-semibold text-text-strong">{item.document_no || item.source_document_no || key}</div>
-                    <div className="mt-1 text-xs text-text-muted">{item.partner_name || item.vendor_name || item.partner_id || 'Unknown partner'}</div>
+                    <div className="mt-1 text-xs text-text-muted">{item.partner_name || item.vendor_name || 'Unknown partner'}</div>
                     <div className="mt-2 grid gap-1 text-xs text-text-body">
                       <div>Outstanding: {Number(item.outstanding_amount ?? item.available_amount ?? 0).toFixed(2)}</div>
-                      <div>Tax code: {item.tax_code || item.tax_code_id || '—'}</div>
+                      <div>Tax code: {item.tax_code || item.tax_code_name || 'Unknown tax code'}</div>
                     </div>
                   </div>
                 </label>

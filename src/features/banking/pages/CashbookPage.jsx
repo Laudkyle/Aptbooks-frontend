@@ -121,7 +121,7 @@ export default function CashbookPage() {
                   { header: 'Reference', att: 'reference', className: 'font-mono text-xs' },
                   { header: 'Amount', key: 'amount', render: (r) => <span className="font-mono text-xs">{r.amount ?? '—'}</span> },
                   { header: 'Source', att: 'source_type' },
-                  { header: 'Journal', key: 'journal_entry_id', render: (r) => <span className="font-mono text-xs">{r.journal_entry_id ?? '—'}</span> },
+                  { header: 'Journal', key: 'journal_entry_id', render: (r) => <span>{r.journal_entry_no ? `Journal #${r.journal_entry_no}` : (r.journal_entry_id ? 'Posted journal' : '—')}</span> },
                   ...(filters.includeRunningBalance === 'true'
                     ? [{ header: 'Running', key: 'running_balance', render: (r) => <span className="font-mono text-xs">{r.running_balance ?? '—'}</span> }]
                     : [])

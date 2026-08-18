@@ -31,6 +31,7 @@ export default function StatementStatusPage() {
   });
 
   const accounts = normalizeRows(accountsQuery.data);
+  const accountsById = useMemo(() => new Map(accounts.map((a) => [String(a.id), a])), [accounts]);
   const accountOptions = [{ value: '', label: 'All bank accounts' }].concat(
     accounts.map((a) => ({ value: String(a.id), label: `${a.code ?? ''} — ${a.name ?? ''}`.trim() }))
   );
@@ -69,7 +70,7 @@ export default function StatementStatusPage() {
         ) : (
           <Table
             columns={[
-              { header: 'Bank account', key: 'bank', render: (r) => <span className="font-mono text-xs">{r.bank_account_id ?? r.bankAccountId ?? '—'}</span> },
+              { header: 'Bank account', key: 'bank', render: (r) => { const a = accountsById.get(String(r.bank_account_id ?? r.bankAccountId)); return <span>{a ? `${a.code} — ${a.name}` : (r.bank_account_name || r.bank_account_code || '—')}</span>; } },
               { header: 'Last statement', key: 'last_statement_date', render: (r) => <span className="font-mono text-xs">{r.last_statement_date ?? '—'}</span> },
               { header: 'Missing count', key: 'missing_count', render: (r) => <span className="font-mono text-xs">{r.missing_count ?? r.missingCount ?? '—'}</span> },
               { header: 'Unmatched lines', key: 'unmatched_lines', render: (r) => <span className="font-mono text-xs">{r.unmatched_lines ?? r.unmatchedLines ?? '—'}</span> },

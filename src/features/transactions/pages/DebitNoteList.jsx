@@ -46,7 +46,7 @@ export default function DebitNoteList() {
 
   const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
   const vendorRows = Array.isArray(vendorsQ.data) ? vendorsQ.data : vendorsQ.data?.data ?? [];
-  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || 'Unnamed vendor' })];
 
   // Fetch debit notes
   const { data, isLoading, error, isError } = useQuery({
@@ -147,9 +147,9 @@ export default function DebitNoteList() {
             <Link
               to={ROUTES.debitNoteDetail(row.id)}
               className="font-medium text-brand-deep hover:text-brand-deep/80 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-deep focus:ring-offset-1 rounded"
-              aria-label={`View debit note ${row.debit_note_number ?? row.code ?? row.id}`}
+              aria-label={`View debit note ${row.debit_note_number ?? row.code ?? 'draft'}`}
             >
-              {row.debit_note_number ?? row.code ?? row.id}
+              {row.debit_note_number ?? row.code ?? 'Draft debit note'}
             </Link>
             {row.memo && (
               <span
@@ -168,7 +168,7 @@ export default function DebitNoteList() {
         render: (row) => (
           <div className="flex flex-col gap-0.5">
             <span className="text-sm text-slate-700 font-medium">
-              {row.vendor_name ?? row.vendor_id ?? "—"}
+              {row.vendor_name ?? "—"}
             </span>
             {row.vendor_code && (
               <span className="text-xs text-slate-500">{row.vendor_code}</span>

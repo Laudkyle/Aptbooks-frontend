@@ -224,7 +224,7 @@ export default function InvoiceDetail() {
                     "Draft"}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">Invoice ID: {id}</p>
+              <p className="text-sm text-gray-600">{invoice?.customer_name ? `Customer: ${invoice.customer_name}` : 'Sales invoice'}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -257,11 +257,11 @@ export default function InvoiceDetail() {
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">
-                      Customer ID
+                      Customer
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {customerId || "—"}
+                    {invoice?.customer_name || invoice?.customer_code || "—"}
                   </div>
                 </div>
                 <div className="rounded-lg border border-gray-200 p-4">

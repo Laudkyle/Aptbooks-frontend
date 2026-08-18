@@ -31,6 +31,9 @@ export function makeAssetsApi(http) {
     listFixedAssets(params) {
       return http.get(`/modules/assets/fixed-assets${qs(params)}`).then((r) => r.data);
     },
+    listDimensionOptions() {
+      return http.get('/modules/assets/fixed-assets/dimension-options').then((r) => r.data);
+    },
     createFixedAsset(payload) {
       return http.post('/modules/assets/fixed-assets', payload, { headers: ensureIdempotencyKey() }).then((r) => r.data);
     },

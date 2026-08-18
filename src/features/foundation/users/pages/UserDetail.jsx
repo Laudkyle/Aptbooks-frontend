@@ -265,7 +265,7 @@ const toast = useToast();
       <div className="space-y-6">
         <PageHeader
           title="Loading User..."
-          subtitle={`User ID: ${id}`}
+          subtitle="Loading user profile"
           icon={User}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -288,7 +288,7 @@ const toast = useToast();
       <div className="space-y-6">
         <PageHeader
           title="Error Loading User"
-          subtitle={`User ID: ${id}`}
+          subtitle="User profile could not be loaded"
           icon={User}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -571,10 +571,6 @@ const toast = useToast();
                   <StatusIcon className="h-3 w-3" />
                   {statusConfig.label}
                 </Badge>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">User ID</span>
-                <span className="font-mono text-xs text-slate-900">{id}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600">Roles</span>

@@ -348,7 +348,7 @@ export default function DebitNoteDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Loading debit note..."
-          subtitle={`Debit note ID: ${id}`}
+          subtitle={note?.vendor_name ? `Vendor: ${note.vendor_name}` : 'Debit note'}
           icon={FileMinus2}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -373,7 +373,7 @@ export default function DebitNoteDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Error loading debit note"
-          subtitle={`Debit note ID: ${id}`}
+          subtitle={note?.vendor_name ? `Vendor: ${note.vendor_name}` : 'Debit note'}
           icon={FileMinus2}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -405,7 +405,7 @@ export default function DebitNoteDetail() {
 
   // Use properties similar to credit note structure
   const debitNoteNumber = note?.debit_note_no ?? note?.code ?? id;
-  const vendorName = note?.vendor_name ?? note?.vendor_id ?? "—";
+  const vendorName = note?.vendor_name ?? "—";
   const debitNoteDate = note?.debit_note_date;
   const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
   const subtotal = parseFloat(note?.subtotal ?? 0);

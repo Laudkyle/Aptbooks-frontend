@@ -101,7 +101,7 @@ export default function Writeoffs() {
     () => [
       { header: 'ID', render: (r) => <span className="text-sm font-semibold text-slate-900">#{r.id}</span> },
       { header: 'Entity', render: (r) => <span className="text-sm text-slate-700">{r.entity_type}:{String(r.entity_id)}</span> },
-      { header: 'Partner', render: (r) => <span className="text-sm text-slate-700">{r.partner_name ?? r.partner_id ?? '—'}</span> },
+      { header: 'Partner', render: (r) => <span className="text-sm text-slate-700">{r.partner_name ?? '—'}</span> },
       { header: 'Amount', render: (r) => <span className="text-sm text-slate-900">{r.amount}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'draft') === 'posted' ? 'success' : 'muted'}>{r.status ?? 'draft'}</Badge> }
     ],

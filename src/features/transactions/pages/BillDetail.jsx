@@ -218,7 +218,7 @@ export default function BillDetail() {
                     "Draft"}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">Bill ID: {id}</p>
+              <p className="text-sm text-gray-600">{bill?.vendor_name ? `Vendor: ${bill.vendor_name}` : 'Vendor bill'}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -251,11 +251,11 @@ export default function BillDetail() {
                   <div className="flex items-center gap-2 mb-2">
                     <User className="h-4 w-4 text-gray-400" />
                     <span className="text-xs font-medium text-gray-500">
-                      Vendor ID
+                      Vendor
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {vendorId || "—"}
+                    {bill?.vendor_name || bill?.vendor_code || "—"}
                   </div>
                 </div>
                 <div className="rounded-lg border border-gray-200 p-4">

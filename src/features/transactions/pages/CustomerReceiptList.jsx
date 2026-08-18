@@ -57,7 +57,7 @@ export default function CustomerReceiptList() {
               to={ROUTES.customerReceiptDetail(r.id)} 
               className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
             >
-              {r.receipt_no ?? r.code ?? r.id}
+              {r.receipt_no ?? r.code ?? 'Draft receipt'}
             </Link>
             {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
           </div>

@@ -26,8 +26,8 @@ export default function DocumentMatchingPage() {
 
   const columns = [
     { header: 'Type', render: (m) => m.match_type ?? m.matchType ?? '—' },
-    { header: 'Source', render: (m) => <span className="font-medium text-slate-900">{m.source_code ?? m.sourceCode ?? m.source_id ?? '—'}</span> },
-    { header: 'Target', render: (m) => m.target_code ?? m.targetCode ?? m.target_id ?? '—' },
+    { header: 'Source', render: (m) => <span className="font-medium text-slate-900">{m.source_code ?? m.sourceCode ?? m.source_name ?? m.sourceName ?? '—'}</span> },
+    { header: 'Target', render: (m) => m.target_code ?? m.targetCode ?? m.target_name ?? m.targetName ?? '—' },
     { header: 'Score', render: (m) => m.score ?? '—' },
     { header: 'Status', render: (m) => <Badge tone={m.status === 'matched' ? 'success' : 'warning'}>{m.status ?? 'suggested'}</Badge> }
   ];

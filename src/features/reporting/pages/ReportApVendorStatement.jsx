@@ -152,7 +152,6 @@ export default function ReportApVendorStatement() {
     if (!statement) return;
     let text = `VENDOR STATEMENT\n================\n\n`;
     if (statement.vendor.name)           text += `Vendor: ${statement.vendor.name}\n`;
-    if (statement.vendor.id || vendorId) text += `Vendor ID: ${statement.vendor.id || vendorId}\n`;
     text += `\nStatement Period: ${formatDate(statement.period.from)} to ${formatDate(statement.period.to)}\n`;
     text += `Generated: ${new Date().toLocaleString()}\n\n`;
     text += `SUMMARY\n-------\n`;
@@ -285,7 +284,7 @@ export default function ReportApVendorStatement() {
             </div>
             <h3 className="text-base font-semibold text-slate-900 mb-1.5">No statement data</h3>
             <p className="text-sm text-slate-500 mb-6">
-              No transactions found for <span className="font-mono font-semibold text-slate-700">{vendorId}</span> in the specified period.
+              No transactions found for <span className="font-semibold text-slate-700">{selectedVendorLabel}</span> in the specified period.
             </p>
             <Button variant="secondary" onClick={() => { setHasSearched(false); setVendorId(''); setFrom(''); setTo(''); }}>
               Start over
@@ -348,7 +347,7 @@ export default function ReportApVendorStatement() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{statement.vendor.name || selectedVendorLabel}</p>
-                    <p className="text-xs text-slate-400 font-mono">{statement.vendor.id || vendorId}</p>
+                    
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -374,7 +373,7 @@ export default function ReportApVendorStatement() {
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Vendor</p>
                     {statement.vendor.name && <p className="text-sm font-semibold text-slate-900">{statement.vendor.name}</p>}
-                    <p className="text-sm text-slate-600 font-mono">{statement.vendor.id || vendorId}</p>
+                    
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Period</p>

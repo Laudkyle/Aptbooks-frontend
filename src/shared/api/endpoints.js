@@ -1,3 +1,12 @@
+function cleanQueryString(qs = {}) {
+  const entries = Object.entries(qs || {}).filter(([, value]) => {
+    if (value === undefined || value === null || value === '') return false;
+    const text = String(value).trim().toLowerCase();
+    return text !== 'undefined' && text !== 'null';
+  });
+  return new URLSearchParams(entries).toString();
+}
+
 export const endpoints = {
   auth: {
     login: "/auth/login",
@@ -79,8 +88,11 @@ export const endpoints = {
       },
     },
     dimensionSecurity: {
-      rules: (qs) =>
-        `/core/dimension-security/rules?${new URLSearchParams(qs ?? {}).toString()}`,
+      rules: (qs) => {
+        const query = cleanQueryString(qs);
+        return `/core/dimension-security/rules${query ? `?${query}` : ''}`;
+      },
+      options: "/core/dimension-security/options",
       createRule: "/core/dimension-security/rules",
       updateRule: (ruleId) => `/core/dimension-security/rules/${ruleId}`,
       removeRule: (ruleId) => `/core/dimension-security/rules/${ruleId}`,
@@ -296,8 +308,10 @@ export const endpoints = {
   search: (qs) => `/search?${new URLSearchParams(qs ?? {}).toString()}`,
 
   workflow: {
-    approvalsInbox: (qs) =>
-      `/workflow/approvals/inbox?${new URLSearchParams(qs ?? {}).toString()}`,
+    approvalsInbox: (qs) => {
+      const query = cleanQueryString(qs);
+      return `/workflow/approvals/inbox${query ? `?${query}` : ''}`;
+    },
   },
 
   health: {

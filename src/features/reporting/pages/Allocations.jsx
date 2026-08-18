@@ -149,11 +149,6 @@ const DIMENSION_OPTIONS = [
     label: 'Project', 
     value: 'project',
     dimensionKey: 'projectId'
-  },
-  { 
-    label: 'Custom', 
-    value: 'custom',
-    dimensionKey: 'customId'
   }
 ];
 
@@ -317,44 +312,81 @@ export default function Allocations() {
   });
 
   const centers = useMemo(() => extractRows(centersData), [centersData]);
+
+  const { data: projectsData } = useQuery({
+    queryKey: ['projects', 'allocation-dimensions'],
+    queryFn: () => api.projects.list({ limit: 200 }),
+    staleTime: 60000
+  });
+  const projects = useMemo(() => extractRows(projectsData).filter((p) => ['active', 'completed'].includes(p.status)), [projectsData]);
+
+  const selectedProjectId = targetForm.dimensionJson?.projectId || (ruleForm.dimensionKey === 'projectId' ? targetForm.centerId : '');
+  const { data: phasesData } = useQuery({
+    queryKey: ['projects', selectedProjectId, 'phases', 'allocation-dimensions'],
+    queryFn: () => api.projects.phases.list(selectedProjectId),
+    enabled: Boolean(selectedProjectId),
+    staleTime: 60000
+  });
+  const phases = useMemo(() => extractRows(phasesData).filter((p) => ['active', 'completed'].includes(p.status)), [phasesData]);
+
+  const selectedPhaseId = targetForm.dimensionJson?.projectPhaseId || '';
+  const { data: tasksData } = useQuery({
+    queryKey: ['projects', selectedProjectId, selectedPhaseId, 'tasks', 'allocation-dimensions'],
+    queryFn: () => api.projects.phases.tasks.list(selectedProjectId, selectedPhaseId),
+    enabled: Boolean(selectedProjectId && selectedPhaseId),
+    staleTime: 60000
+  });
+  const tasks = useMemo(() => extractRows(tasksData).filter((t) => ['active', 'completed'].includes(t.status)), [tasksData]);
   
   // Group centers by type for better UX
   const centerOptions = useMemo(() => {
-    const options = [{ label: 'Select target center', value: '' }];
-    
-    // Group by center type
-    const byType = {
-      cost: [],
-      profit: [],
-      investment: []
-    };
-    
-    centers.forEach(center => {
-      if (center.centerType === 'cost') {
-        byType.cost.push({ label: `${center.code} - ${center.name}`, value: center.id });
-      } else if (center.centerType === 'profit') {
-        byType.profit.push({ label: `${center.code} - ${center.name}`, value: center.id });
-      } else if (center.centerType === 'investment') {
-        byType.investment.push({ label: `${center.code} - ${center.name}`, value: center.id });
-      }
+    const dimensionKey = ruleForm.dimensionKey;
+    if (dimensionKey === 'projectId') {
+      return [
+        { label: 'Select project', value: '' },
+        ...projects.map((project) => ({
+          label: `${project.code ? `${project.code} - ` : ''}${project.name || 'Unnamed project'}`,
+          value: project.id
+        }))
+      ];
+    }
+
+    const typeForKey = {
+      costCenterId: 'cost',
+      profitCenterId: 'profit',
+      investmentCenterId: 'investment'
+    }[dimensionKey];
+
+    return [
+      { label: `Select ${dimensionKey.replace(/Id$/, '').replace(/([A-Z])/g, ' $1').toLowerCase()}`, value: '' },
+      ...centers
+        .filter((center) => !typeForKey || center.centerType === typeForKey)
+        .map((center) => ({
+          label: `${center.code ? `${center.code} - ` : ''}${center.name || 'Unnamed center'}`,
+          value: center.id
+        }))
+    ];
+  }, [centers, projects, ruleForm.dimensionKey]);
+
+  const dimensionSelectOptions = useMemo(() => ({
+    costCenterId: centers.filter((c) => c.centerType === 'cost').map((c) => ({ value: c.id, label: `${c.code ? `${c.code} - ` : ''}${c.name || 'Unnamed cost center'}` })),
+    profitCenterId: centers.filter((c) => c.centerType === 'profit').map((c) => ({ value: c.id, label: `${c.code ? `${c.code} - ` : ''}${c.name || 'Unnamed profit center'}` })),
+    investmentCenterId: centers.filter((c) => c.centerType === 'investment').map((c) => ({ value: c.id, label: `${c.code ? `${c.code} - ` : ''}${c.name || 'Unnamed investment center'}` })),
+    projectId: projects.map((project) => ({ value: project.id, label: `${project.code ? `${project.code} - ` : ''}${project.name || 'Unnamed project'}` })),
+    projectPhaseId: phases.map((phase) => ({ value: phase.id, label: `${phase.code ? `${phase.code} - ` : ''}${phase.name || 'Unnamed phase'}` })),
+    projectTaskId: tasks.map((task) => ({ value: task.id, label: `${task.code ? `${task.code} - ` : ''}${task.name || 'Unnamed task'}` }))
+  }), [centers, projects, phases, tasks]);
+
+  const setAdditionalDimension = useCallback((key, value) => {
+    setTargetForm((current) => {
+      const next = { ...(current.dimensionJson || {}) };
+      if (value) next[key] = value; else delete next[key];
+      if (key === 'projectId') { delete next.projectPhaseId; delete next.projectTaskId; }
+      if (key === 'projectPhaseId') delete next.projectTaskId;
+      return { ...current, dimensionJson: next };
     });
-    
-    // Add grouped options
-    if (byType.cost.length > 0) {
-      options.push({ label: '--- Cost Centers ---', value: '', disabled: true });
-      options.push(...byType.cost);
-    }
-    if (byType.profit.length > 0) {
-      options.push({ label: '--- Profit Centers ---', value: '', disabled: true });
-      options.push(...byType.profit);
-    }
-    if (byType.investment.length > 0) {
-      options.push({ label: '--- Investment Centers ---', value: '', disabled: true });
-      options.push(...byType.investment);
-    }
-    
-    return options;
-  }, [centers]);
+  }, []);
+
 
   // Fetch Periods for dropdown
   const { data: periodsData } = useQuery({
@@ -1945,24 +1977,30 @@ export default function Allocations() {
           />
 
           <div className="border-t border-slate-200 pt-4">
-            <details className="text-sm">
-              <summary className="text-slate-600 cursor-pointer hover:text-slate-800">
-                Additional dimensions (optional)
-              </summary>
-              <div className="mt-2">
-                <JsonEditor
-                  value={targetForm.dimensionJson}
-                  onChange={(v) => setTargetForm(f => ({ ...f, dimensionJson: v }))}
-                  height={150}
-                  compact={true}
-                  placeholder='{ "projectId": "uuid", "locationId": "uuid" }'
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  Add additional dimension values. The main dimension ({ruleForm.dimensionKey}) will be 
-                  automatically added from the selected center.
-                </p>
-              </div>
-            </details>
+            <div className="text-sm font-medium text-slate-700 mb-3">Additional dimensions (optional)</div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {ruleForm.dimensionKey !== 'costCenterId' && (
+                <Select label="Cost Center" value={targetForm.dimensionJson?.costCenterId || ''} onChange={(e) => setAdditionalDimension('costCenterId', e.target.value)} options={[{ value: '', label: 'No cost center' }, ...dimensionSelectOptions.costCenterId]} />
+              )}
+              {ruleForm.dimensionKey !== 'profitCenterId' && (
+                <Select label="Profit Center" value={targetForm.dimensionJson?.profitCenterId || ''} onChange={(e) => setAdditionalDimension('profitCenterId', e.target.value)} options={[{ value: '', label: 'No profit center' }, ...dimensionSelectOptions.profitCenterId]} />
+              )}
+              {ruleForm.dimensionKey !== 'investmentCenterId' && (
+                <Select label="Investment Center" value={targetForm.dimensionJson?.investmentCenterId || ''} onChange={(e) => setAdditionalDimension('investmentCenterId', e.target.value)} options={[{ value: '', label: 'No investment center' }, ...dimensionSelectOptions.investmentCenterId]} />
+              )}
+              {ruleForm.dimensionKey !== 'projectId' && (
+                <Select label="Project" value={targetForm.dimensionJson?.projectId || ''} onChange={(e) => setAdditionalDimension('projectId', e.target.value)} options={[{ value: '', label: 'No project' }, ...dimensionSelectOptions.projectId]} />
+              )}
+              {selectedProjectId && (
+                <Select label="Project Phase" value={targetForm.dimensionJson?.projectPhaseId || ''} onChange={(e) => setAdditionalDimension('projectPhaseId', e.target.value)} options={[{ value: '', label: 'No project phase' }, ...dimensionSelectOptions.projectPhaseId]} />
+              )}
+              {selectedProjectId && targetForm.dimensionJson?.projectPhaseId && (
+                <Select label="Project Task" value={targetForm.dimensionJson?.projectTaskId || ''} onChange={(e) => setAdditionalDimension('projectTaskId', e.target.value)} options={[{ value: '', label: 'No project task' }, ...dimensionSelectOptions.projectTaskId]} />
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Internal dimension IDs are stored by the system, but users select dimensions by code and name. The primary dimension is added automatically from the target above.
+            </p>
           </div>
         </div>
 

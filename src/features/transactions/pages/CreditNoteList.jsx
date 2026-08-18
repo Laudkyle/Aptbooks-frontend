@@ -35,7 +35,7 @@ export default function CreditNoteList() {
   
   const customersQ = useQuery({ queryKey: ['partners', 'customers'], queryFn: () => partnersApi.list({ type: 'customer' }), staleTime: 60_000 });
   const customerRows = Array.isArray(customersQ.data) ? customersQ.data : customersQ.data?.data ?? [];
-  const customerOptions = [NONE_OPTION, ...toOptions(customerRows, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || c.id })];
+  const customerOptions = [NONE_OPTION, ...toOptions(customerRows, { valueKey: 'id', label: (c) => `${c.code ?? ''} ${c.name ?? c.business_name ?? ''}`.trim() || 'Unnamed customer' })];
 
   // Fetch credit notes
   const { 
@@ -138,9 +138,9 @@ export default function CreditNoteList() {
             <Link 
               to={ROUTES.creditNoteDetail(row.id)} 
               className="font-medium text-brand-deep hover:text-brand-deep/80 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-deep focus:ring-offset-1 rounded"
-              aria-label={`View credit note ${row.credit_note_number ?? row.code ?? row.id}`}
+              aria-label={`View credit note ${row.credit_note_number ?? row.code ?? 'draft'}`}
             >
-              {row.credit_note_number ?? row.code ?? row.id}
+              {row.credit_note_number ?? row.code ?? 'Draft credit note'}
             </Link>
             {row.memo && (
               <span className="text-xs text-slate-500 line-clamp-2" title={row.memo}>
@@ -156,7 +156,7 @@ export default function CreditNoteList() {
         render: (row) => (
           <div className="flex flex-col gap-0.5">
             <span className="text-sm text-slate-700 font-medium">
-              {row.customer_name ?? row.customer_id ?? '—'}
+              {row.customer_name ?? '—'}
             </span>
             {row.customer_code && (
               <span className="text-xs text-slate-500">

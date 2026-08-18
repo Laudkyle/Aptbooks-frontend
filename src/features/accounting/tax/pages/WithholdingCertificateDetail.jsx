@@ -137,12 +137,12 @@ export default function WithholdingCertificateDetail() {
     {
       header: "Customer",
       accessorKey: "partner_id",
-      render: (row) => row.partner_name || row.partner_id || "—",
+      render: (row) => row.partner_name || row.customer_name || "Unknown customer",
     },
     {
       header: "Tax code",
       accessorKey: "tax_code_id",
-      render: (row) => row.tax_code || row.tax_code_id || "—",
+      render: (row) => row.tax_code || row.tax_code_name || "Unknown tax code",
     },
     {
       header: "Applied amount",
@@ -193,7 +193,7 @@ export default function WithholdingCertificateDetail() {
             <div>
               <div className="text-xs text-text-muted">Customer</div>
               <div className="font-semibold text-text-strong">
-                {certificate.customer_name || certificate.customer_id || "—"}
+                {certificate.customer_name || certificate.customer_code || "—"}
               </div>
             </div>
             <div>

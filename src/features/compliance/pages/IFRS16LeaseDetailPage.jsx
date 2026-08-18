@@ -459,12 +459,12 @@ export default function IFRS16LeaseDetailPage() {
       </ContentCard>
       <ContentCard title="Accounting readiness">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <DetailRow label="ROU asset account" value={lease.rou_asset_account_name || lease.rou_asset_account_id} />
-          <DetailRow label="Lease liability account" value={lease.lease_liability_account_name || lease.lease_liability_account_id} />
-          <DetailRow label="Interest expense account" value={lease.interest_expense_account_name || lease.interest_expense_account_id} />
-          <DetailRow label="Depreciation expense account" value={lease.depreciation_expense_account_name || lease.depreciation_expense_account_id} />
-          <DetailRow label="Accumulated depreciation account" value={lease.accumulated_depreciation_account_name || lease.accumulated_depreciation_account_id} />
-          <DetailRow label="Cash / bank account" value={lease.cash_account_name || lease.cash_account_id} />
+          <DetailRow label="ROU asset account" value={lease.rou_asset_account_name || lease.rou_asset_account_code || 'Unknown account'} />
+          <DetailRow label="Lease liability account" value={lease.lease_liability_account_name || lease.lease_liability_account_code || 'Unknown account'} />
+          <DetailRow label="Interest expense account" value={lease.interest_expense_account_name || lease.interest_expense_account_code || 'Unknown account'} />
+          <DetailRow label="Depreciation expense account" value={lease.depreciation_expense_account_name || lease.depreciation_expense_account_code || 'Unknown account'} />
+          <DetailRow label="Accumulated depreciation account" value={lease.accumulated_depreciation_account_name || lease.accumulated_depreciation_account_code || 'Unknown account'} />
+          <DetailRow label="Cash / bank account" value={lease.cash_account_name || lease.cash_account_code || 'Unknown account'} />
         </div>
       </ContentCard>
     </div>
@@ -613,7 +613,7 @@ export default function IFRS16LeaseDetailPage() {
         <MiniTable rows={postingLedger} emptyLabel="No posting ledger entries recorded." columns={[
           { key: 'created_at', label: 'When', render: (row) => formatDate(row.created_at) },
           { key: 'action_type', label: 'Action', render: (row) => row.action_type || row.action || '—' },
-          { key: 'journal_id', label: 'Journal', render: (row) => row.entry_no || row.journal_entry_id || row.journal_id || '—' },
+          { key: 'journal_id', label: 'Journal', render: (row) => row.entry_no || row.journal_entry_no || ((row.journal_entry_id || row.journal_id) ? 'Posted journal' : '—') },
           { key: 'amount', label: 'Amount', render: (row) => formatMoney(numberOf(row.amount), currency) },
           { key: 'idempotency_key', label: 'Idempotency key' },
         ]} />

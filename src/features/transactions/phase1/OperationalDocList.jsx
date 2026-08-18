@@ -39,7 +39,7 @@ export default function OperationalDocList({ moduleKey }) {
   const columns = useMemo(() => [
     {
       header: `${config.singular} #`,
-      render: (r) => <Link to={config.routeDetail(r.id)} className="font-semibold text-blue-700 hover:underline">{r.document_no ?? r.id}</Link>
+      render: (r) => <Link to={config.routeDetail(r.id)} className="font-semibold text-blue-700 hover:underline">{r.document_no ?? r.reference ?? 'Draft document'}</Link>
     },
     { header: 'Date', render: (r) => formatDate(r.document_date) ?? '—' },
     { header: 'Partner', render: (r) => r.partner_name ?? '—' },

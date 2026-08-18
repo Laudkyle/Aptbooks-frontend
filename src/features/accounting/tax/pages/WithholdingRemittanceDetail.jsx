@@ -55,8 +55,8 @@ const postMutation = useMutation({
 
   const columns = [
     { header: 'Source document', accessorKey: 'source_document_no', render: (row) => row.source_document_no || '—' },
-    { header: 'Partner', accessorKey: 'partner_id', render: (row) => row.partner_name || row.partner_id || '—' },
-    { header: 'Tax code', accessorKey: 'tax_code_id', render: (row) => row.tax_code || row.tax_code_id || '—' },
+    { header: 'Partner', accessorKey: 'partner_id', render: (row) => row.partner_name || '—' },
+    { header: 'Tax code', accessorKey: 'tax_code_id', render: (row) => row.tax_code || '—' },
     { header: 'Applied amount', accessorKey: 'applied_amount', render: (row) => money(row.applied_amount, remittance.currency_code || 'USD') },
   ];
 
@@ -66,11 +66,11 @@ const postMutation = useMutation({
       <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
         <ContentCard title="Remittance summary" actions={<Badge tone={status === 'posted' ? 'success' : status === 'voided' || status === 'rejected' ? 'danger' : status === 'approved' ? 'success' : status === 'submitted' ? 'warning' : 'muted'}>{status}</Badge>}>
           <div className="grid gap-4 md:grid-cols-2 text-sm">
-            <div><div className="text-xs text-text-muted">Authority</div><div className="font-semibold text-text-strong">{remittance.authority_name || remittance.authority_partner_name || remittance.authority_partner_id || '—'}</div></div>
-            <div><div className="text-xs text-text-muted">Jurisdiction</div><div className="font-semibold text-text-strong">{remittance.jurisdiction_code || remittance.jurisdiction_id || '—'}</div></div>
+            <div><div className="text-xs text-text-muted">Authority</div><div className="font-semibold text-text-strong">{remittance.authority_name || remittance.authority_partner_name || '—'}</div></div>
+            <div><div className="text-xs text-text-muted">Jurisdiction</div><div className="font-semibold text-text-strong">{remittance.jurisdiction_code || remittance.jurisdiction_name || '—'}</div></div>
             <div><div className="text-xs text-text-muted">Period</div><div className="font-semibold text-text-strong">{[remittance.period_start, remittance.period_end].filter(Boolean).join(' → ') || '—'}</div></div>
             <div><div className="text-xs text-text-muted">Remittance date</div><div className="font-semibold text-text-strong">{remittance.remittance_date || '—'}</div></div>
-            <div><div className="text-xs text-text-muted">Settlement account</div><div className="font-semibold text-text-strong">{remittance.settlement_account_name || remittance.settlement_account_id || '—'}</div></div>
+            <div><div className="text-xs text-text-muted">Settlement account</div><div className="font-semibold text-text-strong">{remittance.settlement_account_name || remittance.settlement_account_code || 'Unknown settlement account'}</div></div>
             <div><div className="text-xs text-text-muted">Total amount</div><div className="font-semibold text-text-strong">{money(remittance.total_amount, remittance.currency_code || 'USD')}</div></div>
           </div>
           {remittance.memo ? <div className="mt-4 rounded-2xl border border-border-subtle p-4 text-sm text-text-body">{remittance.memo}</div> : null}

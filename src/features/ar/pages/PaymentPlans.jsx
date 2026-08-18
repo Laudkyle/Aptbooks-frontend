@@ -91,7 +91,7 @@ export default function PaymentPlans() {
         render: (r) => (
           <button className="text-left" onClick={() => { setSelectedId(r.id); setModal('detail'); }}>
             <div className="text-sm font-semibold text-slate-900">#{r.id}</div>
-            <div className="mt-0.5 text-xs text-slate-500">{r.entity_type}:{String(r.entity_id)} • partner {r.partner_name ?? r.partner_id}</div>
+            <div className="mt-0.5 text-xs text-slate-500">{r.entity_type}:{String(r.entity_id)} • partner {r.partner_name ?? 'Unknown partner'}</div>
           </button>
         )
       },

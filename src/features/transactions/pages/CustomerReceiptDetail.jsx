@@ -171,7 +171,7 @@ export default function CustomerReceiptDetail() {
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">Receipt ID: {id}</p>
+              <p className="text-sm text-gray-600">{receipt?.customer_name ? `Customer: ${receipt.customer_name}` : 'Customer receipt'}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -212,7 +212,7 @@ export default function CustomerReceiptDetail() {
                     </span>
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
-                    {receipt?.customer_name ?? receipt?.customer_id ?? "—"}
+                    {receipt?.customer_name ?? "—"}
                   </div>
                   {receipt?.customer_email && (
                     <div className="text-xs text-gray-500 mt-1">
@@ -399,9 +399,7 @@ export default function CustomerReceiptDetail() {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Payment Method</span>
                   <span className="font-medium text-gray-900">
-                    {receipt?.payment_method_id
-                      ? `${receipt.payment_method_id.substring(0, 8)}...`
-                      : "—"}
+                    {receipt?.payment_method_name || "—"}
                   </span>
                 </div>
               </div>

@@ -167,7 +167,7 @@ export default function ReconciliationsPage() {
                           <div className="text-xs text-slate-500">{a.name}</div>
                         </div>
                       ) : (
-                        <span className="font-mono text-xs">{String(r.bank_account_id ?? '—')}</span>
+                        <div><div className="text-sm font-medium">{r.bank_account_code || '—'}</div><div className="text-xs text-slate-500">{r.bank_account_name || ''}</div></div>
                       );
                     }
                   },
@@ -179,7 +179,7 @@ export default function ReconciliationsPage() {
                       return p ? (
                         <span>{p.code ?? p.period_code ?? p.name ?? '—'}</span>
                       ) : (
-                        <span className="font-mono text-xs">{String(r.period_id ?? '—')}</span>
+                        <span>{r.period_code || '—'}</span>
                       );
                     }
                   },

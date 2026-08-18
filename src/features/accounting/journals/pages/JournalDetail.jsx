@@ -341,28 +341,28 @@ export default function JournalDetail() {
                   {j?.created_by && (
                     <div className="text-sm">
                       <span className="text-slate-600">Created by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.created_by.substring(0, 8)}...</span>
+                      <span className="font-medium text-slate-900">{j.created_by_name || 'Unknown user'}</span>
                       <div className="text-xs text-slate-500">{formatDate(j.created_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.submitted_by && (
                     <div className="text-sm">
                       <span className="text-slate-600">Submitted by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.submitted_by.substring(0, 8)}...</span>
+                      <span className="font-medium text-slate-900">{j.submitted_by_name || 'Unknown user'}</span>
                       <div className="text-xs text-slate-500">{formatDate(j.submitted_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.approved_by && (
                     <div className="text-sm">
                       <span className="text-slate-600">Approved by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.approved_by.substring(0, 8)}...</span>
+                      <span className="font-medium text-slate-900">{j.approved_by_name || 'Unknown user'}</span>
                       <div className="text-xs text-slate-500">{formatDate(j.approved_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                     </div>
                   )}
                   {j?.rejected_by && (
                     <div className="text-sm">
                       <span className="text-slate-600">Rejected by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.rejected_by.substring(0, 8)}...</span>
+                      <span className="font-medium text-slate-900">{j.rejected_by_name || 'Unknown user'}</span>
                       <div className="text-xs text-slate-500">{formatDate(j.rejected_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                       {j.rejection_reason && (
                         <div className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded">Reason: {j.rejection_reason}</div>
@@ -372,7 +372,7 @@ export default function JournalDetail() {
                   {j?.voided_by && (
                     <div className="text-sm">
                       <span className="text-slate-600">Voided by:</span>{' '}
-                      <span className="font-medium text-slate-900">User {j.voided_by.substring(0, 8)}...</span>
+                      <span className="font-medium text-slate-900">{j.voided_by_name || 'Unknown user'}</span>
                       <div className="text-xs text-slate-500">{formatDate(j.voided_at, 'MMM DD, YYYY [at] h:mm A')}</div>
                       {j.void_reason && (
                         <div className="mt-1 text-xs text-red-600 bg-red-50 p-2 rounded">Reason: {j.void_reason}</div>
@@ -382,27 +382,27 @@ export default function JournalDetail() {
                 </div>
               </div>
 
-              {/* Technical Details */}
+              {/* Journal Details */}
               <div className="bg-white rounded-lg shadow-sm border border-slate-200">
                 <div className="px-6 py-4 border-b border-slate-200">
-                  <h2 className="text-lg font-semibold text-slate-900">Technical Details</h2>
+                  <h2 className="text-lg font-semibold text-slate-900">Journal Details</h2>
                 </div>
                 <div className="p-6 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Journal ID:</span>
-                    <code className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">{id?.substring(0, 12)}...</code>
+                    <span className="text-slate-600">Journal:</span>
+                    <code className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">{j?.entry_no ? `#${j.entry_no}` : 'Draft'}</code>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Organization:</span>
-                    <span className="font-medium text-slate-900">{j?.organization_id?.substring(0, 8)}...</span>
+                    <span className="font-medium text-slate-900">{j?.organization_name || '—'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Period:</span>
-                    <span className="font-medium text-slate-900">{j?.period_id?.substring(0, 8)}...</span>
+                    <span className="font-medium text-slate-900">{j?.period_code || '—'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Type ID:</span>
-                    <span className="font-medium text-slate-900">{j?.journal_entry_type_id?.substring(0, 8)}...</span>
+                    <span className="text-slate-600">Type:</span>
+                    <span className="font-medium text-slate-900">{j?.type_name || j?.type_code || '—'}</span>
                   </div>
                 </div>
               </div>

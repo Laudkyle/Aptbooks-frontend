@@ -58,7 +58,7 @@ export default function InvoiceList() {
             to={ROUTES.invoiceDetail(r.id)} 
             className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
           >
-            {r.invoiceNumber ?? r.code ?? r.id}
+            {r.invoiceNumber ?? r.invoice_no ?? r.code ?? 'Draft invoice'}
           </Link>
           {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
         </div>
@@ -68,7 +68,7 @@ export default function InvoiceList() {
       header: 'Customer', 
       render: (r) => (
         <span className="text-sm text-gray-900 font-medium">
-          {r.customer_name ?? r.customer_id ?? '—'}
+          {r.customer_name ?? '—'}
         </span>
       ) 
     },

@@ -377,7 +377,7 @@ export default function AssetDepreciationPage() {
                           <div className="mt-2 text-sm font-medium text-slate-900">
                             {periods.find((p) => p.id === periodId)?.name ||
                               periods.find((p) => p.id === periodId)?.code ||
-                              periodId}
+                              "Selected period"}
                           </div>
                         </div>
 

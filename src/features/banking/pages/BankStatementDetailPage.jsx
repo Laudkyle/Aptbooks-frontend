@@ -391,7 +391,7 @@ export default function BankStatementDetailPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-900">{sug.entry_date ?? '—'}</td>
-                          <td className="px-4 py-3 text-sm font-mono text-gray-600">{sug.journal_entry_id}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700">{sug.journal_entry_no ? `Journal #${sug.journal_entry_no}` : 'Posted journal'}</td>
                           <td className="px-4 py-3 text-sm text-gray-900">{sug.memo || '—'}</td>
                           <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900">
                             ${Math.abs(parseFloat(sug.signed_amount) || 0).toFixed(2)}

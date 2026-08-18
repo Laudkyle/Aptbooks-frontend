@@ -77,7 +77,7 @@ export default function Disputes() {
     () => [
       { header: 'ID', render: (r) => <span className="text-sm font-semibold text-slate-900">#{r.id}</span> },
       { header: 'Entity', render: (r) => <span className="text-sm text-slate-700">{r.entity_type}:{String(r.entity_id)}</span> },
-      { header: 'Partner', render: (r) => <span className="text-sm text-slate-700">{r.partner_name ?? r.partner_id ?? '—'}</span> },
+      { header: 'Partner', render: (r) => <span className="text-sm text-slate-700">{r.partner_name ?? '—'}</span> },
       { header: 'Reason', render: (r) => <span className="text-sm text-slate-700">{r.reason_code ?? '—'}</span> },
       { header: 'Status', render: (r) => <Badge tone={(r.status ?? 'open') === 'open' ? 'brand' : 'muted'}>{r.status ?? 'open'}</Badge> }
     ],

@@ -870,7 +870,7 @@ export default function IFRS9ECLPage() {
   ], []);
 
   const lineColumns = useMemo(() => [
-    { header: 'Counterparty', render: (l) => <div><div className="font-medium text-slate-900">{l.customer_name ?? l.customer_id}</div><div className="text-xs text-slate-500">{l.bucket_label ?? '—'}</div></div> },
+    { header: 'Counterparty', render: (l) => <div><div className="font-medium text-slate-900">{l.customer_name ?? l.partner_name ?? 'Unknown counterparty'}</div><div className="text-xs text-slate-500">{l.bucket_label ?? '—'}</div></div> },
     { header: 'Stage', render: (l) => <span>{l.stage ?? '—'}</span> },
     { header: 'DPD band', render: (l) => <span>{`${l.days_past_due_from ?? 0} - ${l.days_past_due_to ?? '∞'}`}</span> },
     { header: 'Loss rate / PD', render: (l) => <span>{l.loss_rate != null ? percent(l.loss_rate) : percent(l.pd_used)}</span> },
@@ -915,7 +915,7 @@ export default function IFRS9ECLPage() {
 
   const sicrColumns = useMemo(() => [
     { header: 'Trigger', render: (r) => <div><div className="font-medium text-slate-900">{r.trigger_name}</div><div className="text-xs text-slate-500">{r.trigger_code}</div></div> },
-    { header: 'Segment / Partner', render: (r) => <span>{r.segment ?? r.business_partner_id ?? 'Global'}</span> },
+    { header: 'Segment / Partner', render: (r) => <span>{r.segment ?? r.business_partner_name ?? r.partner_name ?? 'Global'}</span> },
     { header: 'Severity', render: (r) => <Pill tone={r.severity === 'critical' ? 'red' : r.severity === 'high' ? 'amber' : 'slate'}>{r.severity}</Pill> },
     { header: 'Force stage', render: (r) => <span>{r.force_stage_min ?? '—'}</span> },
     { header: 'PD x', render: (r) => <span>{Number(r.pd_multiplier ?? 1).toFixed(2)}</span> },

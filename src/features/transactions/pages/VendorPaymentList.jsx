@@ -41,7 +41,7 @@ export default function VendorPaymentList() {
   
   const vendorsQ = useQuery({ queryKey: ['partners', 'vendors'], queryFn: () => partnersApi.list({ type: 'vendor' }), staleTime: 60_000 });
   const vendorRows = Array.isArray(vendorsQ.data) ? vendorsQ.data : vendorsQ.data?.data ?? [];
-  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || v.id })];
+  const vendorOptions = [NONE_OPTION, ...toOptions(vendorRows, { valueKey: 'id', label: (v) => `${v.code ?? ''} ${v.name ?? v.business_name ?? ''}`.trim() || 'Unnamed vendor' })];
 
   // Fetch vendor payments
   const { 
@@ -143,9 +143,9 @@ export default function VendorPaymentList() {
             <Link 
               to={ROUTES.vendorPaymentDetail(row.id)} 
               className="font-medium text-brand-deep hover:text-brand-deep/80 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-deep focus:ring-offset-1 rounded"
-              aria-label={`View payment ${row.payment_no ?? row.id}`}
+              aria-label={`View payment ${row.payment_no ?? 'draft'}`}
             >
-              {row.payment_no ?? row.id}
+              {row.payment_no ?? 'Draft payment'}
             </Link>
             {row.memo && (
               <span className="text-xs text-slate-500 line-clamp-1" title={row.memo}>
@@ -161,7 +161,7 @@ export default function VendorPaymentList() {
         render: (row) => (
           <div className="flex flex-col gap-0.5">
             <span className="text-sm text-slate-700 font-medium">
-              {row.vendor_name ?? row.vendor_id ?? '—'}
+              {row.vendor_name ?? '—'}
             </span>
             {row.vendor_code && (
               <span className="text-xs text-slate-500">
@@ -207,7 +207,7 @@ export default function VendorPaymentList() {
         accessor: 'payment_method_id',
         render: (row) => (
           <span className="text-sm text-slate-700">
-            {row.payment_method_name ?? (row.payment_method_id ? `${row.payment_method_id.substring(0, 8)}...` : '—')}
+            {row.payment_method_name ?? '—'}
           </span>
         )
       }

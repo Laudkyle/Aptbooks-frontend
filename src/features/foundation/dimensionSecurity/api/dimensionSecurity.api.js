@@ -6,6 +6,10 @@ export function makeDimensionSecurityApi(http) {
       const res = await http.get(endpoints.core.dimensionSecurity.rules(qs));
       return res.data;
     },
+    options: async () => {
+      const res = await http.get(endpoints.core.dimensionSecurity.options);
+      return res.data;
+    },
     create: async (body) => {
       const res = await http.post(endpoints.core.dimensionSecurity.createRule, body);
       return res.data;

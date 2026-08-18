@@ -43,6 +43,9 @@ export default function AssetRegister() {
           columns={[
             { header: 'Code', accessorKey: 'code' },
             { header: 'Name', accessorKey: 'name' },
+            { header: 'Category', accessorKey: 'category_name' },
+            { header: 'Location', accessorKey: 'location_name', cell: ({ row }) => [row.original.location_code, row.original.location_name].filter(Boolean).join(' — ') || '—' },
+            { header: 'Department', accessorKey: 'department_name', cell: ({ row }) => [row.original.department_code, row.original.department_name].filter(Boolean).join(' — ') || '—' },
             { header: 'Status', accessorKey: 'status', cell: ({ row }) => <Badge>{row.original.status}</Badge> },
             {
               header: '',

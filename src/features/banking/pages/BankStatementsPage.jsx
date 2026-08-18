@@ -115,7 +115,7 @@ export default function BankStatementsPage() {
                         <div className="text-xs text-slate-500">{acc.name}</div>
                       </div>
                     ) : (
-                      <span className="text-slate-500">{String(r.bank_account_id ?? '—')}</span>
+                      <div><div className="text-sm font-medium">{r.bank_account_code || '—'}</div><div className="text-xs text-slate-500">{r.bank_account_name || ''}</div></div>
                     );
                   }
                 },

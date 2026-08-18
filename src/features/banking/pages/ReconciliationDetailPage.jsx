@@ -77,7 +77,7 @@ export default function ReconciliationDetailPage() {
     <>
       <PageHeader
         title="Reconciliation detail"
-        subtitle={rec ? `Reconciliation ${rec.id ?? id}` : `Reconciliation ${id}`}
+        subtitle={rec ? `${[rec.bank_account_code, rec.bank_account_name].filter(Boolean).join(' — ') || 'Bank account'} · ${rec.period_code || 'Period'}` : 'Reconciliation'}
         actions={
           <>
             <Button variant="secondary" onClick={() => nav(ROUTES.bankingReconciliations)}>
@@ -105,8 +105,8 @@ export default function ReconciliationDetailPage() {
           <div className="text-sm text-slate-700">No data.</div>
         ) : (
           <div className="grid gap-3 md:grid-cols-3">
-            <Field label="Bank account id" value={rec.bank_account_id ?? rec.bankAccountId} />
-            <Field label="Period id" value={rec.period_id ?? rec.periodId} />
+            <Field label="Bank account" value={[rec.bank_account_code, rec.bank_account_name].filter(Boolean).join(' — ') || '—'} />
+            <Field label="Period" value={rec.period_code || '—'} />
             <Field label="Locked" value={(rec.is_locked ?? rec.isLocked) ? 'locked' : 'open'} />
             <Field label="Ledger balance" value={rec.ledger_balance} />
             <Field label="Statement balance" value={rec.statement_balance} />
@@ -141,7 +141,7 @@ function Field({ label, value }) {
   return (
     <div className="rounded-xl border border-border-subtle bg-white/60 p-4">
       <div className="text-xs font-medium text-slate-600">{label}</div>
-      <div className="mt-1 font-mono text-xs text-slate-900">{value ? String(value) : '—'}</div>
+      <div className="mt-1 text-sm text-slate-900">{value ? String(value) : '—'}</div>
     </div>
   );
 }

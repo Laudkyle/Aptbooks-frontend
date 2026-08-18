@@ -853,7 +853,7 @@ export default function ProjectDetail() {
               )}
             </button>
             <Layers3 className="h-4 w-4 text-slate-400" />
-            <span className="font-medium">{row.name || row.id}</span>
+            <span className="font-medium">{row.name || row.code || 'Unnamed item'}</span>
           </div>
         ),
       },
@@ -975,7 +975,7 @@ export default function ProjectDetail() {
           <div className="flex items-center gap-2">
             <ListTodo className="h-4 w-4 text-slate-400" />
             <div>
-              <span className="font-medium">{row.name || row.id}</span>
+              <span className="font-medium">{row.name || row.code || 'Unnamed item'}</span>
               {row.description && (
                 <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
                   {row.description}

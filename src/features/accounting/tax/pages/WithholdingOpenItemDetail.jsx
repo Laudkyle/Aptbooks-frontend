@@ -67,10 +67,10 @@ export default function WithholdingOpenItemDetail() {
             <div className="grid gap-4 md:grid-cols-2 text-sm">
               <div><div className="text-xs text-text-muted">Source type</div><div className="font-semibold text-text-strong">{titleCase(row.source_type || sourceType)}</div></div>
               <div><div className="text-xs text-text-muted">Document</div><div className="font-semibold text-text-strong">{row.document_no || row.source_document_no || '—'}</div></div>
-              <div><div className="text-xs text-text-muted">Partner</div><div className="font-semibold text-text-strong">{row.partner_name || row.customer_name || row.vendor_name || row.partner_id || '—'}</div></div>
-              <div><div className="text-xs text-text-muted">Tax code</div><div className="font-semibold text-text-strong">{row.tax_code || row.tax_code_code || row.tax_code_id || '—'}</div></div>
+              <div><div className="text-xs text-text-muted">Partner</div><div className="font-semibold text-text-strong">{row.partner_name || row.customer_name || row.vendor_name || '—'}</div></div>
+              <div><div className="text-xs text-text-muted">Tax code</div><div className="font-semibold text-text-strong">{row.tax_code || row.tax_code_code || '—'}</div></div>
               <div><div className="text-xs text-text-muted">Outstanding</div><div className="font-semibold text-text-strong">{money(row.outstanding_amount ?? row.available_amount ?? 0, row.currency_code || 'USD')}</div></div>
-              <div><div className="text-xs text-text-muted">Jurisdiction</div><div className="font-semibold text-text-strong">{row.jurisdiction_code || row.jurisdiction_name || row.jurisdiction_id || '—'}</div></div>
+              <div><div className="text-xs text-text-muted">Jurisdiction</div><div className="font-semibold text-text-strong">{row.jurisdiction_code || row.jurisdiction_name || '—'}</div></div>
               <div><div className="text-xs text-text-muted">Document date</div><div className="font-semibold text-text-strong">{row.document_date || row.source_document_date || '—'}</div></div>
               <div><div className="text-xs text-text-muted">Currency</div><div className="font-semibold text-text-strong">{row.currency_code || 'USD'}</div></div>
             </div>

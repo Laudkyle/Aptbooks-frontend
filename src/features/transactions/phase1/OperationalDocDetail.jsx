@@ -220,13 +220,13 @@ export default function OperationalDocDetail({ moduleKey }) {
               {header.journal_entry_id && (
                 <div className="md:col-span-2">
                   <div className="text-xs font-medium text-gray-500 mb-1">Journal Entry</div>
-                  <div className="text-sm font-semibold text-gray-900 break-all">{header.journal_entry_id}</div>
+                  <div className="text-sm font-semibold text-gray-900 break-all">{header.journal_entry_no ? `Journal #${header.journal_entry_no}` : 'Posted journal'}</div>
                 </div>
               )}
               {header.period_id && (
                 <div>
                   <div className="text-xs font-medium text-gray-500 mb-1">Period</div>
-                  <div className="text-sm font-semibold text-gray-900 break-all">{header.period_id}</div>
+                  <div className="text-sm font-semibold text-gray-900 break-all">{header.period_code || '—'}</div>
                 </div>
               )}
             </div>
@@ -343,20 +343,20 @@ export default function OperationalDocDetail({ moduleKey }) {
                 </div>
                 {header.counterparty_partner_id && (
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-600">Partner ID</span>
-                    <span className="font-medium text-gray-900 break-all text-right">{header.counterparty_partner_id}</span>
+                    <span className="text-gray-600">Partner</span>
+                    <span className="font-medium text-gray-900 text-right">{header.partner_name || '—'}</span>
                   </div>
                 )}
                 {header.cash_account_id && (
                   <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Cash Account</span>
-                    <span className="font-medium text-gray-900 break-all text-right">{header.cash_account_id}</span>
+                    <span className="font-medium text-gray-900 text-right">{[header.cash_account_code, header.cash_account_name].filter(Boolean).join(' — ') || '—'}</span>
                   </div>
                 )}
                 {header.primary_account_id && (
                   <div className="flex justify-between gap-4">
                     <span className="text-gray-600">Primary Account</span>
-                    <span className="font-medium text-gray-900 break-all text-right">{header.primary_account_id}</span>
+                    <span className="font-medium text-gray-900 text-right">{[header.primary_account_code, header.primary_account_name].filter(Boolean).join(' — ') || '—'}</span>
                   </div>
                 )}
               </div>

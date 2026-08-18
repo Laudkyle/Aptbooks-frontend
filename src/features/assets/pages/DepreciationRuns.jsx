@@ -26,12 +26,12 @@ export default function DepreciationRuns() {
   const filtered = rows.filter((r) => {
     const needle = q.trim().toLowerCase();
     if (!needle) return true;
-    return String(r.assetId ?? r.asset_id ?? '').toLowerCase().includes(needle) || String(r.componentCode ?? r.component_code ?? '').toLowerCase().includes(needle);
+    return String(r.asset_code ?? '').toLowerCase().includes(needle) || String(r.asset_name ?? '').toLowerCase().includes(needle) || String(r.componentCode ?? r.component_code ?? '').toLowerCase().includes(needle);
   });
 
   const columns = useMemo(
     () => [
-      { header: 'Asset', render: (r) => <span className="font-medium text-brand-deep">{r.assetId ?? r.asset_id ?? '—'}</span> },
+      { header: 'Asset', render: (r) => <div><div className="font-medium text-brand-deep">{r.asset_code || r.asset_name || '—'}</div>{r.asset_code && r.asset_name ? <div className="text-xs text-slate-500">{r.asset_name}</div> : null}</div> },
       { header: 'Method', render: (r) => <span className="text-sm text-slate-700">{r.method ?? 'straight_line'}</span> },
       { header: 'Useful Life (months)', render: (r) => <span className="text-sm text-slate-700">{r.usefulLifeMonths ?? r.useful_life_months ?? '—'}</span> },
       { header: 'Status', render: (r) => <span className="text-xs text-slate-500">{r.status ?? 'active'}</span> }
@@ -51,7 +51,7 @@ export default function DepreciationRuns() {
         <FilterBar
           left={
             <div className="grid gap-3 md:grid-cols-3">
-              <Input value={q} onChange={(e) => setQ(e.target.value)} label="Search" placeholder="Search by assetId / component…" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} label="Search" placeholder="Search by asset code, name or component…" />
               <div className="hidden md:block" />
               <div className="hidden md:block" />
             </div>

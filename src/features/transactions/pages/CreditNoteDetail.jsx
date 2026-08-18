@@ -353,7 +353,7 @@ export default function CreditNoteDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Loading credit note..."
-          subtitle={`Credit note ID: ${id}`}
+          subtitle={note?.customer_name ? `Customer: ${note.customer_name}` : 'Credit note'}
           icon={FileMinus2}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -378,7 +378,7 @@ export default function CreditNoteDetail() {
       <div className="space-y-6">
         <PageHeader
           title="Error loading credit note"
-          subtitle={`Credit note ID: ${id}`}
+          subtitle={note?.customer_name ? `Customer: ${note.customer_name}` : 'Credit note'}
           icon={FileMinus2}
           actions={
             <Button variant="outline" leftIcon={ArrowLeft} onClick={handleBack}>
@@ -410,7 +410,7 @@ export default function CreditNoteDetail() {
 
   // Use properties from your console.log
   const creditNoteNumber = note?.credit_note_no ?? note?.code ?? id;
-  const customerName = note?.customer_name ?? note?.customer_id ?? "—";
+  const customerName = note?.customer_name ?? "—";
   const creditNoteDate = note?.credit_note_date;
   const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
   const subtotal = parseFloat(note?.subtotal ?? 0);

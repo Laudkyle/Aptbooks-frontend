@@ -473,9 +473,6 @@ export default function PermissionMatrix() {
                         <Shield className="h-5 w-5 text-slate-400 flex-shrink-0" />
                         <div className="flex-1">
                           <div className="text-base font-semibold text-slate-900">{role.name}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">
-                            Role ID: {role.id}
-                          </div>
                         </div>
                       </div>
                       

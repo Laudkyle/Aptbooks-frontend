@@ -60,7 +60,7 @@ export default function BillList() {
               to={ROUTES.billDetail(r.id)} 
               className="font-semibold text-blue-700 hover:text-blue-800 hover:underline"
             >
-              {r.billNumber ?? r.code ?? r.id}
+              {r.billNumber ?? r.bill_no ?? r.code ?? 'Draft bill'}
             </Link>
             {r.memo && <div className="text-xs text-gray-500 mt-0.5">{r.memo}</div>}
           </div>

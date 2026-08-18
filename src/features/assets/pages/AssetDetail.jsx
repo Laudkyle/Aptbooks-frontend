@@ -19,11 +19,13 @@ export default function AssetDetail() {
   const { http } = useApi();
   const api = useMemo(() => makeAssetsApi(http), [http]);
 
-  const { data: asset } = useQuery({
+  const { data: detail } = useQuery({
     queryKey: ['assets.fixedAsset', id],
     queryFn: async () => api.getFixedAsset(id),
     enabled: !!id
   });
+
+  const asset = detail?.asset ?? detail ?? null;
 
   async function onDeleteDraft() {
     if (!asset) return;
@@ -65,7 +67,7 @@ export default function AssetDetail() {
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Acquisition date</div>
-              <div className="font-medium">{asset.acquisitionDate ?? '—'}</div>
+              <div className="font-medium">{asset.acquisition_date ?? asset.acquisitionDate ?? '—'}</div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Cost</div>
@@ -73,7 +75,23 @@ export default function AssetDetail() {
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Salvage value</div>
-              <div className="font-medium">{asset.salvageValue ?? '—'}</div>
+              <div className="font-medium">{asset.salvage_value ?? asset.salvageValue ?? '—'}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Category</div>
+              <div className="font-medium">{asset.category_name || '—'}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Location</div>
+              <div className="font-medium">{[asset.location_code, asset.location_name].filter(Boolean).join(' — ') || '—'}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Department</div>
+              <div className="font-medium">{[asset.department_code, asset.department_name].filter(Boolean).join(' — ') || '—'}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Cost center</div>
+              <div className="font-medium">{[asset.cost_center_code, asset.cost_center_name].filter(Boolean).join(' — ') || '—'}</div>
             </div>
           </div>
         </ContentCard>
