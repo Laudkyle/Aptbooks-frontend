@@ -13,7 +13,6 @@ import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Input } from '../../../shared/components/ui/Input.jsx';
 import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
-import { CurrencySelect } from '../../../shared/components/forms/CurrencySelect.jsx';
 import { Textarea } from '../../../shared/components/ui/Textarea.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
@@ -59,7 +58,6 @@ export default function BillCreate() {
     billDate: new Date().toISOString().slice(0, 10),
     dueDate: '',
     memo: '',
-    currencyCode: 'USD',
     taxDate: new Date().toISOString().slice(0, 10),
     pricingMode: 'exclusive',
     supplyType: 'services',
@@ -189,7 +187,6 @@ export default function BillCreate() {
               <Input label="Place of supply country" value={payload.placeOfSupplyCountryCode} onChange={(e) => setField('placeOfSupplyCountryCode', e.target.value.toUpperCase())} placeholder="e.g. GH" />
               <Select label="Pricing mode" value={payload.pricingMode} onChange={(e) => setField('pricingMode', e.target.value)} options={[{ value: 'exclusive', label: 'Tax exclusive' }, { value: 'inclusive', label: 'Tax inclusive' }]} />
               <Select label="Supply type" value={payload.supplyType} onChange={(e) => setField('supplyType', e.target.value)} options={[{ value: 'services', label: 'Services' }, { value: 'goods', label: 'Goods' }, { value: 'mixed', label: 'Mixed supply' }, { value: 'import', label: 'Import' }]} />
-              <CurrencySelect label="Currency" value={payload.currencyCode} onChange={(e) => setField('currencyCode', e.target.value)} />
               {showDocumentReferenceField ? <Input label="Supplier reference" value={payload.supplierReference} onChange={(e) => setField('supplierReference', e.target.value)} placeholder="Supplier invoice number / IRN" /> : null}
               <div className="md:col-span-2">
                 <Textarea label="Memo" rows={3} value={payload.memo} onChange={(e) => setField('memo', e.target.value)} placeholder="Memo, document reference, or import note" />
