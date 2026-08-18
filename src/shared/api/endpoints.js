@@ -361,8 +361,6 @@ export const endpoints = {
         issue: (id) => `/modules/transactions/bills/${id}/issue`,
         void: (id) => `/modules/transactions/bills/${id}/void`,
         determineTaxes: (id = 'preview') => `/modules/transactions/bills/${id}/determine-taxes`,
-        einvoicePreview: (id) => `/modules/transactions/bills/${id}/einvoice-preview`,
-        filingStatus: (id) => `/modules/transactions/bills/${id}/filing-status`,
       },
       customerReceipts: {
         list: (qs) =>

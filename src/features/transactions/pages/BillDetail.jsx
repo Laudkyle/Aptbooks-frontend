@@ -23,7 +23,6 @@ import { normalizeTransactionWorkflow } from "../workflow/normalizeTransactionWo
 import { resolveTransactionActions } from "../workflow/resolveTransactionActions.js";
 import { Textarea } from "../../../shared/components/ui/Textarea.jsx";
 import { useToast } from "../../../shared/components/ui/Toast.jsx";
-import { JsonPanel } from "../../../shared/components/data/JsonPanel.jsx";
 import { ROUTES } from "../../../app/constants/routes.js";
 import { getDocumentSettlementBasis, getDocumentWithholding } from "../utils/documentDisplay.js";
 
@@ -65,18 +64,6 @@ export default function BillDetail() {
     queryKey: ["debitNotes", { vendorId }],
     queryFn: () => debitNotesApi.list({ vendorId, limit: 200 }),
     enabled: !!vendorId,
-  });
-
-  const einvoiceQ = useQuery({
-    queryKey: ["bill", id, "einvoicePreview"],
-    queryFn: () => api.getEinvoicePreview(id),
-    enabled: !!id,
-  });
-  
-  const filingStatusQ = useQuery({
-    queryKey: ["bill", id, "filingStatus"],
-    queryFn: () => api.getFilingStatus(id),
-    enabled: !!id,
   });
 
   const [comment, setComment] = useState("");
@@ -742,34 +729,6 @@ export default function BillDetail() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
-                E-invoicing Status
-              </h3>
-              <div className="space-y-2 text-sm text-gray-700">
-                <div className="flex justify-between">
-                  <span>Status:</span>
-                  <span className="font-medium text-gray-900">
-                    {filingStatusQ.data?.status ??
-                      filingStatusQ.data?.state ??
-                      "Not available"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Scheme:</span>
-                  <span className="font-medium text-gray-900">
-                    {einvoiceQ.data?.scheme ??
-                      einvoiceQ.data?.documentType ??
-                      "—"}
-                  </span>
-                </div>
-              </div>
-              {einvoiceQ.data && Object.keys(einvoiceQ.data).length > 0 && (
-                <div className="mt-4">
-                  <JsonPanel title="E-invoice payload" value={einvoiceQ.data} />
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>

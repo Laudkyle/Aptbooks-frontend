@@ -62,15 +62,19 @@ export default function InvoiceDetail() {
     enabled: !!customerId,
   });
 
+  const einvoiceEligible = ["issued", "paid"].includes(
+    String(invoice?.status ?? "").trim().toLowerCase(),
+  );
+
   const einvoiceQ = useQuery({
     queryKey: ["invoice", id, "einvoicePreview"],
     queryFn: () => api.getEinvoicePreview(id),
-    enabled: !!id,
+    enabled: !!id && einvoiceEligible,
   });
   const filingStatusQ = useQuery({
     queryKey: ["invoice", id, "filingStatus"],
     queryFn: () => api.getFilingStatus(id),
-    enabled: !!id,
+    enabled: !!id && einvoiceEligible,
   });
 
   const [comment, setComment] = useState("");
@@ -725,34 +729,32 @@ export default function InvoiceDetail() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">
-                E-invoicing Status
-              </h3>
-              <div className="space-y-2 text-sm text-gray-700">
-                <div className="flex justify-between">
-                  <span>Status:</span>
-                  <span className="font-medium text-gray-900">
-                    {filingStatusQ.data?.status ??
-                      filingStatusQ.data?.state ??
-                      "Not available"}
-                  </span>
+            {einvoiceEligible && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
+                  E-invoicing Status
+                </h3>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <div className="flex justify-between">
+                    <span>Status:</span>
+                    <span className="font-medium text-gray-900">
+                      {filingStatusQ.data?.filing_status ?? "Not available"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Scheme:</span>
+                    <span className="font-medium text-gray-900">
+                      {einvoiceQ.data?.profile_code ?? "—"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Scheme:</span>
-                  <span className="font-medium text-gray-900">
-                    {einvoiceQ.data?.scheme ??
-                      einvoiceQ.data?.documentType ??
-                      "—"}
-                  </span>
-                </div>
+                {einvoiceQ.data && Object.keys(einvoiceQ.data).length > 0 && (
+                  <div className="mt-4">
+                    <JsonPanel title="E-invoice payload" value={einvoiceQ.data} />
+                  </div>
+                )}
               </div>
-              {einvoiceQ.data && Object.keys(einvoiceQ.data).length > 0 && (
-                <div className="mt-4">
-                  <JsonPanel title="E-invoice payload" value={einvoiceQ.data} />
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
