@@ -26,6 +26,7 @@ import { useToast } from "../../../shared/components/ui/Toast.jsx";
 import { JsonPanel } from "../../../shared/components/data/JsonPanel.jsx";
 import { ROUTES } from "../../../app/constants/routes.js";
 import { getDocumentSettlementBasis, getDocumentWithholding } from "../utils/documentDisplay.js";
+import { getLineGrossAmount } from "../utils/taxDetail.js";
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -350,9 +351,7 @@ export default function InvoiceDetail() {
                       const unitPrice = line.unit_price
                         ? parseFloat(line.unit_price)
                         : 0;
-                      const lineTotal = line.line_total
-                        ? parseFloat(line.line_total)
-                        : 0;
+                      const lineTotal = getLineGrossAmount(line);
                       const taxAmount = line.tax_amount
                         ? parseFloat(line.tax_amount)
                         : 0;
@@ -393,7 +392,7 @@ export default function InvoiceDetail() {
                             {formatCurrency(taxAmount)}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            {formatCurrency(lineTotal + taxAmount)}
+                            {formatCurrency(lineTotal)}
                           </td>
                         </tr>
                       );

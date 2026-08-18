@@ -1,6 +1,25 @@
 import { endpoints } from '../../../../shared/api/endpoints.js';
 import { ensureIdempotencyKey } from '../../../../shared/api/idempotency.js';
 
+const DOCUMENT_ENTITY_ENDPOINTS = {
+  invoice: endpoints.modules.transactions.invoices,
+  bill: endpoints.modules.transactions.bills,
+  payment_in: endpoints.modules.transactions.customerReceipts,
+  payment_out: endpoints.modules.transactions.vendorPayments,
+  credit_note: endpoints.modules.transactions.creditNotes,
+  debit_note: endpoints.modules.transactions.debitNotes,
+  quotation: endpoints.modules.transactions.quotations,
+  sales_order: endpoints.modules.transactions.salesOrders,
+  purchase_requisition: endpoints.modules.transactions.purchaseRequisitions,
+  purchase_order: endpoints.modules.transactions.purchaseOrders,
+  goods_receipt: endpoints.modules.transactions.goodsReceipts,
+  expense: endpoints.modules.transactions.expenses,
+  petty_cash: endpoints.modules.transactions.pettyCash,
+  advance: endpoints.modules.transactions.advances,
+  return: endpoints.modules.transactions.returns,
+  refund: endpoints.modules.transactions.refunds,
+};
+
 function assertSupported(row) {
   if (!row?.source) throw new Error('Unsupported approval row: missing source');
 }
@@ -10,6 +29,13 @@ function actionUrl(row, action) {
 
   // Tier 10 documents workflow
   if (row.source === 'documents') {
+    const entityType = String(row.entity_type ?? '').toLowerCase();
+    const entityId = row.entity_id;
+    const transactionEndpoints = DOCUMENT_ENTITY_ENDPOINTS[entityType];
+    if (transactionEndpoints && entityId && typeof transactionEndpoints[action] === 'function') {
+      return transactionEndpoints[action](entityId);
+    }
+
     const id = row.document_id;
     if (!id) throw new Error('Document approval row is missing document_id');
     return `/workflow/documents/${id}/${action}`;
@@ -68,7 +94,9 @@ export function makeApprovalsApi(http) {
 
     reject: async (row, reason) => {
       const url = actionUrl(row, 'reject');
-      const payload = reason ? { reason } : {};
+      const payload = reason
+        ? (row?.source === 'documents' ? { comment: reason } : { reason })
+        : {};
       const res = await http.post(url, payload, { headers: ensureIdempotencyKey() });
       return res.data;
     }

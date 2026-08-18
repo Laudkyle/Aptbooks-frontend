@@ -43,6 +43,7 @@ import {
   formatDocumentAmount,
   formatDocumentOutstanding,
 } from "../utils/documentDisplay.js";
+import { getLineGrossAmount } from "../utils/taxDetail.js";
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -606,7 +607,7 @@ export default function CreditNoteDetail() {
                           {formatCurrency(line.tax_amount, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-sm font-bold text-slate-900 text-right">
-                          {formatCurrency(line.line_total, currencyCode)}
+                          {formatCurrency(getLineGrossAmount(line), currencyCode)}
                         </td>
                       </tr>
                     ))}

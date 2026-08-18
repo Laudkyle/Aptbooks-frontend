@@ -15,9 +15,36 @@ const pickString = (...values) => {
   return '';
 };
 
+export function getLineGrossAmount(line = {}, fallback = 0) {
+  const displayGross = line?.display_amounts?.line_gross_total ?? line?.displayAmounts?.lineGrossTotal;
+  if (displayGross !== undefined && displayGross !== null && Number.isFinite(Number(displayGross))) {
+    return Number(displayGross);
+  }
+
+  const taxable = line?.taxable_amount ?? line?.taxableAmount ?? line?.taxable_base ?? line?.taxableBase;
+  const tax = line?.tax_amount ?? line?.taxAmount ?? line?.vat_amount;
+  if (taxable !== undefined && taxable !== null && Number.isFinite(Number(taxable))) {
+    return Number(taxable) + (Number.isFinite(Number(tax)) ? Number(tax) : 0);
+  }
+
+  const storedTotal = line?.line_total ?? line?.lineTotal ?? line?.amount_total;
+  if (storedTotal !== undefined && storedTotal !== null && Number.isFinite(Number(storedTotal))) {
+    return Number(storedTotal);
+  }
+  return Number.isFinite(Number(fallback)) ? Number(fallback) : 0;
+}
+
 export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pricingMode = 'exclusive' } = {}) {
+  const resolvedPricingMode = pickString(
+    payload?.detail_meta?.tax?.pricing_mode,
+    header?.pricingMode,
+    header?.pricing_mode,
+    payload?.pricingMode,
+    payload?.pricing_mode,
+    pricingMode
+  ) || 'exclusive';
   const sourceSummary = payload?.taxSummary ?? payload?.tax_summary ?? header?.taxSummary ?? header?.tax_summary ?? {};
-  const computed = computeDocumentSummary({ lines, taxCodes: [], pricingMode });
+  const computed = computeDocumentSummary({ lines, taxCodes: [], pricingMode: resolvedPricingMode });
   const summary = {
     subtotal: pickNumber(sourceSummary?.subtotal, header?.subtotal, payload?.subtotal, computed?.subtotal),
     taxTotal: pickNumber(sourceSummary?.taxTotal, sourceSummary?.tax_total, header?.taxTotal, header?.tax_total, header?.tax_amount, header?.vat_amount, payload?.taxTotal, payload?.tax_total, payload?.tax_amount, computed?.taxTotal),
@@ -28,7 +55,7 @@ export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pri
     payableTotal: pickNumber(sourceSummary?.payableTotal, sourceSummary?.payable_total, header?.payableTotal, header?.payable_total, payload?.payableTotal, payload?.payable_total, computed?.payableTotal),
   };
   const lineModels = (lines ?? []).map((line) => {
-    const calc = computeLineAmounts(line, {}, pricingMode);
+    const calc = computeLineAmounts(line, {}, resolvedPricingMode);
     return {
       ...line,
       _tax: {
@@ -38,8 +65,8 @@ export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pri
         withholdingRate: pickNumber(line?.withholdingRate, line?.withholding_rate, calc?.withholdingRate),
         withholdingAmount: pickNumber(line?.withholdingAmount, line?.withholding_amount, calc?.withholdingAmount),
         recoverablePercent: pickNumber(line?.recoverablePercent, line?.recoverable_percent, calc?.recoverablePercent),
-        taxableBase: pickNumber(line?.taxableBase, line?.taxable_base, calc?.taxableBase),
-        total: pickNumber(line?.lineTotal, line?.line_total, line?.amount_total, calc?.total),
+        taxableBase: pickNumber(line?.taxableAmount, line?.taxable_amount, line?.taxableBase, line?.taxable_base, calc?.taxableBase),
+        total: getLineGrossAmount(line, calc?.total),
       }
     };
   });
@@ -50,7 +77,7 @@ export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pri
     lines: lineModels,
     hasTax: hasLineTax || hasHeaderTax,
     hasLineTax,
-    pricingMode: pickString(header?.pricingMode, header?.pricing_mode, payload?.pricingMode, payload?.pricing_mode, pricingMode) || 'exclusive',
+    pricingMode: resolvedPricingMode,
     taxPointDate: pickString(header?.taxDate, header?.tax_date, payload?.taxDate, payload?.tax_date),
     taxJurisdiction: pickString(header?.taxJurisdictionName, header?.tax_jurisdiction_name, header?.taxJurisdictionId, header?.tax_jurisdiction_id, payload?.taxJurisdictionName, payload?.tax_jurisdiction_name),
   };

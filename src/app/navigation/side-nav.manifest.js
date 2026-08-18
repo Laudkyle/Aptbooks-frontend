@@ -90,7 +90,7 @@ export const SIDE_NAV_GROUPS = [
       { to: ROUTES.dashboard, routeKey: "dashboard", icon: Gauge, label: "Dashboard" },
       { to: ROUTES.search, routeKey: "search", icon: Search, label: "Search" },
       { to: ROUTES.notifications, routeKey: "notifications", icon: Bell, label: "Inbox" },
-      { to: ROUTES.approvalsInbox, routeKey: "approvalsInbox", icon: FileCheck, label: "Approvals", routeAny: [PERMISSIONS.approvalsInboxRead] },
+      { to: ROUTES.approvalsInbox, routeKey: "approvalsInbox", icon: FileCheck, label: "Approvals", routeAny: [PERMISSIONS.approvalsInboxRead, PERMISSIONS.approvalsAct] },
     ],
   },
   { label: "ACCOUNTING", major: true,

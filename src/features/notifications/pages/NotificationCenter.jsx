@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, CheckCircle, Circle, RefreshCw, Mail, MailOpen, ChevronDown } from 'lucide-react';
+import { Bell, CheckCircle, Circle, RefreshCw, Mail, MailOpen, ChevronDown, FileCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { makeNotificationsApi } from '../api/notifications.api.js';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
@@ -10,11 +11,13 @@ import { Table, THead, TBody, TH, TD } from '../../../shared/components/ui/Table
 import { Badge } from '../../../shared/components/ui/Badge.jsx';
 import { Pagination } from '../../../shared/components/ui/Pagination.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
+import { ROUTES } from '../../../app/constants/routes.js';
 
 function toRows(payload) {
   if (!payload) return { rows: [], paging: null };
   if (Array.isArray(payload)) return { rows: payload, paging: null };
-  if (Array.isArray(payload.data)) return { rows: payload.data, paging: payload.paging ?? null };
+  if (Array.isArray(payload.data)) return { rows: payload.data, paging: payload.paging ?? payload.meta ?? null };
+  if (Array.isArray(payload.items)) return { rows: payload.items, paging: payload.meta ?? payload.paging ?? null };
   if (Array.isArray(payload.notifications)) return { rows: payload.notifications, paging: payload.paging ?? null };
   // Unknown service-defined shape; show raw as a single row
   return { rows: [{ id: 'payload', raw: payload }], paging: null };
@@ -25,6 +28,7 @@ export default function NotificationCenter() {
   const api = useMemo(() => makeNotificationsApi(http), [http]);
   const qc = useQueryClient();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [limit, setLimit] = useState(50);
   const [offset, setOffset] = useState(0);
@@ -239,6 +243,9 @@ export default function NotificationCenter() {
                             <div className={`text-sm ${isUnread ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
                               {n.title ?? n.message ?? n.subject ?? 'No message'}
                             </div>
+                            {n.body && (
+                              <div className="mt-1 text-xs text-gray-500">{n.body}</div>
+                            )}
                           </td>
                           <td className="px-6 py-4">
                             <span className="font-mono text-xs text-gray-500">
@@ -246,16 +253,28 @@ export default function NotificationCenter() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              disabled={id === 'payload' || markOne.isLoading || !isUnread}
-                              onClick={() => markOne.mutate(id)}
-                              className="text-green-700 hover:text-green-800 hover:bg-green-50"
-                            >
-                              <MailOpen className="h-4 w-4 mr-1" />
-                              Mark read
-                            </Button>
+                            <div className="inline-flex items-center gap-2">
+                              {n.type === 'approval' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => navigate(ROUTES.approvalsInbox)}
+                                >
+                                  <FileCheck className="h-4 w-4 mr-1" />
+                                  Open approval
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                disabled={id === 'payload' || markOne.isLoading || !isUnread}
+                                onClick={() => markOne.mutate(id)}
+                                className="text-green-700 hover:text-green-800 hover:bg-green-50"
+                              >
+                                <MailOpen className="h-4 w-4 mr-1" />
+                                Mark read
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       );

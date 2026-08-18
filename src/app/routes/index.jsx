@@ -122,7 +122,7 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.approvalsInbox,
             element: (
-              <RequirePermission any={[PERMISSIONS.approvalsInboxRead]}>
+              <RequirePermission any={[PERMISSIONS.approvalsInboxRead, PERMISSIONS.approvalsAct]}>
                 <Lazy>
                   <ApprovalQueue />
                 </Lazy>
