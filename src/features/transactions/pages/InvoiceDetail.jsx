@@ -161,9 +161,10 @@ export default function InvoiceDetail() {
     }).format(numAmount || 0);
   };
 
-  const subtotal = invoice?.subtotal ? parseFloat(invoice.subtotal) : 0;
-  const taxTotal = invoice?.tax_total ? parseFloat(invoice.tax_total) : 0;
-  const total = invoice?.total ? parseFloat(invoice.total) : 0;
+  const canonicalTotals = invoiceData?.detail_meta?.totals ?? {};
+  const subtotal = parseFloat(canonicalTotals.subtotal ?? invoice?.subtotal ?? 0);
+  const taxTotal = parseFloat(canonicalTotals.tax_total ?? invoice?.tax_total ?? 0);
+  const total = parseFloat(canonicalTotals.total ?? invoice?.total ?? 0);
   const withholdingTotal = getDocumentWithholding(invoice, 'invoice') ?? 0;
   const settlementBasisTotal = getDocumentSettlementBasis(invoice, 'invoice') ?? total;
   const outstandingAmount =
@@ -244,6 +245,7 @@ export default function InvoiceDetail() {
           onAction={setAction}
           documentType="invoice"
           documentId={id}
+          editHref={String(status).toLowerCase() === 'draft' ? ROUTES.invoiceEdit(id) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-3">

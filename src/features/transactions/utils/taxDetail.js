@@ -44,14 +44,15 @@ export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pri
     pricingMode
   ) || 'exclusive';
   const sourceSummary = payload?.taxSummary ?? payload?.tax_summary ?? header?.taxSummary ?? header?.tax_summary ?? {};
+  const canonicalTotals = payload?.detail_meta?.totals ?? payload?.detailMeta?.totals ?? {};
   const computed = computeDocumentSummary({ lines, taxCodes: [], pricingMode: resolvedPricingMode });
   const summary = {
-    subtotal: pickNumber(sourceSummary?.subtotal, header?.subtotal, payload?.subtotal, computed?.subtotal),
-    taxTotal: pickNumber(sourceSummary?.taxTotal, sourceSummary?.tax_total, header?.taxTotal, header?.tax_total, header?.tax_amount, header?.vat_amount, payload?.taxTotal, payload?.tax_total, payload?.tax_amount, computed?.taxTotal),
+    subtotal: pickNumber(canonicalTotals?.subtotal, sourceSummary?.subtotal, header?.subtotal, payload?.subtotal, computed?.subtotal),
+    taxTotal: pickNumber(canonicalTotals?.tax_total, canonicalTotals?.taxTotal, sourceSummary?.taxTotal, sourceSummary?.tax_total, header?.taxTotal, header?.tax_total, header?.tax_amount, header?.vat_amount, payload?.taxTotal, payload?.tax_total, payload?.tax_amount, computed?.taxTotal),
     withholdingTotal: pickNumber(sourceSummary?.withholdingTotal, sourceSummary?.withholding_total, header?.withholdingTotal, header?.withholding_total, header?.withholding_tax_total, header?.withholding_amount, payload?.withholdingTotal, payload?.withholding_total, payload?.withholding_amount, computed?.withholdingTotal),
     nonRecoverableTaxTotal: pickNumber(sourceSummary?.nonRecoverableTaxTotal, sourceSummary?.non_recoverable_tax_total, header?.nonRecoverableTaxTotal, header?.non_recoverable_tax_total, payload?.nonRecoverableTaxTotal, payload?.non_recoverable_tax_total, computed?.nonRecoverableTaxTotal),
     recoverableTaxTotal: pickNumber(sourceSummary?.recoverableTaxTotal, sourceSummary?.recoverable_tax_total, header?.recoverableTaxTotal, header?.recoverable_tax_total, payload?.recoverableTaxTotal, payload?.recoverable_tax_total, computed?.recoverableTaxTotal),
-    grandTotal: pickNumber(sourceSummary?.grandTotal, sourceSummary?.grand_total, header?.grandTotal, header?.grand_total, header?.amount_total, payload?.grandTotal, payload?.grand_total, payload?.amount_total, computed?.grandTotal),
+    grandTotal: pickNumber(canonicalTotals?.total, canonicalTotals?.grand_total, sourceSummary?.grandTotal, sourceSummary?.grand_total, header?.grandTotal, header?.grand_total, header?.amount_total, payload?.grandTotal, payload?.grand_total, payload?.amount_total, computed?.grandTotal),
     payableTotal: pickNumber(sourceSummary?.payableTotal, sourceSummary?.payable_total, header?.payableTotal, header?.payable_total, payload?.payableTotal, payload?.payable_total, computed?.payableTotal),
   };
   const lineModels = (lines ?? []).map((line) => {
@@ -61,11 +62,11 @@ export function buildTaxDetailModel({ header = {}, payload = {}, lines = [], pri
       _tax: {
         taxCode: pickString(line?.taxCode?.code, line?.taxCode?.name, line?.tax_code, line?.taxCodeId, line?.tax_code_id),
         taxRate: pickNumber(line?.taxRate, line?.tax_rate, calc?.taxRate),
-        taxAmount: pickNumber(line?.taxAmount, line?.tax_amount, line?.vat_amount, calc?.taxAmount),
+        taxAmount: pickNumber(line?.display_amounts?.line_tax_total, line?.displayAmounts?.lineTaxTotal, line?.taxAmount, line?.tax_amount, line?.vat_amount, calc?.taxAmount),
         withholdingRate: pickNumber(line?.withholdingRate, line?.withholding_rate, calc?.withholdingRate),
         withholdingAmount: pickNumber(line?.withholdingAmount, line?.withholding_amount, calc?.withholdingAmount),
         recoverablePercent: pickNumber(line?.recoverablePercent, line?.recoverable_percent, calc?.recoverablePercent),
-        taxableBase: pickNumber(line?.taxableAmount, line?.taxable_amount, line?.taxableBase, line?.taxable_base, calc?.taxableBase),
+        taxableBase: pickNumber(line?.display_amounts?.taxable_amount, line?.displayAmounts?.taxableAmount, line?.taxableAmount, line?.taxable_amount, line?.taxableBase, line?.taxable_base, calc?.taxableBase),
         total: getLineGrossAmount(line, calc?.total),
       }
     };

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FilePlus2, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
 
@@ -19,6 +19,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { hydrateBillDraft } from '../utils/draftHydration.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -46,6 +47,8 @@ function emptyLine() {
 
 export default function BillCreate() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const { http } = useApi();
   const billsApi = useMemo(() => makeBillsApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -67,6 +70,12 @@ export default function BillCreate() {
     lines: [emptyLine()]
   });
   const [taxPreview, setTaxPreview] = useState(null);
+
+  const editQuery = useQuery({
+    queryKey: ['bill-draft-edit', editId],
+    queryFn: () => billsApi.get(editId),
+    enabled: isEditing
+  });
 
   const partnersQuery = useQuery({ queryKey: ['partners', 'vendors', 'tax'], queryFn: () => partnersApi.list({ type: 'vendor' }) });
   const coaQuery = useQuery({ queryKey: ['coa', 'bill-tax'], queryFn: () => coaApi.list() });
@@ -99,6 +108,21 @@ export default function BillCreate() {
 
 
   useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    const header = detail?.bill ?? {};
+    if (String(header.status ?? '').toLowerCase() !== 'draft') {
+      toast.error('Only draft bills can be edited');
+      navigate(ROUTES.billDetail(editId), { replace: true });
+      return;
+    }
+    const hydrated = hydrateBillDraft(detail);
+    setPayload(hydrated);
+    lastAppliedVendorTaxProfileRef.current = hydrated.vendorId;
+  }, [isEditing, editId, editQuery.data]);
+
+
+  useEffect(() => {
     if (!payload.vendorId) {
       lastAppliedVendorTaxProfileRef.current = '';
       return;
@@ -110,10 +134,12 @@ export default function BillCreate() {
   }, [payload.vendorId, selectedVendorTaxProfileQuery.data]);
 
   const create = useMutation({
-    mutationFn: () => billsApi.create(apiPayload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => isEditing
+      ? billsApi.update(editId, apiPayload, { idempotencyKey: generateUUID() })
+      : billsApi.create(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
-      toast.success('Bill created successfully');
-      const id = res?.id ?? res?.data?.id;
+      toast.success(isEditing ? 'Bill draft updated successfully' : 'Bill created successfully');
+      const id = editId ?? res?.id ?? res?.data?.id;
       navigate(id ? ROUTES.billDetail(id) : ROUTES.bills);
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to create bill')
@@ -174,7 +200,7 @@ export default function BillCreate() {
 
   return (
     <div className="space-y-6 pb-8">
-      <PageHeader title="Create bill" subtitle="Capture AP documents with recoverability, withholding overlays, jurisdiction-aware tax treatment, and filing metadata." icon={FilePlus2} />
+      <PageHeader title={isEditing ? "Edit draft bill" : "Create bill"} subtitle="Capture AP documents with recoverability, withholding overlays, jurisdiction-aware tax treatment, and filing metadata." icon={FilePlus2} />
       <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <div className="space-y-6">
           <ContentCard title="Commercial details" actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>Back</Button>}>
@@ -247,7 +273,7 @@ export default function BillCreate() {
               <div className="flex justify-between"><span className="font-semibold text-text-strong">Expected payable</span><span className="font-semibold text-text-strong">{summary.payableTotal.toFixed(2)}</span></div>
             </div>
             <div className="mt-5 flex gap-2">
-              <Button leftIcon={ReceiptText} onClick={handleSubmit} loading={create.isPending}>Create bill</Button>
+              <Button leftIcon={ReceiptText} onClick={handleSubmit} loading={create.isPending}>{isEditing ? "Save draft changes" : "Create bill"}</Button>
             </div>
           </ContentCard>
 

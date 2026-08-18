@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2, DollarSign, Building2, Save, Search, AlertCircle } from 'lucide-react';
 import { useApi } from '../../../shared/hooks/useApi.js';
@@ -19,6 +19,7 @@ import { AccountSelect } from '../../../shared/components/forms/AccountSelect.js
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDocumentOptionLabel, formatDocumentAmount, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
 import { moneyNumberFromUnits, moneyString, moneyUnits } from '../../../shared/finance/money.js';
+import { hydrateVendorPaymentDraft } from '../utils/draftHydration.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -31,6 +32,8 @@ function generateUUID() {
 
 export default function VendorPaymentCreate() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const { http } = useApi();
   const api = useMemo(() => makeVendorPaymentsApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -56,6 +59,26 @@ export default function VendorPaymentCreate() {
 
   const [allocations, setAllocations] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
+
+  const editQuery = useQuery({
+    queryKey: ['vendor-payment-draft-edit', editId],
+    queryFn: () => api.get(editId),
+    enabled: isEditing
+  });
+
+  useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    const header = detail?.vendorPayment ?? {};
+    if (String(header.status ?? '').toLowerCase() !== 'draft') {
+      toast.error('Only draft vendor payments can be edited');
+      navigate(ROUTES.vendorPaymentDetail(editId), { replace: true });
+      return;
+    }
+    const hydrated = hydrateVendorPaymentDraft(detail);
+    setFormData(hydrated.formData);
+    setAllocations(hydrated.allocations);
+  }, [isEditing, editId, editQuery.data]);
 
   // Fetch vendors
   const { data: vendorsData, isLoading: vendorsLoading } = useQuery({
@@ -258,11 +281,11 @@ export default function VendorPaymentCreate() {
             amountApplied: moneyString(a.amountApplied || '0')
           }))
       };
-      return api.create(payload, { idempotencyKey });
+      return isEditing ? api.update(editId, payload, { idempotencyKey }) : api.create(payload, { idempotencyKey });
     },
     onSuccess: (res) => {
-      toast.success('Vendor payment created successfully');
-      const id = res?.id ?? res?.data?.id;
+      toast.success(isEditing ? 'Vendor payment draft updated successfully' : 'Vendor payment created successfully');
+      const id = editId ?? res?.id ?? res?.data?.id;
       if (id) navigate(ROUTES.vendorPaymentDetail(id));
       else navigate(ROUTES.vendorPayments);
     },
@@ -303,7 +326,7 @@ export default function VendorPaymentCreate() {
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900">New Vendor Payment</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">{isEditing ? "Edit Draft Vendor Payment" : "New Vendor Payment"}</h1>
                 <p className="text-sm text-gray-600 mt-0.5">
                   Record a payment to a vendor
                 </p>
@@ -322,7 +345,7 @@ export default function VendorPaymentCreate() {
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                {create.isPending ? 'Creating...' : 'Save Payment'}
+                {create.isPending ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Draft Changes' : 'Save Payment')}
               </button>
             </div>
           </div>

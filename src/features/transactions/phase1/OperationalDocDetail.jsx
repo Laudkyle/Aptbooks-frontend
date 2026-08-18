@@ -175,6 +175,7 @@ export default function OperationalDocDetail({ moduleKey }) {
           onAction={setAction} 
           documentType={config.type} 
           documentId={id} 
+          editHref={String(workflowStatus).toLowerCase() === 'draft' ? config.routeEdit(id) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-3">

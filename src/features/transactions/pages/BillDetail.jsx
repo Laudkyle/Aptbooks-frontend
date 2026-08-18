@@ -155,9 +155,10 @@ export default function BillDetail() {
     }).format(numAmount || 0);
   };
 
-  const subtotal = bill?.subtotal ? parseFloat(bill.subtotal) : 0;
-  const taxTotal = bill?.tax_total ? parseFloat(bill.tax_total) : 0;
-  const total = bill?.total ? parseFloat(bill.total) : 0;
+  const canonicalTotals = billData?.detail_meta?.totals ?? {};
+  const subtotal = parseFloat(canonicalTotals.subtotal ?? bill?.subtotal ?? 0);
+  const taxTotal = parseFloat(canonicalTotals.tax_total ?? bill?.tax_total ?? 0);
+  const total = parseFloat(canonicalTotals.total ?? bill?.total ?? 0);
   const withholdingTotal = getDocumentWithholding(bill, 'bill') ?? 0;
   const settlementBasisTotal = getDocumentSettlementBasis(bill, 'bill') ?? total;
   const paidAmount = typeof paid === "string" ? parseFloat(paid) : paid;
@@ -238,6 +239,7 @@ export default function BillDetail() {
           onAction={setAction}
           documentType="bill"
           documentId={id}
+          editHref={String(status).toLowerCase() === 'draft' ? ROUTES.billEdit(id) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-3">

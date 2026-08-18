@@ -106,66 +106,82 @@ export const ROUTES = {
   invoices: '/transactions/invoices',
   invoiceNew: '/transactions/invoices/new',
   invoiceDetail: (id=':id') => `/transactions/invoices/${id}`,
+  invoiceEdit: (id=':id') => `/transactions/invoices/${id}/edit`,
 
   bills: '/transactions/bills',
   billNew: '/transactions/bills/new',
   billDetail: (id=':id') => `/transactions/bills/${id}`,
+  billEdit: (id=':id') => `/transactions/bills/${id}/edit`,
 
   customerReceipts: '/transactions/customer-receipts',
   customerReceiptNew: '/transactions/customer-receipts/new',
   customerReceiptDetail: (id=':id') => `/transactions/customer-receipts/${id}`,
+  customerReceiptEdit: (id=':id') => `/transactions/customer-receipts/${id}/edit`,
 
   vendorPayments: '/transactions/vendor-payments',
   vendorPaymentNew: '/transactions/vendor-payments/new',
   vendorPaymentDetail: (id=':id') => `/transactions/vendor-payments/${id}`,
+  vendorPaymentEdit: (id=':id') => `/transactions/vendor-payments/${id}/edit`,
 
   creditNotes: '/transactions/credit-notes',
   creditNoteNew: '/transactions/credit-notes/new',
   creditNoteDetail: (id=':id') => `/transactions/credit-notes/${id}`,
+  creditNoteEdit: (id=':id') => `/transactions/credit-notes/${id}/edit`,
 
   debitNotes: '/transactions/debit-notes',
   debitNoteNew: '/transactions/debit-notes/new',
   debitNoteDetail: (id=':id') => `/transactions/debit-notes/${id}`,
+  debitNoteEdit: (id=':id') => `/transactions/debit-notes/${id}/edit`,
 
   quotations: '/transactions/quotations',
   quotationNew: '/transactions/quotations/new',
   quotationDetail: (id=':id') => `/transactions/quotations/${id}`,
+  quotationEdit: (id=':id') => `/transactions/quotations/${id}/edit`,
 
   salesOrders: '/transactions/sales-orders',
   salesOrderNew: '/transactions/sales-orders/new',
   salesOrderDetail: (id=':id') => `/transactions/sales-orders/${id}`,
+  salesOrderEdit: (id=':id') => `/transactions/sales-orders/${id}/edit`,
 
   purchaseRequisitions: '/transactions/purchase-requisitions',
   purchaseRequisitionNew: '/transactions/purchase-requisitions/new',
   purchaseRequisitionDetail: (id=':id') => `/transactions/purchase-requisitions/${id}`,
+  purchaseRequisitionEdit: (id=':id') => `/transactions/purchase-requisitions/${id}/edit`,
 
   purchaseOrders: '/transactions/purchase-orders',
   purchaseOrderNew: '/transactions/purchase-orders/new',
   purchaseOrderDetail: (id=':id') => `/transactions/purchase-orders/${id}`,
+  purchaseOrderEdit: (id=':id') => `/transactions/purchase-orders/${id}/edit`,
 
   goodsReceipts: '/transactions/goods-receipts',
   goodsReceiptNew: '/transactions/goods-receipts/new',
   goodsReceiptDetail: (id=':id') => `/transactions/goods-receipts/${id}`,
+  goodsReceiptEdit: (id=':id') => `/transactions/goods-receipts/${id}/edit`,
 
   expenses: '/transactions/expenses',
   expenseNew: '/transactions/expenses/new',
   expenseDetail: (id=':id') => `/transactions/expenses/${id}`,
+  expenseEdit: (id=':id') => `/transactions/expenses/${id}/edit`,
 
   pettyCash: '/transactions/petty-cash',
   pettyCashNew: '/transactions/petty-cash/new',
   pettyCashDetail: (id=':id') => `/transactions/petty-cash/${id}`,
+  pettyCashEdit: (id=':id') => `/transactions/petty-cash/${id}/edit`,
 
   advances: '/transactions/advances',
   advanceNew: '/transactions/advances/new',
   advanceDetail: (id=':id') => `/transactions/advances/${id}`,
+  advanceEdit: (id=':id') => `/transactions/advances/${id}/edit`,
 
   returns: '/transactions/returns',
   returnNew: '/transactions/returns/new',
   returnDetail: (id=':id') => `/transactions/returns/${id}`,
+  returnEdit: (id=':id') => `/transactions/returns/${id}/edit`,
 
   refunds: '/transactions/refunds',
   refundNew: '/transactions/refunds/new',
   refundDetail: (id=':id') => `/transactions/refunds/${id}`,
+  refundEdit: (id=':id') => `/transactions/refunds/${id}/edit`,
 
   // Phase 5 — AR Ops
   arCollections: '/ar/collections',

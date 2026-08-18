@@ -192,6 +192,7 @@ export default function CustomerReceiptDetail() {
           onAction={setAction}
           documentType="receipt"
           documentId={id}
+          editHref={String(status).toLowerCase() === 'draft' ? ROUTES.customerReceiptEdit(id) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-3">

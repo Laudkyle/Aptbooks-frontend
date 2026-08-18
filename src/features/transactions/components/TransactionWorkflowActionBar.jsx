@@ -1,5 +1,5 @@
-import { CheckCircle2, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { CheckCircle2, Pencil, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { TransactionPrintButtons } from '../../printing/components/TransactionPrintButtons.jsx';
@@ -29,7 +29,8 @@ function ActionButton({ action, onClick, size = 'sm' }) {
   );
 }
 
-export function TransactionWorkflowActionBar({ actions, onAction, documentType, documentId }) {
+export function TransactionWorkflowActionBar({ actions, onAction, documentType, documentId, editHref }) {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromApprovals = searchParams.get('from') === 'approvals';
   // Create a default submit action if no actions are provided
@@ -44,7 +45,7 @@ export function TransactionWorkflowActionBar({ actions, onAction, documentType, 
   const rejectAction = actions?.rejectAction;
   const voidAction = actions?.voidAction;
 
-  const hasAnyAction = Boolean(forwardAction || rejectAction || voidAction || (documentType && documentId));
+  const hasAnyAction = Boolean(editHref || forwardAction || rejectAction || voidAction || (documentType && documentId));
   if (!hasAnyAction) return null;
 
   return (
@@ -56,6 +57,11 @@ export function TransactionWorkflowActionBar({ actions, onAction, documentType, 
       ) : null}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm font-medium text-gray-700">Actions:</span>
+        {editHref ? (
+          <Button size="sm" variant="outline" onClick={() => navigate(editHref)}>
+            <Pencil className="h-4 w-4 mr-2" /> Edit draft
+          </Button>
+        ) : null}
         <ActionButton action={forwardAction} onClick={onAction} size="sm" />
         <ActionButton action={rejectAction} onClick={onAction}  size="sm" />
         <ActionButton action={voidAction} onClick={onAction}  size="sm" />

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FilePlus2, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
 
@@ -19,6 +19,7 @@ import { ContentCard } from '../../../shared/components/layout/ContentCard.jsx';
 import { PageHeader } from '../../../shared/components/layout/PageHeader.jsx';
 import { JsonPanel } from '../../../shared/components/data/JsonPanel.jsx';
 import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { hydrateInvoiceDraft } from '../utils/draftHydration.js';
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -46,6 +47,8 @@ function emptyLine() {
 
 export default function InvoiceCreate() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const { http } = useApi();
   const invoicesApi = useMemo(() => makeInvoicesApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -67,6 +70,12 @@ export default function InvoiceCreate() {
     lines: [emptyLine()]
   });
   const [taxPreview, setTaxPreview] = useState(null);
+
+  const editQuery = useQuery({
+    queryKey: ['invoice-draft-edit', editId],
+    queryFn: () => invoicesApi.get(editId),
+    enabled: isEditing
+  });
 
   const partnersQuery = useQuery({ queryKey: ['partners', 'customers', 'tax'], queryFn: () => partnersApi.list({ type: 'customer' }) });
   const coaQuery = useQuery({ queryKey: ['coa', 'invoice-tax'], queryFn: () => coaApi.list() });
@@ -99,6 +108,21 @@ export default function InvoiceCreate() {
 
 
   useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    const header = detail?.invoice ?? {};
+    if (String(header.status ?? '').toLowerCase() !== 'draft') {
+      toast.error('Only draft invoices can be edited');
+      navigate(ROUTES.invoiceDetail(editId), { replace: true });
+      return;
+    }
+    const hydrated = hydrateInvoiceDraft(detail);
+    setPayload(hydrated);
+    lastAppliedCustomerTaxProfileRef.current = hydrated.customerId;
+  }, [isEditing, editId, editQuery.data]);
+
+
+  useEffect(() => {
     if (!payload.customerId) {
       lastAppliedCustomerTaxProfileRef.current = '';
       return;
@@ -110,10 +134,12 @@ export default function InvoiceCreate() {
   }, [payload.customerId, selectedCustomerTaxProfileQuery.data]);
 
   const create = useMutation({
-    mutationFn: () => invoicesApi.create(apiPayload, { idempotencyKey: generateUUID() }),
+    mutationFn: () => isEditing
+      ? invoicesApi.update(editId, apiPayload, { idempotencyKey: generateUUID() })
+      : invoicesApi.create(apiPayload, { idempotencyKey: generateUUID() }),
     onSuccess: (res) => {
-      toast.success('Invoice created successfully');
-      const id = res?.id ?? res?.data?.id;
+      toast.success(isEditing ? 'Invoice draft updated successfully' : 'Invoice created successfully');
+      const id = editId ?? res?.id ?? res?.data?.id;
       navigate(id ? ROUTES.invoiceDetail(id) : ROUTES.invoices);
     },
     onError: (e) => toast.error(e?.response?.data?.message ?? e?.message ?? 'Failed to create invoice')
@@ -174,7 +200,7 @@ export default function InvoiceCreate() {
 
   return (
     <div className="space-y-6 pb-8">
-      <PageHeader title="Create invoice" subtitle="International-grade invoice capture with tax determination, withholding overlays, recoverability, and e-invoicing metadata." icon={FilePlus2} />
+      <PageHeader title={isEditing ? "Edit draft invoice" : "Create invoice"} subtitle="International-grade invoice capture with tax determination, withholding overlays, recoverability, and e-invoicing metadata." icon={FilePlus2} />
       <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <div className="space-y-6">
           <ContentCard title="Commercial details" actions={<Button variant="outline" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>Back</Button>}>
@@ -246,7 +272,7 @@ export default function InvoiceCreate() {
               <div className="flex justify-between"><span className="font-semibold text-text-strong">Expected collectible</span><span className="font-semibold text-text-strong">{summary.payableTotal.toFixed(2)}</span></div>
             </div>
             <div className="mt-5 flex gap-2">
-              <Button leftIcon={ReceiptText} onClick={handleSubmit} loading={create.isPending}>Create invoice</Button>
+              <Button leftIcon={ReceiptText} onClick={handleSubmit} loading={create.isPending}>{isEditing ? "Save draft changes" : "Create invoice"}</Button>
             </div>
           </ContentCard>
 

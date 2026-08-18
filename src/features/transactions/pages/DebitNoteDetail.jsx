@@ -24,6 +24,7 @@ import { makeDebitNotesApi } from "../api/debitNotes.api.js";
 import { makeBillsApi } from "../api/bills.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
 
+import { ROUTES } from '../../../app/constants/routes.js';
 import { PageHeader } from "../../../shared/components/layout/PageHeader.jsx";
 import { ContentCard } from "../../../shared/components/layout/ContentCard.jsx";
 import { Button } from "../../../shared/components/ui/Button.jsx";
@@ -407,9 +408,10 @@ export default function DebitNoteDetail() {
   const debitNoteNumber = note?.debit_note_no ?? note?.code ?? id;
   const vendorName = note?.vendor_name ?? "—";
   const debitNoteDate = note?.debit_note_date;
-  const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
-  const subtotal = parseFloat(note?.subtotal ?? 0);
-  const taxTotal = parseFloat(note?.tax_total ?? 0);
+  const canonicalTotals = note?.detail_meta?.totals ?? {};
+  const totalAmount = parseFloat(canonicalTotals.total ?? note?.total ?? note?.amount ?? 0);
+  const subtotal = parseFloat(canonicalTotals.subtotal ?? note?.subtotal ?? 0);
+  const taxTotal = parseFloat(canonicalTotals.tax_total ?? note?.tax_total ?? 0);
   const memo = note?.memo;
   const currencyCode = note?.currency_code || "USD";
 
@@ -434,6 +436,7 @@ export default function DebitNoteDetail() {
       <TransactionWorkflowActionBar
         actions={availableActions}
         onAction={handleOpenAction}
+        editHref={String(status).toLowerCase() === 'draft' ? ROUTES.debitNoteEdit(id) : null}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">

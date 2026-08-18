@@ -7,6 +7,8 @@ export function makeCreditNotesApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.creditNotes.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.creditNotes.detail(id))).data,
+    update: async (id, body, { idempotencyKey } = {}) =>
+      (await http.put(endpoints.modules.transactions.creditNotes.update(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     submitForApproval: async (id, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.creditNotes.submitForApproval(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     approve: async (id, body = {}, { idempotencyKey } = {}) =>

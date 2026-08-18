@@ -7,6 +7,8 @@ export function makeCustomerReceiptsApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.customerReceipts.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.customerReceipts.detail(id))).data,
+    update: async (id, body, { idempotencyKey } = {}) =>
+      (await http.put(endpoints.modules.transactions.customerReceipts.update(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     submitForApproval: async (id, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.customerReceipts.submitForApproval(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     approve: async (id, body = {}, { idempotencyKey } = {}) =>

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, HandCoins, Plus, Trash2, DollarSign, Calendar, User, FileText } from 'lucide-react';
 
@@ -17,9 +17,21 @@ import { Input } from '../../../shared/components/ui/Input.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { formatDocumentOptionLabel, getDocumentOutstanding, getDocumentSettlementBasis, getDocumentWithholding } from '../utils/documentDisplay.js';
 import { moneyNumberFromUnits, moneyString, moneyUnits } from '../../../shared/finance/money.js';
+import { hydrateReceiptDraft } from '../utils/draftHydration.js';
+
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export default function CustomerReceiptCreate() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const { http } = useApi();
   const receiptsApi = useMemo(() => makeCustomerReceiptsApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -38,6 +50,24 @@ export default function CustomerReceiptCreate() {
     memo: '',
     allocations: []
   });
+
+  const editQuery = useQuery({
+    queryKey: ['customer-receipt-draft-edit', editId],
+    queryFn: () => receiptsApi.get(editId),
+    enabled: isEditing
+  });
+
+  useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    const header = detail?.customerReceipt ?? {};
+    if (String(header.status ?? '').toLowerCase() !== 'draft') {
+      toast.error('Only draft receipts can be edited');
+      navigate(ROUTES.customerReceiptDetail(editId), { replace: true });
+      return;
+    }
+    setPayload(hydrateReceiptDraft(detail));
+  }, [isEditing, editId, editQuery.data]);
 
   // Load partners (customers only)
   const partnersQuery = useQuery({
@@ -102,7 +132,8 @@ export default function CustomerReceiptCreate() {
   );
 
   const create = useMutation({
-    mutationFn: () => receiptsApi.create({
+    mutationFn: () => {
+      const body = {
       ...payload,
       amountTotal: moneyString(payload.amountTotal || '0'),
       allocations: payload.allocations
@@ -111,10 +142,14 @@ export default function CustomerReceiptCreate() {
           invoiceId: allocation.invoiceId,
           amountApplied: moneyString(allocation.amountApplied || '0'),
         })),
-    }),
+      };
+      return isEditing
+        ? receiptsApi.update(editId, body, { idempotencyKey: generateUUID() })
+        : receiptsApi.create(body, { idempotencyKey: generateUUID() });
+    },
     onSuccess: (res) => {
-      toast.success('Receipt created successfully');
-      const id = res?.id ?? res?.data?.id;
+      toast.success(isEditing ? 'Receipt draft updated successfully' : 'Receipt created successfully');
+      const id = editId ?? res?.id ?? res?.data?.id;
       if (id) navigate(ROUTES.customerReceiptDetail(id));
       else navigate(ROUTES.customerReceipts);
     },
@@ -180,7 +215,7 @@ export default function CustomerReceiptCreate() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <HandCoins className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New Customer Receipt</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{isEditing ? "Edit Draft Customer Receipt" : "Create New Customer Receipt"}</h1>
               </div>
               <p className="text-sm text-gray-600">
                 Record a payment received from a customer
@@ -200,7 +235,7 @@ export default function CustomerReceiptCreate() {
                 disabled={create.isPending}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
-                {create.isPending ? 'Creating...' : 'Create Receipt'}
+                {create.isPending ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Draft Changes' : 'Create Receipt')}
               </Button>
             </div>
           </div>

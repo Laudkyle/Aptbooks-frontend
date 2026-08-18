@@ -1,6 +1,6 @@
 import { clientLogger } from "../../../shared/utils/clientLogger.js";
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileMinus2, Plus, Trash2, DollarSign, Calendar, User, FileText, Percent } from 'lucide-react';
 
@@ -16,6 +16,7 @@ import { Select } from '../../../shared/components/ui/Select.jsx';
 import { AccountSelect } from '../../../shared/components/forms/AccountSelect.jsx';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { applyTaxProfileToDocument, buildTransactionTaxPayload, computeDocumentSummary, normalizeRows } from '../../../shared/tax/frontendTax.js';
+import { hydrateCreditNoteDraft } from '../utils/draftHydration.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -28,6 +29,8 @@ function generateUUID() {
 
 export default function CreditNoteCreate() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const { http } = useApi();
   const creditNotesApi = useMemo(() => makeCreditNotesApi(http), [http]);
   const partnersApi = useMemo(() => makePartnersApi(http), [http]);
@@ -55,6 +58,25 @@ export default function CreditNoteCreate() {
       }
     ]
   });
+
+  const editQuery = useQuery({
+    queryKey: ['creditNote-draft-edit', editId],
+    queryFn: () => creditNotesApi.get(editId),
+    enabled: isEditing
+  });
+
+  useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    if (String(detail?.status ?? '').toLowerCase() !== 'draft') {
+      toast.error('Only draft credit notes can be edited');
+      navigate(ROUTES.creditNoteDetail(editId), { replace: true });
+      return;
+    }
+    const hydrated = hydrateCreditNoteDraft(detail);
+    setPayload(hydrated);
+    lastAppliedCustomerTaxProfileRef.current = hydrated.customerId;
+  }, [isEditing, editId, editQuery.data]);
 
   // Load partners (customers only)
   const partnersQuery = useQuery({
@@ -107,11 +129,11 @@ export default function CreditNoteCreate() {
   const create = useMutation({
     mutationFn: () => {
       const idempotencyKey = generateUUID();
-      return creditNotesApi.create(apiPayload, { idempotencyKey });
+      return isEditing ? creditNotesApi.update(editId, apiPayload, { idempotencyKey }) : creditNotesApi.create(apiPayload, { idempotencyKey });
     },
     onSuccess: (res) => {
-      toast.success('Credit note created successfully');
-      const id = res?.id ?? res?.data?.id;
+      toast.success(isEditing ? 'Credit note draft updated successfully' : 'Credit note created successfully');
+      const id = editId ?? res?.id ?? res?.data?.id;
       if (id) navigate(ROUTES.creditNoteDetail(id));
       else navigate(ROUTES.creditNotes);
     },
@@ -279,7 +301,7 @@ export default function CreditNoteCreate() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <FileMinus2 className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New Credit Note</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{isEditing ? "Edit Draft Credit Note" : "Create New Credit Note"}</h1>
               </div>
               <p className="text-sm text-gray-600">
                 Create a customer credit for AR adjustments and invoice applications
@@ -300,7 +322,7 @@ export default function CreditNoteCreate() {
                 disabled={create.isPending}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
-                {create.isPending ? 'Creating...' : 'Create Credit Note'}
+                {create.isPending ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Draft Changes' : 'Create Credit Note')}
               </Button>
             </div>
           </div>

@@ -7,6 +7,8 @@ export function makeBillsApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.bills.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.bills.detail(id))).data,
+    update: async (id, body, { idempotencyKey } = {}) =>
+      (await http.put(endpoints.modules.transactions.bills.update(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     determineTaxes: async (body, { id = 'preview', idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.bills.determineTaxes(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
 

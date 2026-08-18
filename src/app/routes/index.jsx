@@ -656,6 +656,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.invoiceEdit(), element: (<RequirePermission any={[PERMISSIONS.transactionsInvoiceManage]}><Lazy><InvoiceCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.invoiceDetail(),
             element: (
@@ -697,6 +698,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.billEdit(), element: (<RequirePermission any={[PERMISSIONS.transactionsBillManage]}><Lazy><BillCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.billDetail(),
             element: (
@@ -738,6 +740,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.customerReceiptEdit(), element: (<RequirePermission any={[PERMISSIONS.customerReceiptManage]}><Lazy><CustomerReceiptCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.customerReceiptDetail(),
             element: (
@@ -779,6 +782,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.vendorPaymentEdit(), element: (<RequirePermission any={[PERMISSIONS.vendorPaymentManage]}><Lazy><VendorPaymentCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.vendorPaymentDetail(),
             element: (
@@ -817,6 +821,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.creditNoteEdit(), element: (<RequirePermission any={[PERMISSIONS.creditNoteManage]}><Lazy><CreditNoteCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.creditNoteDetail(),
             element: (
@@ -852,6 +857,7 @@ export const router = createBrowserRouter([
               </RequirePermission>
             ),
           },
+          { path: ROUTES.debitNoteEdit(), element: (<RequirePermission any={[PERMISSIONS.debitNoteManage]}><Lazy><DebitNoteCreate /></Lazy></RequirePermission>) },
           {
             path: ROUTES.debitNoteDetail(),
             element: (
@@ -867,42 +873,52 @@ export const router = createBrowserRouter([
 
           { path: ROUTES.quotations, element: (<RequirePermission any={[PERMISSIONS.quotationRead, PERMISSIONS.quotationManage]}><Lazy><QuotationList /></Lazy></RequirePermission>) },
           { path: ROUTES.quotationNew, element: (<RequirePermission any={[PERMISSIONS.quotationManage]}><Lazy><QuotationCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.quotationEdit(), element: (<RequirePermission any={[PERMISSIONS.quotationManage]}><Lazy><QuotationCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.quotationDetail(), element: (<RequirePermission any={[PERMISSIONS.quotationRead, PERMISSIONS.quotationManage]}><Lazy><QuotationDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.salesOrders, element: (<RequirePermission any={[PERMISSIONS.salesOrderRead, PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderList /></Lazy></RequirePermission>) },
           { path: ROUTES.salesOrderNew, element: (<RequirePermission any={[PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.salesOrderEdit(), element: (<RequirePermission any={[PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.salesOrderDetail(), element: (<RequirePermission any={[PERMISSIONS.salesOrderRead, PERMISSIONS.salesOrderManage]}><Lazy><SalesOrderDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.purchaseRequisitions, element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionRead, PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionList /></Lazy></RequirePermission>) },
           { path: ROUTES.purchaseRequisitionNew, element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseRequisitionEdit(), element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.purchaseRequisitionDetail(), element: (<RequirePermission any={[PERMISSIONS.purchaseRequisitionRead, PERMISSIONS.purchaseRequisitionManage]}><Lazy><PurchaseRequisitionDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.purchaseOrders, element: (<RequirePermission any={[PERMISSIONS.purchaseOrderRead, PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderList /></Lazy></RequirePermission>) },
           { path: ROUTES.purchaseOrderNew, element: (<RequirePermission any={[PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.purchaseOrderEdit(), element: (<RequirePermission any={[PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.purchaseOrderDetail(), element: (<RequirePermission any={[PERMISSIONS.purchaseOrderRead, PERMISSIONS.purchaseOrderManage]}><Lazy><PurchaseOrderDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.goodsReceipts, element: (<RequirePermission any={[PERMISSIONS.goodsReceiptRead, PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptList /></Lazy></RequirePermission>) },
           { path: ROUTES.goodsReceiptNew, element: (<RequirePermission any={[PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.goodsReceiptEdit(), element: (<RequirePermission any={[PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.goodsReceiptDetail(), element: (<RequirePermission any={[PERMISSIONS.goodsReceiptRead, PERMISSIONS.goodsReceiptManage]}><Lazy><GoodsReceiptDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.expenses, element: (<RequirePermission any={[PERMISSIONS.expenseRead, PERMISSIONS.expenseManage]}><Lazy><ExpenseList /></Lazy></RequirePermission>) },
           { path: ROUTES.expenseNew, element: (<RequirePermission any={[PERMISSIONS.expenseManage]}><Lazy><ExpenseCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.expenseEdit(), element: (<RequirePermission any={[PERMISSIONS.expenseManage]}><Lazy><ExpenseCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.expenseDetail(), element: (<RequirePermission any={[PERMISSIONS.expenseRead, PERMISSIONS.expenseManage]}><Lazy><ExpenseDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.pettyCash, element: (<RequirePermission any={[PERMISSIONS.pettyCashRead, PERMISSIONS.pettyCashManage]}><Lazy><PettyCashList /></Lazy></RequirePermission>) },
           { path: ROUTES.pettyCashNew, element: (<RequirePermission any={[PERMISSIONS.pettyCashManage]}><Lazy><PettyCashCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.pettyCashEdit(), element: (<RequirePermission any={[PERMISSIONS.pettyCashManage]}><Lazy><PettyCashCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.pettyCashDetail(), element: (<RequirePermission any={[PERMISSIONS.pettyCashRead, PERMISSIONS.pettyCashManage]}><Lazy><PettyCashDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.advances, element: (<RequirePermission any={[PERMISSIONS.advanceRead, PERMISSIONS.advanceManage]}><Lazy><AdvanceList /></Lazy></RequirePermission>) },
           { path: ROUTES.advanceNew, element: (<RequirePermission any={[PERMISSIONS.advanceManage]}><Lazy><AdvanceCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.advanceEdit(), element: (<RequirePermission any={[PERMISSIONS.advanceManage]}><Lazy><AdvanceCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.advanceDetail(), element: (<RequirePermission any={[PERMISSIONS.advanceRead, PERMISSIONS.advanceManage]}><Lazy><AdvanceDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.returns, element: (<RequirePermission any={[PERMISSIONS.returnRead, PERMISSIONS.returnManage]}><Lazy><ReturnList /></Lazy></RequirePermission>) },
           { path: ROUTES.returnNew, element: (<RequirePermission any={[PERMISSIONS.returnManage]}><Lazy><ReturnCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.returnEdit(), element: (<RequirePermission any={[PERMISSIONS.returnManage]}><Lazy><ReturnCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.returnDetail(), element: (<RequirePermission any={[PERMISSIONS.returnRead, PERMISSIONS.returnManage]}><Lazy><ReturnDetail /></Lazy></RequirePermission>) },
 
           { path: ROUTES.refunds, element: (<RequirePermission any={[PERMISSIONS.refundRead, PERMISSIONS.refundManage]}><Lazy><RefundList /></Lazy></RequirePermission>) },
           { path: ROUTES.refundNew, element: (<RequirePermission any={[PERMISSIONS.refundManage]}><Lazy><RefundCreate /></Lazy></RequirePermission>) },
+          { path: ROUTES.refundEdit(), element: (<RequirePermission any={[PERMISSIONS.refundManage]}><Lazy><RefundCreate /></Lazy></RequirePermission>) },
           { path: ROUTES.refundDetail(), element: (<RequirePermission any={[PERMISSIONS.refundRead, PERMISSIONS.refundManage]}><Lazy><RefundDetail /></Lazy></RequirePermission>) },
 
           // Phase 5 — AR Ops

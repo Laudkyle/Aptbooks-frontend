@@ -208,6 +208,7 @@ export default function VendorPaymentDetail() {
           onAction={setAction}
           documentType="payment_out"
           documentId={id}
+          editHref={String(status).toLowerCase() === 'draft' ? ROUTES.vendorPaymentEdit(id) : null}
         />
 
         <div className="grid gap-6 lg:grid-cols-3">

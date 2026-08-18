@@ -7,6 +7,8 @@ export function makeInvoicesApi(http) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.invoices.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpoints.modules.transactions.invoices.detail(id))).data,
+    update: async (id, body, { idempotencyKey } = {}) =>
+      (await http.put(endpoints.modules.transactions.invoices.update(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     determineTaxes: async (body, { id = 'preview', idempotencyKey } = {}) =>
       (await http.post(endpoints.modules.transactions.invoices.determineTaxes(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     getEinvoicePreview: async (id) => (await http.get(endpoints.modules.transactions.invoices.einvoicePreview(id))).data,

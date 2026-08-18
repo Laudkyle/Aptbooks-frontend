@@ -1,8 +1,8 @@
 import { clientLogger } from "../../../shared/utils/clientLogger.js";
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2, DollarSign, Calendar, User, FileText, FilePlus2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
@@ -21,6 +21,7 @@ import { makeUsersApi } from '../../foundation/users/api/users.api.js';
 import { endpoints } from '../../../shared/api/endpoints.js';
 import { getPhase1ModuleConfig } from './moduleConfigs.js';
 import { makeEmptyForm, sanitizePayload, toCurrency } from './helpers.js';
+import { hydrateOperationalDraft } from '../utils/draftHydration.js';
 
 // Generate UUID v4
 function generateUUID() {
@@ -34,6 +35,8 @@ function generateUUID() {
 export default function OperationalDocCreate({ moduleKey }) {
   const config = getPhase1ModuleConfig(moduleKey);
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditing = !!editId;
   const toast = useToast();
   const { http } = useApi();
   const api = useMemo(() => makeOpsDocsApi(http, config.endpoints), [http, config]);
@@ -43,6 +46,24 @@ export default function OperationalDocCreate({ moduleKey }) {
   const usersApi = useMemo(() => makeUsersApi(http), [http]);
   
   const [form, setForm] = useState(() => makeEmptyForm(config));
+
+  const editQuery = useQuery({
+    queryKey: ['phase1-draft-edit', moduleKey, editId],
+    queryFn: () => api.get(editId),
+    enabled: isEditing
+  });
+
+  useEffect(() => {
+    if (!isEditing || !editQuery.data) return;
+    const detail = editQuery.data?.data ?? editQuery.data;
+    const header = detail?.header ?? {};
+    if (String(header.status ?? '').toLowerCase() !== 'draft') {
+      toast.error(`Only draft ${config.title.toLowerCase()} can be edited`);
+      navigate(config.routeDetail(editId), { replace: true });
+      return;
+    }
+    setForm(hydrateOperationalDraft(detail, makeEmptyForm(config)));
+  }, [isEditing, editId, editQuery.data, moduleKey]);
 
   // Fetch periods for date-based documents
   const periodsQuery = useQuery({
@@ -144,11 +165,12 @@ export default function OperationalDocCreate({ moduleKey }) {
     mutationFn: () => {
       // Generate fresh idempotency key for each mutation attempt
       const idempotencyKey = generateUUID();
-      return api.create(sanitizePayload(config, form), { idempotencyKey });
+      const body = sanitizePayload(config, form);
+      return isEditing ? api.update(editId, body, { idempotencyKey }) : api.create(body, { idempotencyKey });
     },
     onSuccess: (created) => {
-      toast.success(`${config.singular} created successfully.`);
-      const id = created?.id ?? created?.data?.id;
+      toast.success(isEditing ? `${config.singular} draft updated successfully.` : `${config.singular} created successfully.`);
+      const id = editId ?? created?.id ?? created?.data?.id;
       if (id) navigate(config.routeDetail(id));
       else navigate(config.routeList);
     },
@@ -225,7 +247,7 @@ export default function OperationalDocCreate({ moduleKey }) {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <Icon className="h-7 w-7 text-gray-700" />
-                <h1 className="text-2xl font-bold text-gray-900">Create New {config.singular}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{isEditing ? `Edit Draft ${config.singular}` : `Create New ${config.singular}`}</h1>
               </div>
               <p className="text-sm text-gray-600">
                 Fill in the details below to create a new {config.singular.toLowerCase()}
@@ -245,7 +267,7 @@ export default function OperationalDocCreate({ moduleKey }) {
                 disabled={create.isPending}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
-                {create.isPending ? 'Creating...' : `Create ${config.singular}`}
+                {create.isPending ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Draft Changes' : `Create ${config.singular}`)}
               </Button>
             </div>
           </div>

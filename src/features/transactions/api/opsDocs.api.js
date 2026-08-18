@@ -6,6 +6,8 @@ export function makeOpsDocsApi(http, endpointSet) {
     create: async (body, { idempotencyKey } = {}) =>
       (await http.post(endpointSet.create, body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     get: async (id) => (await http.get(endpointSet.detail(id))).data,
+    update: async (id, body, { idempotencyKey } = {}) =>
+      (await http.put((endpointSet.update ?? endpointSet.detail)(id), body, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     submitForApproval: async (id, { idempotencyKey } = {}) =>
       (await http.post(endpointSet.submitForApproval(id), null, { headers: ensureIdempotencyKey(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}) })).data,
     approve: async (id, body = {}, { idempotencyKey } = {}) =>

@@ -25,6 +25,7 @@ import { makeCreditNotesApi } from "../api/creditNotes.api.js";
 import { makeInvoicesApi } from "../api/invoices.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
 
+import { ROUTES } from '../../../app/constants/routes.js';
 import { PageHeader } from "../../../shared/components/layout/PageHeader.jsx";
 import { ContentCard } from "../../../shared/components/layout/ContentCard.jsx";
 import { Button } from "../../../shared/components/ui/Button.jsx";
@@ -412,9 +413,10 @@ export default function CreditNoteDetail() {
   const creditNoteNumber = note?.credit_note_no ?? note?.code ?? id;
   const customerName = note?.customer_name ?? "—";
   const creditNoteDate = note?.credit_note_date;
-  const totalAmount = parseFloat(note?.total ?? note?.amount ?? 0);
-  const subtotal = parseFloat(note?.subtotal ?? 0);
-  const taxTotal = parseFloat(note?.tax_total ?? 0);
+  const canonicalTotals = note?.detail_meta?.totals ?? {};
+  const totalAmount = parseFloat(canonicalTotals.total ?? note?.total ?? note?.amount ?? 0);
+  const subtotal = parseFloat(canonicalTotals.subtotal ?? note?.subtotal ?? 0);
+  const taxTotal = parseFloat(canonicalTotals.tax_total ?? note?.tax_total ?? 0);
   const memo = note?.memo;
   const currencyCode = note?.currency_code || "USD";
 
@@ -439,6 +441,7 @@ export default function CreditNoteDetail() {
       <TransactionWorkflowActionBar
         actions={availableActions}
         onAction={handleOpenAction}
+        editHref={String(status).toLowerCase() === 'draft' ? ROUTES.creditNoteEdit(id) : null}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
