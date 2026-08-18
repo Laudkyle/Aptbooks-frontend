@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   CheckCircle2,
@@ -11,7 +12,8 @@ import {
   Calendar,
   Inbox,
   FileText,
-  RefreshCw
+  RefreshCw,
+  ArrowRight
 } from 'lucide-react';
 
 import { useApi } from '../../../../shared/hooks/useApi.js';
@@ -26,6 +28,7 @@ import { Button } from '../../../../shared/components/ui/Button.jsx';
 import { Badge } from '../../../../shared/components/ui/Badge.jsx';
 import { Modal } from '../../../../shared/components/ui/Modal.jsx';
 import { useToast } from '../../../../shared/components/ui/Toast.jsx';
+import { getApprovalDetailRoute } from '../utils/approvalNavigation.js';
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
@@ -87,6 +90,7 @@ const SOURCE_TONES = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ApprovalQueue() {
+  const navigate = useNavigate();
   const { http } = useApi();
   const api         = useMemo(() => makeApprovalsApi(http),    [http]);
   const docTypesApi = useMemo(() => makeDocumentTypesApi(http), [http]);
@@ -182,6 +186,14 @@ export default function ApprovalQueue() {
   const handleConfirmApprove  = useCallback(() => { if (approveTarget) approveMutation.mutate(approveTarget); }, [approveTarget, approveMutation]);
   const handleConfirmReject   = useCallback(() => { if (rejectTarget) rejectMutation.mutate({ row: rejectTarget, reason: rejectReason || undefined }); }, [rejectTarget, rejectReason, rejectMutation]);
   const handleRefresh         = useCallback(() => refetch(), [refetch]);
+  const handleOpenRequest = useCallback((row) => {
+    const route = getApprovalDetailRoute(row);
+    if (!route) {
+      toast.error('No detail screen is available for this approval request.');
+      return;
+    }
+    navigate(route, { state: { fromApprovals: true, approvalRequest: row } });
+  }, [navigate, toast]);
 
   const handleSourceChange = useCallback((e) => {
     const val = e.target.value;
@@ -377,7 +389,17 @@ export default function ApprovalQueue() {
                   return (
                     <tr
                       key={row.approval_id ?? row.document_id ?? row.entity_id ?? idx}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-slate-50 transition-colors cursor-pointer focus-within:bg-slate-50"
+                      onClick={() => handleOpenRequest(row)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          handleOpenRequest(row);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Open ${ref}`}
                     >
                       <TD>
                         <Badge tone={sourceTone} className="whitespace-nowrap">
@@ -387,7 +409,7 @@ export default function ApprovalQueue() {
 
                       <TD>
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-slate-900 text-sm">{ref ?? '—'}</span>
+                          <span className="font-medium text-blue-700 text-sm hover:underline">{ref ?? '—'}</span>
                           {/* Show document type name inline for documents rows */}
                           {row.document_type_name && (
                             <span className="text-xs text-slate-400">{row.document_type_name}</span>
@@ -420,7 +442,16 @@ export default function ApprovalQueue() {
                       </TD>
 
                       <TD className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            leftIcon={ArrowRight}
+                            disabled={isBusy}
+                            onClick={() => handleOpenRequest(row)}
+                          >
+                            Open
+                          </Button>
                           <Button
                             size="sm"
                             leftIcon={CheckCircle2}
@@ -526,7 +557,7 @@ export default function ApprovalQueue() {
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-red-900">
                 <div className="font-medium mb-1">Confirm Rejection</div>
-                <div className="text-red-700">This action will reject the request. You may optionally provide a reason.</div>
+                <div className="text-red-700">This action will reject the request. A rejection reason is optional.</div>
               </div>
             </div>
           </div>

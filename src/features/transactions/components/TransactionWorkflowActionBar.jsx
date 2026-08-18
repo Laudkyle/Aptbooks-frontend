@@ -1,4 +1,5 @@
 import { CheckCircle2, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { TransactionPrintButtons } from '../../printing/components/TransactionPrintButtons.jsx';
@@ -29,6 +30,8 @@ function ActionButton({ action, onClick, size = 'sm' }) {
 }
 
 export function TransactionWorkflowActionBar({ actions, onAction, documentType, documentId }) {
+  const [searchParams] = useSearchParams();
+  const fromApprovals = searchParams.get('from') === 'approvals';
   // Create a default submit action if no actions are provided
   const defaultSubmitAction = {
     key: 'submit',
@@ -45,7 +48,12 @@ export function TransactionWorkflowActionBar({ actions, onAction, documentType, 
   if (!hasAnyAction) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div className={`bg-white rounded-lg shadow-sm border p-4 mb-6 ${fromApprovals ? 'border-blue-300 ring-1 ring-blue-100' : 'border-gray-200'}`}>
+      {fromApprovals ? (
+        <div className="mb-3 text-sm text-blue-800 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+          Approval request: review the document details, then approve or reject it below. A rejection reason is optional.
+        </div>
+      ) : null}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm font-medium text-gray-700">Actions:</span>
         <ActionButton action={forwardAction} onClick={onAction} size="sm" />

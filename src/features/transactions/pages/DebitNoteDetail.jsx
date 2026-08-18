@@ -954,7 +954,7 @@ export default function DebitNoteDetail() {
           {action === "approve" || action === "reject" ? (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Comment {action === "reject" ? "(recommended)" : "(optional)"}
+                {action === "reject" ? "Rejection reason (optional)" : "Comment (optional)"}
               </label>
               <Textarea
                 rows={4}

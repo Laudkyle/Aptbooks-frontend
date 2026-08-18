@@ -441,11 +441,11 @@ export default function OperationalDocDetail({ moduleKey }) {
           <div className="space-y-4">
             {(action === 'approve' || action === 'reject') && (
               <Textarea 
-                label="Comment" 
+                label={action === 'reject' ? 'Rejection reason (optional)' : 'Comment (optional)'} 
                 rows={4} 
                 value={comment} 
                 onChange={(e) => setComment(e.target.value)} 
-                placeholder="Optional comment" 
+                placeholder={action === 'reject' ? 'Optionally explain why this request is being rejected' : 'Optional comment'} 
               />
             )}
             {action === 'void' && (

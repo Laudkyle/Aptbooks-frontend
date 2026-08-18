@@ -697,8 +697,7 @@ export default function VendorPaymentDetail() {
               ) : (
                 <>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Comment{" "}
-                    {action === "reject" ? "(recommended)" : "(optional)"}
+                    {action === "reject" ? "Rejection reason (optional)" : "Comment (optional)"}
                   </label>
                   <Textarea
                     rows={4}
