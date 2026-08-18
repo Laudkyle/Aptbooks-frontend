@@ -21,6 +21,7 @@ import {
 
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { qk } from "../../../shared/query/keys.js";
+import { invalidateFinancialImpact } from "../../../shared/query/invalidateFinancialImpact.js";
 import { makeCreditNotesApi } from "../api/creditNotes.api.js";
 import { makeInvoicesApi } from "../api/invoices.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
@@ -247,6 +248,7 @@ export default function CreditNoteDetail() {
       throw new Error("Unknown action");
     },
     onSuccess: (response) => {
+      if (action === "void") invalidateFinancialImpact(qc);
       if (action === "apply") {
         const appliedAmount = Number(applyBody.amountApplied || 0);
         qc.setQueryData(qk.creditNote(id), (old) => {

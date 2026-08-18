@@ -12,6 +12,7 @@ import {
 
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { qk } from "../../../shared/query/keys.js";
+import { invalidateFinancialImpact } from "../../../shared/query/invalidateFinancialImpact.js";
 import { makeBillsApi } from "../api/bills.api.js";
 import { makeDebitNotesApi } from "../api/debitNotes.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
@@ -88,6 +89,7 @@ export default function BillDetail() {
     },
     onSuccess: () => {
       toast.success("Action completed successfully");
+      if (action === "void") invalidateFinancialImpact(qc);
       qc.invalidateQueries({ queryKey: qk.bill(id) });
       setAction(null);
       setComment("");

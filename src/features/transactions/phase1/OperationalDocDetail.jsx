@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { useApi } from '../../../shared/hooks/useApi.js';
 import { qk } from '../../../shared/query/keys.js';
+import { invalidateFinancialImpact } from '../../../shared/query/invalidateFinancialImpact.js';
 import { useToast } from '../../../shared/components/ui/Toast.jsx';
 import { Button } from '../../../shared/components/ui/Button.jsx';
 import { Modal } from '../../../shared/components/ui/Modal.jsx';
@@ -74,6 +75,7 @@ export default function OperationalDocDetail({ moduleKey }) {
     },
     onSuccess: (res, vars) => {
       toast.success(`${config.singular} ${vars.key} action completed.`);
+      if (vars.key === 'void') invalidateFinancialImpact(qc);
       setAction(null); 
       setComment(''); 
       setVoidReason('');

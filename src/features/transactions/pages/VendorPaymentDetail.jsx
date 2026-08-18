@@ -17,6 +17,7 @@ import {
 
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { qk } from "../../../shared/query/keys.js";
+import { invalidateFinancialImpact } from "../../../shared/query/invalidateFinancialImpact.js";
 import { makeVendorPaymentsApi } from "../api/vendorPayments.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
 import { ROUTES } from "../../../app/constants/routes.js";
@@ -89,6 +90,7 @@ export default function VendorPaymentDetail() {
     },
     onSuccess: () => {
       toast.success("Action completed successfully");
+      if (action === "void") invalidateFinancialImpact(qc);
       qc.invalidateQueries({ queryKey: qk.vendorPayment(id) });
       setAction(null);
       setComment("");

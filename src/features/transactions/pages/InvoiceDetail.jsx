@@ -12,6 +12,7 @@ import {
 
 import { useApi } from "../../../shared/hooks/useApi.js";
 import { qk } from "../../../shared/query/keys.js";
+import { invalidateFinancialImpact } from "../../../shared/query/invalidateFinancialImpact.js";
 import { makeInvoicesApi } from "../api/invoices.api.js";
 import { makeCreditNotesApi } from "../api/creditNotes.api.js";
 import { formatDate } from "../../../shared/utils/formatDate.js";
@@ -99,6 +100,7 @@ export default function InvoiceDetail() {
     },
     onSuccess: () => {
       toast.success("Action completed successfully");
+      if (action === "void") invalidateFinancialImpact(qc);
       qc.invalidateQueries({ queryKey: qk.invoice(id) });
       setAction(null);
       setComment("");
